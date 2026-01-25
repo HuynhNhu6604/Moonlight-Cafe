@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đơn hàng của tôi - Moonlight Cafe</title>
+
+    <!-- Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/mobile.css">
+
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <style>
+        .page-header {
+            background: linear-gradient(135deg, var(--bg-dark), var(--primary));
+            padding: 120px 0 60px;
+            text-align: center;
+        }
+
+        .orders-section {
+            padding: 60px 0;
+        }
+
+        .orders-container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        /* Login Required */
+        .login-required {
+            text-align: center;
+            padding: 80px 20px;
+            background: var(--bg-card);
+            border-radius: var(--radius-md);
+        }
+
+        .login-required i {
+            font-size: 4rem;
+            color: var(--accent);
+            margin-bottom: 1.5rem;
+        }
+
+        .login-required h2 {
+            margin-bottom: 1rem;
+        }
+
+        .login-required p {
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+        }
+
+        /* Order Card */
+        .order-card {
+            background: var(--bg-card);
+            border-radius: var(--radius-md);
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 25px;
+            background: var(--primary-light);
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .order-id {
+            font-weight: 600;
+        }
+
+        .order-id span {
+            color: var(--accent);
+        }
+
+        .order-date {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .order-status {
+            padding: 6px 14px;
+            border-radius: var(--radius-full);
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .status-pending {
+            background: rgba(251, 191, 36, 0.2);
+            color: var(--warning);
+        }
+
+        .status-confirmed {
+            background: rgba(96, 165, 250, 0.2);
+            color: var(--info);
+        }
+
+        .status-shipping {
+            background: rgba(139, 92, 246, 0.2);
+            color: #8b5cf6;
+        }
+
+        .status-completed {
+            background: rgba(74, 222, 128, 0.2);
+            color: var(--success);
+        }
+
+        .status-cancelled {
+            background: rgba(248, 113, 113, 0.2);
+            color: var(--danger);
+        }
+
+        .order-body {
+            padding: 20px 25px;
+        }
+
+        .order-items {
+            margin-bottom: 20px;
+        }
+
+        .order-item {
+            display: flex;
+            gap: 15px;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--secondary);
+        }
+
+        .order-item:last-child {
+            border-bottom: none;
+        }
+
+        .order-item-img {
+            width: 60px;
+            height: 50px;
+            object-fit: cover;
+            border-radius: var(--radius-sm);
+        }
+
+        .order-item-info {
+            flex: 1;
+        }
+
+        .order-item-info h4 {
+            font-size: 0.95rem;
+            margin-bottom: 3px;
+        }
+
+        .order-item-info p {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin: 0;
+        }
+
+        .order-item-price {
+            font-weight: 600;
+            color: var(--accent);
+        }
+
+        .order-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 20px;
+            border-top: 1px solid var(--secondary);
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .order-total {
+            font-size: 1.1rem;
+        }
+
+        .order-total span {
+            font-weight: 600;
+            color: var(--accent);
+            font-size: 1.25rem;
+        }
+
+        .order-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        /* Empty Orders */
+        .empty-orders {
+            text-align: center;
+            padding: 80px 20px;
+            background: var(--bg-card);
+            border-radius: var(--radius-md);
+        }
+
+        .empty-orders i {
+            font-size: 4rem;
+            color: var(--text-muted);
+            margin-bottom: 1.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .order-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .order-footer {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .order-actions {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Loading Overlay -->
+    <div class="loading-overlay">
+        <div class="loader"></div>
+    </div>
+
+    <!-- Header -->
+    <header class="header" id="header">
+        <div class="container">
+            <nav class="nav">
+                <a href="index.html" class="nav-brand">
+                    <span>🌙</span>
+                    <span class="nav-brand-text">Moonlight Cafe</span>
+                </a>
+
+                <ul class="nav-menu" id="navMenu">
+                    <li><a href="index.html" class="nav-link">Trang chủ</a></li>
+                    <li><a href="menu.html" class="nav-link">Menu</a></li>
+                    <li><a href="news.html" class="nav-link">Tin tức</a></li>
+                </ul>
+
+                <div class="nav-actions">
+                    <a href="cart.html" class="nav-icon">
+                        <i class="fas fa-shopping-bag"></i>
+                        <span class="badge" id="cartCount">0</span>
+                    </a>
+                    <a href="login.html" class="nav-icon" id="userIcon">
+                        <i class="fas fa-user"></i>
+                    </a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Page Header -->
+    <section class="page-header">
+        <div class="container">
+            <h1>Đơn hàng của tôi</h1>
+        </div>
+    </section>
+
+    <!-- Orders Section -->
+    <section class="orders-section">
+        <div class="container">
+            <div class="orders-container" id="ordersContainer">
+                <!-- Orders will be loaded here -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-bottom">
+                <p>&copy; 2024 Moonlight Cafe. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script type="module">
+        import { auth, db, ref, get, update, query, orderByChild, equalTo, onAuthStateChanged } from './js/firebase-config.js';
+
+        const ordersContainer = document.getElementById('ordersContainer');
+        let currentUser = null;
+
+        // Loading
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                document.querySelector('.loading-overlay').classList.add('hidden');
+            }, 500);
+        });
+
+        // Header scroll
+        window.addEventListener('scroll', () => {
+            const header = document.getElementById('header');
+            header.classList.toggle('scrolled', window.scrollY > 50);
+        });
+
+        // Format price
+        function formatPrice(price) {
+            return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
+        }
+
+        // Format date
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('vi-VN', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        // Get status text and class
+        function getStatusInfo(status) {
+            const statusMap = {
+                'pending': { text: 'Chờ xác nhận', class: 'status-pending' },
+                'confirmed': { text: 'Đã xác nhận', class: 'status-confirmed' },
+                'shipping': { text: 'Đang giao hàng', class: 'status-shipping' },
+                'completed': { text: 'Hoàn thành', class: 'status-completed' },
+                'cancelled': { text: 'Đã hủy', class: 'status-cancelled' }
+            };
+            return statusMap[status] || { text: status, class: 'status-pending' };
+        }
+
+        // Update cart count
+        function updateCartCount() {
+            const cart = JSON.parse(localStorage.getItem('moonlight_cart')) || [];
+            const total = cart.reduce((sum, item) => sum + item.quantity, 0);
+            document.getElementById('cartCount').textContent = total;
+        }
+
+        // Show login required
+        function showLoginRequired() {
+            ordersContainer.innerHTML = `
+                <div class="login-required">
+                    <i class="fas fa-lock"></i>
+                    <h2>Vui lòng đăng nhập</h2>
+                    <p>Bạn cần đăng nhập để xem lịch sử đơn hàng</p>
+                    <a href="login.html" class="btn btn-primary">
+                        <i class="fas fa-sign-in-alt"></i> Đăng nhập
+                    </a>
+                </div>
+            `;
+        }
+
+        // Load orders
+        async function loadOrders() {
+            if (!currentUser) {
+                showLoginRequired();
+                return;
+            }
+
+            try {
+                const ordersRef = ref(db, 'orders');
+                const snapshot = await get(ordersRef);
+
+                if (!snapshot.exists()) {
+                    showEmptyOrders();
+                    return;
+                }
+
+                const orders = [];
+                snapshot.forEach((child) => {
+                    const order = child.val();
+                    order.id = child.key;
+                    if (order.userId === currentUser.uid) {
+                        orders.push(order);
+                    }
+                });
+
+                // Sort by date descending
+                orders.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+                if (orders.length === 0) {
+                    showEmptyOrders();
+                    return;
+                }
+
+                renderOrders(orders);
+
+            } catch (error) {
+                console.error('Error loading orders:', error);
+                ordersContainer.innerHTML = `
+                    <div class="empty-orders">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <h2>Có lỗi xảy ra</h2>
+                        <p>Không thể tải đơn hàng. Vui lòng thử lại sau.</p>
+                    </div>
+                `;
+            }
+        }
+
+        function showEmptyOrders() {
+            ordersContainer.innerHTML = `
+                <div class="empty-orders">
+                    <i class="fas fa-box-open"></i>
+                    <h2>Chưa có đơn hàng</h2>
+                    <p>Bạn chưa có đơn hàng nào. Hãy khám phá menu của chúng tôi!</p>
+                    <a href="menu.html" class="btn btn-primary">
+                        <i class="fas fa-coffee"></i> Xem Menu
+                    </a>
+                </div>
+            `;
+        }
+
+        function renderOrders(orders) {
+            ordersContainer.innerHTML = orders.map(order => {
+                const statusInfo = getStatusInfo(order.status);
+                const canCancel = order.status === 'pending';
+
+                return `
+                    <div class="order-card">
+                        <div class="order-header">
+                            <div>
+                                <p class="order-id">Đơn hàng: <span>#${order.id.slice(-8).toUpperCase()}</span></p>
+                                <p class="order-date">${formatDate(order.createdAt)}</p>
+                            </div>
+                            <span class="order-status ${statusInfo.class}">${statusInfo.text}</span>
+                        </div>
+                        
+                        <div class="order-body">
+                            <div class="order-items">
+                                ${order.items.slice(0, 3).map(item => `
+                                    <div class="order-item">
+                                        <img src="${item.imageUrl || 'https://via.placeholder.com/60x50'}" 
+                                             alt="${item.name}" class="order-item-img">
+                                        <div class="order-item-info">
+                                            <h4>${item.name}</h4>
+                                            <p>x${item.quantity}</p>
+                                        </div>
+                                        <span class="order-item-price">${formatPrice(item.price * item.quantity)}</span>
+                                    </div>
+                                `).join('')}
+                                ${order.items.length > 3 ? `
+                                    <p style="text-align: center; color: var(--text-muted); padding-top: 10px;">
+                                        +${order.items.length - 3} sản phẩm khác
+                                    </p>
+                                ` : ''}
+                            </div>
+                            
+                            <div class="order-footer">
+                                <div class="order-total">
+                                    Tổng cộng: <span>${formatPrice(order.total)}</span>
+                                </div>
+                                <div class="order-actions">
+                                    <button class="btn btn-outline btn-sm" onclick="viewOrderDetail('${order.id}')">
+                                        <i class="fas fa-eye"></i> Chi tiết
+                                    </button>
+                                    ${canCancel ? `
+                                        <button class="btn btn-danger btn-sm" onclick="cancelOrder('${order.id}')">
+                                            <i class="fas fa-times"></i> Hủy đơn
+                                        </button>
+                                    ` : ''}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // View order detail
+        window.viewOrderDetail = function (orderId) {
+            // Navigate to order detail or show modal
+            Swal.fire({
+                title: 'Chi tiết đơn hàng',
+                text: `Mã đơn: #${orderId.slice(-8).toUpperCase()}`,
+                icon: 'info'
+            });
+        };
+
+        // Cancel order
+        window.cancelOrder = async function (orderId) {
+            const result = await Swal.fire({
+                title: 'Hủy đơn hàng?',
+                text: 'Bạn có chắc muốn hủy đơn hàng này?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#f87171',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Hủy đơn',
+                cancelButtonText: 'Quay lại'
+            });
+
+            if (result.isConfirmed) {
+                try {
+                    await update(ref(db, `orders/${orderId}`), {
+                        status: 'cancelled',
+                        cancelledAt: new Date().toISOString()
+                    });
+
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Đã hủy đơn hàng!',
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
+
+                    loadOrders();
+                } catch (error) {
+                    console.error('Error cancelling order:', error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Lỗi!',
+                        text: 'Không thể hủy đơn hàng. Vui lòng thử lại.'
+                    });
+                }
+            }
+        };
+
+        // Auth state listener
+        onAuthStateChanged(auth, (user) => {
+            currentUser = user;
+            loadOrders();
+
+            if (user) {
+                document.getElementById('userIcon').href = '#';
+            }
+        });
+
+        // Initialize
+        updateCartCount();
+    </script>
+</body>
+
+</html>

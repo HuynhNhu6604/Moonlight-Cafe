@@ -1,0 +1,1072 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Moonlight Cafe - Cà phê & Bánh ngọt</title>
+    <meta name="description" content="Moonlight Cafe - Nơi thưởng thức cà phê và bánh ngọt thượng hạng trong không gian ấm cúng dưới ánh trăng.">
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/mobile.css">
+    
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+    <!-- Loading Overlay -->
+    <div class="loading-overlay">
+        <div class="loader"></div>
+    </div>
+
+    <!-- Navigation Overlay -->
+    <div class="nav-overlay" id="navOverlay"></div>
+
+    <!-- Header -->
+    <header class="header" id="header">
+        <div class="container">
+            <nav class="nav">
+                <a href="index.html" class="nav-brand">
+                    <span class="nav-brand-icon">🌙</span>
+                    <span class="nav-brand-text">Moonlight Cafe</span>
+                </a>
+                
+                <ul class="nav-menu" id="navMenu">
+                    <li><a href="index.html" class="nav-link active">Trang chủ</a></li>
+                    <li><a href="menu.html" class="nav-link">Menu</a></li>
+                    <li><a href="news.html" class="nav-link">Tin tức</a></li>
+                    <li><a href="about.html" class="nav-link">Về chúng tôi</a></li>
+                </ul>
+                
+                <div class="nav-actions">
+                    <a href="cart.html" class="nav-icon" id="cartIcon">
+                        <i class="fas fa-shopping-bag"></i>
+                        <span class="badge" id="cartCount">0</span>
+                    </a>
+                    <a href="#" class="nav-icon" id="userIcon">
+                        <i class="fas fa-user"></i>
+                    </a>
+                    <div class="nav-toggle" id="navToggle">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero" id="hero">
+        <div class="container">
+            <div class="hero-content">
+                <span class="hero-subtitle">✨ Chào mừng đến với Moonlight</span>
+                <h1 class="hero-title">Thưởng thức <span>Cà phê</span> dưới ánh trăng</h1>
+                <p class="hero-description">
+                    Nơi hội tụ của hương vị cà phê thượng hạng và những chiếc bánh ngọt tinh tế. 
+                    Tận hưởng không gian ấm cúng, lãng mạn dưới ánh trăng.
+                </p>
+                <div class="hero-buttons">
+                    <a href="menu.html" class="btn btn-primary">
+                        <i class="fas fa-coffee"></i> Xem Menu
+                    </a>
+                    <a href="#featured" class="btn btn-outline">
+                        <i class="fas fa-star"></i> Món nổi bật
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Hero Background Elements -->
+        <div class="hero-bg-elements">
+            <div class="hero-moon"></div>
+            <div class="hero-stars"></div>
+        </div>
+    </section>
+
+    <!-- Featured Menu Section -->
+    <section class="section" id="featured">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-subtitle">Menu nổi bật</span>
+                <h2 class="section-title">Đặc sản của chúng tôi</h2>
+                <div class="section-divider"></div>
+            </div>
+            
+            <div class="product-grid" id="featuredProducts">
+                <!-- Products will be loaded from Firebase -->
+                <div class="product-card skeleton">
+                    <div class="product-img-wrapper">
+                        <div class="skeleton-img"></div>
+                    </div>
+                    <div class="product-info">
+                        <div class="skeleton-text"></div>
+                        <div class="skeleton-text short"></div>
+                    </div>
+                </div>
+                <div class="product-card skeleton">
+                    <div class="product-img-wrapper">
+                        <div class="skeleton-img"></div>
+                    </div>
+                    <div class="product-info">
+                        <div class="skeleton-text"></div>
+                        <div class="skeleton-text short"></div>
+                    </div>
+                </div>
+                <div class="product-card skeleton">
+                    <div class="product-img-wrapper">
+                        <div class="skeleton-img"></div>
+                    </div>
+                    <div class="product-info">
+                        <div class="skeleton-text"></div>
+                        <div class="skeleton-text short"></div>
+                    </div>
+                </div>
+                <div class="product-card skeleton">
+                    <div class="product-img-wrapper">
+                        <div class="skeleton-img"></div>
+                    </div>
+                    <div class="product-info">
+                        <div class="skeleton-text"></div>
+                        <div class="skeleton-text short"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="text-center mt-5">
+                <a href="menu.html" class="btn btn-outline">
+                    Xem tất cả <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section class="section about-section">
+        <div class="container">
+            <div class="about-grid">
+                <div class="about-image">
+                    <img src="https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=600" alt="Moonlight Cafe Interior">
+                    <div class="about-badge">
+                        <span class="badge-number">5+</span>
+                        <span class="badge-text">Năm kinh nghiệm</span>
+                    </div>
+                </div>
+                <div class="about-content">
+                    <span class="section-subtitle">Câu chuyện của chúng tôi</span>
+                    <h2 class="section-title">Nơi những tách cà phê kể chuyện</h2>
+                    <p>
+                        Moonlight Cafe ra đời từ tình yêu với cà phê và mong muốn tạo ra một không gian 
+                        nơi mọi người có thể thư giãn, kết nối và tận hưởng những khoảnh khắc đẹp.
+                    </p>
+                    <p>
+                        Chúng tôi tự hào với nguồn nguyên liệu cao cấp, được tuyển chọn kỹ lưỡng từ 
+                        các vùng trồng cà phê nổi tiếng và những công thức bánh độc quyền.
+                    </p>
+                    <div class="about-features">
+                        <div class="about-feature">
+                            <i class="fas fa-leaf"></i>
+                            <span>100% Organic</span>
+                        </div>
+                        <div class="about-feature">
+                            <i class="fas fa-award"></i>
+                            <span>Chất lượng cao</span>
+                        </div>
+                        <div class="about-feature">
+                            <i class="fas fa-heart"></i>
+                            <span>Làm với tình yêu</span>
+                        </div>
+                    </div>
+                    <a href="about.html" class="btn btn-primary mt-3">
+                        Tìm hiểu thêm <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section class="section testimonials-section">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-subtitle">Đánh giá</span>
+                <h2 class="section-title">Khách hàng nói gì về chúng tôi</h2>
+                <div class="section-divider"></div>
+            </div>
+            
+            <div class="testimonials-slider" id="testimonials">
+                <div class="testimonial-card">
+                    <div class="testimonial-rating">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <p class="testimonial-text">
+                        "Cà phê ở đây thực sự rất ngon! Không gian lung linh dưới ánh đèn vàng ấm. 
+                        Đây là nơi tuyệt vời để làm việc và thư giãn."
+                    </p>
+                    <div class="testimonial-author">
+                        <img src="https://i.pravatar.cc/100?img=1" alt="Customer">
+                        <div class="testimonial-author-info">
+                            <h5>Nguyễn Minh Anh</h5>
+                            <span>Khách hàng thường xuyên</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="testimonial-card">
+                    <div class="testimonial-rating">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <p class="testimonial-text">
+                        "Bánh ngọt ở Moonlight là ngon nhất mà tôi từng ăn! 
+                        Đặc biệt là Tiramisu, mỗi lần ghé là phải order một miếng."
+                    </p>
+                    <div class="testimonial-author">
+                        <img src="https://i.pravatar.cc/100?img=5" alt="Customer">
+                        <div class="testimonial-author-info">
+                            <h5>Trần Hương Giang</h5>
+                            <span>Food Blogger</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="testimonial-card">
+                    <div class="testimonial-rating">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star-half-alt"></i>
+                    </div>
+                    <p class="testimonial-text">
+                        "Nhân viên thân thiện, phục vụ nhanh. Đặt hàng online rất tiện, 
+                        giao hàng đúng giờ và đồ uống vẫn giữ nguyên chất lượng!"
+                    </p>
+                    <div class="testimonial-author">
+                        <img src="https://i.pravatar.cc/100?img=8" alt="Customer">
+                        <div class="testimonial-author-info">
+                            <h5>Lê Văn Hùng</h5>
+                            <span>Doanh nhân</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Gallery Section -->
+    <section class="section gallery-section">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-subtitle">Hình ảnh</span>
+                <h2 class="section-title">Không gian Moonlight</h2>
+                <div class="section-divider"></div>
+            </div>
+            
+            <div class="gallery-grid">
+                <div class="gallery-item large">
+                    <img src="https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=600" alt="Coffee Shop Interior">
+                    <div class="gallery-overlay">
+                        <i class="fas fa-expand"></i>
+                    </div>
+                </div>
+                <div class="gallery-item">
+                    <img src="https://images.unsplash.com/photo-1511920170033-f8396924c348?w=400" alt="Coffee Cup">
+                    <div class="gallery-overlay">
+                        <i class="fas fa-expand"></i>
+                    </div>
+                </div>
+                <div class="gallery-item">
+                    <img src="https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=400" alt="Latte Art">
+                    <div class="gallery-overlay">
+                        <i class="fas fa-expand"></i>
+                    </div>
+                </div>
+                <div class="gallery-item">
+                    <img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400" alt="Pastries">
+                    <div class="gallery-overlay">
+                        <i class="fas fa-expand"></i>
+                    </div>
+                </div>
+                <div class="gallery-item">
+                    <img src="https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=400" alt="Cafe Atmosphere">
+                    <div class="gallery-overlay">
+                        <i class="fas fa-expand"></i>
+                    </div>
+                </div>
+                <div class="gallery-item large">
+                    <img src="https://images.unsplash.com/photo-1445116572660-236099ec97a0?w=600" alt="Cozy Corner">
+                    <div class="gallery-overlay">
+                        <i class="fas fa-expand"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="section cta-section">
+        <div class="container">
+            <div class="cta-content">
+                <h2>Sẵn sàng thưởng thức?</h2>
+                <p>Đặt hàng online ngay hôm nay và nhận ưu đãi 10% cho đơn hàng đầu tiên!</p>
+                <div class="cta-buttons">
+                    <a href="menu.html" class="btn btn-primary btn-lg">
+                        <i class="fas fa-shopping-bag"></i> Đặt hàng ngay
+                    </a>
+                    <a href="tel:0123456789" class="btn btn-outline btn-lg">
+                        <i class="fas fa-phone"></i> 0123 456 789
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <div class="footer-brand">
+                        <span class="nav-brand-icon">🌙</span>
+                        <span class="nav-brand-text">Moonlight Cafe</span>
+                    </div>
+                    <p>
+                        Nơi thưởng thức cà phê và bánh ngọt thượng hạng 
+                        trong không gian ấm cúng dưới ánh trăng.
+                    </p>
+                    <div class="footer-social">
+                        <a href="#"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-tiktok"></i></a>
+                        <a href="#"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+                
+                <div class="footer-col">
+                    <h4 class="footer-title">Liên kết nhanh</h4>
+                    <ul class="footer-links">
+                        <li><a href="index.html">Trang chủ</a></li>
+                        <li><a href="menu.html">Menu</a></li>
+                        <li><a href="news.html">Tin tức</a></li>
+                        <li><a href="about.html">Về chúng tôi</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-col">
+                    <h4 class="footer-title">Hỗ trợ</h4>
+                    <ul class="footer-links">
+                        <li><a href="orders.html">Theo dõi đơn hàng</a></li>
+                        <li><a href="#">Chính sách đổi trả</a></li>
+                        <li><a href="#">FAQ</a></li>
+                        <li><a href="#">Liên hệ</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-col">
+                    <h4 class="footer-title">Liên hệ</h4>
+                    <ul class="footer-contact">
+                        <li>
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span>123 Đường ABC, Quận 1, TP.HCM</span>
+                        </li>
+                        <li>
+                            <i class="fas fa-phone"></i>
+                            <span>0123 456 789</span>
+                        </li>
+                        <li>
+                            <i class="fas fa-envelope"></i>
+                            <span>hello@moonlightcafe.vn</span>
+                        </li>
+                        <li>
+                            <i class="fas fa-clock"></i>
+                            <span>7:00 - 22:00 hàng ngày</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2024 Moonlight Cafe. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- User Dropdown Menu -->
+    <div class="user-dropdown" id="userDropdown">
+        <div class="user-dropdown-header" id="userInfo">
+            <i class="fas fa-user-circle"></i>
+            <span>Khách</span>
+        </div>
+        <div class="user-dropdown-menu">
+            <a href="login.html" class="dropdown-item" id="loginBtn">
+                <i class="fas fa-sign-in-alt"></i> Đăng nhập
+            </a>
+            <a href="register.html" class="dropdown-item" id="registerBtn">
+                <i class="fas fa-user-plus"></i> Đăng ký
+            </a>
+            <a href="orders.html" class="dropdown-item logged-in-only hidden">
+                <i class="fas fa-box"></i> Đơn hàng của tôi
+            </a>
+            <a href="#" class="dropdown-item logged-in-only hidden" id="logoutBtn">
+                <i class="fas fa-sign-out-alt"></i> Đăng xuất
+            </a>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script type="module">
+        import { auth, db, onAuthStateChanged, ref, get, onValue } from './js/firebase-config.js';
+        
+        // DOM Elements
+        const header = document.getElementById('header');
+        const navToggle = document.getElementById('navToggle');
+        const navMenu = document.getElementById('navMenu');
+        const navOverlay = document.getElementById('navOverlay');
+        const userIcon = document.getElementById('userIcon');
+        const userDropdown = document.getElementById('userDropdown');
+        const cartCount = document.getElementById('cartCount');
+        const featuredProducts = document.getElementById('featuredProducts');
+        
+        // Loading
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                document.querySelector('.loading-overlay').classList.add('hidden');
+            }, 800);
+        });
+        
+        // Header scroll effect
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+        });
+        
+        // Mobile menu toggle
+        navToggle.addEventListener('click', () => {
+            navMenu.classList.toggle('active');
+            navOverlay.classList.toggle('active');
+        });
+        
+        navOverlay.addEventListener('click', () => {
+            navMenu.classList.remove('active');
+            navOverlay.classList.remove('active');
+        });
+        
+        // User dropdown toggle
+        userIcon.addEventListener('click', (e) => {
+            e.preventDefault();
+            userDropdown.classList.toggle('active');
+        });
+        
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!userIcon.contains(e.target) && !userDropdown.contains(e.target)) {
+                userDropdown.classList.remove('active');
+            }
+        });
+        
+        // Auth state listener
+        onAuthStateChanged(auth, (user) => {
+            const userInfo = document.getElementById('userInfo');
+            const loginBtn = document.getElementById('loginBtn');
+            const registerBtn = document.getElementById('registerBtn');
+            const loggedInItems = document.querySelectorAll('.logged-in-only');
+            
+            if (user) {
+                userInfo.innerHTML = `
+                    <i class="fas fa-user-circle"></i>
+                    <span>${user.email.split('@')[0]}</span>
+                `;
+                loginBtn.classList.add('hidden');
+                registerBtn.classList.add('hidden');
+                loggedInItems.forEach(item => item.classList.remove('hidden'));
+            } else {
+                userInfo.innerHTML = `
+                    <i class="fas fa-user-circle"></i>
+                    <span>Khách</span>
+                `;
+                loginBtn.classList.remove('hidden');
+                registerBtn.classList.remove('hidden');
+                loggedInItems.forEach(item => item.classList.add('hidden'));
+            }
+        });
+        
+        // Logout
+        document.getElementById('logoutBtn')?.addEventListener('click', async (e) => {
+            e.preventDefault();
+            try {
+                await auth.signOut();
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Đăng xuất thành công!',
+                    timer: 1500,
+                    showConfirmButton: false
+                });
+            } catch (error) {
+                console.error('Logout error:', error);
+            }
+        });
+        
+        // Update cart count
+        function updateCartCount() {
+            const cart = JSON.parse(localStorage.getItem('moonlight_cart')) || [];
+            const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+            cartCount.textContent = totalItems;
+        }
+        
+        updateCartCount();
+        
+        // Listen for cart changes
+        window.addEventListener('storage', (e) => {
+            if (e.key === 'moonlight_cart') {
+                updateCartCount();
+            }
+        });
+        
+        // Load featured products
+        async function loadFeaturedProducts() {
+            try {
+                const productsRef = ref(db, 'products');
+                const snapshot = await get(productsRef);
+                
+                if (snapshot.exists()) {
+                    const products = [];
+                    snapshot.forEach((child) => {
+                        const product = child.val();
+                        product.id = child.key;
+                        if (product.isAvailable !== false) {
+                            products.push(product);
+                        }
+                    });
+                    
+                    // Get first 4 products as featured
+                    const featured = products.slice(0, 4);
+                    renderFeaturedProducts(featured);
+                } else {
+                    // Show sample products if no data
+                    renderSampleProducts();
+                }
+            } catch (error) {
+                console.error('Error loading products:', error);
+                renderSampleProducts();
+            }
+        }
+        
+        function renderFeaturedProducts(products) {
+            featuredProducts.innerHTML = products.map(product => `
+                <div class="product-card">
+                    <div class="product-img-wrapper">
+                        <img src="${product.imageUrl || 'https://via.placeholder.com/300x220'}" 
+                             alt="${product.name}" class="product-img">
+                        ${product.badge ? `<span class="product-badge">${product.badge}</span>` : ''}
+                        <div class="product-actions">
+                            <button class="product-action-btn" onclick="addToCart('${product.id}')">
+                                <i class="fas fa-shopping-bag"></i>
+                            </button>
+                            <button class="product-action-btn">
+                                <i class="fas fa-heart"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="product-info">
+                        <span class="product-category">${product.category || 'Cà phê'}</span>
+                        <h4 class="product-name">${product.name}</h4>
+                        <div class="product-price">
+                            ${formatPrice(product.price)}
+                            ${product.oldPrice ? `<span class="product-price-old">${formatPrice(product.oldPrice)}</span>` : ''}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        function renderSampleProducts() {
+            const sampleProducts = [
+                {
+                    id: '1',
+                    name: 'Cappuccino',
+                    category: 'Cà phê',
+                    price: 45000,
+                    imageUrl: 'https://images.unsplash.com/photo-1572442388796-11668a67e53d?w=400',
+                    badge: 'Hot'
+                },
+                {
+                    id: '2',
+                    name: 'Tiramisu',
+                    category: 'Bánh ngọt',
+                    price: 55000,
+                    imageUrl: 'https://images.unsplash.com/photo-1571877227200-a0d98ea607e9?w=400',
+                    badge: 'Best Seller'
+                },
+                {
+                    id: '3',
+                    name: 'Matcha Latte',
+                    category: 'Trà',
+                    price: 50000,
+                    imageUrl: 'https://images.unsplash.com/photo-1515823064-d6e0c04616a7?w=400'
+                },
+                {
+                    id: '4',
+                    name: 'Croissant',
+                    category: 'Bánh ngọt',
+                    price: 35000,
+                    imageUrl: 'https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=400'
+                }
+            ];
+            renderFeaturedProducts(sampleProducts);
+        }
+        
+        function formatPrice(price) {
+            return new Intl.NumberFormat('vi-VN', { 
+                style: 'currency', 
+                currency: 'VND' 
+            }).format(price);
+        }
+        
+        // Add to cart function
+        window.addToCart = function(productId) {
+            // Get product info and add to cart
+            const cart = JSON.parse(localStorage.getItem('moonlight_cart')) || [];
+            const existingItem = cart.find(item => item.id === productId);
+            
+            if (existingItem) {
+                existingItem.quantity += 1;
+            } else {
+                // For demo, we'll add basic info - in real app, fetch from Firebase
+                cart.push({
+                    id: productId,
+                    quantity: 1
+                });
+            }
+            
+            localStorage.setItem('moonlight_cart', JSON.stringify(cart));
+            updateCartCount();
+            
+            Swal.fire({
+                icon: 'success',
+                title: 'Đã thêm vào giỏ hàng!',
+                timer: 1500,
+                showConfirmButton: false,
+                position: 'top-end',
+                toast: true
+            });
+        };
+        
+        // Gallery lightbox
+        document.querySelectorAll('.gallery-item').forEach(item => {
+            item.addEventListener('click', () => {
+                const img = item.querySelector('img');
+                Swal.fire({
+                    imageUrl: img.src,
+                    imageAlt: img.alt,
+                    showConfirmButton: false,
+                    showCloseButton: true,
+                    width: 'auto',
+                    background: 'transparent'
+                });
+            });
+        });
+        
+        // Initialize
+        loadFeaturedProducts();
+    </script>
+
+    <style>
+        /* Additional Homepage Styles */
+        .hero {
+            background: linear-gradient(135deg, var(--bg-dark) 0%, var(--primary) 50%, var(--primary-light) 100%);
+            position: relative;
+        }
+        
+        .hero-bg-elements {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            pointer-events: none;
+        }
+        
+        .hero-moon {
+            position: absolute;
+            top: 10%;
+            right: 10%;
+            width: 200px;
+            height: 200px;
+            background: radial-gradient(circle, #ffd700 0%, #ffb347 50%, transparent 70%);
+            border-radius: 50%;
+            box-shadow: 0 0 100px 50px rgba(255, 215, 0, 0.2);
+            animation: moonGlow 4s ease-in-out infinite;
+        }
+        
+        @keyframes moonGlow {
+            0%, 100% { box-shadow: 0 0 100px 50px rgba(255, 215, 0, 0.2); }
+            50% { box-shadow: 0 0 120px 60px rgba(255, 215, 0, 0.3); }
+        }
+        
+        .hero-stars {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(2px 2px at 20px 30px, white, transparent),
+                radial-gradient(2px 2px at 40px 70px, white, transparent),
+                radial-gradient(2px 2px at 50px 160px, white, transparent),
+                radial-gradient(2px 2px at 90px 40px, white, transparent),
+                radial-gradient(2px 2px at 130px 80px, white, transparent),
+                radial-gradient(2px 2px at 160px 120px, white, transparent);
+            background-repeat: repeat;
+            background-size: 200px 200px;
+            animation: twinkle 5s ease-in-out infinite;
+        }
+        
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+        
+        /* About Section */
+        .about-section {
+            background: var(--primary);
+        }
+        
+        .about-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: center;
+        }
+        
+        .about-image {
+            position: relative;
+        }
+        
+        .about-image img {
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .about-badge {
+            position: absolute;
+            bottom: -20px;
+            right: -20px;
+            background: var(--accent);
+            color: var(--text-dark);
+            padding: 20px;
+            border-radius: var(--radius-md);
+            text-align: center;
+            box-shadow: var(--shadow-glow);
+        }
+        
+        .badge-number {
+            display: block;
+            font-size: 2rem;
+            font-weight: 700;
+        }
+        
+        .badge-text {
+            font-size: 0.9rem;
+        }
+        
+        .about-features {
+            display: flex;
+            gap: 30px;
+            margin-top: 2rem;
+        }
+        
+        .about-feature {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--accent);
+        }
+        
+        .about-feature i {
+            font-size: 1.25rem;
+        }
+        
+        /* Testimonials */
+        .testimonials-section {
+            background: linear-gradient(135deg, var(--bg-dark), var(--primary-dark));
+        }
+        
+        .testimonials-slider {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+        
+        .testimonial-card {
+            background: var(--bg-card);
+            padding: 30px;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-md);
+        }
+        
+        .testimonial-rating {
+            color: #ffc107;
+            margin-bottom: 1rem;
+        }
+        
+        .testimonial-text {
+            font-style: italic;
+            margin-bottom: 1.5rem;
+            color: var(--text-secondary);
+        }
+        
+        .testimonial-author {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .testimonial-author img {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        
+        .testimonial-author-info h5 {
+            margin: 0;
+            font-size: 1rem;
+        }
+        
+        .testimonial-author-info span {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+        
+        /* Gallery */
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            grid-template-rows: repeat(2, 200px);
+            gap: 15px;
+        }
+        
+        .gallery-item {
+            position: relative;
+            border-radius: var(--radius-sm);
+            overflow: hidden;
+            cursor: pointer;
+        }
+        
+        .gallery-item.large {
+            grid-column: span 2;
+            grid-row: span 2;
+        }
+        
+        .gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: var(--transition-slow);
+        }
+        
+        .gallery-item:hover img {
+            transform: scale(1.1);
+        }
+        
+        .gallery-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--bg-overlay);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: var(--transition-normal);
+        }
+        
+        .gallery-overlay i {
+            font-size: 2rem;
+            color: var(--accent);
+        }
+        
+        .gallery-item:hover .gallery-overlay {
+            opacity: 1;
+        }
+        
+        /* CTA Section */
+        .cta-section {
+            background: linear-gradient(135deg, var(--accent-dark), var(--accent));
+            text-align: center;
+        }
+        
+        .cta-content h2 {
+            color: var(--text-dark);
+        }
+        
+        .cta-content p {
+            color: var(--primary);
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .cta-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+        }
+        
+        .cta-section .btn-primary {
+            background: var(--primary);
+            color: var(--text-primary);
+        }
+        
+        .cta-section .btn-outline {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+        
+        .cta-section .btn-outline:hover {
+            background: var(--primary);
+            color: var(--text-primary);
+        }
+        
+        /* User Dropdown */
+        .user-dropdown {
+            position: fixed;
+            top: 70px;
+            right: 20px;
+            background: var(--bg-card);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-lg);
+            min-width: 200px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: var(--transition-normal);
+            z-index: 1001;
+        }
+        
+        .user-dropdown.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        
+        .user-dropdown-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 15px;
+            border-bottom: 1px solid var(--secondary);
+        }
+        
+        .user-dropdown-header i {
+            font-size: 1.5rem;
+            color: var(--accent);
+        }
+        
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 15px;
+            color: var(--text-secondary);
+            transition: var(--transition-fast);
+        }
+        
+        .dropdown-item:hover {
+            background: var(--bg-card-hover);
+            color: var(--accent);
+        }
+        
+        /* Skeleton Loading */
+        .skeleton .skeleton-img {
+            width: 100%;
+            height: 220px;
+            background: linear-gradient(90deg, var(--secondary) 25%, var(--secondary-light) 50%, var(--secondary) 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+        }
+        
+        .skeleton .skeleton-text {
+            height: 15px;
+            background: var(--secondary);
+            border-radius: 4px;
+            margin-bottom: 10px;
+            animation: shimmer 1.5s infinite;
+        }
+        
+        .skeleton .skeleton-text.short {
+            width: 60%;
+        }
+        
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+        
+        /* Responsive */
+        @media (max-width: 992px) {
+            .about-grid {
+                grid-template-columns: 1fr;
+                gap: 40px;
+            }
+            
+            .about-badge {
+                bottom: 20px;
+                right: 20px;
+            }
+            
+            .hero-moon {
+                width: 150px;
+                height: 150px;
+                top: 5%;
+                right: 5%;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .gallery-grid {
+                grid-template-columns: repeat(2, 1fr);
+                grid-template-rows: repeat(4, 150px);
+            }
+            
+            .gallery-item.large {
+                grid-column: span 2;
+                grid-row: span 1;
+            }
+            
+            .about-features {
+                flex-wrap: wrap;
+            }
+            
+            .cta-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .hero-moon {
+                width: 100px;
+                height: 100px;
+            }
+        }
+    </style>
+</body>
+</html>

@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chi tiết sản phẩm - Moonlight Cafe</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/mobile.css">
+    
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <style>
+        .product-detail {
+            padding: 120px 0 80px;
+            min-height: 100vh;
+        }
+        
+        .product-detail-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: start;
+        }
+        
+        .product-detail-image {
+            position: sticky;
+            top: 100px;
+        }
+        
+        .product-detail-image img {
+            width: 100%;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .product-detail-info .product-category {
+            color: var(--accent);
+            font-size: 0.9rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.5rem;
+        }
+        
+        .product-detail-info h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .product-rating {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 1.5rem;
+        }
+        
+        .product-rating .stars {
+            color: #fbbf24;
+        }
+        
+        .product-rating .rating-count {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+        
+        .product-price-detail {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 1.5rem;
+        }
+        
+        .product-description {
+            color: var(--text-secondary);
+            line-height: 1.8;
+            margin-bottom: 2rem;
+        }
+        
+        .product-actions-detail {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 2rem;
+        }
+        
+        .quantity-selector {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            background: var(--bg-card);
+            padding: 12px 20px;
+            border-radius: var(--radius-full);
+        }
+        
+        .quantity-selector button {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--accent);
+            color: var(--text-dark);
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: var(--transition-fast);
+        }
+        
+        .quantity-selector button:hover {
+            transform: scale(1.1);
+        }
+        
+        .quantity-selector span {
+            font-size: 1.2rem;
+            font-weight: 600;
+            min-width: 40px;
+            text-align: center;
+        }
+        
+        .product-meta {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            padding: 25px 0;
+            border-top: 1px solid var(--secondary);
+            border-bottom: 1px solid var(--secondary);
+        }
+        
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: var(--text-secondary);
+        }
+        
+        .meta-item i {
+            color: var(--accent);
+            font-size: 1.2rem;
+        }
+        
+        @media (max-width: 992px) {
+            .product-detail-grid {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+            
+            .product-detail-image {
+                position: relative;
+                top: 0;
+            }
+            
+            .product-detail-info h1 {
+                font-size: 2rem;
+            }
+            
+            .product-actions-detail {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Overlay -->
+    <div class="loading-overlay">
+        <div class="loader"></div>
+    </div>
+
+    <!-- Navigation Overlay -->
+    <div class="nav-overlay" id="navOverlay"></div>
+
+    <!-- Header -->
+    <header class="header scrolled" id="header">
+        <div class="container">
+            <nav class="nav">
+                <a href="index.html" class="nav-brand">
+                    <span class="nav-brand-icon">🌙</span>
+                    <span class="nav-brand-text">Moonlight Cafe</span>
+                </a>
+                
+                <ul class="nav-menu" id="navMenu">
+                    <li><a href="index.html" class="nav-link">Trang chủ</a></li>
+                    <li><a href="menu.html" class="nav-link active">Menu</a></li>
+                    <li><a href="news.html" class="nav-link">Tin tức</a></li>
+                    <li><a href="about.html" class="nav-link">Về chúng tôi</a></li>
+                </ul>
+                
+                <div class="nav-actions">
+                    <a href="cart.html" class="nav-icon" id="cartIcon">
+                        <i class="fas fa-shopping-bag"></i>
+                        <span class="badge" id="cartCount">0</span>
+                    </a>
+                    <a href="#" class="nav-icon" id="userIcon">
+                        <i class="fas fa-user"></i>
+                    </a>
+                    <div class="nav-toggle" id="navToggle">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Product Detail -->
+    <section class="product-detail">
+        <div class="container">
+            <div class="product-detail-grid" id="productDetail">
+                <!-- Product content will be loaded here -->
+                <div class="text-center" style="grid-column: 1 / -1;">
+                    <div class="loader" style="margin: 50px auto;"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <div class="footer-brand">
+                        <span class="nav-brand-icon">🌙</span>
+                        <span class="nav-brand-text">Moonlight Cafe</span>
+                    </div>
+                    <p>Nơi thưởng thức cà phê và bánh ngọt thượng hạng trong không gian ấm cúng dưới ánh trăng.</p>
+                    <div class="footer-social">
+                        <a href="#"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-tiktok"></i></a>
+                        <a href="#"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+                
+                <div class="footer-col">
+                    <h4 class="footer-title">Liên kết nhanh</h4>
+                    <ul class="footer-links">
+                        <li><a href="index.html">Trang chủ</a></li>
+                        <li><a href="menu.html">Menu</a></li>
+                        <li><a href="news.html">Tin tức</a></li>
+                        <li><a href="about.html">Về chúng tôi</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-col">
+                    <h4 class="footer-title">Hỗ trợ</h4>
+                    <ul class="footer-links">
+                        <li><a href="orders.html">Theo dõi đơn hàng</a></li>
+                        <li><a href="#">Chính sách đổi trả</a></li>
+                        <li><a href="#">FAQ</a></li>
+                        <li><a href="#">Liên hệ</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-col">
+                    <h4 class="footer-title">Liên hệ</h4>
+                    <ul class="footer-contact">
+                        <li>
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span>123 Đường ABC, Quận 1, TP.HCM</span>
+                        </li>
+                        <li>
+                            <i class="fas fa-phone"></i>
+                            <span>0123 456 789</span>
+                        </li>
+                        <li>
+                            <i class="fas fa-envelope"></i>
+                            <span>hello@moonlightcafe.vn</span>
+                        </li>
+                        <li>
+                            <i class="fas fa-clock"></i>
+                            <span>7:00 - 22:00 hàng ngày</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2024 Moonlight Cafe. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- User Dropdown -->
+    <div class="user-dropdown" id="userDropdown">
+        <div class="user-dropdown-header" id="userInfo">
+            <i class="fas fa-user-circle"></i>
+            <span>Khách</span>
+        </div>
+        <div class="user-dropdown-menu">
+            <a href="login.html" class="dropdown-item" id="loginBtn">
+                <i class="fas fa-sign-in-alt"></i> Đăng nhập
+            </a>
+            <a href="register.html" class="dropdown-item" id="registerBtn">
+                <i class="fas fa-user-plus"></i> Đăng ký
+            </a>
+            <a href="orders.html" class="dropdown-item logged-in-only hidden">
+                <i class="fas fa-box"></i> Đơn hàng của tôi
+            </a>
+            <a href="#" class="dropdown-item logged-in-only hidden" id="logoutBtn">
+                <i class="fas fa-sign-out-alt"></i> Đăng xuất
+            </a>
+        </div>
+    </div>
+
+    <script type="module">
+        import { auth, db, ref, get, onAuthStateChanged } from './js/firebase-config.js';
+        
+        // Loading
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                document.querySelector('.loading-overlay').classList.add('hidden');
+            }, 500);
+        });
+        
+        // Get product ID from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const productId = urlParams.get('id');
+        
+        if (!productId) {
+            window.location.href = 'menu.html';
+        }
+        
+        // Format price
+        function formatPrice(price) {
+            return new Intl.NumberFormat('vi-VN', { 
+                style: 'currency', 
+                currency: 'VND' 
+            }).format(price);
+        }
+        
+        // Get category name
+        function getCategoryName(category) {
+            const map = {
+                coffee: 'Cà phê',
+                tea: 'Trà',
+                smoothie: 'Sinh tố',
+                pastry: 'Bánh ngọt',
+                snack: 'Snack'
+            };
+            return map[category] || category;
+        }
+        
+        // Load product details
+        async function loadProduct() {
+            try {
+                const productRef = ref(db, `products/${productId}`);
+                const snapshot = await get(productRef);
+                
+                if (snapshot.exists()) {
+                    const product = snapshot.val();
+                    renderProduct(product);
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Không tìm thấy sản phẩm',
+                        text: 'Sản phẩm không tồn tại hoặc đã bị xóa'
+                    }).then(() => {
+                        window.location.href = 'menu.html';
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading product:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Lỗi!',
+                    text: 'Không thể tải thông tin sản phẩm'
+                });
+            }
+        }
+        
+        // Render product
+        function renderProduct(product) {
+            const container = document.getElementById('productDetail');
+            container.innerHTML = `
+                <div class="product-detail-image">
+                    <img src="${product.imageUrl || 'https://via.placeholder.com/600x600'}" alt="${product.name}">
+                </div>
+                
+                <div class="product-detail-info">
+                    <div class="product-category">${getCategoryName(product.category)}</div>
+                    <h1>${product.name}</h1>
+                    
+                    <div class="product-rating">
+                        <div class="stars">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star-half-alt"></i>
+                        </div>
+                        <span class="rating-count">(4.5 - 128 đánh giá)</span>
+                    </div>
+                    
+                    <div class="product-price-detail">${formatPrice(product.price)}</div>
+                    
+                    <p class="product-description">
+                        ${product.description || 'Sản phẩm chất lượng cao từ Moonlight Cafe'}
+                    </p>
+                    
+                    <div class="product-actions-detail">
+                        <div class="quantity-selector">
+                            <button onclick="changeQuantity(-1)"><i class="fas fa-minus"></i></button>
+                            <span id="quantity">1</span>
+                            <button onclick="changeQuantity(1)"><i class="fas fa-plus"></i></button>
+                        </div>
+                        <button class="btn btn-primary" style="flex: 1;" onclick="addToCart()">
+                            <i class="fas fa-shopping-bag"></i> Thêm vào giỏ
+                        </button>
+                    </div>
+                    
+                    <div class="product-meta">
+                        <div class="meta-item">
+                            <i class="fas fa-check-circle"></i>
+                            <span>${product.isAvailable !== false ? 'Còn hàng' : 'Hết hàng'}</span>
+                        </div>
+                        <div class="meta-item">
+                            <i class="fas fa-truck"></i>
+                            <span>Giao hàng 30-60 phút</span>
+                        </div>
+                        <div class="meta-item">
+                            <i class="fas fa-leaf"></i>
+                            <span>100% Organic</span>
+                        </div>
+                        <div class="meta-item">
+                            <i class="fas fa-award"></i>
+                            <span>Chất lượng cao</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Store product info globally
+            window.currentProduct = { id: productId, ...product };
+        }
+        
+        // Quantity controls
+        let quantity = 1;
+        window.changeQuantity = function(delta) {
+            quantity = Math.max(1, quantity + delta);
+            document.getElementById('quantity').textContent = quantity;
+        };
+        
+        // Add to cart
+        window.addToCart = function() {
+            const cart = JSON.parse(localStorage.getItem('moonlight_cart')) || [];
+            const existingItem = cart.find(item => item.id === productId);
+            
+            if (existingItem) {
+                existingItem.quantity += quantity;
+            } else {
+                cart.push({
+                    id: productId,
+                    name: window.currentProduct.name,
+                    price: window.currentProduct.price,
+                    imageUrl: window.currentProduct.imageUrl,
+                    quantity: quantity
+                });
+            }
+            
+            localStorage.setItem('moonlight_cart', JSON.stringify(cart));
+            
+            // Update cart count
+            const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+            document.getElementById('cartCount').textContent = totalItems;
+            
+            Swal.fire({
+                icon: 'success',
+                title: 'Đã thêm vào giỏ!',
+                text: `${quantity} ${window.currentProduct.name}`,
+                showCancelButton: true,
+                confirmButtonText: 'Xem giỏ hàng',
+                cancelButtonText: 'Tiếp tục mua'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = 'cart.html';
+                }
+            });
+            
+            // Reset quantity
+            quantity = 1;
+            document.getElementById('quantity').textContent = 1;
+        };
+        
+        // Update cart count on load
+        function updateCartCount() {
+            const cart = JSON.parse(localStorage.getItem('moonlight_cart')) || [];
+            const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+            document.getElementById('cartCount').textContent = totalItems;
+        }
+        
+        updateCartCount();
+        loadProduct();
+        
+        // Mobile menu toggle
+        const navToggle = document.getElementById('navToggle');
+        const navMenu = document.getElementById('navMenu');
+        const navOverlay = document.getElementById('navOverlay');
+        
+        navToggle.addEventListener('click', () => {
+            navMenu.classList.toggle('active');
+            navOverlay.classList.toggle('active');
+        });
+        
+        navOverlay.addEventListener('click', () => {
+            navMenu.classList.remove('active');
+            navOverlay.classList.remove('active');
+        });
+        
+        // User dropdown
+        const userIcon = document.getElementById('userIcon');
+        const userDropdown = document.getElementById('userDropdown');
+        
+        userIcon.addEventListener('click', (e) => {
+            e.preventDefault();
+            userDropdown.classList.toggle('active');
+        });
+        
+        document.addEventListener('click', (e) => {
+            if (!userIcon.contains(e.target) && !userDropdown.contains(e.target)) {
+                userDropdown.classList.remove('active');
+            }
+        });
+        
+        // Auth state
+        onAuthStateChanged(auth, (user) => {
+            const userInfo = document.getElementById('userInfo');
+            const loginBtn = document.getElementById('loginBtn');
+            const registerBtn = document.getElementById('registerBtn');
+            const loggedInItems = document.querySelectorAll('.logged-in-only');
+            
+            if (user) {
+                userInfo.innerHTML = `
+                    <i class="fas fa-user-circle"></i>
+                    <span>${user.email.split('@')[0]}</span>
+                `;
+                loginBtn.classList.add('hidden');
+                registerBtn.classList.add('hidden');
+                loggedInItems.forEach(item => item.classList.remove('hidden'));
+            } else {
+                userInfo.innerHTML = `
+                    <i class="fas fa-user-circle"></i>
+                    <span>Khách</span>
+                `;
+                loginBtn.classList.remove('hidden');
+                registerBtn.classList.remove('hidden');
+                loggedInItems.forEach(item => item.classList.add('hidden'));
+            }
+        });
+        
+        // Logout
+        document.getElementById('logoutBtn')?.addEventListener('click', async (e) => {
+            e.preventDefault();
+            await auth.signOut();
+            Swal.fire({
+                icon: 'success',
+                title: 'Đăng xuất thành công!',
+                timer: 1500,
+                showConfirmButton: false
+            });
+        });
+    </script>
+</body>
+</html>

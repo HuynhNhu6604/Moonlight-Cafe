@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Về chúng tôi - Moonlight Cafe</title>
+
+    <!-- Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/mobile.css">
+
+    <style>
+        .page-header {
+            background: linear-gradient(135deg, var(--bg-dark), var(--primary));
+            padding: 120px 0 60px;
+            text-align: center;
+        }
+
+        /* Story Section */
+        .story-section {
+            padding: 80px 0;
+        }
+
+        .story-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: center;
+        }
+
+        .story-image {
+            position: relative;
+        }
+
+        .story-image img {
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .story-image::before {
+            content: '';
+            position: absolute;
+            top: -20px;
+            left: -20px;
+            width: 100%;
+            height: 100%;
+            border: 3px solid var(--accent);
+            border-radius: var(--radius-lg);
+            z-index: -1;
+        }
+
+        .story-content h2 {
+            margin-bottom: 1.5rem;
+        }
+
+        .story-content p {
+            margin-bottom: 1rem;
+            line-height: 1.8;
+        }
+
+        /* Values Section */
+        .values-section {
+            padding: 80px 0;
+            background: var(--primary);
+        }
+
+        .values-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            margin-top: 50px;
+        }
+
+        .value-card {
+            text-align: center;
+            padding: 40px 30px;
+            background: var(--bg-card);
+            border-radius: var(--radius-md);
+            transition: var(--transition-normal);
+        }
+
+        .value-card:hover {
+            transform: translateY(-10px);
+            box-shadow: var(--shadow-glow);
+        }
+
+        .value-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            font-size: 2rem;
+            color: var(--text-dark);
+        }
+
+        .value-card h3 {
+            margin-bottom: 1rem;
+        }
+
+        .value-card p {
+            color: var(--text-secondary);
+        }
+
+        /* Team Section */
+        .team-section {
+            padding: 80px 0;
+        }
+
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin-top: 50px;
+        }
+
+        .team-card {
+            text-align: center;
+        }
+
+        .team-img {
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin: 0 auto 1.5rem;
+            border: 4px solid var(--accent);
+            transition: var(--transition-normal);
+        }
+
+        .team-card:hover .team-img {
+            transform: scale(1.05);
+            box-shadow: var(--shadow-glow);
+        }
+
+        .team-card h4 {
+            margin-bottom: 5px;
+        }
+
+        .team-role {
+            color: var(--accent);
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        .team-social {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .team-social a {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background: var(--secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-primary);
+            transition: var(--transition-fast);
+        }
+
+        .team-social a:hover {
+            background: var(--accent);
+            color: var(--text-dark);
+        }
+
+        /* Contact Section */
+        .contact-section {
+            padding: 80px 0;
+            background: var(--primary);
+        }
+
+        .contact-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            margin-top: 50px;
+        }
+
+        .contact-info-card {
+            display: flex;
+            gap: 20px;
+            padding: 25px;
+            background: var(--bg-card);
+            border-radius: var(--radius-md);
+            margin-bottom: 20px;
+        }
+
+        .contact-info-icon {
+            width: 50px;
+            height: 50px;
+            background: var(--accent);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-dark);
+            font-size: 1.25rem;
+            flex-shrink: 0;
+        }
+
+        .contact-info-content h4 {
+            margin-bottom: 5px;
+        }
+
+        .contact-info-content p {
+            color: var(--text-secondary);
+            margin: 0;
+        }
+
+        .map-container {
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            height: 100%;
+            min-height: 350px;
+            background: var(--bg-card);
+        }
+
+        .map-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        @media (max-width: 992px) {
+
+            .story-grid,
+            .contact-grid {
+                grid-template-columns: 1fr;
+                gap: 40px;
+            }
+
+            .story-image::before {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Loading Overlay -->
+    <div class="loading-overlay">
+        <div class="loader"></div>
+    </div>
+
+    <!-- Header -->
+    <header class="header" id="header">
+        <div class="container">
+            <nav class="nav">
+                <a href="index.html" class="nav-brand">
+                    <span>🌙</span>
+                    <span class="nav-brand-text">Moonlight Cafe</span>
+                </a>
+
+                <ul class="nav-menu" id="navMenu">
+                    <li><a href="index.html" class="nav-link">Trang chủ</a></li>
+                    <li><a href="menu.html" class="nav-link">Menu</a></li>
+                    <li><a href="news.html" class="nav-link">Tin tức</a></li>
+                    <li><a href="about.html" class="nav-link active">Về chúng tôi</a></li>
+                </ul>
+
+                <div class="nav-actions">
+                    <a href="cart.html" class="nav-icon">
+                        <i class="fas fa-shopping-bag"></i>
+                        <span class="badge" id="cartCount">0</span>
+                    </a>
+                    <a href="login.html" class="nav-icon">
+                        <i class="fas fa-user"></i>
+                    </a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Page Header -->
+    <section class="page-header">
+        <div class="container">
+            <h1>Về chúng tôi</h1>
+            <p style="color: var(--text-secondary); margin-top: 1rem;">
+                Khám phá câu chuyện đằng sau Moonlight Cafe
+            </p>
+        </div>
+    </section>
+
+    <!-- Story Section -->
+    <section class="story-section">
+        <div class="container">
+            <div class="story-grid">
+                <div class="story-image">
+                    <img src="https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=600"
+                        alt="Moonlight Cafe Story">
+                </div>
+                <div class="story-content">
+                    <span class="section-subtitle">Câu chuyện của chúng tôi</span>
+                    <h2>Nơi tình yêu cà phê bắt đầu</h2>
+                    <p>
+                        Moonlight Cafe được thành lập vào năm 2019 với mong muốn tạo ra một không gian
+                        độc đáo - nơi mọi người có thể thưởng thức cà phê chất lượng trong bầu không khí
+                        ấm cúng, lãng mạn dưới ánh trăng.
+                    </p>
+                    <p>
+                        Chúng tôi tin rằng một ly cà phê ngon không chỉ đến từ nguyên liệu tốt, mà còn
+                        từ sự tận tâm trong từng công đoạn pha chế và không gian thưởng thức phù hợp.
+                    </p>
+                    <p>
+                        Với đội ngũ barista đam mê và giàu kinh nghiệm, chúng tôi cam kết mang đến
+                        những trải nghiệm cà phê tuyệt vời nhất cho khách hàng.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Values Section -->
+    <section class="values-section">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-subtitle">Giá trị cốt lõi</span>
+                <h2 class="section-title">Điều chúng tôi theo đuổi</h2>
+                <div class="section-divider"></div>
+            </div>
+
+            <div class="values-grid">
+                <div class="value-card">
+                    <div class="value-icon">
+                        <i class="fas fa-leaf"></i>
+                    </div>
+                    <h3>Chất lượng</h3>
+                    <p>
+                        100% nguyên liệu được chọn lọc kỹ lưỡng từ những nguồn uy tín,
+                        đảm bảo hương vị tốt nhất.
+                    </p>
+                </div>
+
+                <div class="value-card">
+                    <div class="value-icon">
+                        <i class="fas fa-heart"></i>
+                    </div>
+                    <h3>Đam mê</h3>
+                    <p>
+                        Mỗi ly cà phê được pha chế với tình yêu và sự tận tâm,
+                        từ những người thực sự đam mê.
+                    </p>
+                </div>
+
+                <div class="value-card">
+                    <div class="value-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h3>Cộng đồng</h3>
+                    <p>
+                        Xây dựng không gian kết nối, nơi mọi người có thể gặp gỡ,
+                        chia sẻ và tạo nên những kỷ niệm đẹp.
+                    </p>
+                </div>
+
+                <div class="value-card">
+                    <div class="value-icon">
+                        <i class="fas fa-globe"></i>
+                    </div>
+                    <h3>Bền vững</h3>
+                    <p>
+                        Cam kết sử dụng nguồn nguyên liệu bền vững,
+                        bảo vệ môi trường và hỗ trợ nông dân.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Team Section -->
+    <section class="team-section">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-subtitle">Đội ngũ</span>
+                <h2 class="section-title">Những người tạo nên Moonlight</h2>
+                <div class="section-divider"></div>
+            </div>
+
+            <div class="team-grid">
+                <div class="team-card">
+                    <img src="https://i.pravatar.cc/200?img=11" alt="CEO" class="team-img">
+                    <h4>Nguyễn Minh Tuấn</h4>
+                    <p class="team-role">Founder & CEO</p>
+                    <div class="team-social">
+                        <a href="#"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+
+                <div class="team-card">
+                    <img src="https://i.pravatar.cc/200?img=5" alt="Head Barista" class="team-img">
+                    <h4>Trần Hương Giang</h4>
+                    <p class="team-role">Head Barista</p>
+                    <div class="team-social">
+                        <a href="#"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+
+                <div class="team-card">
+                    <img src="https://i.pravatar.cc/200?img=8" alt="Pastry Chef" class="team-img">
+                    <h4>Lê Văn Hùng</h4>
+                    <p class="team-role">Pastry Chef</p>
+                    <div class="team-social">
+                        <a href="#"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+
+                <div class="team-card">
+                    <img src="https://i.pravatar.cc/200?img=9" alt="Marketing" class="team-img">
+                    <h4>Phạm Thu Hà</h4>
+                    <p class="team-role">Marketing Manager</p>
+                    <div class="team-social">
+                        <a href="#"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section class="contact-section">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-subtitle">Liên hệ</span>
+                <h2 class="section-title">Ghé thăm chúng tôi</h2>
+                <div class="section-divider"></div>
+            </div>
+
+            <div class="contact-grid">
+                <div class="contact-info">
+                    <div class="contact-info-card">
+                        <div class="contact-info-icon">
+                            <i class="fas fa-map-marker-alt"></i>
+                        </div>
+                        <div class="contact-info-content">
+                            <h4>Địa chỉ</h4>
+                            <p>123 Đường ABC, Quận 1, TP. Hồ Chí Minh</p>
+                        </div>
+                    </div>
+
+                    <div class="contact-info-card">
+                        <div class="contact-info-icon">
+                            <i class="fas fa-phone"></i>
+                        </div>
+                        <div class="contact-info-content">
+                            <h4>Điện thoại</h4>
+                            <p>0123 456 789</p>
+                        </div>
+                    </div>
+
+                    <div class="contact-info-card">
+                        <div class="contact-info-icon">
+                            <i class="fas fa-envelope"></i>
+                        </div>
+                        <div class="contact-info-content">
+                            <h4>Email</h4>
+                            <p>hello@moonlightcafe.vn</p>
+                        </div>
+                    </div>
+
+                    <div class="contact-info-card">
+                        <div class="contact-info-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="contact-info-content">
+                            <h4>Giờ mở cửa</h4>
+                            <p>7:00 - 22:00 hàng ngày</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="map-container">
+                    <iframe
+                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3919.4241674198!2d106.69765047460037!3d10.778789459237606!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31752f385570472f%3A0x1787491df0ed8d6a!2zQuG6v24gTmjDoC!5e0!3m2!1svi!2s!4v1704965441016!5m2!1svi!2s"
+                        allowfullscreen="" loading="lazy"></iframe>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-bottom">
+                <p>&copy; 2024 Moonlight Cafe. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Loading
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                document.querySelector('.loading-overlay').classList.add('hidden');
+            }, 500);
+        });
+
+        // Header scroll
+        window.addEventListener('scroll', () => {
+            const header = document.getElementById('header');
+            header.classList.toggle('scrolled', window.scrollY > 50);
+        });
+
+        // Update cart count
+        const cart = JSON.parse(localStorage.getItem('moonlight_cart')) || [];
+        document.getElementById('cartCount').textContent = cart.reduce((sum, item) => sum + item.quantity, 0);
+    </script>
+</body>
+
+</html>

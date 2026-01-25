@@ -1,0 +1,161 @@
+{
+    "products": {
+        "-NqA1": {
+            "name": "Espresso",
+            "category": "coffee",
+            "price": 35000,
+            "description": "Cà phê Espresso đậm đà, nguyên chất từ hạt Arabica cao cấp",
+            "imageUrl": "https://images.unsplash.com/photo-1510591509098-f4fdc6d0ff04?w=400",
+            "isAvailable": true,
+            "badge": "Classic"
+        },
+        "-NqA2": {
+            "name": "Cappuccino",
+            "category": "coffee",
+            "price": 45000,
+            "description": "Cà phê Ý truyền thống với bọt sữa mịn màng",
+            "imageUrl": "https://images.unsplash.com/photo-1572442388796-11668a67e53d?w=400",
+            "isAvailable": true,
+            "badge": "Hot"
+        },
+        "-NqA3": {
+            "name": "Caramel Latte",
+            "category": "coffee",
+            "price": 50000,
+            "description": "Latte thơm ngon kết hợp với siro caramel ngọt ngào",
+            "imageUrl": "https://images.unsplash.com/photo-1599458448183-7193e4d0a2eb?w=400",
+            "isAvailable": true,
+            "badge": "Sweet"
+        },
+        "-NqA4": {
+            "name": "Americano",
+            "category": "coffee",
+            "price": 40000,
+            "description": "Cà phê pha phin kiểu Mỹ, nhẹ và thanh mát",
+            "imageUrl": "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=400",
+            "isAvailable": true
+        },
+        "-NqA5": {
+            "name": "Matcha Latte",
+            "category": "tea",
+            "price": 50000,
+            "description": "Trà xanh Matcha Nhật Bản chính hiệu với sữa tươi",
+            "imageUrl": "https://images.unsplash.com/photo-1515823064-d6e0c04616a7?w=400",
+            "isAvailable": true,
+            "badge": "Healthy"
+        },
+        "-NqA6": {
+            "name": "Oolong Tea",
+            "category": "tea",
+            "price": 38000,
+            "description": "Trà Oolong thơm dịu, giúp thư giãn tinh thần",
+            "imageUrl": "https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=400",
+            "isAvailable": true
+        },
+        "-NqA7": {
+            "name": "Peach Tea",
+            "category": "tea",
+            "price": 42000,
+            "description": "Trà đào ngọt mát, lý tưởng cho mùa hè",
+            "imageUrl": "https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=400",
+            "isAvailable": true,
+            "badge": "Summer"
+        },
+        "-NqA8": {
+            "name": "Mango Smoothie",
+            "category": "smoothie",
+            "price": 52000,
+            "description": "Sinh tố xoài tươi mát, ngọt tự nhiên",
+            "imageUrl": "https://images.unsplash.com/photo-1505252585461-04db1eb84625?w=400",
+            "isAvailable": true,
+            "badge": "Fresh"
+        },
+        "-NqA9": {
+            "name": "Berry Smoothie",
+            "category": "smoothie",
+            "price": 55000,
+            "description": "Sinh tố dâu tổng hợp, giàu vitamin",
+            "imageUrl": "https://images.unsplash.com/photo-1553530666-ba11a7da3888?w=400",
+            "isAvailable": true,
+            "badge": "Vitamin C"
+        },
+        "-NqB0": {
+            "name": "Avocado Smoothie",
+            "category": "smoothie",
+            "price": 48000,
+            "description": "Sinh tố bơ thơm béo, bổ dưỡng",
+            "imageUrl": "https://images.unsplash.com/photo-1628260412297-a3377e45006f?w=400",
+            "isAvailable": true
+        },
+        "-NqB1": {
+            "name": "Tiramisu",
+            "category": "pastry",
+            "price": 55000,
+            "description": "Bánh Tiramisu Ý nguyên bản với mascarpone",
+            "imageUrl": "https://images.unsplash.com/photo-1571877227200-a0d98ea607e9?w=400",
+            "isAvailable": true,
+            "badge": "Best Seller"
+        },
+        "-NqB2": {
+            "name": "Croissant",
+            "category": "pastry",
+            "price": 35000,
+            "description": "Bánh sừng bò Pháp giòn tan, thơm bơ",
+            "imageUrl": "https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=400",
+            "isAvailable": true,
+            "badge": "Morning"
+        },
+        "-NqB3": {
+            "name": "Cheese Cake",
+            "category": "pastry",
+            "price": 58000,
+            "description": "Bánh phô mai New York style mềm mịn",
+            "imageUrl": "https://images.unsplash.com/photo-1533134242443-d4fd215305ad?w=400",
+            "isAvailable": true
+        },
+        "-NqB4": {
+            "name": "Chocolate Brownie",
+            "category": "pastry",
+            "price": 42000,
+            "description": "Bánh brownie socola đậm đà, tan chảy",
+            "imageUrl": "https://images.unsplash.com/photo-1606313564200-e75d5e30476c?w=400",
+            "isAvailable": true,
+            "badge": "Rich"
+        },
+        "-NqB5": {
+            "name": "Macaron Set",
+            "category": "pastry",
+            "price": 65000,
+            "description": "Set 6 macaron Pháp nhiều vị (dâu, socola, chanh, vani)",
+            "imageUrl": "https://images.unsplash.com/photo-1571506165871-879047a41d88?w=400",
+            "isAvailable": true,
+            "badge": "Luxury"
+        },
+        "-NqB6": {
+            "name": "Cookies Box",
+            "category": "snack",
+            "price": 38000,
+            "description": "Hộp cookies tự chọn (6 chiếc)",
+            "imageUrl": "https://images.unsplash.com/photo-1558961363-fa8fdf82db35?w=400",
+            "isAvailable": true
+        },
+        "-NqB7": {
+            "name": "Almond Nuts",
+            "category": "snack",
+            "price": 45000,
+            "description": "Hạnh nhân rang muối, giòn rụm",
+            "imageUrl": "https://images.unsplash.com/photo-1571514141634-2f0693f5f7e8?w=400",
+            "isAvailable": true,
+            "badge": "Healthy"
+        },
+        "-NqB8": {
+            "name": "Fruit Salad",
+            "category": "snack",
+            "price": 40000,
+            "description": "Salad trái cây tươi mát, ăn kèm yogurt",
+            "imageUrl": "https://images.unsplash.com/photo-1564093497595-593b96d80180?w=400",
+            "isAvailable": true,
+            "badge": "Fresh"
+        }
+    }
+}

@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng nhập - Moonlight Cafe</title>
+
+    <!-- Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/mobile.css">
+
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <style>
+        .auth-page {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--bg-dark) 0%, var(--primary) 100%);
+            padding: 40px 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .auth-page::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(212, 165, 116, 0.1) 0%, transparent 70%);
+            animation: rotate 20s linear infinite;
+        }
+
+        @keyframes rotate {
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .auth-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            max-width: 1000px;
+            width: 100%;
+            background: var(--bg-card);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            overflow: hidden;
+            position: relative;
+            z-index: 1;
+        }
+
+        .auth-image {
+            background: url('https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=800') center/cover;
+            position: relative;
+            display: flex;
+            align-items: flex-end;
+            padding: 40px;
+        }
+
+        .auth-image::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(to top, rgba(13, 13, 26, 0.9), transparent);
+        }
+
+        .auth-image-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .auth-image-content h2 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .auth-image-content p {
+            color: var(--text-secondary);
+        }
+
+        .auth-form-container {
+            padding: 50px 40px;
+        }
+
+        .auth-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .auth-logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 1.5rem;
+        }
+
+        .auth-logo span:first-child {
+            font-size: 2rem;
+        }
+
+        .auth-logo-text {
+            font-family: var(--font-heading);
+            font-size: 1.5rem;
+            color: var(--accent);
+        }
+
+        .auth-title {
+            font-size: 1.75rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .auth-subtitle {
+            color: var(--text-muted);
+        }
+
+        .auth-form .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .input-icon-wrapper {
+            position: relative;
+        }
+
+        .input-icon-wrapper i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+        }
+
+        .input-icon-wrapper .form-control {
+            padding-left: 45px;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: var(--text-muted);
+            transition: var(--transition-fast);
+        }
+
+        .password-toggle:hover {
+            color: var(--accent);
+        }
+
+        .form-options {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .remember-me {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+
+        .remember-me input {
+            accent-color: var(--accent);
+        }
+
+        .forgot-link {
+            color: var(--accent);
+            font-size: 0.9rem;
+        }
+
+        .forgot-link:hover {
+            text-decoration: underline;
+        }
+
+        .auth-btn {
+            width: 100%;
+            padding: 14px;
+            font-size: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .auth-divider {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin: 1.5rem 0;
+            color: var(--text-muted);
+        }
+
+        .auth-divider::before,
+        .auth-divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--secondary);
+        }
+
+        .social-login {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .social-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            transition: var(--transition-normal);
+        }
+
+        .social-btn.google {
+            background: #fff;
+            color: #db4437;
+        }
+
+        .social-btn.facebook {
+            background: #1877f2;
+            color: #fff;
+        }
+
+        .social-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .auth-footer {
+            text-align: center;
+            color: var(--text-muted);
+        }
+
+        .auth-footer a {
+            color: var(--accent);
+            font-weight: 500;
+        }
+
+        .auth-footer a:hover {
+            text-decoration: underline;
+        }
+
+        .back-home {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-secondary);
+            z-index: 10;
+        }
+
+        .back-home:hover {
+            color: var(--accent);
+        }
+
+        @media (max-width: 768px) {
+            .auth-container {
+                grid-template-columns: 1fr;
+            }
+
+            .auth-image {
+                display: none;
+            }
+
+            .auth-form-container {
+                padding: 40px 25px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="auth-page">
+        <a href="index.html" class="back-home">
+            <i class="fas fa-arrow-left"></i> Trang chủ
+        </a>
+
+        <div class="auth-container">
+            <div class="auth-image">
+                <div class="auth-image-content">
+                    <h2>Chào mừng trở lại!</h2>
+                    <p>Đăng nhập để tiếp tục thưởng thức những trải nghiệm tuyệt vời tại Moonlight Cafe.</p>
+                </div>
+            </div>
+
+            <div class="auth-form-container">
+                <div class="auth-header">
+                    <div class="auth-logo">
+                        <span>🌙</span>
+                        <span class="auth-logo-text">Moonlight Cafe</span>
+                    </div>
+                    <h1 class="auth-title">Đăng nhập</h1>
+                    <p class="auth-subtitle">Nhập thông tin tài khoản của bạn</p>
+                </div>
+
+                <form class="auth-form" id="loginForm">
+                    <div class="form-group">
+                        <label class="form-label">Email</label>
+                        <div class="input-icon-wrapper">
+                            <i class="fas fa-envelope"></i>
+                            <input type="email" class="form-control" id="email" placeholder="your@email.com" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Mật khẩu</label>
+                        <div class="input-icon-wrapper">
+                            <i class="fas fa-lock"></i>
+                            <input type="password" class="form-control" id="password" placeholder="••••••••" required>
+                            <i class="fas fa-eye password-toggle" id="togglePassword"></i>
+                        </div>
+                    </div>
+
+                    <div class="form-options">
+                        <label class="remember-me">
+                            <input type="checkbox" id="remember">
+                            <span>Nhớ mật khẩu</span>
+                        </label>
+                        <a href="forgot-password.html" class="forgot-link">Quên mật khẩu?</a>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary auth-btn">
+                        <i class="fas fa-sign-in-alt"></i> Đăng nhập
+                    </button>
+                </form>
+
+                <div class="auth-divider">hoặc</div>
+
+                <div class="social-login">
+                    <button class="social-btn google" id="googleLogin">
+                        <i class="fab fa-google"></i>
+                    </button>
+                    <button class="social-btn facebook" id="facebookLogin">
+                        <i class="fab fa-facebook-f"></i>
+                    </button>
+                </div>
+
+                <div class="auth-footer">
+                    <p>Chưa có tài khoản? <a href="register.html">Đăng ký ngay</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { auth, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, db, ref, set, get } from './js/firebase-config.js';
+
+        const loginForm = document.getElementById('loginForm');
+        const togglePassword = document.getElementById('togglePassword');
+        const passwordInput = document.getElementById('password');
+
+        // Toggle password visibility
+        togglePassword.addEventListener('click', () => {
+            const type = passwordInput.type === 'password' ? 'text' : 'password';
+            passwordInput.type = type;
+            togglePassword.classList.toggle('fa-eye');
+            togglePassword.classList.toggle('fa-eye-slash');
+        });
+
+        // Login form submit
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            try {
+                Swal.fire({
+                    title: 'Đang đăng nhập...',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+
+                await signInWithEmailAndPassword(auth, email, password);
+
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Đăng nhập thành công!',
+                    text: 'Chào mừng bạn trở lại Moonlight Cafe',
+                    timer: 1500,
+                    showConfirmButton: false
+                }).then(() => {
+                    window.location.href = 'index.html';
+                });
+
+            } catch (error) {
+                let errorMessage = 'Đã có lỗi xảy ra!';
+
+                switch (error.code) {
+                    case 'auth/user-not-found':
+                        errorMessage = 'Email không tồn tại trong hệ thống';
+                        break;
+                    case 'auth/wrong-password':
+                        errorMessage = 'Mật khẩu không đúng';
+                        break;
+                    case 'auth/invalid-email':
+                        errorMessage = 'Email không hợp lệ';
+                        break;
+                    case 'auth/too-many-requests':
+                        errorMessage = 'Quá nhiều lần thử. Vui lòng thử lại sau.';
+                        break;
+                }
+
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Đăng nhập thất bại!',
+                    text: errorMessage
+                });
+            }
+        });
+
+        // Google Sign-In
+        const googleLoginBtn = document.getElementById('googleLogin');
+        googleLoginBtn.addEventListener('click', async () => {
+            try {
+                const provider = new GoogleAuthProvider();
+                const result = await signInWithPopup(auth, provider);
+                const user = result.user;
+
+                // Check if user data exists, if not create it
+                const userRef = ref(db, 'users/' + user.uid);
+                const snapshot = await get(userRef);
+
+                if (!snapshot.exists()) {
+                    // Create new user profile
+                    await set(userRef, {
+                        firstName: user.displayName ? user.displayName.split(' ').slice(-1)[0] : '',
+                        lastName: user.displayName ? user.displayName.split(' ').slice(0, -1).join(' ') : '',
+                        email: user.email,
+                        phone: user.phoneNumber || '',
+                        role: 'customer',
+                        createdAt: new Date().toISOString(),
+                        provider: 'google'
+                    });
+                }
+
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Đăng nhập thành công!',
+                    text: 'Chào mừng bạn đến với Moonlight Cafe',
+                    timer: 1500,
+                    showConfirmButton: false
+                }).then(() => {
+                    window.location.href = 'index.html';
+                });
+
+            } catch (error) {
+                console.error('Google sign-in error:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Đăng nhập thất bại!',
+                    text: error.message || 'Không thể đăng nhập bằng Google'
+                });
+            }
+        });
+
+        // Facebook Sign-In (placeholder)
+        const facebookLoginBtn = document.getElementById('facebookLogin');
+        facebookLoginBtn.addEventListener('click', () => {
+            Swal.fire({
+                icon: 'info',
+                title: 'Tính năng đang phát triển',
+                text: 'Đăng nhập Facebook sẽ sớm được ra mắt!'
+            });
+        });
+    </script>
+</body>
+
+</html>
