@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Setup Admin - Moonlight Cafe</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--bg-dark, #0d0d1a);
+            color: var(--text-primary, #ffffff);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+        
+        :root {
+            --primary: #1a1a2e;
+            --accent: #d4a574;
+            --text-primary: #ffffff;
+            --text-secondary: #b8b8d0;
+        }
+        
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .card {
+            background: var(--primary);
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 10px;
+            color: var(--accent);
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: var(--text-secondary);
+            margin-bottom: 30px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid transparent;
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 1rem;
+        }
+        
+        .form-control:focus {
+            border-color: var(--accent);
+            outline: none;
+        }
+        
+        .btn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary {
+            background: var(--accent);
+            color: #1a1a2e;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(212, 165, 116, 0.3);
+        }
+        
+        .info-box {
+            background: rgba(212, 165, 116, 0.1);
+            border: 1px solid var(--accent);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .info-box h3 {
+            color: var(--accent);
+            margin-bottom: 10px;
+            font-size: 1rem;
+        }
+        
+        .info-box ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        
+        .info-box li {
+            padding: 5px 0;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+        
+        .info-box li::before {
+            content: "• ";
+            color: var(--accent);
+        }
+        
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            display: none;
+        }
+        
+        .result.success {
+            display: block;
+            background: rgba(74, 222, 128, 0.1);
+            border: 1px solid #4ade80;
+            color: #4ade80;
+        }
+        
+        .result.error {
+            display: block;
+            background: rgba(248, 113, 113, 0.1);
+            border: 1px solid #f87171;
+            color: #f87171;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <h1>🔐 Setup Admin</h1>
+            <p class="subtitle">Thiết lập quyền quản trị cho người dùng</p>
+            
+            <div class="info-box">
+                <h3>Hướng dẫn:</h3>
+                <ul>
+                    <li>Đăng nhập bằng tài khoản Firebase của bạn</li>
+                    <li>Nhập email của người dùng cần cấp quyền admin</li>
+                    <li>Người dùng sẽ có đầy đủ quyền quản trị</li>
+                </ul>
+            </div>
+            
+            <form id="setupForm">
+                <div class="form-group">
+                    <label class="form-label">Email Admin</label>
+                    <input type="email" class="form-control" id="adminEmail" 
+                           placeholder="admin@moonlightcafe.vn" required>
+                </div>
+                
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-user-shield"></i> Cấp quyền Admin
+                </button>
+            </form>
+            
+            <div class="result" id="result"></div>
+        </div>
+    </div>
+    
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+        import { getDatabase, ref, set, get } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
+        
+        // Firebase config (copy từ firebase-config.js)
+        const firebaseConfig = {
+            apiKey: "AIzaSyBhND1gGt1v0_hIBvda-YuOI5jGSqy2Jn8",
+            authDomain: "moonlight-cafe-57e5d.firebaseapp.com",
+            databaseURL: "https://moonlight-cafe-57e5d-default-rtdb.firebaseio.com",
+            projectId: "moonlight-cafe-57e5d",
+            storageBucket: "moonlight-cafe-57e5d.firebasestorage.app",
+            messagingSenderId: "304081978863",
+            appId: "1:304081978863:web:ee97854f5015ecf601221a",
+            measurementId: "G-PRSNTZ81C3"
+        };
+        
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getDatabase(app);
+        
+        const setupForm = document.getElementById('setupForm');
+        const adminEmailInput = document.getElementById('adminEmail');
+        const resultDiv = document.getElementById('result');
+        
+        // Form submit
+        setupForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const targetEmail = adminEmailInput.value.trim();
+            
+            try {
+                resultDiv.className = 'result';
+                resultDiv.innerHTML = 'Đang xử lý...';
+                resultDiv.style.display = 'block';
+                
+                // Tìm user trong database
+                const usersRef = ref(db, 'users');
+                const snapshot = await get(usersRef);
+                
+                let userFound = false;
+                let userUid = null;
+                let userData = null;
+                
+                if (snapshot.exists()) {
+                    snapshot.forEach((child) => {
+                        const user = child.val();
+                        if (user.email && user.email.toLowerCase() === targetEmail.toLowerCase()) {
+                            userFound = true;
+                            userUid = child.key;
+                            userData = user;
+                        }
+                    });
+                }
+                
+                if (!userFound) {
+                    resultDiv.className = 'result error';
+                    resultDiv.innerHTML = `
+                        <strong>Lỗi!</strong> Không tìm thấy người dùng với email: ${targetEmail}<br>
+                        <small>Người dùng này cần đăng nhập ít nhất 1 lần để tạo tài khoản trong hệ thống.</small>
+                    `;
+                    return;
+                }
+                
+                // Cập nhật role thành admin
+                await set(ref(db, 'users/' + userUid), {
+                    ...userData,
+                    role: 'admin',
+                    updatedAt: new Date().toISOString()
+                });
+                
+                resultDiv.className = 'result success';
+                resultDiv.innerHTML = `
+                    <strong>Thành công!</strong><br>
+                    Email: ${targetEmail}<br>
+                    UID: ${userUid}<br>
+                    Role: Admin ✅<br>
+                    <small>Người dùng này đã có quyền quản trị.</small>
+                `;
+                
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Thành công!',
+                    text: `Đã cấp quyền admin cho ${targetEmail}`,
+                    timer: 3000,
+                    showConfirmButton: true
+                });
+                
+            } catch (error) {
+                console.error('Error:', error);
+                resultDiv.className = 'result error';
+                resultDiv.innerHTML = `
+                    <strong>Lỗi!</strong> ${error.message}
+                `;
+            }
+        });
+        
+        // Kiểm tra trạng thái đăng nhập
+        onAuthStateChanged(auth, (user) => {
+            if (!user) {
+                // Nếu chưa đăng nhập, chuyển đến trang đăng nhập
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Cần đăng nhập!',
+                    text: 'Vui lòng đăng nhập để tiếp tục',
+                    showConfirmButton: true,
+                    confirmButtonText: 'Đăng nhập'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = 'login.html?redirect=setup-admin.html';
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

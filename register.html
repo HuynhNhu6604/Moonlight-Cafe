@@ -458,7 +458,8 @@
     </div>
 
     <script type="module">
-        import { auth, db, createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, ref, set } from './js/firebase-config.js';
+        import { auth, db, createUserWithEmailAndPassword, GoogleAuthProvider, signInWithRedirect, getRedirectResult, ref, set, get } from './js/firebase-config.js';
+        import { saveUserSession, isAdmin, ADMIN_EMAILS } from './js/auth-helper.js';
 
         const registerForm = document.getElementById('registerForm');
         const passwordInput = document.getElementById('password');
@@ -546,6 +547,9 @@
                 const userCredential = await createUserWithEmailAndPassword(auth, email, password);
                 const user = userCredential.user;
 
+                // Lưu thông tin user vào localStorage
+                await saveUserSession(auth, db);
+
                 // Save additional user info to database
                 await set(ref(db, 'users/' + user.uid), {
                     firstName: firstName,
@@ -555,6 +559,23 @@
                     role: 'customer',
                     createdAt: new Date().toISOString()
                 });
+
+                // Lấy lại userData sau khi lưu
+                const userData = await saveUserSession(auth, db);
+
+                // Kiểm tra nếu là admin thì chuyển đến admin.html
+                if (isAdmin(userData)) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Đăng ký thành công!',
+                        text: 'Chào mừng Admin!',
+                        timer: 2000,
+                        showConfirmButton: false
+                    }).then(() => {
+                        window.location.href = 'admin.html';
+                    });
+                    return;
+                }
 
                 Swal.fire({
                     icon: 'success',
@@ -589,49 +610,94 @@
             }
         });
 
-        // Google Sign-In
+        // Google Sign-In (dùng redirect thay vì popup để tránh bị chặn)
         const googleBtn = document.querySelector('.social-btn.google');
         googleBtn.addEventListener('click', async () => {
             try {
                 const provider = new GoogleAuthProvider();
-                const result = await signInWithPopup(auth, provider);
-                const user = result.user;
+                await signInWithRedirect(auth, provider);
+            } catch (error) {
+                console.error('Google sign-in error:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Đăng nhập thất bại!',
+                    html: `
+                        <p>Trình duyệt đã chặn đăng nhập Google.</p>
+                        <p><strong>Cách khắc phục:</strong></p>
+                        <ul style="text-align: left; font-size: 0.9rem;">
+                            <li>Cho phép popup trên thanh địa chỉ</li>
+                            <li>Hoặc dùng đăng ký bằng email/password</li>
+                        </ul>
+                    `
+                });
+            }
+        });
 
-                // Check if user data exists, if not create it
+        // Xử lý redirect sau khi Google đăng nhập
+        getRedirectResult(auth).then(async (result) => {
+            if (result) {
+                const user = result.user;
+                console.log('Google redirect success:', user.email);
+
                 const userRef = ref(db, 'users/' + user.uid);
                 const snapshot = await get(userRef);
 
+                // If user doesn't exist, create user data
                 if (!snapshot.exists()) {
-                    // Create new user profile
+                    console.log('Creating new user in database...');
+                    // Check if email is in admin list
+                    const isAdminEmail = ADMIN_EMAILS.includes(user.email);
+
                     await set(userRef, {
                         firstName: user.displayName ? user.displayName.split(' ').slice(-1)[0] : '',
                         lastName: user.displayName ? user.displayName.split(' ').slice(0, -1).join(' ') : '',
                         email: user.email,
                         phone: user.phoneNumber || '',
-                        role: 'customer',
+                        role: isAdminEmail ? 'admin' : 'customer',
                         createdAt: new Date().toISOString(),
                         provider: 'google'
                     });
+                }
+
+                // Get updated user data after creation
+                const updatedSnapshot = await get(userRef);
+                const userData = updatedSnapshot.val();
+
+                // Save to localStorage
+                localStorage.setItem('moonlight_user', JSON.stringify({
+                    uid: user.uid,
+                    email: user.email,
+                    ...userData
+                }));
+
+                // Check admin status
+                const isAdminUser = isAdmin({ ...userData, email: user.email });
+
+                if (isAdminUser) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Đăng nhập thành công!',
+                        text: 'Chào mừng Admin!',
+                        timer: 1500,
+                        showConfirmButton: false
+                    }).then(() => {
+                        window.location.href = 'admin.html';
+                    });
+                    return;
                 }
 
                 Swal.fire({
                     icon: 'success',
                     title: 'Đăng nhập thành công!',
                     text: 'Chào mừng bạn đến với Moonlight Cafe',
-                    timer: 2000,
+                    timer: 1500,
                     showConfirmButton: false
                 }).then(() => {
                     window.location.href = 'index.html';
                 });
-
-            } catch (error) {
-                console.error('Google sign-in error:', error);
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Đăng nhập thất bại!',
-                    text: error.message || 'Không thể đăng nhập bằng Google'
-                });
             }
+        }).catch((error) => {
+            console.error('Redirect result error:', error);
         });
 
         // Facebook Sign-In (placeholder - requires Facebook App setup)

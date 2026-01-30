@@ -770,7 +770,8 @@
     </footer>
 
     <script type="module">
-        import { db, ref, get, onValue } from './js/firebase-config.js';
+        import { auth, db, ref, get, onValue, onAuthStateChanged } from './js/firebase-config.js';
+        import { saveUserSession } from './js/auth-helper.js';
 
         // State
         let allProducts = [];
@@ -838,6 +839,13 @@
         sidebarOverlay.addEventListener('click', () => {
             menuSidebar.classList.remove('active');
             sidebarOverlay.classList.remove('active');
+        });
+
+        // Lưu session user khi có đăng nhập
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                await saveUserSession(auth, db);
+            }
         });
 
         // Load products

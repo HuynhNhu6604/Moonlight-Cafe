@@ -5,22 +5,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Đăng nhập - Moonlight Cafe</title>
-
-    <!-- Fonts -->
     <link
         href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap"
         rel="stylesheet">
-
-    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-    <!-- Custom CSS -->
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/mobile.css">
-
-    <!-- SweetAlert2 -->
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
     <style>
         .auth-page {
             min-height: 100vh;
@@ -29,29 +19,6 @@
             justify-content: center;
             background: linear-gradient(135deg, var(--bg-dark) 0%, var(--primary) 100%);
             padding: 40px 20px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .auth-page::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            right: -50%;
-            width: 100%;
-            height: 100%;
-            background: radial-gradient(circle, rgba(212, 165, 116, 0.1) 0%, transparent 70%);
-            animation: rotate 20s linear infinite;
-        }
-
-        @keyframes rotate {
-            from {
-                transform: rotate(0deg);
-            }
-
-            to {
-                transform: rotate(360deg);
-            }
         }
 
         .auth-container {
@@ -63,8 +30,6 @@
             border-radius: var(--radius-lg);
             box-shadow: var(--shadow-lg);
             overflow: hidden;
-            position: relative;
-            z-index: 1;
         }
 
         .auth-image {
@@ -93,10 +58,6 @@
         .auth-image-content h2 {
             font-size: 2rem;
             margin-bottom: 1rem;
-        }
-
-        .auth-image-content p {
-            color: var(--text-secondary);
         }
 
         .auth-form-container {
@@ -162,38 +123,10 @@
             transform: translateY(-50%);
             cursor: pointer;
             color: var(--text-muted);
-            transition: var(--transition-fast);
         }
 
         .password-toggle:hover {
             color: var(--accent);
-        }
-
-        .form-options {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.5rem;
-        }
-
-        .remember-me {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            cursor: pointer;
-        }
-
-        .remember-me input {
-            accent-color: var(--accent);
-        }
-
-        .forgot-link {
-            color: var(--accent);
-            font-size: 0.9rem;
-        }
-
-        .forgot-link:hover {
-            text-decoration: underline;
         }
 
         .auth-btn {
@@ -235,16 +168,13 @@
             justify-content: center;
             font-size: 1.25rem;
             transition: var(--transition-normal);
+            cursor: pointer;
+            border: none;
         }
 
         .social-btn.google {
             background: #fff;
             color: #db4437;
-        }
-
-        .social-btn.facebook {
-            background: #1877f2;
-            color: #fff;
         }
 
         .social-btn:hover {
@@ -260,10 +190,6 @@
         .auth-footer a {
             color: var(--accent);
             font-weight: 500;
-        }
-
-        .auth-footer a:hover {
-            text-decoration: underline;
         }
 
         .back-home {
@@ -299,10 +225,7 @@
 
 <body>
     <div class="auth-page">
-        <a href="index.html" class="back-home">
-            <i class="fas fa-arrow-left"></i> Trang chủ
-        </a>
-
+        <a href="index.html" class="back-home"><i class="fas fa-arrow-left"></i> Trang chủ</a>
         <div class="auth-container">
             <div class="auth-image">
                 <div class="auth-image-content">
@@ -310,17 +233,12 @@
                     <p>Đăng nhập để tiếp tục thưởng thức những trải nghiệm tuyệt vời tại Moonlight Cafe.</p>
                 </div>
             </div>
-
             <div class="auth-form-container">
                 <div class="auth-header">
-                    <div class="auth-logo">
-                        <span>🌙</span>
-                        <span class="auth-logo-text">Moonlight Cafe</span>
-                    </div>
+                    <div class="auth-logo"><span>🌙</span><span class="auth-logo-text">Moonlight Cafe</span></div>
                     <h1 class="auth-title">Đăng nhập</h1>
                     <p class="auth-subtitle">Nhập thông tin tài khoản của bạn</p>
                 </div>
-
                 <form class="auth-form" id="loginForm">
                     <div class="form-group">
                         <label class="form-label">Email</label>
@@ -329,7 +247,6 @@
                             <input type="email" class="form-control" id="email" placeholder="your@email.com" required>
                         </div>
                     </div>
-
                     <div class="form-group">
                         <label class="form-label">Mật khẩu</label>
                         <div class="input-icon-wrapper">
@@ -338,31 +255,19 @@
                             <i class="fas fa-eye password-toggle" id="togglePassword"></i>
                         </div>
                     </div>
-
-                    <div class="form-options">
-                        <label class="remember-me">
-                            <input type="checkbox" id="remember">
-                            <span>Nhớ mật khẩu</span>
-                        </label>
-                        <a href="forgot-password.html" class="forgot-link">Quên mật khẩu?</a>
+                    <div class="form-options"
+                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                        <a href="forgot-password.html" class="forgot-link"
+                            style="color: var(--accent); font-size: 0.9rem;">Quên mật khẩu?</a>
                     </div>
-
                     <button type="submit" class="btn btn-primary auth-btn">
                         <i class="fas fa-sign-in-alt"></i> Đăng nhập
                     </button>
                 </form>
-
                 <div class="auth-divider">hoặc</div>
-
                 <div class="social-login">
-                    <button class="social-btn google" id="googleLogin">
-                        <i class="fab fa-google"></i>
-                    </button>
-                    <button class="social-btn facebook" id="facebookLogin">
-                        <i class="fab fa-facebook-f"></i>
-                    </button>
+                    <button class="social-btn google" id="googleLogin"><i class="fab fa-google"></i></button>
                 </div>
-
                 <div class="auth-footer">
                     <p>Chưa có tài khoản? <a href="register.html">Đăng ký ngay</a></p>
                 </div>
@@ -370,128 +275,206 @@
         </div>
     </div>
 
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <script type="module">
-        import { auth, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, db, ref, set, get } from './js/firebase-config.js';
+        // Wait for DOM to be fully loaded
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Firebase config
+            const firebaseConfig = {
+                apiKey: "AIzaSyBhND1gGt1v0_hIBvda-YuOI5jGSqy2Jn8",
+                authDomain: "moonlight-cafe-57e5d.firebaseapp.com",
+                databaseURL: "https://moonlight-cafe-57e5d-default-rtdb.firebaseio.com",
+                projectId: "moonlight-cafe-57e5d",
+                storageBucket: "moonlight-cafe-57e5d.firebasestorage.app",
+                messagingSenderId: "304081978863",
+                appId: "1:304081978863:web:ee97854f5015ecf601221a"
+            };
 
-        const loginForm = document.getElementById('loginForm');
-        const togglePassword = document.getElementById('togglePassword');
-        const passwordInput = document.getElementById('password');
+            // Initialize Firebase (only once)
+            const { initializeApp } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js');
+            const { getAuth, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, getRedirectResult, onAuthStateChanged } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js');
+            const { getDatabase, ref, set, get, onValue } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js');
+            const { ADMIN_EMAILS } = await import('./js/auth-helper.js');
 
-        // Toggle password visibility
-        togglePassword.addEventListener('click', () => {
-            const type = passwordInput.type === 'password' ? 'text' : 'password';
-            passwordInput.type = type;
-            togglePassword.classList.toggle('fa-eye');
-            togglePassword.classList.toggle('fa-eye-slash');
-        });
-
-        // Login form submit
-        loginForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
+            let app;
+            let auth;
+            let db;
 
             try {
-                Swal.fire({
-                    title: 'Đang đăng nhập...',
-                    allowOutsideClick: false,
-                    didOpen: () => {
-                        Swal.showLoading();
+                // Check if Firebase app is already initialized
+                app = initializeApp(firebaseConfig);
+                auth = getAuth(app);
+                db = getDatabase(app);
+                console.log('Firebase initialized successfully');
+            } catch (e) {
+                console.error('Firebase initialization error:', e);
+                return;
+            }
+
+            const provider = new GoogleAuthProvider();
+
+            // Toggle password visibility
+            const togglePasswordBtn = document.getElementById('togglePassword');
+            if (togglePasswordBtn) {
+                togglePasswordBtn.addEventListener('click', function () {
+                    const input = document.getElementById('password');
+                    const type = input.type === 'password' ? 'text' : 'password';
+                    input.type = type;
+                    this.classList.toggle('fa-eye');
+                    this.classList.toggle('fa-eye-slash');
+                });
+            }
+
+            // Check if user is already logged in
+            onAuthStateChanged(auth, async (user) => {
+                if (user) {
+                    console.log('User is logged in:', user.email);
+
+                    // Get user data from database
+                    const userRef = ref(db, 'users/' + user.uid);
+                    const snapshot = await get(userRef);
+                    let userData = { role: 'customer' };
+
+                    if (snapshot.exists()) {
+                        userData = snapshot.val();
+                    }
+
+                    // Save to localStorage
+                    localStorage.setItem('moonlight_user', JSON.stringify({
+                        uid: user.uid,
+                        email: user.email,
+                        ...userData
+                    }));
+
+                    // Check if admin
+                    const isAdminUser = userData.role === 'admin' || ADMIN_EMAILS.includes(user.email);
+
+                    console.log('Is admin:', isAdminUser);
+
+                    // Redirect
+                    if (isAdminUser) {
+                        window.location.href = 'admin.html';
+                    } else {
+                        window.location.href = 'index.html';
+                    }
+                } else {
+                    console.log('No user logged in');
+                }
+            });
+
+            // Email/Password login
+            const loginForm = document.getElementById('loginForm');
+            if (loginForm) {
+                loginForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const email = document.getElementById('email').value;
+                    const password = document.getElementById('password').value;
+
+                    try {
+                        Swal.fire({ title: 'Đang đăng nhập...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
+
+                        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                        const user = userCredential.user;
+                        console.log('Login success:', user.email);
+
+                        // Note: onAuthStateChanged will handle the redirect
+
+                    } catch (error) {
+                        console.error('Login error:', error);
+                        let msg = 'Đã có lỗi xảy ra!';
+                        if (error.code === 'auth/user-not-found') msg = 'Email không tồn tại';
+                        if (error.code === 'auth/wrong-password') msg = 'Mật khẩu không đúng';
+                        if (error.code === 'auth/invalid-email') msg = 'Email không hợp lệ';
+                        if (error.code === 'auth/invalid-credential') msg = 'Email hoặc mật khẩu không đúng';
+                        Swal.fire({ icon: 'error', title: 'Đăng nhập thất bại!', text: msg });
                     }
                 });
-
-                await signInWithEmailAndPassword(auth, email, password);
-
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Đăng nhập thành công!',
-                    text: 'Chào mừng bạn trở lại Moonlight Cafe',
-                    timer: 1500,
-                    showConfirmButton: false
-                }).then(() => {
-                    window.location.href = 'index.html';
-                });
-
-            } catch (error) {
-                let errorMessage = 'Đã có lỗi xảy ra!';
-
-                switch (error.code) {
-                    case 'auth/user-not-found':
-                        errorMessage = 'Email không tồn tại trong hệ thống';
-                        break;
-                    case 'auth/wrong-password':
-                        errorMessage = 'Mật khẩu không đúng';
-                        break;
-                    case 'auth/invalid-email':
-                        errorMessage = 'Email không hợp lệ';
-                        break;
-                    case 'auth/too-many-requests':
-                        errorMessage = 'Quá nhiều lần thử. Vui lòng thử lại sau.';
-                        break;
-                }
-
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Đăng nhập thất bại!',
-                    text: errorMessage
-                });
             }
-        });
 
-        // Google Sign-In
-        const googleLoginBtn = document.getElementById('googleLogin');
-        googleLoginBtn.addEventListener('click', async () => {
-            try {
-                const provider = new GoogleAuthProvider();
-                const result = await signInWithPopup(auth, provider);
-                const user = result.user;
+            // Google login với POPUP (thay vì redirect)
+            const googleLoginBtn = document.getElementById('googleLogin');
+            if (googleLoginBtn) {
+                googleLoginBtn.addEventListener('click', async () => {
+                    try {
+                        console.log('🔵 Google login button clicked');
 
-                // Check if user data exists, if not create it
-                const userRef = ref(db, 'users/' + user.uid);
-                const snapshot = await get(userRef);
+                        // Show loading
+                        Swal.fire({
+                            title: 'Đang đăng nhập...',
+                            text: 'Vui lòng chọn tài khoản Google',
+                            allowOutsideClick: false,
+                            didOpen: () => { Swal.showLoading(); }
+                        });
 
-                if (!snapshot.exists()) {
-                    // Create new user profile
-                    await set(userRef, {
-                        firstName: user.displayName ? user.displayName.split(' ').slice(-1)[0] : '',
-                        lastName: user.displayName ? user.displayName.split(' ').slice(0, -1).join(' ') : '',
-                        email: user.email,
-                        phone: user.phoneNumber || '',
-                        role: 'customer',
-                        createdAt: new Date().toISOString(),
-                        provider: 'google'
-                    });
-                }
+                        // Use POPUP instead of redirect
+                        const result = await signInWithPopup(auth, provider);
+                        const user = result.user;
+                        console.log('✅ Google login success:', user.email);
 
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Đăng nhập thành công!',
-                    text: 'Chào mừng bạn đến với Moonlight Cafe',
-                    timer: 1500,
-                    showConfirmButton: false
-                }).then(() => {
-                    window.location.href = 'index.html';
+                        // Check if user exists in database
+                        const userRef = ref(db, 'users/' + user.uid);
+                        const snapshot = await get(userRef);
+
+                        // Create user if doesn't exist
+                        if (!snapshot.exists()) {
+                            console.log('📝 Creating new user...');
+                            await set(userRef, {
+                                firstName: user.displayName ? user.displayName.split(' ').slice(-1)[0] : '',
+                                lastName: user.displayName ? user.displayName.split(' ').slice(0, -1).join(' ') : '',
+                                email: user.email,
+                                phone: user.phoneNumber || '',
+                                role: ADMIN_EMAILS.includes(user.email) ? 'admin' : 'customer',
+                                createdAt: new Date().toISOString(),
+                                provider: 'google'
+                            });
+                        }
+
+                        // Get user data
+                        const updatedSnapshot = await get(userRef);
+                        const userData = updatedSnapshot.val();
+
+                        // Save to localStorage
+                        localStorage.setItem('moonlight_user', JSON.stringify({
+                            uid: user.uid,
+                            email: user.email,
+                            ...userData
+                        }));
+
+                        // Check admin and redirect
+                        const isAdminUser = userData.role === 'admin' || ADMIN_EMAILS.includes(user.email);
+
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Đăng nhập thành công!',
+                            text: isAdminUser ? 'Chào mừng Admin!' : 'Chào mừng bạn!',
+                            timer: 1500,
+                            showConfirmButton: false
+                        }).then(() => {
+                            window.location.href = isAdminUser ? 'admin.html' : 'index.html';
+                        });
+
+                    } catch (error) {
+                        console.error('❌ Google login error:', error);
+
+                        let errorMsg = 'Không thể đăng nhập bằng Google';
+                        if (error.code === 'auth/popup-closed-by-user') {
+                            errorMsg = 'Bạn đã đóng cửa sổ đăng nhập';
+                        } else if (error.code === 'auth/popup-blocked') {
+                            errorMsg = 'Trình duyệt chặn popup. Vui lòng cho phép popup cho trang này';
+                        }
+
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Lỗi đăng nhập!',
+                            text: errorMsg
+                        });
+                    }
                 });
-
-            } catch (error) {
-                console.error('Google sign-in error:', error);
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Đăng nhập thất bại!',
-                    text: error.message || 'Không thể đăng nhập bằng Google'
-                });
+            } else {
+                console.error('❌ Google login button not found!');
             }
-        });
-
-        // Facebook Sign-In (placeholder)
-        const facebookLoginBtn = document.getElementById('facebookLogin');
-        facebookLoginBtn.addEventListener('click', () => {
-            Swal.fire({
-                icon: 'info',
-                title: 'Tính năng đang phát triển',
-                text: 'Đăng nhập Facebook sẽ sớm được ra mắt!'
-            });
         });
     </script>
 </body>

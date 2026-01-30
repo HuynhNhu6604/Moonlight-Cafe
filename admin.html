@@ -1,336 +1,383 @@
 <!DOCTYPE html>
 <html lang="vi">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard - Moonlight Cafe</title>
-
+    
     <!-- Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
-        rel="stylesheet">
-
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="css/style.css">
-
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
     <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
+    
+    <link rel="stylesheet" href="css/style.css">
+    
     <style>
+        :root {
+            --admin-sidebar: #1a1a2e;
+            --admin-accent: #d4a574;
+            --admin-success: #4ade80;
+            --admin-warning: #fbbf24;
+            --admin-danger: #f87171;
+            --admin-info: #60a5fa;
+        }
+        
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-
+        
         body {
             font-family: 'Poppins', sans-serif;
-            background: var(--bg-dark);
-            color: var(--text-primary);
+            background: var(--bg-dark, #0d0d1a);
+            color: var(--text-primary, #fff);
+            min-height: 100vh;
+        }
+        
+        /* Admin Layout */
+        .admin-layout {
             display: flex;
             min-height: 100vh;
         }
-
+        
         /* Sidebar */
         .admin-sidebar {
-            width: 260px;
-            background: var(--primary);
+            width: 280px;
+            background: var(--admin-sidebar);
             padding: 20px;
             position: fixed;
             height: 100vh;
             overflow-y: auto;
             z-index: 100;
+            display: flex;
+            flex-direction: column;
         }
-
+        
         .admin-logo {
             display: flex;
             align-items: center;
             gap: 12px;
-            padding: 15px 0 30px;
-            border-bottom: 1px solid var(--secondary);
+            padding: 15px 0 25px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
             margin-bottom: 20px;
         }
-
+        
         .admin-logo span:first-child {
-            font-size: 1.75rem;
+            font-size: 2rem;
         }
-
+        
         .admin-logo-text {
+            font-family: var(--font-heading);
             font-size: 1.25rem;
             font-weight: 600;
-            color: var(--accent);
+            color: var(--admin-accent);
         }
-
+        
         .admin-nav {
             list-style: none;
+            flex: 1;
         }
-
+        
         .admin-nav-item {
             margin-bottom: 5px;
         }
-
+        
         .admin-nav-link {
             display: flex;
             align-items: center;
             gap: 12px;
-            padding: 12px 15px;
-            border-radius: var(--radius-sm);
-            color: var(--text-secondary);
+            padding: 14px 16px;
+            border-radius: 10px;
+            color: var(--text-secondary, #b8b8d0);
             font-weight: 500;
-            transition: var(--transition-fast);
+            transition: all 0.3s ease;
             cursor: pointer;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+            font-size: 0.95rem;
         }
-
+        
         .admin-nav-link:hover,
         .admin-nav-link.active {
-            background: var(--bg-card);
-            color: var(--accent);
+            background: rgba(212, 165, 116, 0.15);
+            color: var(--admin-accent);
         }
-
+        
+        .admin-nav-link.active {
+            border-left: 3px solid var(--admin-accent);
+        }
+        
         .admin-nav-link i {
-            width: 20px;
+            width: 22px;
             text-align: center;
         }
-
+        
         .nav-divider {
             height: 1px;
-            background: var(--secondary);
+            background: rgba(255,255,255,0.1);
             margin: 15px 0;
         }
-
+        
         /* Main Content */
         .admin-main {
             flex: 1;
-            margin-left: 260px;
-            padding: 20px 30px;
+            margin-left: 280px;
+            padding: 25px 30px;
+            background: var(--bg-dark, #0d0d1a);
         }
-
+        
+        /* Header */
         .admin-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 30px;
             padding-bottom: 20px;
-            border-bottom: 1px solid var(--secondary);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
         }
-
+        
         .admin-title h1 {
             font-size: 1.75rem;
             margin-bottom: 5px;
         }
-
+        
         .admin-title p {
-            color: var(--text-muted);
+            color: var(--text-muted, #8888a0);
             margin: 0;
         }
-
+        
         .admin-user {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 15px;
         }
-
+        
         .admin-user-info {
             text-align: right;
         }
-
+        
         .admin-user-info h4 {
             font-size: 0.95rem;
             margin: 0;
         }
-
+        
         .admin-user-info span {
             font-size: 0.8rem;
             color: var(--text-muted);
         }
-
+        
         .admin-avatar {
             width: 45px;
             height: 45px;
             border-radius: 50%;
             object-fit: cover;
-            border: 2px solid var(--accent);
+            border: 2px solid var(--admin-accent);
         }
-
+        
         /* Stats Cards */
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            grid-template-columns: repeat(4, 1fr);
             gap: 20px;
             margin-bottom: 30px;
         }
-
+        
         .stat-card {
-            background: var(--bg-card);
+            background: var(--bg-card, #1a1a2e);
             padding: 25px;
-            border-radius: var(--radius-md);
+            border-radius: 16px;
             display: flex;
             align-items: center;
             gap: 20px;
+            transition: transform 0.3s ease;
         }
-
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+        
         .stat-icon {
             width: 60px;
             height: 60px;
-            border-radius: var(--radius-sm);
+            border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 1.5rem;
         }
-
-        .stat-icon.orders {
-            background: rgba(96, 165, 250, 0.2);
-            color: var(--info);
-        }
-
-        .stat-icon.revenue {
-            background: rgba(74, 222, 128, 0.2);
-            color: var(--success);
-        }
-
-        .stat-icon.products {
-            background: rgba(251, 191, 36, 0.2);
-            color: var(--warning);
-        }
-
-        .stat-icon.users {
-            background: rgba(139, 92, 246, 0.2);
-            color: #8b5cf6;
-        }
-
+        
+        .stat-icon.orders { background: rgba(96, 165, 250, 0.15); color: var(--admin-info); }
+        .stat-icon.revenue { background: rgba(74, 222, 128, 0.15); color: var(--admin-success); }
+        .stat-icon.products { background: rgba(251, 191, 36, 0.15); color: var(--admin-warning); }
+        .stat-icon.users { background: rgba(139, 92, 246, 0.15); color: #8b5cf6; }
+        
         .stat-info h3 {
-            font-size: 1.5rem;
+            font-size: 1.75rem;
             margin-bottom: 5px;
         }
-
+        
         .stat-info p {
             color: var(--text-muted);
             margin: 0;
             font-size: 0.9rem;
         }
-
-        /* Section Tabs */
-        .section-panel {
-            display: none;
+        
+        /* Charts Grid */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
         }
-
-        .section-panel.active {
-            display: block;
+        
+        .chart-card {
+            background: var(--bg-card, #1a1a2e);
+            border-radius: 16px;
+            padding: 25px;
         }
-
-        /* Table Styles */
-        .admin-card {
-            background: var(--bg-card);
-            border-radius: var(--radius-md);
+        
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .chart-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+        
+        /* Table Card */
+        .table-card {
+            background: var(--bg-card, #1a1a2e);
+            border-radius: 16px;
             overflow: hidden;
+            margin-bottom: 30px;
         }
-
-        .admin-card-header {
+        
+        .table-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             padding: 20px 25px;
-            border-bottom: 1px solid var(--secondary);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
         }
-
-        .admin-card-title {
+        
+        .table-title {
             font-size: 1.1rem;
+            font-weight: 600;
             display: flex;
             align-items: center;
             gap: 10px;
         }
-
-        .admin-card-title i {
-            color: var(--accent);
-        }
-
+        
+        .table-title i { color: var(--admin-accent); }
+        
         .admin-table {
             width: 100%;
             border-collapse: collapse;
         }
-
+        
         .admin-table th,
         .admin-table td {
             padding: 15px 20px;
             text-align: left;
-            border-bottom: 1px solid var(--secondary);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
         }
-
+        
         .admin-table th {
-            background: var(--primary-light);
+            background: rgba(255,255,255,0.02);
             color: var(--text-muted);
             font-weight: 500;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .admin-table tbody tr:hover {
+            background: rgba(255,255,255,0.02);
+        }
+        
+        .admin-table img {
+            width: 45px;
+            height: 35px;
+            object-fit: cover;
+            border-radius: 6px;
+        }
+        
+        /* Status Badges */
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
             text-transform: uppercase;
         }
-
-        .admin-table tr:hover {
-            background: var(--primary-light);
-        }
-
-        .admin-table img {
-            width: 50px;
-            height: 40px;
-            object-fit: cover;
-            border-radius: var(--radius-sm);
-        }
-
-        .status-badge {
-            padding: 5px 12px;
-            border-radius: var(--radius-full);
-            font-size: 0.8rem;
-            font-weight: 500;
-        }
-
-        .status-pending {
-            background: rgba(251, 191, 36, 0.2);
-            color: var(--warning);
-        }
-
-        .status-confirmed {
-            background: rgba(96, 165, 250, 0.2);
-            color: var(--info);
-        }
-
-        .status-completed {
-            background: rgba(74, 222, 128, 0.2);
-            color: var(--success);
-        }
-
-        .status-cancelled {
-            background: rgba(248, 113, 113, 0.2);
-            color: var(--danger);
-        }
-
+        
+        .status-pending { background: rgba(251, 191, 36, 0.15); color: var(--admin-warning); }
+        .status-confirmed { background: rgba(96, 165, 250, 0.15); color: var(--admin-info); }
+        .status-completed { background: rgba(74, 222, 128, 0.15); color: var(--admin-success); }
+        .status-cancelled { background: rgba(248, 113, 113, 0.15); color: var(--admin-danger); }
+        
+        /* Action Buttons */
         .action-btn {
-            width: 32px;
-            height: 32px;
+            width: 34px;
+            height: 34px;
             border: none;
-            border-radius: var(--radius-sm);
+            border-radius: 8px;
             cursor: pointer;
-            transition: var(--transition-fast);
-            margin-right: 5px;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
         }
-
-        .action-btn.edit {
-            background: rgba(96, 165, 250, 0.2);
-            color: var(--info);
+        
+        .action-btn.edit { background: rgba(96, 165, 250, 0.15); color: var(--admin-info); }
+        .action-btn.delete { background: rgba(248, 113, 113, 0.15); color: var(--admin-danger); }
+        .action-btn:hover { transform: scale(1.1); }
+        
+        /* Buttons */
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
         }
-
-        .action-btn.delete {
-            background: rgba(248, 113, 113, 0.2);
-            color: var(--danger);
+        
+        .btn-primary {
+            background: var(--admin-accent);
+            color: #1a1a2e;
         }
-
-        .action-btn:hover {
-            opacity: 0.8;
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(212, 165, 116, 0.3);
         }
-
-        /* Form Modal */
+        
+        .btn-sm { padding: 8px 14px; font-size: 0.85rem; }
+        
+        /* Sections */
+        .section-panel { display: none; }
+        .section-panel.active { display: block; }
+        
+        /* Modal */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -343,32 +390,26 @@
             align-items: center;
             justify-content: center;
         }
-
-        .modal-overlay.active {
-            display: flex;
-        }
-
+        
+        .modal-overlay.active { display: flex; }
+        
         .modal-content {
-            background: var(--bg-card);
-            border-radius: var(--radius-md);
+            background: var(--bg-card, #1a1a2e);
+            border-radius: 16px;
             width: 100%;
             max-width: 500px;
             max-height: 90vh;
             overflow-y: auto;
         }
-
+        
         .modal-header {
             padding: 20px 25px;
-            border-bottom: 1px solid var(--secondary);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
-
-        .modal-header h3 {
-            margin: 0;
-        }
-
+        
         .modal-close {
             background: none;
             border: none;
@@ -376,299 +417,304 @@
             color: var(--text-muted);
             cursor: pointer;
         }
-
-        .modal-body {
-            padding: 25px;
-        }
-
+        
+        .modal-body { padding: 25px; }
+        
         .modal-footer {
             padding: 20px 25px;
-            border-top: 1px solid var(--secondary);
+            border-top: 1px solid rgba(255,255,255,0.1);
             display: flex;
             justify-content: flex-end;
             gap: 10px;
         }
-
-        /* Responsive */
-        @media (max-width: 992px) {
-            .admin-sidebar {
-                transform: translateX(-100%);
-                transition: transform 0.3s ease;
-            }
-
-            .admin-sidebar.active {
-                transform: translateX(0);
-            }
-
-            .admin-main {
-                margin-left: 0;
-            }
-
-            .mobile-toggle {
-                display: block !important;
-            }
+        
+        /* Form Controls */
+        .form-group { margin-bottom: 18px; }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            font-size: 0.9rem;
         }
-
+        
+        .form-control {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(255,255,255,0.05);
+            border: 2px solid transparent;
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+        }
+        
+        .form-control:focus {
+            border-color: var(--admin-accent);
+            outline: none;
+        }
+        
+        /* Quick Actions */
+        .quick-actions { display: flex; gap: 10px; margin-bottom: 20px; }
+        
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .charts-grid { grid-template-columns: 1fr; }
+        }
+        
+        @media (max-width: 992px) {
+            .admin-sidebar { transform: translateX(-100%); }
+            .admin-sidebar.active { transform: translateX(0); }
+            .admin-main { margin-left: 0; }
+            .mobile-toggle { display: block !important; }
+        }
+        
+        @media (max-width: 768px) {
+            .stats-grid { grid-template-columns: 1fr; }
+            .admin-header { flex-direction: column; gap: 15px; text-align: center; }
+            .admin-user { flex-direction: column; }
+        }
+        
         .mobile-toggle {
             display: none;
-            background: var(--accent);
-            color: var(--text-dark);
+            background: var(--admin-accent);
+            color: #1a1a2e;
             border: none;
             padding: 10px 15px;
-            border-radius: var(--radius-sm);
+            border-radius: 8px;
             cursor: pointer;
         }
     </style>
 </head>
-
 <body>
-    <!-- Sidebar -->
-    <aside class="admin-sidebar" id="adminSidebar">
-        <div class="admin-logo">
-            <span>🌙</span>
-            <span class="admin-logo-text">Moonlight Admin</span>
-        </div>
-
-        <ul class="admin-nav">
-            <li class="admin-nav-item">
-                <a class="admin-nav-link active" data-section="dashboard">
-                    <i class="fas fa-home"></i> Dashboard
-                </a>
-            </li>
-            <li class="admin-nav-item">
-                <a class="admin-nav-link" data-section="products">
-                    <i class="fas fa-coffee"></i> Sản phẩm
-                </a>
-            </li>
-            <li class="admin-nav-item">
-                <a class="admin-nav-link" data-section="orders">
-                    <i class="fas fa-shopping-bag"></i> Đơn hàng
-                </a>
-            </li>
-            <li class="admin-nav-item">
-                <a class="admin-nav-link" data-section="users">
-                    <i class="fas fa-users"></i> Người dùng
-                </a>
-            </li>
-
-            <div class="nav-divider"></div>
-
-            <li class="admin-nav-item">
-                <a class="admin-nav-link" href="index.html">
-                    <i class="fas fa-globe"></i> Xem website
-                </a>
-            </li>
-            <li class="admin-nav-item">
-                <a class="admin-nav-link" id="logoutBtn">
-                    <i class="fas fa-sign-out-alt"></i> Đăng xuất
-                </a>
-            </li>
-        </ul>
-    </aside>
-
-    <!-- Main Content -->
-    <main class="admin-main">
-        <!-- Header -->
-        <header class="admin-header">
-            <div class="admin-title">
-                <button class="mobile-toggle" id="sidebarToggle">
-                    <i class="fas fa-bars"></i>
-                </button>
-                <h1 id="pageTitle">Dashboard</h1>
-                <p id="pageSubtitle">Tổng quan hệ thống</p>
+    <div class="admin-layout">
+        <!-- Sidebar -->
+        <aside class="admin-sidebar" id="adminSidebar">
+            <div class="admin-logo">
+                <span>🌙</span>
+                <span class="admin-logo-text">Moonlight Admin</span>
             </div>
-            <div class="admin-user">
-                <div class="admin-user-info">
-                    <h4 id="adminName">Admin</h4>
-                    <span>Quản trị viên</span>
+            
+            <ul class="admin-nav">
+                <li class="admin-nav-item">
+                    <a class="admin-nav-link active" data-section="dashboard">
+                        <i class="fas fa-home"></i> Dashboard
+                    </a>
+                </li>
+                <li class="admin-nav-item">
+                    <a class="admin-nav-link" data-section="products">
+                        <i class="fas fa-coffee"></i> Sản phẩm
+                    </a>
+                </li>
+                <li class="admin-nav-item">
+                    <a class="admin-nav-link" data-section="orders">
+                        <i class="fas fa-shopping-bag"></i> Đơn hàng
+                    </a>
+                </li>
+                <li class="admin-nav-item">
+                    <a class="admin-nav-link" data-section="users">
+                        <i class="fas fa-users"></i> Người dùng
+                    </a>
+                </li>
+                
+                <div class="nav-divider"></div>
+                
+                <li class="admin-nav-item">
+                    <a class="admin-nav-link" href="index.html">
+                        <i class="fas fa-globe"></i> Xem website
+                    </a>
+                </li>
+                <li class="admin-nav-item">
+                    <a class="admin-nav-link" id="logoutBtn">
+                        <i class="fas fa-sign-out-alt"></i> Đăng xuất
+                    </a>
+                </li>
+            </ul>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="admin-main">
+            <header class="admin-header">
+                <div class="admin-title">
+                    <button class="mobile-toggle" id="sidebarToggle">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <h1 id="pageTitle">Dashboard</h1>
+                    <p id="pageSubtitle">Tổng quan hệ thống</p>
                 </div>
-                <img src="https://i.pravatar.cc/100?img=12" alt="Admin" class="admin-avatar">
-            </div>
-        </header>
-
-        <!-- Dashboard Section -->
-        <section class="section-panel active" id="dashboardSection">
-            <!-- Stats -->
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-icon orders">
-                        <i class="fas fa-shopping-bag"></i>
+                <div class="admin-user">
+                    <div class="admin-user-info">
+                        <h4 id="adminName">Admin</h4>
+                        <span>Quản trị viên</span>
                     </div>
-                    <div class="stat-info">
-                        <h3 id="totalOrders">0</h3>
-                        <p>Tổng đơn hàng</p>
+                    <img src="https://i.pravatar.cc/100?img=12" alt="Admin" class="admin-avatar">
+                </div>
+            </header>
+            
+            <!-- Dashboard Section -->
+            <section class="section-panel active" id="dashboardSection">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon orders"><i class="fas fa-shopping-bag"></i></div>
+                        <div class="stat-info">
+                            <h3 id="totalOrders">0</h3>
+                            <p>Đơn hàng</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon revenue"><i class="fas fa-dollar-sign"></i></div>
+                        <div class="stat-info">
+                            <h3 id="totalRevenue">0đ</h3>
+                            <p>Doanh thu</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon products"><i class="fas fa-coffee"></i></div>
+                        <div class="stat-info">
+                            <h3 id="totalProducts">0</h3>
+                            <p>Sản phẩm</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon users"><i class="fas fa-users"></i></div>
+                        <div class="stat-info">
+                            <h3 id="totalUsers">0</h3>
+                            <p>Người dùng</p>
+                        </div>
                     </div>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-icon revenue">
-                        <i class="fas fa-dollar-sign"></i>
+                
+                <div class="charts-grid">
+                    <div class="chart-card">
+                        <div class="chart-header"><h3 class="chart-title">Doanh thu 7 ngày qua</h3></div>
+                        <canvas id="revenueChart" height="250"></canvas>
                     </div>
-                    <div class="stat-info">
-                        <h3 id="totalRevenue">0đ</h3>
-                        <p>Doanh thu</p>
-                    </div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon products">
-                        <i class="fas fa-coffee"></i>
-                    </div>
-                    <div class="stat-info">
-                        <h3 id="totalProducts">0</h3>
-                        <p>Sản phẩm</p>
+                    <div class="chart-card">
+                        <div class="chart-header"><h3 class="chart-title">Đơn hàng theo trạng thái</h3></div>
+                        <canvas id="ordersChart" height="250"></canvas>
                     </div>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-icon users">
-                        <i class="fas fa-users"></i>
+                
+                <div class="table-card">
+                    <div class="table-header">
+                        <h3 class="table-title"><i class="fas fa-clock"></i> Đơn hàng gần đây</h3>
+                        <button class="btn btn-primary btn-sm" onclick="showSection('orders')">
+                            <i class="fas fa-eye"></i> Xem tất cả
+                        </button>
                     </div>
-                    <div class="stat-info">
-                        <h3 id="totalUsers">0</h3>
-                        <p>Người dùng</p>
-                    </div>
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Mã đơn</th>
+                                <th>Khách hàng</th>
+                                <th>Tổng tiền</th>
+                                <th>Trạng thái</th>
+                                <th>Thời gian</th>
+                                <th>Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recentOrdersTable">
+                            <tr><td colspan="6" style="text-align: center; color: var(--text-muted);">Đang tải...</td></tr>
+                        </tbody>
+                    </table>
                 </div>
-            </div>
-
-            <!-- Recent Orders -->
-            <div class="admin-card">
-                <div class="admin-card-header">
-                    <h3 class="admin-card-title">
-                        <i class="fas fa-clock"></i> Đơn hàng gần đây
-                    </h3>
-                </div>
-                <table class="admin-table">
-                    <thead>
-                        <tr>
-                            <th>Mã đơn</th>
-                            <th>Khách hàng</th>
-                            <th>Tổng tiền</th>
-                            <th>Trạng thái</th>
-                            <th>Thời gian</th>
-                        </tr>
-                    </thead>
-                    <tbody id="recentOrdersTable">
-                        <tr>
-                            <td colspan="5" style="text-align: center; color: var(--text-muted);">
-                                Đang tải...
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </section>
-
-        <!-- Products Section -->
-        <section class="section-panel" id="productsSection">
-            <div class="admin-card">
-                <div class="admin-card-header">
-                    <h3 class="admin-card-title">
-                        <i class="fas fa-coffee"></i> Quản lý sản phẩm
-                    </h3>
-                    <button class="btn btn-primary btn-sm" id="addProductBtn">
+            </section>
+            
+            <!-- Products Section -->
+            <section class="section-panel" id="productsSection">
+                <div class="quick-actions">
+                    <button class="btn btn-primary" id="addProductBtn">
                         <i class="fas fa-plus"></i> Thêm sản phẩm
                     </button>
                 </div>
-                <table class="admin-table">
-                    <thead>
-                        <tr>
-                            <th>Hình ảnh</th>
-                            <th>Tên sản phẩm</th>
-                            <th>Danh mục</th>
-                            <th>Giá</th>
-                            <th>Trạng thái</th>
-                            <th>Thao tác</th>
-                        </tr>
-                    </thead>
-                    <tbody id="productsTable">
-                        <tr>
-                            <td colspan="6" style="text-align: center; color: var(--text-muted);">
-                                Đang tải...
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </section>
-
-        <!-- Orders Section -->
-        <section class="section-panel" id="ordersSection">
-            <div class="admin-card">
-                <div class="admin-card-header">
-                    <h3 class="admin-card-title">
-                        <i class="fas fa-shopping-bag"></i> Quản lý đơn hàng
-                    </h3>
+                <div class="table-card">
+                    <div class="table-header">
+                        <h3 class="table-title"><i class="fas fa-coffee"></i> Quản lý sản phẩm</h3>
+                    </div>
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Hình ảnh</th>
+                                <th>Tên sản phẩm</th>
+                                <th>Danh mục</th>
+                                <th>Giá</th>
+                                <th>Trạng thái</th>
+                                <th>Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody id="productsTable">
+                            <tr><td colspan="6" style="text-align: center; color: var(--text-muted);">Đang tải...</td></tr>
+                        </tbody>
+                    </table>
                 </div>
-                <table class="admin-table">
-                    <thead>
-                        <tr>
-                            <th>Mã đơn</th>
-                            <th>Khách hàng</th>
-                            <th>Số SP</th>
-                            <th>Tổng tiền</th>
-                            <th>Thanh toán</th>
-                            <th>Trạng thái</th>
-                            <th>Thao tác</th>
-                        </tr>
-                    </thead>
-                    <tbody id="ordersTable">
-                        <tr>
-                            <td colspan="7" style="text-align: center; color: var(--text-muted);">
-                                Đang tải...
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </section>
-
-        <!-- Users Section -->
-        <section class="section-panel" id="usersSection">
-            <div class="admin-card">
-                <div class="admin-card-header">
-                    <h3 class="admin-card-title">
-                        <i class="fas fa-users"></i> Quản lý người dùng
-                    </h3>
+            </section>
+            
+            <!-- Orders Section -->
+            <section class="section-panel" id="ordersSection">
+                <div class="table-card">
+                    <div class="table-header">
+                        <h3 class="table-title"><i class="fas fa-shopping-bag"></i> Quản lý đơn hàng</h3>
+                    </div>
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Mã đơn</th>
+                                <th>Khách hàng</th>
+                                <th>Số SP</th>
+                                <th>Tổng tiền</th>
+                                <th>Thanh toán</th>
+                                <th>Trạng thái</th>
+                                <th>Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ordersTable">
+                            <tr><td colspan="7" style="text-align: center; color: var(--text-muted);">Đang tải...</td></tr>
+                        </tbody>
+                    </table>
                 </div>
-                <table class="admin-table">
-                    <thead>
-                        <tr>
-                            <th>Email</th>
-                            <th>Họ tên</th>
-                            <th>Điện thoại</th>
-                            <th>Vai trò</th>
-                            <th>Ngày đăng ký</th>
-                            <th>Thao tác</th>
-                        </tr>
-                    </thead>
-                    <tbody id="usersTable">
-                        <tr>
-                            <td colspan="6" style="text-align: center; color: var(--text-muted);">
-                                Đang tải...
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </section>
-    </main>
-
+            </section>
+            
+            <!-- Users Section -->
+            <section class="section-panel" id="usersSection">
+                <div class="table-card">
+                    <div class="table-header">
+                        <h3 class="table-title"><i class="fas fa-users"></i> Quản lý người dùng</h3>
+                    </div>
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Email</th>
+                                <th>Họ tên</th>
+                                <th>Điện thoại</th>
+                                <th>Vai trò</th>
+                                <th>Ngày đăng ký</th>
+                                <th>Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usersTable">
+                            <tr><td colspan="6" style="text-align: center; color: var(--text-muted);">Đang tải...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+    </div>
+    
     <!-- Product Modal -->
     <div class="modal-overlay" id="productModal">
         <div class="modal-content">
             <div class="modal-header">
                 <h3 id="productModalTitle">Thêm sản phẩm</h3>
-                <button class="modal-close" onclick="closeProductModal()">
-                    <i class="fas fa-times"></i>
-                </button>
+                <button class="modal-close" onclick="closeProductModal()"><i class="fas fa-times"></i></button>
             </div>
             <div class="modal-body">
                 <form id="productForm">
                     <input type="hidden" id="productId">
-
                     <div class="form-group">
                         <label class="form-label">Tên sản phẩm</label>
                         <input type="text" class="form-control" id="productName" required>
                     </div>
-
                     <div class="form-group">
                         <label class="form-label">Danh mục</label>
                         <select class="form-control" id="productCategory" required>
@@ -679,159 +725,196 @@
                             <option value="snack">Snack</option>
                         </select>
                     </div>
-
                     <div class="form-group">
                         <label class="form-label">Giá (VND)</label>
                         <input type="number" class="form-control" id="productPrice" required>
                     </div>
-
                     <div class="form-group">
                         <label class="form-label">Mô tả</label>
                         <textarea class="form-control" id="productDescription" rows="3"></textarea>
                     </div>
-
                     <div class="form-group">
                         <label class="form-label">Link hình ảnh</label>
-                        <input type="url" class="form-control" id="productImage"
-                            placeholder="https://example.com/image.jpg">
+                        <input type="url" class="form-control" id="productImage" placeholder="https://example.com/image.jpg">
                     </div>
                 </form>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-secondary" onclick="closeProductModal()">Hủy</button>
+                <button class="btn" style="background: rgba(255,255,255,0.1); color: #fff;" onclick="closeProductModal()">Hủy</button>
                 <button class="btn btn-primary" onclick="saveProduct()">Lưu</button>
             </div>
         </div>
     </div>
-
+    
     <script type="module">
         import { auth, db, ref, get, set, push, update, remove, onAuthStateChanged } from './js/firebase-config.js';
-
+        import { protectAdminRoute, getCurrentUser } from './js/auth-helper.js';
+        
         let currentUser = null;
-
-        // Check admin auth
-        onAuthStateChanged(auth, async (user) => {
-            if (!user) {
-                window.location.href = 'login.html';
-                return;
+        let revenueChart = null;
+        let ordersChart = null;
+        
+        // Check admin auth và bảo vệ route
+        protectAdminRoute(auth, db, 'login.html').then((isAdminUser) => {
+            if (!isAdminUser) return;
+            
+            currentUser = getCurrentUser();
+            if (currentUser) {
+                document.getElementById('adminName').textContent = 
+                    (currentUser.firstName || currentUser.lastName) 
+                        ? `${currentUser.lastName || ''} ${currentUser.firstName || ''}`.trim()
+                        : currentUser.email?.split('@')[0] || 'Admin';
             }
-
-            currentUser = user;
-            document.getElementById('adminName').textContent = user.email.split('@')[0];
-
-            // Load dashboard data
+            
             loadDashboardStats();
             loadRecentOrders();
             loadProducts();
             loadOrders();
             loadUsers();
+            initCharts();
         });
-
+        
         // Format price
         function formatPrice(price) {
             return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
         }
-
+        
         // Format date
         function formatDate(dateString) {
+            if (!dateString) return 'N/A';
             return new Date(dateString).toLocaleDateString('vi-VN', {
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
+                day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit'
             });
         }
-
+        
         // Navigation
-        document.querySelectorAll('.admin-nav-link[data-section]').forEach(link => {
-            link.addEventListener('click', () => {
-                const section = link.dataset.section;
-
-                // Update nav
-                document.querySelectorAll('.admin-nav-link').forEach(l => l.classList.remove('active'));
-                link.classList.add('active');
-
-                // Update section
-                document.querySelectorAll('.section-panel').forEach(s => s.classList.remove('active'));
-                document.getElementById(section + 'Section').classList.add('active');
-
-                // Update title
-                const titles = {
-                    dashboard: { title: 'Dashboard', subtitle: 'Tổng quan hệ thống' },
-                    products: { title: 'Sản phẩm', subtitle: 'Quản lý sản phẩm' },
-                    orders: { title: 'Đơn hàng', subtitle: 'Quản lý đơn hàng' },
-                    users: { title: 'Người dùng', subtitle: 'Quản lý người dùng' }
-                };
-
+        function showSection(section) {
+            document.querySelectorAll('.admin-nav-link').forEach(l => l.classList.remove('active'));
+            document.querySelectorAll('.section-panel').forEach(s => s.classList.remove('active'));
+            document.querySelector(`[data-section="${section}"]`)?.classList.add('active');
+            document.getElementById(section + 'Section')?.classList.add('active');
+            
+            const titles = {
+                dashboard: { title: 'Dashboard', subtitle: 'Tổng quan hệ thống' },
+                products: { title: 'Sản phẩm', subtitle: 'Quản lý sản phẩm' },
+                orders: { title: 'Đơn hàng', subtitle: 'Quản lý đơn hàng' },
+                users: { title: 'Người dùng', subtitle: 'Quản lý người dùng' }
+            };
+            
+            if (titles[section]) {
                 document.getElementById('pageTitle').textContent = titles[section].title;
                 document.getElementById('pageSubtitle').textContent = titles[section].subtitle;
-            });
+            }
+        }
+        
+        document.querySelectorAll('.admin-nav-link[data-section]').forEach(link => {
+            link.addEventListener('click', () => showSection(link.dataset.section));
         });
-
-        // Mobile sidebar toggle
+        
         document.getElementById('sidebarToggle')?.addEventListener('click', () => {
             document.getElementById('adminSidebar').classList.toggle('active');
         });
-
-        // Logout
-        document.getElementById('logoutBtn').addEventListener('click', async () => {
+        
+        document.getElementById('logoutBtn').addEventListener('click', async (e) => {
+            e.preventDefault();
             await auth.signOut();
+            localStorage.removeItem('moonlight_user');
             window.location.href = 'login.html';
         });
-
+        
+        // Initialize Charts
+        function initCharts() {
+            const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+            revenueChart = new Chart(revenueCtx, {
+                type: 'line',
+                data: {
+                    labels: ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'],
+                    datasets: [{
+                        label: 'Doanh thu',
+                        data: [1200000, 1900000, 1500000, 2200000, 1800000, 2500000, 2100000],
+                        borderColor: '#d4a574',
+                        backgroundColor: 'rgba(212, 165, 116, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { callback: value => formatPrice(value) }
+                        }
+                    }
+                }
+            });
+            
+            const ordersCtx = document.getElementById('ordersChart').getContext('2d');
+            ordersChart = new Chart(ordersCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Chờ xác nhận', 'Đã xác nhận', 'Hoàn thành', 'Đã hủy'],
+                    datasets: [{
+                        data: [5, 12, 45, 3],
+                        backgroundColor: ['#fbbf24', '#60a5fa', '#4ade80', '#f87171']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { position: 'bottom', labels: { color: '#b8b8d0' } }
+                    }
+                }
+            });
+        }
+        
         // Load Dashboard Stats
         async function loadDashboardStats() {
             try {
-                // Orders
                 const ordersSnap = await get(ref(db, 'orders'));
-                let totalOrders = 0;
-                let totalRevenue = 0;
-
+                let totalOrders = 0, totalRevenue = 0, completedOrders = 0;
+                
                 if (ordersSnap.exists()) {
                     ordersSnap.forEach(child => {
                         totalOrders++;
                         const order = child.val();
-                        if (order.status !== 'cancelled') {
-                            totalRevenue += order.total || 0;
-                        }
+                        if (order.status !== 'cancelled') totalRevenue += order.total || 0;
+                        if (order.status === 'completed') completedOrders++;
                     });
                 }
-
+                
+                const productsSnap = await get(ref(db, 'products'));
+                const productsCount = productsSnap.exists() ? Object.keys(productsSnap.val()).length : 0;
+                
+                const usersSnap = await get(ref(db, 'users'));
+                const usersCount = usersSnap.exists() ? Object.keys(usersSnap.val()).length : 0;
+                
                 document.getElementById('totalOrders').textContent = totalOrders;
                 document.getElementById('totalRevenue').textContent = formatPrice(totalRevenue);
-
-                // Products
-                const productsSnap = await get(ref(db, 'products'));
-                document.getElementById('totalProducts').textContent = productsSnap.exists() ? Object.keys(productsSnap.val()).length : 0;
-
-                // Users
-                const usersSnap = await get(ref(db, 'users'));
-                document.getElementById('totalUsers').textContent = usersSnap.exists() ? Object.keys(usersSnap.val()).length : 0;
-
+                document.getElementById('totalProducts').textContent = productsCount;
+                document.getElementById('totalUsers').textContent = usersCount;
+                
             } catch (error) {
                 console.error('Error loading stats:', error);
             }
         }
-
+        
         // Load Recent Orders
         async function loadRecentOrders() {
             try {
                 const snapshot = await get(ref(db, 'orders'));
                 const table = document.getElementById('recentOrdersTable');
-
+                
                 if (!snapshot.exists()) {
-                    table.innerHTML = '<tr><td colspan="5" style="text-align: center;">Chưa có đơn hàng</td></tr>';
+                    table.innerHTML = '<tr><td colspan="6" style="text-align: center;">Chưa có đơn hàng</td></tr>';
                     return;
                 }
-
+                
                 const orders = [];
-                snapshot.forEach(child => {
-                    orders.push({ id: child.key, ...child.val() });
-                });
-
+                snapshot.forEach(child => orders.push({ id: child.key, ...child.val() }));
                 orders.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-
+                
                 table.innerHTML = orders.slice(0, 5).map(order => `
                     <tr>
                         <td>#${order.id.slice(-8).toUpperCase()}</td>
@@ -839,33 +922,33 @@
                         <td>${formatPrice(order.total)}</td>
                         <td><span class="status-badge status-${order.status}">${getStatusText(order.status)}</span></td>
                         <td>${formatDate(order.createdAt)}</td>
+                        <td>
+                            <button class="action-btn edit" onclick="viewOrder('${order.id}')"><i class="fas fa-eye"></i></button>
+                        </td>
                     </tr>
                 `).join('');
-
             } catch (error) {
                 console.error('Error loading recent orders:', error);
             }
         }
-
+        
         // Load Products
         async function loadProducts() {
             try {
                 const snapshot = await get(ref(db, 'products'));
                 const table = document.getElementById('productsTable');
-
+                
                 if (!snapshot.exists()) {
                     table.innerHTML = '<tr><td colspan="6" style="text-align: center;">Chưa có sản phẩm</td></tr>';
                     return;
                 }
-
+                
                 const products = [];
-                snapshot.forEach(child => {
-                    products.push({ id: child.key, ...child.val() });
-                });
-
+                snapshot.forEach(child => products.push({ id: child.key, ...child.val() }));
+                
                 table.innerHTML = products.map(product => `
                     <tr>
-                        <td><img src="${product.imageUrl || 'https://via.placeholder.com/50x40'}" alt="${product.name}"></td>
+                        <td><img src="${product.imageUrl || 'https://via.placeholder.com/45x35'}" alt="${product.name}"></td>
                         <td>${product.name}</td>
                         <td>${getCategoryName(product.category)}</td>
                         <td>${formatPrice(product.price)}</td>
@@ -873,39 +956,31 @@
                             ${product.isAvailable !== false ? 'Còn hàng' : 'Hết hàng'}
                         </span></td>
                         <td>
-                            <button class="action-btn edit" onclick="editProduct('${product.id}')">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button class="action-btn delete" onclick="deleteProduct('${product.id}')">
-                                <i class="fas fa-trash"></i>
-                            </button>
+                            <button class="action-btn edit" onclick="editProduct('${product.id}')"><i class="fas fa-edit"></i></button>
+                            <button class="action-btn delete" onclick="deleteProduct('${product.id}')"><i class="fas fa-trash"></i></button>
                         </td>
                     </tr>
                 `).join('');
-
             } catch (error) {
                 console.error('Error loading products:', error);
             }
         }
-
+        
         // Load Orders
         async function loadOrders() {
             try {
                 const snapshot = await get(ref(db, 'orders'));
                 const table = document.getElementById('ordersTable');
-
+                
                 if (!snapshot.exists()) {
                     table.innerHTML = '<tr><td colspan="7" style="text-align: center;">Chưa có đơn hàng</td></tr>';
                     return;
                 }
-
+                
                 const orders = [];
-                snapshot.forEach(child => {
-                    orders.push({ id: child.key, ...child.val() });
-                });
-
+                snapshot.forEach(child => orders.push({ id: child.key, ...child.val() }));
                 orders.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-
+                
                 table.innerHTML = orders.map(order => `
                     <tr>
                         <td>#${order.id.slice(-8).toUpperCase()}</td>
@@ -914,7 +989,8 @@
                         <td>${formatPrice(order.total)}</td>
                         <td>${getPaymentText(order.payment)}</td>
                         <td>
-                            <select class="form-control" onchange="updateOrderStatus('${order.id}', this.value)" style="padding: 5px 10px; width: auto;">
+                            <select class="form-control" onchange="updateOrderStatus('${order.id}', this.value)" 
+                                    style="padding: 5px 10px; width: auto; font-size: 0.8rem;">
                                 <option value="pending" ${order.status === 'pending' ? 'selected' : ''}>Chờ xác nhận</option>
                                 <option value="confirmed" ${order.status === 'confirmed' ? 'selected' : ''}>Đã xác nhận</option>
                                 <option value="shipping" ${order.status === 'shipping' ? 'selected' : ''}>Đang giao</option>
@@ -923,34 +999,29 @@
                             </select>
                         </td>
                         <td>
-                            <button class="action-btn edit" onclick="viewOrder('${order.id}')">
-                                <i class="fas fa-eye"></i>
-                            </button>
+                            <button class="action-btn edit" onclick="viewOrder('${order.id}')"><i class="fas fa-eye"></i></button>
                         </td>
                     </tr>
                 `).join('');
-
             } catch (error) {
                 console.error('Error loading orders:', error);
             }
         }
-
+        
         // Load Users
         async function loadUsers() {
             try {
                 const snapshot = await get(ref(db, 'users'));
                 const table = document.getElementById('usersTable');
-
+                
                 if (!snapshot.exists()) {
                     table.innerHTML = '<tr><td colspan="6" style="text-align: center;">Chưa có người dùng</td></tr>';
                     return;
                 }
-
+                
                 const users = [];
-                snapshot.forEach(child => {
-                    users.push({ id: child.key, ...child.val() });
-                });
-
+                snapshot.forEach(child => users.push({ id: child.key, ...child.val() }));
+                
                 table.innerHTML = users.map(user => `
                     <tr>
                         <td>${user.email}</td>
@@ -961,50 +1032,33 @@
                         </span></td>
                         <td>${user.createdAt ? formatDate(user.createdAt) : 'N/A'}</td>
                         <td>
-                            <button class="action-btn edit" onclick="editUser('${user.id}')">
-                                <i class="fas fa-edit"></i>
+                            <button class="action-btn edit" onclick="toggleUserRole('${user.id}', '${user.role}')">
+                                <i class="fas fa-user-shield"></i>
                             </button>
                         </td>
                     </tr>
                 `).join('');
-
             } catch (error) {
                 console.error('Error loading users:', error);
             }
         }
-
+        
         // Helper functions
         function getStatusText(status) {
-            const map = {
-                pending: 'Chờ xác nhận',
-                confirmed: 'Đã xác nhận',
-                shipping: 'Đang giao',
-                completed: 'Hoàn thành',
-                cancelled: 'Đã hủy'
-            };
+            const map = { pending: 'Chờ xác nhận', confirmed: 'Đã xác nhận', shipping: 'Đang giao', completed: 'Hoàn thành', cancelled: 'Đã hủy' };
             return map[status] || status;
         }
-
+        
         function getPaymentText(payment) {
-            const map = {
-                cod: 'COD',
-                banking: 'Chuyển khoản',
-                momo: 'MoMo'
-            };
+            const map = { cod: 'COD', banking: 'Chuyển khoản', momo: 'MoMo' };
             return map[payment] || payment;
         }
-
+        
         function getCategoryName(category) {
-            const map = {
-                coffee: 'Cà phê',
-                tea: 'Trà',
-                smoothie: 'Sinh tố',
-                pastry: 'Bánh ngọt',
-                snack: 'Snack'
-            };
+            const map = { coffee: 'Cà phê', tea: 'Trà', smoothie: 'Sinh tố', pastry: 'Bánh ngọt', snack: 'Snack' };
             return map[category] || category;
         }
-
+        
         // Product Modal
         document.getElementById('addProductBtn').addEventListener('click', () => {
             document.getElementById('productModalTitle').textContent = 'Thêm sản phẩm';
@@ -1012,12 +1066,12 @@
             document.getElementById('productId').value = '';
             document.getElementById('productModal').classList.add('active');
         });
-
-        window.closeProductModal = function () {
+        
+        window.closeProductModal = function() {
             document.getElementById('productModal').classList.remove('active');
         };
-
-        window.saveProduct = async function () {
+        
+        window.saveProduct = async function() {
             const id = document.getElementById('productId').value;
             const productData = {
                 name: document.getElementById('productName').value,
@@ -1027,32 +1081,24 @@
                 imageUrl: document.getElementById('productImage').value,
                 isAvailable: true
             };
-
+            
             try {
                 if (id) {
                     await update(ref(db, `products/${id}`), productData);
                 } else {
                     await push(ref(db, 'products'), productData);
                 }
-
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Thành công!',
-                    timer: 1500,
-                    showConfirmButton: false
-                });
-
+                
+                Swal.fire({ icon: 'success', title: 'Thành công!', timer: 1500, showConfirmButton: false });
                 closeProductModal();
                 loadProducts();
                 loadDashboardStats();
-
             } catch (error) {
-                console.error('Error saving product:', error);
                 Swal.fire({ icon: 'error', title: 'Lỗi!', text: 'Không thể lưu sản phẩm' });
             }
         };
-
-        window.editProduct = async function (id) {
+        
+        window.editProduct = async function(id) {
             const snapshot = await get(ref(db, `products/${id}`));
             if (snapshot.exists()) {
                 const product = snapshot.val();
@@ -1066,19 +1112,14 @@
                 document.getElementById('productModal').classList.add('active');
             }
         };
-
-        window.deleteProduct = async function (id) {
+        
+        window.deleteProduct = async function(id) {
             const result = await Swal.fire({
-                title: 'Xóa sản phẩm?',
-                text: 'Bạn có chắc muốn xóa sản phẩm này?',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#f87171',
-                cancelButtonColor: '#6c757d',
-                confirmButtonText: 'Xóa',
-                cancelButtonText: 'Hủy'
+                title: 'Xóa sản phẩm?', text: 'Bạn có chắc muốn xóa?', icon: 'warning',
+                showCancelButton: true, confirmButtonColor: '#f87171', cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Xóa', cancelButtonText: 'Hủy'
             });
-
+            
             if (result.isConfirmed) {
                 await remove(ref(db, `products/${id}`));
                 Swal.fire({ icon: 'success', title: 'Đã xóa!', timer: 1500, showConfirmButton: false });
@@ -1086,14 +1127,14 @@
                 loadDashboardStats();
             }
         };
-
-        window.updateOrderStatus = async function (id, status) {
+        
+        window.updateOrderStatus = async function(id, status) {
             await update(ref(db, `orders/${id}`), { status });
             Swal.fire({ icon: 'success', title: 'Đã cập nhật!', timer: 1000, showConfirmButton: false });
             loadRecentOrders();
         };
-
-        window.viewOrder = async function (id) {
+        
+        window.viewOrder = async function(id) {
             const snapshot = await get(ref(db, `orders/${id}`));
             if (snapshot.exists()) {
                 const order = snapshot.val();
@@ -1112,11 +1153,28 @@
                 });
             }
         };
-
-        window.editUser = function (id) {
-            Swal.fire({ title: 'Chức năng đang phát triển', icon: 'info' });
+        
+        window.toggleUserRole = async function(id, currentRole) {
+            const newRole = currentRole === 'admin' ? 'customer' : 'admin';
+            const result = await Swal.fire({
+                title: `Đổi vai trò?`,
+                text: `Chuyển từ ${currentRole === 'admin' ? 'Admin' : 'Khách hàng'} sang ${newRole === 'admin' ? 'Admin' : 'Khách hàng'}?`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Xác nhận',
+                cancelButtonText: 'Hủy'
+            });
+            
+            if (result.isConfirmed) {
+                const snapshot = await get(ref(db, `users/${id}`));
+                if (snapshot.exists()) {
+                    const user = snapshot.val();
+                    await set(ref(db, `users/${id}`), { ...user, role: newRole });
+                    Swal.fire({ icon: 'success', title: 'Đã cập nhật!', timer: 1500, showConfirmButton: false });
+                    loadUsers();
+                }
+            }
         };
     </script>
 </body>
-
 </html>

@@ -42,6 +42,9 @@
                     <li><a href="menu.html" class="nav-link">Menu</a></li>
                     <li><a href="news.html" class="nav-link">Tin tức</a></li>
                     <li><a href="about.html" class="nav-link">Về chúng tôi</a></li>
+                    <li class="admin-nav-item hidden"><a href="admin.html" class="nav-link admin-link">
+                        <i class="fas fa-cog"></i> Quản trị
+                    </a></li>
                 </ul>
                 
                 <div class="nav-actions">
@@ -430,6 +433,7 @@
     <!-- Scripts -->
     <script type="module">
         import { auth, db, onAuthStateChanged, ref, get, onValue } from './js/firebase-config.js';
+        import { saveUserSession, getCurrentUser, isAdmin, getUserDropdownHTML } from './js/auth-helper.js';
         
         // DOM Elements
         const header = document.getElementById('header');
@@ -482,46 +486,91 @@
         });
         
         // Auth state listener
-        onAuthStateChanged(auth, (user) => {
+        onAuthStateChanged(auth, async (user) => {
             const userInfo = document.getElementById('userInfo');
             const loginBtn = document.getElementById('loginBtn');
             const registerBtn = document.getElementById('registerBtn');
             const loggedInItems = document.querySelectorAll('.logged-in-only');
+            const dropdownMenu = document.querySelector('.user-dropdown-menu');
             
             if (user) {
+                // Lưu thông tin user vào localStorage
+                const userData = await saveUserSession(auth, db);
+                
+                // Cập nhật dropdown menu với phân quyền
+                dropdownMenu.innerHTML = getUserDropdownHTML(userData);
+                
+                // Cập nhật tên hiển thị
+                const displayName = userData.firstName || userData.lastName 
+                    ? `${userData.lastName || ''} ${userData.firstName || ''}`.trim()
+                    : user.email.split('@')[0];
+                
                 userInfo.innerHTML = `
                     <i class="fas fa-user-circle"></i>
-                    <span>${user.email.split('@')[0]}</span>
+                    <span>${displayName}</span>
                 `;
+                
                 loginBtn.classList.add('hidden');
                 registerBtn.classList.add('hidden');
                 loggedInItems.forEach(item => item.classList.remove('hidden'));
+                
+                // Hiển/ẩn link Quản trị dựa trên role
+                const adminNavItems = document.querySelectorAll('.admin-nav-item');
+                const isUserAdmin = isAdmin(userData);
+                adminNavItems.forEach(item => {
+                    if (isUserAdmin) {
+                        item.classList.remove('hidden');
+                        if (!item.classList.contains('nav-link')) {
+                            item.style.display = 'flex';
+                        }
+                    } else {
+                        item.classList.add('hidden');
+                        item.style.display = '';
+                    }
+                });
+                
+                // Gắn sự kiện logout
+                document.getElementById('logoutBtn')?.addEventListener('click', handleLogout);
             } else {
+                localStorage.removeItem('moonlight_user');
+                
                 userInfo.innerHTML = `
                     <i class="fas fa-user-circle"></i>
                     <span>Khách</span>
                 `;
+                
+                dropdownMenu.innerHTML = getUserDropdownHTML(null);
                 loginBtn.classList.remove('hidden');
                 registerBtn.classList.remove('hidden');
                 loggedInItems.forEach(item => item.classList.add('hidden'));
+                
+                // Ẩn link Quản trị
+                document.querySelectorAll('.admin-nav-item').forEach(item => {
+                    item.classList.add('hidden');
+                });
             }
         });
         
-        // Logout
-        document.getElementById('logoutBtn')?.addEventListener('click', async (e) => {
+        // Logout handler
+        async function handleLogout(e) {
             e.preventDefault();
             try {
                 await auth.signOut();
+                localStorage.removeItem('moonlight_user');
                 Swal.fire({
                     icon: 'success',
                     title: 'Đăng xuất thành công!',
                     timer: 1500,
                     showConfirmButton: false
+                }).then(() => {
+                    window.location.href = 'index.html';
                 });
             } catch (error) {
                 console.error('Logout error:', error);
             }
-        });
+        }
+        
+        // Logout handler (centralized above)
         
         // Update cart count
         function updateCartCount() {
@@ -994,6 +1043,24 @@
         .dropdown-item:hover {
             background: var(--bg-card-hover);
             color: var(--accent);
+        }
+        
+        /* Admin Nav Item */
+        .admin-nav-item {
+            display: none;
+            margin-left: 10px;
+        }
+        
+        .admin-nav-item .nav-link {
+            background: var(--accent);
+            color: var(--text-dark);
+            padding: 8px 16px;
+            border-radius: var(--radius-full);
+        }
+        
+        .admin-nav-item .nav-link:hover {
+            background: var(--accent-dark);
+            color: var(--text-dark);
         }
         
         /* Skeleton Loading */

@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kiểm Tra Hệ Thống Xác Thực - Moonlight Cafe</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #0d0d1a 0%, #1a1a2e 100%);
+            color: #fff;
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            color: #d4a574;
+        }
+
+        .header p {
+            color: #b8b8d0;
+        }
+
+        .status-card {
+            background: #1a1a2e;
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 20px;
+            border-left: 4px solid #d4a574;
+        }
+
+        .status-card h3 {
+            color: #d4a574;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .test-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .test-item:last-child {
+            border-bottom: none;
+        }
+
+        .test-name {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex: 1;
+        }
+
+        .badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .badge.success {
+            background: rgba(74, 222, 128, 0.15);
+            color: #4ade80;
+        }
+
+        .badge.error {
+            background: rgba(248, 113, 113, 0.15);
+            color: #f87171;
+        }
+
+        .badge.warning {
+            background: rgba(251, 191, 36, 0.15);
+            color: #fbbf24;
+        }
+
+        .badge.pending {
+            background: rgba(96, 165, 250, 0.15);
+            color: #60a5fa;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .btn-primary {
+            background: #d4a574;
+            color: #1a1a2e;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(212, 165, 116, 0.3);
+        }
+
+        .actions {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+
+        .info-box {
+            background: rgba(96, 165, 250, 0.1);
+            border-left: 4px solid #60a5fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        .info-box h4 {
+            color: #60a5fa;
+            margin-bottom: 8px;
+        }
+
+        .code-block {
+            background: #0d0d1a;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 0.9rem;
+            overflow-x: auto;
+            margin-top: 10px;
+        }
+
+        #loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .spinner {
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            border-top: 3px solid #d4a574;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-shield-alt"></i> Kiểm Tra Hệ Thống Xác Thực</h1>
+            <p>Công cụ kiểm tra cấu hình đăng nhập và phân quyền</p>
+        </div>
+
+        <div id="loading">
+            <div class="spinner"></div>
+            <p>Đang kiểm tra hệ thống...</p>
+        </div>
+
+        <div class="status-card" id="authStatus">
+            <h3><i class="fas fa-user-check"></i> Trạng Thái Đăng Nhập</h3>
+            <div class="test-item">
+                <div class="test-name">
+                    <i class="fas fa-circle" style="font-size: 8px;"></i>
+                    <span>Người dùng hiện tại</span>
+                </div>
+                <span id="currentUserBadge" class="badge pending">Đang kiểm tra...</span>
+            </div>
+            <div class="test-item">
+                <div class="test-name">
+                    <i class="fas fa-circle" style="font-size: 8px;"></i>
+                    <span>Email</span>
+                </div>
+                <span id="userEmail">-</span>
+            </div>
+            <div class="test-item">
+                <div class="test-name">
+                    <i class="fas fa-circle" style="font-size: 8px;"></i>
+                    <span>Vai trò</span>
+                </div>
+                <span id="userRole" class="badge pending">-</span>
+            </div>
+            <div class="test-item">
+                <div class="test-name">
+                    <i class="fas fa-circle" style="font-size: 8px;"></i>
+                    <span>Quyền Admin</span>
+                </div>
+                <span id="isAdminBadge" class="badge pending">-</span>
+            </div>
+        </div>
+
+        <div class="status-card" id="configStatus">
+            <h3><i class="fas fa-cogs"></i> Cấu Hình Hệ Thống</h3>
+            <div class="test-item">
+                <div class="test-name">
+                    <i class="fas fa-circle" style="font-size: 8px;"></i>
+                    <span>Firebase Authentication</span>
+                </div>
+                <span id="firebaseAuthBadge" class="badge pending">Đang kiểm tra...</span>
+            </div>
+            <div class="test-item">
+                <div class="test-name">
+                    <i class="fas fa-circle" style="font-size: 8px;"></i>
+                    <span>Firebase Realtime Database</span>
+                </div>
+                <span id="firebaseDbBadge" class="badge pending">Đang kiểm tra...</span>
+            </div>
+            <div class="test-item">
+                <div class="test-name">
+                    <i class="fas fa-circle" style="font-size: 8px;"></i>
+                    <span>Auth Helper Module</span>
+                </div>
+                <span id="authHelperBadge" class="badge pending">Đang kiểm tra...</span>
+            </div>
+            <div class="test-item">
+                <div class="test-name">
+                    <i class="fas fa-circle" style="font-size: 8px;"></i>
+                    <span>Admin Emails Config</span>
+                </div>
+                <span id="adminEmailsBadge" class="badge pending">Đang kiểm tra...</span>
+            </div>
+        </div>
+
+        <div class="status-card" id="permissionStatus">
+            <h3><i class="fas fa-lock"></i> Kiểm Tra Quyền Truy Cập</h3>
+            <div class="test-item">
+                <div class="test-name">
+                    <i class="fas fa-circle" style="font-size: 8px;"></i>
+                    <span>Trang Admin (admin.html)</span>
+                </div>
+                <span id="adminPageBadge" class="badge pending">-</span>
+            </div>
+            <div class="test-item">
+                <div class="test-name">
+                    <i class="fas fa-circle" style="font-size: 8px;"></i>
+                    <span>protectAdminRoute() function</span>
+                </div>
+                <span id="protectRouteBadge" class="badge pending">-</span>
+            </div>
+            <div class="test-item">
+                <div class="test-name">
+                    <i class="fas fa-circle" style="font-size: 8px;"></i>
+                    <span>isAdmin() function</span>
+                </div>
+                <span id="isAdminFuncBadge" class="badge pending">-</span>
+            </div>
+        </div>
+
+        <div class="info-box" id="adminEmailsInfo" style="display: none;">
+            <h4><i class="fas fa-info-circle"></i> Danh Sách Email Admin</h4>
+            <div class="code-block" id="adminEmailsList"></div>
+        </div>
+
+        <div class="info-box" id="userDataInfo" style="display: none;">
+            <h4><i class="fas fa-database"></i> Dữ Liệu User (localStorage)</h4>
+            <div class="code-block" id="userDataDisplay"></div>
+        </div>
+
+        <div class="actions">
+            <button class="btn btn-primary" onclick="runTests()">
+                <i class="fas fa-sync-alt"></i> Chạy Lại Kiểm Tra
+            </button>
+            <button class="btn btn-primary" onclick="clearLocalStorage()">
+                <i class="fas fa-trash"></i> Xóa LocalStorage
+            </button>
+            <button class="btn btn-primary" onclick="window.location.href='login.html'">
+                <i class="fas fa-sign-in-alt"></i> Đăng Nhập
+            </button>
+        </div>
+    </div>
+
+    <script type="module">
+        import { auth, db } from './js/firebase-config.js';
+        import { getCurrentUser, isAdmin, protectAdminRoute, ADMIN_EMAILS } from './js/auth-helper.js';
+
+        window.runTests = async function () {
+            document.getElementById('loading').style.display = 'block';
+
+            // Delay để thấy loading
+            await new Promise(resolve => setTimeout(resolve, 500));
+
+            // Test 1: Firebase Auth
+            try {
+                if (auth) {
+                    setBadge('firebaseAuthBadge', 'success', 'Hoạt động');
+                } else {
+                    setBadge('firebaseAuthBadge', 'error', 'Lỗi');
+                }
+            } catch (error) {
+                setBadge('firebaseAuthBadge', 'error', 'Lỗi');
+            }
+
+            // Test 2: Firebase Database
+            try {
+                if (db) {
+                    setBadge('firebaseDbBadge', 'success', 'Hoạt động');
+                } else {
+                    setBadge('firebaseDbBadge', 'error', 'Lỗi');
+                }
+            } catch (error) {
+                setBadge('firebaseDbBadge', 'error', 'Lỗi');
+            }
+
+            // Test 3: Auth Helper
+            try {
+                if (typeof getCurrentUser === 'function' && typeof isAdmin === 'function') {
+                    setBadge('authHelperBadge', 'success', 'Hoạt động');
+                    setBadge('protectRouteBadge', 'success', 'Có sẵn');
+                    setBadge('isAdminFuncBadge', 'success', 'Có sẵn');
+                } else {
+                    setBadge('authHelperBadge', 'error', 'Lỗi');
+                }
+            } catch (error) {
+                setBadge('authHelperBadge', 'error', 'Lỗi');
+            }
+
+            // Test 4: Admin Emails
+            try {
+                if (ADMIN_EMAILS && ADMIN_EMAILS.length > 0) {
+                    setBadge('adminEmailsBadge', 'success', `${ADMIN_EMAILS.length} emails`);
+                    document.getElementById('adminEmailsInfo').style.display = 'block';
+                    document.getElementById('adminEmailsList').textContent = JSON.stringify(ADMIN_EMAILS, null, 2);
+                } else {
+                    setBadge('adminEmailsBadge', 'warning', 'Trống');
+                }
+            } catch (error) {
+                setBadge('adminEmailsBadge', 'error', 'Lỗi');
+            }
+
+            // Test 5: Current User
+            const userData = getCurrentUser();
+
+            if (userData) {
+                setBadge('currentUserBadge', 'success', 'Đã đăng nhập');
+                document.getElementById('userEmail').textContent = userData.email || 'N/A';
+
+                const role = userData.role || 'customer';
+                setBadge('userRole', role === 'admin' ? 'success' : 'warning', role);
+
+                const adminStatus = isAdmin(userData);
+                setBadge('isAdminBadge', adminStatus ? 'success' : 'warning', adminStatus ? 'Có' : 'Không');
+                setBadge('adminPageBadge', adminStatus ? 'success' : 'error', adminStatus ? 'Có quyền' : 'Bị chặn');
+
+                // Hiển thị user data
+                document.getElementById('userDataInfo').style.display = 'block';
+                document.getElementById('userDataDisplay').textContent = JSON.stringify(userData, null, 2);
+            } else {
+                setBadge('currentUserBadge', 'warning', 'Chưa đăng nhập');
+                document.getElementById('userEmail').textContent = 'N/A';
+                setBadge('userRole', 'pending', 'N/A');
+                setBadge('isAdminBadge', 'pending', 'N/A');
+                setBadge('adminPageBadge', 'error', 'Bị chặn');
+            }
+
+            document.getElementById('loading').style.display = 'none';
+        };
+
+        function setBadge(id, type, text) {
+            const element = document.getElementById(id);
+            element.className = `badge ${type}`;
+            element.textContent = text;
+        }
+
+        window.clearLocalStorage = function () {
+            if (confirm('Bạn có chắc muốn xóa tất cả dữ liệu LocalStorage?')) {
+                localStorage.removeItem('moonlight_user');
+                localStorage.removeItem('moonlight_cart');
+                alert('Đã xóa LocalStorage. Trang sẽ tải lại.');
+                location.reload();
+            }
+        };
+
+        // Auto run tests on load
+        runTests();
+    </script>
+</body>
+
+</html>

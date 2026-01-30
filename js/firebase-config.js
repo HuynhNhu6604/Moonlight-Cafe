@@ -1,6 +1,6 @@
 // Firebase Configuration for Moonlight Cafe
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, sendPasswordResetEmail, GoogleAuthProvider, signInWithPopup } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, sendPasswordResetEmail, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 import { getDatabase, ref, push, set, get, update, remove, onValue, query, orderByChild, equalTo } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
 
 // Firebase config for Moonlight Cafe project
@@ -16,12 +16,20 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getDatabase(app);
+let app, auth, db;
+
+try {
+    app = initializeApp(firebaseConfig);
+    auth = getAuth(app);
+    db = getDatabase(app);
+    console.log('Firebase initialized successfully');
+} catch (error) {
+    console.error('Firebase initialization error:', error);
+}
 
 // Export để sử dụng ở các file khác
 export {
+    app,
     auth,
     db,
     createUserWithEmailAndPassword,
@@ -31,6 +39,8 @@ export {
     sendPasswordResetEmail,
     GoogleAuthProvider,
     signInWithPopup,
+    signInWithRedirect,
+    getRedirectResult,
     ref,
     push,
     set,
