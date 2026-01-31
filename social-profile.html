@@ -1,0 +1,1168 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hồ sơ - Moonlight Cafe</title>
+
+    <!-- Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/mobile.css">
+
+    <style>
+        /* Social Profile Styles */
+        :root {
+            --social-bg: #fafafa;
+            --social-white: #ffffff;
+            --social-border: #dbdbdb;
+            --social-accent: #d4a574;
+            --social-text: #262626;
+            --social-text-secondary: #8e8e8e;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background: var(--social-bg);
+        }
+
+        /* Profile Container */
+        .social-profile {
+            max-width: 935px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+
+        /* Profile Header */
+        .profile-header-social {
+            background: var(--social-white);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            margin-bottom: 25px;
+        }
+
+        /* Cover Photo */
+        .cover-photo {
+            height: 200px;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cover-photo::before {
+            content: '☕';
+            position: absolute;
+            font-size: 80px;
+            opacity: 0.2;
+            right: 10%;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .cover-photo::after {
+            content: '🌙';
+            position: absolute;
+            font-size: 60px;
+            opacity: 0.2;
+            left: 10%;
+            top: 30%;
+        }
+
+        /* Profile Info Section */
+        .profile-info-section {
+            padding: 0 30px 25px;
+            position: relative;
+        }
+
+        /* Avatar */
+        .profile-avatar-social {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+            border: 5px solid var(--social-white);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3.5rem;
+            color: white;
+            position: absolute;
+            top: -75px;
+            left: 30px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Profile Details */
+        .profile-details {
+            padding-top: 85px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .profile-user-info h1 {
+            font-size: 1.8rem;
+            color: var(--social-text);
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .verified-badge {
+            background: #3897f0;
+            color: white;
+            padding: 4px;
+            border-radius: 50%;
+            font-size: 0.9rem;
+        }
+
+        .profile-user-info .username {
+            color: var(--social-text-secondary);
+            font-size: 1rem;
+            margin-bottom: 15px;
+        }
+
+        .profile-bio {
+            color: var(--social-text);
+            font-size: 0.95rem;
+            line-height: 1.6;
+            max-width: 500px;
+        }
+
+        .profile-stats-social {
+            display: flex;
+            gap: 40px;
+            margin-top: 20px;
+        }
+
+        .stat-item-social {
+            text-align: center;
+            cursor: pointer;
+            padding: 10px 20px;
+            border-radius: 10px;
+            transition: background 0.2s;
+        }
+
+        .stat-item-social:hover {
+            background: var(--primary-light);
+        }
+
+        .stat-number {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--social-text);
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: var(--social-text-secondary);
+        }
+
+        /* Profile Actions */
+        .profile-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-follow {
+            padding: 8px 25px;
+            background: var(--social-accent);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-follow:hover {
+            background: var(--accent-dark);
+            transform: translateY(-2px);
+        }
+
+        .btn-message {
+            padding: 8px 20px;
+            background: transparent;
+            border: 1px solid var(--social-border);
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-message:hover {
+            background: var(--primary-light);
+        }
+
+        /* Profile Tabs */
+        .profile-tabs {
+            display: flex;
+            justify-content: center;
+            border-top: 1px solid var(--social-border);
+            margin-top: 20px;
+            padding-top: 15px;
+        }
+
+        .profile-tab {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 15px 25px;
+            color: var(--social-text-secondary);
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .profile-tab:hover {
+            color: var(--social-text);
+        }
+
+        .profile-tab.active {
+            color: var(--social-text);
+            border-bottom-color: var(--social-text);
+        }
+
+        .profile-tab i {
+            font-size: 1.1rem;
+        }
+
+        /* Content Grid */
+        .profile-content-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 3px;
+            margin-top: 5px;
+        }
+
+        .content-item {
+            aspect-ratio: 1;
+            background: var(--social-white);
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: pointer;
+            position: relative;
+            transition: transform 0.2s;
+        }
+
+        .content-item:hover {
+            transform: scale(1.02);
+        }
+
+        .content-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .content-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .content-item:hover .content-overlay {
+            opacity: 1;
+        }
+
+        .content-stat {
+            color: white;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* Posts Section */
+        .posts-section {
+            background: var(--social-white);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            margin-top: 25px;
+        }
+
+        .post-item {
+            border-bottom: 1px solid var(--social-border);
+            padding: 20px;
+        }
+
+        .post-item:last-child {
+            border-bottom: none;
+        }
+
+        /* Order Post */
+        .order-post {
+            border: 1px solid var(--social-border);
+            border-radius: 12px;
+            padding: 20px;
+            background: var(--primary-light);
+        }
+
+        .post-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .post-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 1.2rem;
+        }
+
+        .post-user-info h4 {
+            color: var(--social-text);
+            font-size: 0.95rem;
+        }
+
+        .post-user-info span {
+            color: var(--social-text-secondary);
+            font-size: 0.8rem;
+        }
+
+        .post-badge {
+            margin-left: auto;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .badge-completed {
+            background: rgba(16, 185, 129, 0.1);
+            color: #10b981;
+        }
+
+        .badge-pending {
+            background: rgba(245, 158, 11, 0.1);
+            color: #f59e0b;
+        }
+
+        .badge-shipping {
+            background: rgba(59, 130, 246, 0.1);
+            color: #3b82f6;
+        }
+
+        .post-content {
+            margin-bottom: 15px;
+        }
+
+        .post-text {
+            color: var(--social-text);
+            font-size: 0.95rem;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .post-order-items {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .order-item-thumb {
+            width: 70px;
+            height: 70px;
+            border-radius: 8px;
+            object-fit: cover;
+        }
+
+        .post-stats {
+            display: flex;
+            gap: 20px;
+            padding-top: 15px;
+            border-top: 1px solid var(--social-border);
+        }
+
+        .post-stat {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--social-text-secondary);
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .post-stat:hover {
+            color: var(--social-accent);
+        }
+
+        /* Wishlist Section */
+        .wishlist-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 3px;
+            background: var(--social-white);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .wishlist-item {
+            aspect-ratio: 1;
+            background: var(--social-white);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .wishlist-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s;
+        }
+
+        .wishlist-item:hover img {
+            transform: scale(1.05);
+        }
+
+        .wishlist-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 50%);
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 15px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .wishlist-item:hover .wishlist-overlay {
+            opacity: 1;
+        }
+
+        .wishlist-name {
+            color: white;
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+        }
+
+        .wishlist-price {
+            color: var(--accent);
+            font-weight: 700;
+        }
+
+        /* Settings Section */
+        .settings-section {
+            background: var(--social-white);
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .settings-group {
+            margin-bottom: 30px;
+        }
+
+        .settings-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .settings-title {
+            font-size: 1.1rem;
+            color: var(--social-text);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--social-border);
+        }
+
+        .setting-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid var(--social-border);
+        }
+
+        .setting-item:last-child {
+            border-bottom: none;
+        }
+
+        .setting-info h4 {
+            color: var(--social-text);
+            font-size: 0.95rem;
+            margin-bottom: 3px;
+        }
+
+        .setting-info p {
+            color: var(--social-text-secondary);
+            font-size: 0.85rem;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 50px;
+            height: 28px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            inset: 0;
+            background-color: #dbdbdb;
+            border-radius: 28px;
+            transition: 0.3s;
+        }
+
+        .toggle-slider::before {
+            content: "";
+            position: absolute;
+            height: 22px;
+            width: 22px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            border-radius: 50%;
+            transition: 0.3s;
+        }
+
+        .toggle-switch input:checked + .toggle-slider {
+            background-color: var(--social-accent);
+        }
+
+        .toggle-switch input:checked + .toggle-slider::before {
+            transform: translateX(22px);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .profile-details {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+
+            .profile-bio {
+                max-width: 100%;
+            }
+
+            .profile-stats-social {
+                justify-content: center;
+            }
+
+            .profile-actions {
+                margin-top: 15px;
+            }
+
+            .profile-content-grid,
+            .wishlist-grid {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 2px;
+            }
+
+            .profile-tabs {
+                overflow-x: auto;
+                justify-content: flex-start;
+                padding-bottom: 0;
+            }
+
+            .profile-tab {
+                padding: 15px 20px;
+                white-space: nowrap;
+            }
+
+            .cover-photo {
+                height: 150px;
+            }
+
+            .profile-avatar-social {
+                width: 100px;
+                height: 100px;
+                font-size: 2.5rem;
+                top: -50px;
+                left: 50%;
+                transform: translateX(-50%);
+            }
+
+            .profile-info-section {
+                padding: 0 15px 20px;
+                text-align: center;
+            }
+
+            .profile-details {
+                padding-top: 60px;
+            }
+        }
+
+        /* Empty State */
+        .empty-state-social {
+            text-align: center;
+            padding: 60px 20px;
+            background: var(--social-white);
+            border-radius: 16px;
+        }
+
+        .empty-state-social i {
+            font-size: 4rem;
+            color: var(--social-border);
+            margin-bottom: 20px;
+        }
+
+        .empty-state-social h3 {
+            color: var(--social-text);
+            margin-bottom: 10px;
+        }
+
+        .empty-state-social p {
+            color: var(--social-text-secondary);
+        }
+
+        /* Loading */
+        .loading-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(255, 255, 255, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+
+        .loading-overlay.hidden {
+            display: none;
+        }
+
+        .loader {
+            width: 50px;
+            height: 50px;
+            border: 4px solid var(--secondary);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loader"></div>
+    </div>
+
+    <!-- Header -->
+    <header class="header" id="header">
+        <div class="container">
+            <nav class="nav">
+                <a href="index.html" class="nav-brand">
+                    <span>🌙</span>
+                    <span class="nav-brand-text">Moonlight Cafe</span>
+                </a>
+
+                <ul class="nav-menu" id="navMenu">
+                    <li><a href="index.html" class="nav-link">Trang chủ</a></li>
+                    <li><a href="menu.html" class="nav-link">Menu</a></li>
+                    <li><a href="news.html" class="nav-link">Tin tức</a></li>
+                    <li><a href="about.html" class="nav-link">Về chúng tôi</a></li>
+                </ul>
+
+                <div class="nav-actions">
+                    <a href="cart.html" class="nav-icon">
+                        <i class="fas fa-shopping-bag"></i>
+                        <span class="badge" id="cartCount">0</span>
+                    </a>
+                    <a href="profile.html" class="nav-icon active">
+                        <i class="fas fa-user"></i>
+                    </a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Social Profile Section -->
+    <section class="social-profile">
+        
+        <!-- Profile Header -->
+        <div class="profile-header-social">
+            <div class="cover-photo"></div>
+            
+            <div class="profile-info-section">
+                <div class="profile-avatar-social" id="profileAvatar">U</div>
+                
+                <div class="profile-details">
+                    <div class="profile-user-info">
+                        <h1>
+                            <span id="profileName">Nguyễn Văn A</span>
+                            <span class="verified-badge" title="Tài khoản xác minh"><i class="fas fa-check"></i></span>
+                        </h1>
+                        <p class="username">@nguyenvana</p>
+                        <p class="profile-bio">
+                            ☕ Yêu thích cà phê và bánh ngọt<br>
+                            🌙 Khách hàng thân thiết của Moonlight Cafe<br>
+                            📍 TP. Hồ Chí Minh
+                        </p>
+                        
+                        <div class="profile-stats-social">
+                            <div class="stat-item-social" onclick="switchTab('posts')">
+                                <div class="stat-number" id="orderCount">12</div>
+                                <div class="stat-label">Đơn hàng</div>
+                            </div>
+                            <div class="stat-item-social" onclick="switchTab('wishlist')">
+                                <div class="stat-number" id="wishlistCount">8</div>
+                                <div class="stat-label">Yêu thích</div>
+                            </div>
+                            <div class="stat-item-social" onclick="switchTab('posts')">
+                                <div class="stat-number">156</div>
+                                <div class="stat-label">Điểm thưởng</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="profile-actions">
+                        <button class="btn-follow" onclick="editProfile()">
+                            <i class="fas fa-edit"></i> Chỉnh sửa
+                        </button>
+                        <button class="btn-message" onclick="shareProfile()">
+                            <i class="fas fa-share-alt"></i> Chia sẻ
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Profile Tabs -->
+                <div class="profile-tabs">
+                    <div class="profile-tab active" data-tab="posts" onclick="switchTab('posts')">
+                        <i class="fas fa-shopping-bag"></i>
+                        <span>Đơn hàng</span>
+                    </div>
+                    <div class="profile-tab" data-tab="wishlist" onclick="switchTab('wishlist')">
+                        <i class="fas fa-heart"></i>
+                        <span>Yêu thích</span>
+                    </div>
+                    <div class="profile-tab" data-tab="settings" onclick="switchTab('settings')">
+                        <i class="fas fa-cog"></i>
+                        <span>Cài đặt</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Posts Section (Orders) -->
+        <div class="posts-section" id="postsTab">
+            <div class="post-item">
+                <div class="order-post">
+                    <div class="post-header">
+                        <div class="post-avatar">🌙</div>
+                        <div class="post-user-info">
+                            <h4>Moonlight Cafe</h4>
+                            <span>Đã giao hàng - 2 giờ trước</span>
+                        </div>
+                        <span class="post-badge badge-completed">Hoàn thành</span>
+                    </div>
+                    <div class="post-content">
+                        <p class="post-text">Cảm ơn bạn đã đặt hàng! ☕✨</p>
+                        <div class="post-order-items">
+                            <img src="https://images.unsplash.com/photo-1572442388796-11668a67e53d?w=200" alt="Cappuccino" class="order-item-thumb">
+                            <img src="https://images.unsplash.com/photo-1515823664-b6e16561678e?w=200" alt="Matcha Latte" class="order-item-thumb">
+                        </div>
+                    </div>
+                    <div class="post-stats">
+                        <div class="post-stat">
+                            <i class="fas fa-heart"></i> 24
+                        </div>
+                        <div class="post-stat">
+                            <i class="fas fa-comment"></i> 3
+                        </div>
+                        <div class="post-stat">
+                            <i class="fas fa-share"></i> Chia sẻ
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="post-item">
+                <div class="order-post">
+                    <div class="post-header">
+                        <div class="post-avatar">🌙</div>
+                        <div class="post-user-info">
+                            <h4>Moonlight Cafe</h4>
+                            <span>Đang giao hàng - Hôm qua</span>
+                        </div>
+                        <span class="post-badge badge-shipping">Đang giao</span>
+                    </div>
+                    <div class="post-content">
+                        <p class="post-text">Đơn hàng của bạn đang trên đường! 🚗</p>
+                        <div class="post-order-items">
+                            <img src="https://images.unsplash.com/photo-1558857563-b371033873b8?w=200" alt="Trà sữa" class="order-item-thumb">
+                        </div>
+                    </div>
+                    <div class="post-stats">
+                        <div class="post-stat">
+                            <i class="fas fa-heart"></i> 18
+                        </div>
+                        <div class="post-stat">
+                            <i class="fas fa-comment"></i> 1
+                        </div>
+                        <div class="post-stat">
+                            <i class="fas fa-share"></i> Chia sẻ
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="post-item">
+                <div class="order-post">
+                    <div class="post-header">
+                        <div class="post-avatar">🌙</div>
+                        <div class="post-user-info">
+                            <h4>Moonlight Cafe</h4>
+                            <span>Đã xác nhận - 3 ngày trước</span>
+                        </div>
+                        <span class="post-badge badge-pending">Chờ xác nhận</span>
+                    </div>
+                    <div class="post-content">
+                        <p class="post-text">Đơn hàng của bạn đã được xác nhận. Chúng tôi sẽ sớm giao cho bạn!</p>
+                    </div>
+                    <div class="post-stats">
+                        <div class="post-stat">
+                            <i class="fas fa-heart"></i> 12
+                        </div>
+                        <div class="post-stat">
+                            <i class="fas fa-comment"></i> 0
+                        </div>
+                        <div class="post-stat">
+                            <i class="fas fa-share"></i> Chia sẻ
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Wishlist Section -->
+        <div class="wishlist-grid" id="wishlistTab" style="display: none;">
+            <div class="wishlist-item">
+                <img src="https://images.unsplash.com/photo-1517701604599-bb29b5dd73ad?w=400" alt="Cold Brew">
+                <div class="wishlist-overlay">
+                    <span class="wishlist-name">Cold Brew</span>
+                    <span class="wishlist-price">42.000đ</span>
+                </div>
+            </div>
+            <div class="wishlist-item">
+                <img src="https://images.unsplash.com/photo-1524351199678-941a58a3df50?w=400" alt="Cheesecake">
+                <div class="wishlist-overlay">
+                    <span class="wishlist-name">Cheesecake</span>
+                    <span class="wishlist-price">55.000đ</span>
+                </div>
+            </div>
+            <div class="wishlist-item">
+                <img src="https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=400" alt="Peach Tea">
+                <div class="wishlist-overlay">
+                    <span class="wishlist-name">Peach Tea</span>
+                    <span class="wishlist-price">38.000đ</span>
+                </div>
+            </div>
+            <div class="wishlist-item">
+                <img src="https://images.unsplash.com/photo-1571877227200-a0d98ea607e9?w=400" alt="Tiramisu">
+                <div class="wishlist-overlay">
+                    <span class="wishlist-name">Tiramisu</span>
+                    <span class="wishlist-price">65.000đ</span>
+                </div>
+            </div>
+            <div class="wishlist-item">
+                <img src="https://images.unsplash.com/photo-1510707577719-ae7c14805e3a?w=400" alt="Americano">
+                <div class="wishlist-overlay">
+                    <span class="wishlist-name">Americano</span>
+                    <span class="wishlist-price">40.000đ</span>
+                </div>
+            </div>
+            <div class="wishlist-item">
+                <img src="https://images.unsplash.com/photo-1541167760496-1628856ab772?w=400" alt="Latte">
+                <div class="wishlist-overlay">
+                    <span class="wishlist-name">Latte</span>
+                    <span class="wishlist-price">50.000đ</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings Section -->
+        <div class="settings-section" id="settingsTab" style="display: none;">
+            <div class="settings-group">
+                <h3 class="settings-title"><i class="fas fa-user"></i> Tài khoản</h3>
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <h4>Chỉnh sửa hồ sơ</h4>
+                        <p>Cập nhật thông tin cá nhân của bạn</p>
+                    </div>
+                    <button class="btn-outline" onclick="editProfile()">Chỉnh sửa</button>
+                </div>
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <h4>Đổi mật khẩu</h4>
+                        <p>Thay đổi mật khẩu đăng nhập</p>
+                    </div>
+                    <button class="btn-outline" onclick="changePassword()">Đổi</button>
+                </div>
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <h4>Xóa tài khoản</h4>
+                        <p>Xóa vĩnh viễn tài khoản và dữ liệu</p>
+                    </div>
+                    <button class="btn-outline" style="color: var(--danger); border-color: var(--danger);">Xóa</button>
+                </div>
+            </div>
+
+            <div class="settings-group">
+                <h3 class="settings-title"><i class="fas fa-bell"></i> Thông báo</h3>
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <h4>Thông báo đơn hàng</h4>
+                        <p>Nhận thông báo về trạng thái đơn hàng</p>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <h4>Khuyến mãi</h4>
+                        <p>Nhận thông báo về deals và khuyến mãi</p>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <h4>Email marketing</h4>
+                        <p>Nhận email về sản phẩm mới</p>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="settings-group">
+                <h3 class="settings-title"><i class="fas fa-sign-out-alt"></i> Đăng xuất</h3>
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <h4>Đăng xuất khỏi thiết bị</h4>
+                        <p>Đăng xuất tài khoản trên thiết bị này</p>
+                    </div>
+                    <button class="btn-outline" onclick="logout()">Đăng xuất</button>
+                </div>
+            </div>
+        </div>
+
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-bottom">
+                <p>&copy; 2024 Moonlight Cafe. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script type="module">
+        // Firebase imports
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getDatabase, ref, onValue } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+        import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+
+        // Firebase config
+        import './js/firebase-config.js';
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const auth = getAuth(app);
+
+        // Current user
+        let currentUser = null;
+
+        // Format price
+        function formatPrice(price) {
+            return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
+        }
+
+        // Switch tabs
+        window.switchTab = function(tabName) {
+            // Hide all tabs
+            document.getElementById('postsTab').style.display = 'none';
+            document.getElementById('wishlistTab').style.display = 'none';
+            document.getElementById('settingsTab').style.display = 'none';
+            
+            // Remove active class from all tabs
+            document.querySelectorAll('.profile-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Show selected tab
+            document.getElementById(tabName + 'Tab').style.display = tabName === 'posts' ? 'block' : (tabName === 'wishlist' ? 'grid' : 'block');
+            
+            // Add active class to selected tab
+            document.querySelector(`.profile-tab[data-tab="${tabName}"]`).classList.add('active');
+        };
+
+        // Edit profile
+        window.editProfile = function() {
+            Swal.fire({
+                title: 'Chỉnh sửa hồ sơ',
+                html: `
+                    <input type="text" id="editName" class="swal2-input" placeholder="Họ và tên" value="${document.getElementById('profileName').textContent}">
+                    <input type="text" id="editUsername" class="swal2-input" placeholder="Username" value="${document.getElementById('profileName').textContent.toLowerCase().replace(' ', '')}">
+                    <textarea id="editBio" class="swal2-textarea" placeholder="Giới thiệu bản thân">☕ Yêu thích cà phê và bánh ngọt\n🌙 Khách hàng thân thiết của Moonlight Cafe\n📍 TP. Hồ Chí Minh</textarea>
+                `,
+                showCancelButton: true,
+                confirmButtonText: 'Lưu',
+                cancelButtonText: 'Hủy',
+                confirmButtonColor: '#d4a574'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Đã lưu!',
+                        text: 'Hồ sơ đã được cập nhật.',
+                        confirmButtonColor: '#d4a574'
+                    });
+                }
+            });
+        };
+
+        // Change password
+        window.changePassword = function() {
+            Swal.fire({
+                title: 'Đổi mật khẩu',
+                html: `
+                    <input type="password" id="currentPass" class="swal2-input" placeholder="Mật khẩu hiện tại">
+                    <input type="password" id="newPass" class="swal2-input" placeholder="Mật khẩu mới">
+                    <input type="password" id="confirmPass" class="swal2-input" placeholder="Nhập lại mật khẩu">
+                `,
+                showCancelButton: true,
+                confirmButtonText: 'Đổi mật khẩu',
+                cancelButtonText: 'Hủy',
+                confirmButtonColor: '#d4a574'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Đã đổi!',
+                        text: 'Mật khẩu đã được thay đổi.',
+                        confirmButtonColor: '#d4a574'
+                    });
+                }
+            });
+        };
+
+        // Share profile
+        window.shareProfile = function() {
+            const url = window.location.href;
+            
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Hồ sơ của tôi - Moonlight Cafe',
+                    text: 'Xem hồ sơ của tôi tại Moonlight Cafe!',
+                    url: url
+                });
+            } else {
+                navigator.clipboard.writeText(url);
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Đã sao chép!',
+                    text: 'Link hồ sơ đã được sao chép vào clipboard.',
+                    confirmButtonColor: '#d4a574'
+                });
+            }
+        };
+
+        // Logout
+        window.logout = function() {
+            Swal.fire({
+                icon: 'question',
+                title: 'Đăng xuất?',
+                text: 'Bạn có chắc chắn muốn đăng xuất?',
+                showCancelButton: true,
+                confirmButtonText: 'Đăng xuất',
+                cancelButtonText: 'Hủy',
+                confirmButtonColor: '#d4a574'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = 'login.html';
+                }
+            });
+        };
+
+        // Update cart count
+        function updateCartCount() {
+            const cart = JSON.parse(localStorage.getItem('moonlight_cart')) || [];
+            document.getElementById('cartCount').textContent = cart.reduce((sum, item) => sum + item.quantity, 0);
+        }
+
+        // Initialize
+        onAuthStateChanged(auth, (user) => {
+            setTimeout(() => {
+                document.getElementById('loadingOverlay').classList.add('hidden');
+            }, 500);
+
+            if (user) {
+                currentUser = user;
+                document.getElementById('profileAvatar').textContent = user.displayName ? user.displayName.charAt(0).toUpperCase() : 'U';
+                document.getElementById('profileName').textContent = user.displayName || 'Nguyễn Văn A';
+            } else {
+                // Demo mode
+                document.getElementById('profileAvatar').textContent = 'N';
+                document.getElementById('profileName').textContent = 'Nguyễn Văn A';
+            }
+
+            updateCartCount();
+        });
+
+        window.addEventListener('scroll', () => {
+            const header = document.getElementById('header');
+            header.classList.toggle('scrolled', window.scrollY > 50);
+        });
+    </script>
+</body>
+
+</html>
