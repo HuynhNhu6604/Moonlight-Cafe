@@ -108,7 +108,7 @@ export async function protectAdminRoute(auth, db, redirectUrl = 'index.html') {
 // Bảo vệ trang yêu cầu đăng nhập - chuyển về login nếu chưa đăng nhập
 export async function requireAuth(auth, redirectUrl = 'login.html') {
     return new Promise((resolve) => {
-        const { onAuthStateChanged } = require('./firebase-config.js');
+        import('./firebase-config.js').then(({ onAuthStateChanged }) => {
 
         onAuthStateChanged(auth, (user) => {
             if (!user) {
@@ -119,6 +119,7 @@ export async function requireAuth(auth, redirectUrl = 'login.html') {
                 return;
             }
             resolve(true);
+        });
         });
     });
 }
@@ -137,8 +138,14 @@ export function getUserDropdownHTML(userData) {
     }
 
     let menuItems = `
+        <a href="profile.html" class="dropdown-item">
+            <i class="fas fa-user"></i> Hồ sơ của tôi
+        </a>
         <a href="orders.html" class="dropdown-item">
             <i class="fas fa-box"></i> Đơn hàng của tôi
+        </a>
+        <a href="profile.html?tab=wishlist" class="dropdown-item">
+            <i class="fas fa-heart"></i> Yêu thích
         </a>
     `;
 

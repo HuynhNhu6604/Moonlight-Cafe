@@ -1,0 +1,1300 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hồ sơ của tôi - Moonlight Cafe</title>
+
+    <!-- Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/mobile.css">
+
+    <style>
+        /* Profile Page Styles */
+        .profile-section {
+            padding: 60px 0;
+            min-height: 80vh;
+            background: var(--bg-dark);
+        }
+
+        .profile-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Profile Header */
+        .profile-header {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+            margin-bottom: 40px;
+            padding: 30px;
+            background: var(--bg-card);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+        }
+
+        .profile-avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .profile-info h1 {
+            font-size: 1.8rem;
+            color: var(--text-primary);
+            margin-bottom: 5px;
+        }
+
+        .profile-info p {
+            color: var(--text-muted);
+            margin-bottom: 15px;
+        }
+
+        .profile-stats {
+            display: flex;
+            gap: 30px;
+        }
+
+        .profile-stat {
+            text-align: center;
+        }
+
+        .profile-stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        .profile-stat-label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        /* Profile Content */
+        .profile-content {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 30px;
+        }
+
+        /* Sidebar Menu */
+        .profile-sidebar {
+            background: var(--bg-card);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            box-shadow: var(--shadow-md);
+            height: fit-content;
+        }
+
+        .sidebar-menu {
+            padding: 10px 0;
+        }
+
+        .profile-menu-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px 20px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+            border-left: 3px solid transparent;
+        }
+
+        .profile-menu-item:hover,
+        .profile-menu-item.active {
+            background: var(--primary-light);
+            color: var(--text-primary);
+            border-left-color: var(--accent);
+        }
+
+        .profile-menu-item i {
+            width: 20px;
+            text-align: center;
+        }
+
+        /* Main Content */
+        .profile-main {
+            background: var(--bg-card);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+            overflow: hidden;
+        }
+
+        .profile-section-title {
+            padding: 25px 30px;
+            border-bottom: 1px solid var(--secondary);
+            font-size: 1.2rem;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .profile-section-title i {
+            color: var(--accent);
+        }
+
+        /* Form Styles */
+        .profile-form {
+            padding: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 14px 18px;
+            border: 1px solid var(--secondary);
+            border-radius: var(--radius-sm);
+            font-size: 1rem;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            transition: all 0.2s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(212, 165, 116, 0.1);
+        }
+
+        .form-control:disabled {
+            background: var(--primary-light);
+            cursor: not-allowed;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .btn {
+            padding: 14px 28px;
+            border-radius: var(--radius-sm);
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-dark);
+            transform: translateY(-2px);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--accent);
+            color: var(--accent);
+        }
+
+        .btn-outline:hover {
+            background: var(--accent);
+            color: white;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+            padding-top: 25px;
+            border-top: 1px solid var(--secondary);
+        }
+
+        /* Order History */
+        .order-history-list {
+            padding: 20px;
+        }
+
+        .order-card {
+            background: var(--bg-dark);
+            border-radius: var(--radius-md);
+            margin-bottom: 20px;
+            overflow: hidden;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .order-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            background: var(--primary-light);
+            cursor: pointer;
+        }
+
+        .order-header-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .order-id {
+            font-weight: 700;
+            color: var(--accent);
+            font-size: 1.1rem;
+        }
+
+        .order-date {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .order-header-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .order-total {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        .order-items-preview {
+            padding: 15px 20px;
+            border-bottom: 1px solid var(--secondary);
+            display: flex;
+            gap: 10px;
+            overflow: hidden;
+        }
+
+        .order-item-thumb {
+            width: 50px;
+            height: 50px;
+            border-radius: var(--radius-sm);
+            object-fit: cover;
+        }
+
+        .order-details {
+            padding: 20px;
+            display: none;
+        }
+
+        .order-details.show {
+            display: block;
+        }
+
+        .order-customer-info {
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--secondary);
+        }
+
+        .order-customer-info h4 {
+            margin-bottom: 10px;
+            color: var(--text-primary);
+        }
+
+        .order-customer-info p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin: 5px 0;
+        }
+
+        .order-products-list {
+            margin-bottom: 20px;
+        }
+
+        .order-product-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--secondary);
+        }
+
+        .order-product-item:last-child {
+            border-bottom: none;
+        }
+
+        .order-product-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .order-product-img {
+            width: 60px;
+            height: 60px;
+            border-radius: var(--radius-sm);
+            object-fit: cover;
+        }
+
+        .order-product-name {
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .order-product-qty {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .order-product-price {
+            font-weight: 600;
+            color: var(--accent);
+        }
+
+        .order-summary-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            color: var(--text-secondary);
+        }
+
+        .order-summary-row.total {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            padding-top: 15px;
+            margin-top: 10px;
+            border-top: 1px solid var(--secondary);
+        }
+
+        .order-summary-row.total span:last-child {
+            color: var(--accent);
+        }
+
+        /* Status Badges */
+        .status-badge {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .status-pending { background: rgba(245, 158, 11, 0.15); color: #f59e0b; }
+        .status-confirmed { background: rgba(59, 130, 246, 0.15); color: #3b82f6; }
+        .status-processing { background: rgba(139, 92, 246, 0.15); color: #8b5cf6; }
+        .status-shipping { background: rgba(16, 185, 129, 0.15); color: #10b981; }
+        .status-delivered { background: rgba(16, 185, 129, 0.25); color: #10b981; }
+        .status-cancelled { background: rgba(239, 68, 68, 0.15); color: #ef4444; }
+
+        /* Reorder Button */
+        .reorder-btn {
+            width: 100%;
+            padding: 12px;
+            margin-top: 15px;
+            background: var(--primary-light);
+            border: none;
+            border-radius: var(--radius-sm);
+            color: var(--accent);
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .reorder-btn:hover {
+            background: var(--accent);
+            color: white;
+        }
+
+        /* Wishlist */
+        .wishlist-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            padding: 20px;
+        }
+
+        .wishlist-item {
+            background: var(--bg-dark);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .wishlist-item:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .wishlist-img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+        }
+
+        .wishlist-content {
+            padding: 15px;
+        }
+
+        .wishlist-name {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .wishlist-price {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 15px;
+        }
+
+        .wishlist-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .wishlist-actions .btn {
+            flex: 1;
+            padding: 10px;
+            font-size: 0.9rem;
+        }
+
+        /* Password Change */
+        .password-section {
+            padding: 30px;
+        }
+
+        .current-password-group {
+            position: relative;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            color: var(--secondary);
+            margin-bottom: 20px;
+        }
+
+        .empty-state h3 {
+            color: var(--text-primary);
+            margin-bottom: 10px;
+        }
+
+        .empty-state p {
+            color: var(--text-muted);
+            margin-bottom: 25px;
+        }
+
+        /* Responsive */
+        @media (max-width: 992px) {
+            .profile-content {
+                grid-template-columns: 1fr;
+            }
+
+            .profile-sidebar {
+                display: flex;
+                overflow-x: auto;
+            }
+
+            .profile-menu-item {
+                white-space: nowrap;
+                border-left: none;
+                border-bottom: 3px solid transparent;
+            }
+
+            .profile-menu-item:hover,
+            .profile-menu-item.active {
+                border-left-color: transparent;
+                border-bottom-color: var(--accent);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .profile-header {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .profile-stats {
+                justify-content: center;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .order-header {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+
+            .order-header-right {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Loading Overlay -->
+    <div class="loading-overlay">
+        <div class="loader"></div>
+    </div>
+
+    <!-- Header -->
+    <header class="header" id="header">
+        <div class="container">
+            <nav class="nav">
+                <a href="index.html" class="nav-brand">
+                    <span>🌙</span>
+                    <span class="nav-brand-text">Moonlight Cafe</span>
+                </a>
+
+                <ul class="nav-menu" id="navMenu">
+                    <li><a href="index.html" class="nav-link">Trang chủ</a></li>
+                    <li><a href="menu.html" class="nav-link">Menu</a></li>
+                    <li><a href="news.html" class="nav-link">Tin tức</a></li>
+                    <li><a href="about.html" class="nav-link">Về chúng tôi</a></li>
+                </ul>
+
+                <div class="nav-actions">
+                    <a href="cart.html" class="nav-icon">
+                        <i class="fas fa-heart"></i>
+                        <span class="badge" id="wishlistCount">0</span>
+                    </a>
+                    <a href="cart.html" class="nav-icon">
+                        <i class="fas fa-shopping-bag"></i>
+                        <span class="badge" id="cartCount">0</span>
+                    </a>
+                    <a href="profile.html" class="nav-icon active">
+                        <i class="fas fa-user"></i>
+                    </a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Profile Section -->
+    <section class="profile-section">
+        <div class="container">
+            <div class="profile-container">
+                
+                <!-- Profile Header -->
+                <div class="profile-header">
+                    <div class="profile-avatar" id="profileAvatar">U</div>
+                    <div class="profile-info">
+                        <h1 id="profileName">User Name</h1>
+                        <p id="profileEmail">user@email.com</p>
+                        <div class="profile-stats">
+                            <div class="profile-stat">
+                                <div class="profile-stat-value" id="totalOrdersStat">0</div>
+                                <div class="profile-stat-label">Đơn hàng</div>
+                            </div>
+                            <div class="profile-stat">
+                                <div class="profile-stat-value" id="totalSpentStat">0đ</div>
+                                <div class="profile-stat-label">Chi tiêu</div>
+                            </div>
+                            <div class="profile-stat">
+                                <div class="profile-stat-value" id="memberSince">2024</div>
+                                <div class="profile-stat-label">Thành viên từ</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Profile Content -->
+                <div class="profile-content">
+                    <!-- Sidebar Menu -->
+                    <div class="profile-sidebar">
+                        <div class="sidebar-menu">
+                            <div class="profile-menu-item active" data-tab="account">
+                                <i class="fas fa-user"></i>
+                                <span>Thông tin tài khoản</span>
+                            </div>
+                            <div class="profile-menu-item" data-tab="orders">
+                                <i class="fas fa-shopping-bag"></i>
+                                <span>Lịch sử đơn hàng</span>
+                            </div>
+                            <div class="profile-menu-item" data-tab="wishlist">
+                                <i class="fas fa-heart"></i>
+                                <span>Sản phẩm yêu thích</span>
+                            </div>
+                            <div class="profile-menu-item" data-tab="password">
+                                <i class="fas fa-lock"></i>
+                                <span>Đổi mật khẩu</span>
+                            </div>
+                            <a href="index.html" class="profile-menu-item" style="text-decoration: none;">
+                                <i class="fas fa-sign-out-alt"></i>
+                                <span>Đăng xuất</span>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Main Content -->
+                    <div class="profile-main">
+                        <!-- Account Tab -->
+                        <div class="profile-tab active" id="accountTab">
+                            <h3 class="profile-section-title">
+                                <i class="fas fa-user"></i>
+                                Thông tin tài khoản
+                            </h3>
+                            <form class="profile-form" id="accountForm">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>Họ và tên</label>
+                                        <input type="text" class="form-control" id="fullName" placeholder="Nhập họ và tên">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Số điện thoại</label>
+                                        <input type="tel" class="form-control" id="phone" placeholder="Nhập số điện thoại">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label>Email</label>
+                                    <input type="email" class="form-control" id="email" disabled>
+                                </div>
+                                <div class="form-group">
+                                    <label>Địa chỉ</label>
+                                    <textarea class="form-control" id="address" rows="3" placeholder="Nhập địa chỉ"></textarea>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>Ngày sinh</label>
+                                        <input type="date" class="form-control" id="birthday">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Giới tính</label>
+                                        <select class="form-control" id="gender">
+                                            <option value="">Chọn giới tính</option>
+                                            <option value="male">Nam</option>
+                                            <option value="female">Nữ</option>
+                                            <option value="other">Khác</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-actions">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-save"></i> Lưu thay đổi
+                                    </button>
+                                    <button type="button" class="btn btn-outline" id="cancelEditBtn">
+                                        Hủy
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+
+                        <!-- Orders Tab -->
+                        <div class="profile-tab" id="ordersTab">
+                            <h3 class="profile-section-title">
+                                <i class="fas fa-shopping-bag"></i>
+                                Lịch sử đơn hàng
+                            </h3>
+                            <div class="order-history-list" id="orderHistoryList">
+                                <!-- Orders will be loaded here -->
+                            </div>
+                        </div>
+
+                        <!-- Wishlist Tab -->
+                        <div class="profile-tab" id="wishlistTab">
+                            <h3 class="profile-section-title">
+                                <i class="fas fa-heart"></i>
+                                Sản phẩm yêu thích
+                            </h3>
+                            <div class="wishlist-grid" id="wishlistGrid">
+                                <!-- Wishlist items will be loaded here -->
+                            </div>
+                        </div>
+
+                        <!-- Password Tab -->
+                        <div class="profile-tab" id="passwordTab">
+                            <h3 class="profile-section-title">
+                                <i class="fas fa-lock"></i>
+                                Đổi mật khẩu
+                            </h3>
+                            <form class="password-section" id="passwordForm">
+                                <div class="form-group">
+                                    <label>Mật khẩu hiện tại</label>
+                                    <div class="current-password-group">
+                                        <input type="password" class="form-control" id="currentPassword" placeholder="Nhập mật khẩu hiện tại">
+                                        <button type="button" class="password-toggle" onclick="togglePassword('currentPassword')">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label>Mật khẩu mới</label>
+                                    <div class="current-password-group">
+                                        <input type="password" class="form-control" id="newPassword" placeholder="Nhập mật khẩu mới">
+                                        <button type="button" class="password-toggle" onclick="togglePassword('newPassword')">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label>Xác nhận mật khẩu mới</label>
+                                    <div class="current-password-group">
+                                        <input type="password" class="form-control" id="confirmPassword" placeholder="Nhập lại mật khẩu mới">
+                                        <button type="button" class="password-toggle" onclick="togglePassword('confirmPassword')">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="form-actions">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-key"></i> Cập nhật mật khẩu
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-bottom">
+                <p>&copy; 2024 Moonlight Cafe. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script type="module">
+        // Firebase imports
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getDatabase, ref, onValue, update } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+        import { getAuth, onAuthStateChanged, updatePassword, reauthenticateWithCredential, EmailAuthProvider } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+
+        // Firebase config
+        import './js/firebase-config.js';
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const auth = getAuth(app);
+
+        // Current user data
+        let currentUser = null;
+        let userData = null;
+
+        // Sample data
+        const sampleOrders = [
+            {
+                id: 'ORD2024013001',
+                items: [
+                    { name: 'Cappuccino', price: 45000, quantity: 2, image: 'https://images.unsplash.com/photo-1572442388796-11668a67e53d?w=200' },
+                    { name: 'Matcha Latte', price: 55000, quantity: 1, image: 'https://images.unsplash.com/photo-1515823664-b6e16561678e?w=200' }
+                ],
+                subtotal: 145000,
+                shipping: 0,
+                total: 145000,
+                status: 'delivered',
+                payment: 'cod',
+                customer: { fullName: 'Nguyễn Văn A', phone: '0123456789', address: '123 Đường ABC, Quận 1, TP. HCM' },
+                createdAt: '2024-01-30T14:30:00'
+            },
+            {
+                id: 'ORD2024012802',
+                items: [
+                    { name: 'Trà sữa trân châu', price: 35000, quantity: 2, image: 'https://images.unsplash.com/photo-1558857563-b371033873b8?w=200' }
+                ],
+                subtotal: 70000,
+                shipping: 0,
+                total: 70000,
+                status: 'delivered',
+                payment: 'banking',
+                customer: { fullName: 'Nguyễn Văn A', phone: '0123456789', address: '123 Đường ABC, Quận 1, TP. HCM' },
+                createdAt: '2024-01-28T10:15:00'
+            },
+            {
+                id: 'ORD2024012503',
+                items: [
+                    { name: 'Tiramisu', price: 65000, quantity: 1, image: 'https://images.unsplash.com/photo-1571877227200-a0d98ea607e9?w=200' },
+                    { name: 'Americano', price: 40000, quantity: 2, image: 'https://images.unsplash.com/photo-1510707577719-ae7c14805e3a?w=200' }
+                ],
+                subtotal: 145000,
+                shipping: 20000,
+                total: 165000,
+                status: 'delivered',
+                payment: 'momo',
+                customer: { fullName: 'Nguyễn Văn A', phone: '0123456789', address: '123 Đường ABC, Quận 1, TP. HCM' },
+                createdAt: '2024-01-25T18:45:00'
+            },
+            {
+                id: 'ORD2024012004',
+                items: [
+                    { name: 'Latte', price: 50000, quantity: 3, image: 'https://images.unsplash.com/photo-1541167760496-1628856ab772?w=200' }
+                ],
+                subtotal: 150000,
+                shipping: 0,
+                total: 150000,
+                status: 'cancelled',
+                payment: 'cod',
+                customer: { fullName: 'Nguyễn Văn A', phone: '0123456789', address: '123 Đường ABC, Quận 1, TP. HCM' },
+                createdAt: '2024-01-20T12:00:00'
+            }
+        ];
+
+        const sampleWishlist = [
+            { id: 1, name: 'Cold Brew', price: 42000, image: 'https://images.unsplash.com/photo-1517701604599-bb29b5dd73ad?w=300', category: 'coffee' },
+            { id: 2, name: 'Cheesecake', price: 55000, image: 'https://images.unsplash.com/photo-1524351199678-941a58a3df50?w=300', category: 'cake' },
+            { id: 3, name: 'Peach Tea', price: 38000, image: 'https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=300', category: 'tea' }
+        ];
+
+        // Format currency
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
+        }
+
+        // Format date
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+        }
+
+        // Get status badge
+        function getStatusBadge(status) {
+            const statusMap = {
+                'pending': { text: 'Chờ xác nhận', class: 'status-pending', icon: 'fa-clock' },
+                'confirmed': { text: 'Đã xác nhận', class: 'status-confirmed', icon: 'fa-check' },
+                'processing': { text: 'Đang chuẩn bị', class: 'status-processing', icon: 'fa-cog fa-spin' },
+                'shipping': { text: 'Đang giao', class: 'status-shipping', icon: 'fa-truck' },
+                'delivered': { text: 'Hoàn thành', class: 'status-delivered', icon: 'fa-check-circle' },
+                'cancelled': { text: 'Đã hủy', class: 'status-cancelled', icon: 'fa-times-circle' }
+            };
+            const s = statusMap[status] || statusMap.pending;
+            return `<span class="status-badge ${s.class}"><i class="fas ${s.icon}"></i> ${s.text}</span>`;
+        }
+
+        // Render user profile
+        function renderUserProfile() {
+            if (currentUser) {
+                document.getElementById('profileAvatar').textContent = currentUser.displayName ? currentUser.displayName.charAt(0).toUpperCase() : 'U';
+                document.getElementById('profileName').textContent = currentUser.displayName || 'User Name';
+                document.getElementById('profileEmail').textContent = currentUser.email || 'user@email.com';
+                document.getElementById('email').value = currentUser.email || '';
+                document.getElementById('totalOrdersStat').textContent = sampleOrders.length;
+                
+                const totalSpent = sampleOrders.filter(o => o.status !== 'cancelled').reduce((sum, o) => sum + o.total, 0);
+                document.getElementById('totalSpentStat').textContent = formatCurrency(totalSpent);
+                document.getElementById('memberSince').textContent = currentUser.metadata.creationTime ? new Date(currentUser.metadata.creationTime).getFullYear() : '2024';
+            }
+        }
+
+        // Render orders
+        function renderOrders() {
+            const container = document.getElementById('orderHistoryList');
+            
+            if (sampleOrders.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-shopping-bag"></i>
+                        <h3>Chưa có đơn hàng nào</h3>
+                        <p>Bạn chưa có đơn hàng nào. Hãy đặt hàng ngay!</p>
+                        <a href="menu.html" class="btn btn-primary">
+                            <i class="fas fa-coffee"></i> Xem menu
+                        </a>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = sampleOrders.map(order => `
+                <div class="order-card">
+                    <div class="order-header" onclick="toggleOrderDetails('${order.id}')">
+                        <div class="order-header-left">
+                            <span class="order-id">#${order.id.slice(-8)}</span>
+                            <span class="order-date">${formatDate(order.createdAt)}</span>
+                        </div>
+                        <div class="order-header-right">
+                            <span class="order-total">${formatCurrency(order.total)}</span>
+                            ${getStatusBadge(order.status)}
+                            <i class="fas fa-chevron-down" id="chevron-${order.id}"></i>
+                        </div>
+                    </div>
+                    <div class="order-items-preview">
+                        ${order.items.slice(0, 3).map(item => `
+                            <img src="${item.image}" alt="${item.name}" class="order-item-thumb">
+                        `).join('')}
+                        ${order.items.length > 3 ? `<span style="align-self: center; color: var(--text-muted);">+${order.items.length - 3} more</span>` : ''}
+                    </div>
+                    <div class="order-details" id="details-${order.id}">
+                        <div class="order-customer-info">
+                            <h4>Thông tin giao hàng</h4>
+                            <p><strong>Người nhận:</strong> ${order.customer.fullName}</p>
+                            <p><strong>Điện thoại:</strong> ${order.customer.phone}</p>
+                            <p><strong>Địa chỉ:</strong> ${order.customer.address}</p>
+                            <p><strong>Thanh toán:</strong> ${order.payment === 'cod' ? 'Tiền mặt (COD)' : order.payment === 'banking' ? 'Chuyển khoản' : 'MoMo'}</p>
+                        </div>
+                        <div class="order-products-list">
+                            ${order.items.map(item => `
+                                <div class="order-product-item">
+                                    <div class="order-product-info">
+                                        <img src="${item.image}" alt="${item.name}" class="order-product-img">
+                                        <div>
+                                            <div class="order-product-name">${item.name}</div>
+                                            <div class="order-product-qty">${item.quantity} x ${formatCurrency(item.price)}</div>
+                                        </div>
+                                    </div>
+                                    <div class="order-product-price">${formatCurrency(item.price * item.quantity)}</div>
+                                </div>
+                            `).join('')}
+                        </div>
+                        <div class="order-summary-row">
+                            <span>Tạm tính</span>
+                            <span>${formatCurrency(order.subtotal)}</span>
+                        </div>
+                        <div class="order-summary-row">
+                            <span>Phí vận chuyển</span>
+                            <span>${order.shipping === 0 ? 'Miễn phí' : formatCurrency(order.shipping)}</span>
+                        </div>
+                        <div class="order-summary-row total">
+                            <span>TỔNG CỘNG</span>
+                            <span>${formatCurrency(order.total)}</span>
+                        </div>
+                        ${order.status !== 'cancelled' ? `
+                            <button class="reorder-btn" onclick="reorder('${order.id}')">
+                                <i class="fas fa-redo"></i> Đặt lại sản phẩm
+                            </button>
+                        ` : ''}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Toggle order details
+        window.toggleOrderDetails = function(orderId) {
+            const details = document.getElementById(`details-${orderId}`);
+            const chevron = document.getElementById(`chevron-${orderId}`);
+            details.classList.toggle('show');
+            chevron.style.transform = details.classList.contains('show') ? 'rotate(180deg)' : 'rotate(0)';
+        };
+
+        // Reorder
+        window.reorder = function(orderId) {
+            const order = sampleOrders.find(o => o.id === orderId);
+            if (!order) return;
+
+            let cart = JSON.parse(localStorage.getItem('moonlight_cart')) || [];
+            order.items.forEach(item => {
+                cart.push({
+                    id: Date.now() + Math.random(),
+                    name: item.name,
+                    price: item.price,
+                    quantity: item.quantity,
+                    image: item.image
+                });
+            });
+            localStorage.setItem('moonlight_cart', JSON.stringify(cart));
+
+            Swal.fire({
+                icon: 'success',
+                title: 'Đã thêm vào giỏ!',
+                text: 'Các sản phẩm đã được thêm vào giỏ hàng.',
+                confirmButtonColor: '#d4a574'
+            }).then(() => {
+                window.location.href = 'cart.html';
+            });
+        };
+
+        // Render wishlist
+        function renderWishlist() {
+            const container = document.getElementById('wishlistGrid');
+            
+            if (sampleWishlist.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state" style="grid-column: 1 / -1;">
+                        <i class="fas fa-heart"></i>
+                        <h3>Chưa có sản phẩm yêu thích</h3>
+                        <p>Hãy thêm sản phẩm bạn thích vào danh sách yêu thích!</p>
+                        <a href="menu.html" class="btn btn-primary">
+                            <i class="fas fa-coffee"></i> Xem menu
+                        </a>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = sampleWishlist.map(item => `
+                <div class="wishlist-item">
+                    <img src="${item.image}" alt="${item.name}" class="wishlist-img">
+                    <div class="wishlist-content">
+                        <h4 class="wishlist-name">${item.name}</h4>
+                        <div class="wishlist-price">${formatCurrency(item.price)}</div>
+                        <div class="wishlist-actions">
+                            <button class="btn btn-primary" onclick="addToCart(${item.id})">
+                                <i class="fas fa-shopping-cart"></i> Thêm vào giỏ
+                            </button>
+                            <button class="btn btn-outline" onclick="removeFromWishlist(${item.id})">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            document.getElementById('wishlistCount').textContent = sampleWishlist.length;
+        }
+
+        // Add to cart from wishlist
+        window.addToCart = function(itemId) {
+            const item = sampleWishlist.find(i => i.id === itemId);
+            if (!item) return;
+
+            let cart = JSON.parse(localStorage.getItem('moonlight_cart')) || [];
+            cart.push({
+                id: Date.now(),
+                name: item.name,
+                price: item.price,
+                quantity: 1,
+                image: item.image
+            });
+            localStorage.setItem('moonlight_cart', JSON.stringify(cart));
+
+            Swal.fire({
+                icon: 'success',
+                title: 'Đã thêm vào giỏ!',
+                text: `${item.name} đã được thêm vào giỏ hàng.`,
+                confirmButtonColor: '#d4a574'
+            });
+
+            updateCartCount();
+        };
+
+        // Remove from wishlist
+        window.removeFromWishlist = function(itemId) {
+            const index = sampleWishlist.findIndex(i => i.id === itemId);
+            if (index > -1) {
+                sampleWishlist.splice(index, 1);
+                renderWishlist();
+                
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Đã xóa!',
+                    text: 'Sản phẩm đã được xóa khỏi danh sách yêu thích.',
+                    confirmButtonColor: '#d4a574'
+                });
+            }
+        };
+
+        // Toggle password visibility
+        window.togglePassword = function(fieldId) {
+            const field = document.getElementById(fieldId);
+            const icon = field.nextElementSibling.querySelector('i');
+            if (field.type === 'password') {
+                field.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                field.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        };
+
+        // Tab switching
+        document.querySelectorAll('.profile-menu-item[data-tab]').forEach(item => {
+            item.addEventListener('click', () => {
+                const tab = item.dataset.tab;
+                
+                // Update menu active state
+                document.querySelectorAll('.profile-menu-item').forEach(m => m.classList.remove('active'));
+                item.classList.add('active');
+                
+                // Update tab content
+                document.querySelectorAll('.profile-tab').forEach(t => t.classList.remove('active'));
+                document.getElementById(tab + 'Tab').classList.add('active');
+            });
+        });
+
+        // Form submissions
+        document.getElementById('accountForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const userRef = ref(db, 'users/' + currentUser.uid);
+            update(userRef, {
+                fullName: document.getElementById('fullName').value,
+                phone: document.getElementById('phone').value,
+                address: document.getElementById('address').value,
+                birthday: document.getElementById('birthday').value,
+                gender: document.getElementById('gender').value
+            }).then(() => {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Đã lưu!',
+                    text: 'Thông tin tài khoản đã được cập nhật.',
+                    confirmButtonColor: '#d4a574'
+                });
+            }).catch((error) => {
+                console.error('Error updating profile:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Lỗi!',
+                    text: 'Không thể cập nhật thông tin. Vui lòng thử lại.'
+                });
+            });
+        });
+
+        document.getElementById('passwordForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const currentPassword = document.getElementById('currentPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+
+            if (newPassword !== confirmPassword) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Lỗi!',
+                    text: 'Mật khẩu mới không khớp.'
+                });
+                return;
+            }
+
+            if (newPassword.length < 6) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Lỗi!',
+                    text: 'Mật khẩu mới phải có ít nhất 6 ký tự.'
+                });
+                return;
+            }
+
+            // Reauthenticate and update password
+            const credential = EmailAuthProvider.credential(currentUser.email, currentPassword);
+            reauthenticateWithCredential(currentUser, credential).then(() => {
+                return updatePassword(currentUser, newPassword);
+            }).then(() => {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Đã đổi mật khẩu!',
+                    text: 'Mật khẩu đã được cập nhật thành công.',
+                    confirmButtonColor: '#d4a574'
+                });
+                document.getElementById('passwordForm').reset();
+            }).catch((error) => {
+                console.error('Error changing password:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Lỗi!',
+                    text: 'Mật khẩu hiện tại không đúng.'
+                });
+            });
+        });
+
+        // Cancel edit
+        document.getElementById('cancelEditBtn').addEventListener('click', () => {
+            if (userData) {
+                document.getElementById('fullName').value = userData.fullName || '';
+                document.getElementById('phone').value = userData.phone || '';
+                document.getElementById('address').value = userData.address || '';
+                document.getElementById('birthday').value = userData.birthday || '';
+                document.getElementById('gender').value = userData.gender || '';
+            }
+        });
+
+        // Update cart count
+        function updateCartCount() {
+            const cart = JSON.parse(localStorage.getItem('moonlight_cart')) || [];
+            document.getElementById('cartCount').textContent = cart.reduce((sum, item) => sum + item.quantity, 0);
+        }
+
+        // Initialize
+        onAuthStateChanged(auth, (user) => {
+            setTimeout(() => {
+                document.querySelector('.loading-overlay').classList.add('hidden');
+            }, 500);
+
+            if (user) {
+                currentUser = user;
+                
+                // Load user data from Firebase
+                const userRef = ref(db, 'users/' + user.uid);
+                onValue(userRef, (snapshot) => {
+                    userData = snapshot.val();
+                    if (userData) {
+                        document.getElementById('fullName').value = userData.fullName || '';
+                        document.getElementById('phone').value = userData.phone || '';
+                        document.getElementById('address').value = userData.address || '';
+                        document.getElementById('birthday').value = userData.birthday || '';
+                        document.getElementById('gender').value = userData.gender || '';
+                    }
+                });
+            } else {
+                // Demo mode - use sample data
+                currentUser = { 
+                    displayName: 'Nguyễn Văn A', 
+                    email: 'user@email.com',
+                    uid: 'demo-user',
+                    metadata: { creationTime: new Date().toISOString() }
+                };
+            }
+
+            renderUserProfile();
+            renderOrders();
+            renderWishlist();
+            updateCartCount();
+        });
+
+        window.addEventListener('scroll', () => {
+            const header = document.getElementById('header');
+            header.classList.toggle('scrolled', window.scrollY > 50);
+        });
+    </script>
+</body>
+
+</html>

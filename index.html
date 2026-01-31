@@ -48,6 +48,9 @@
                 </ul>
                 
                 <div class="nav-actions">
+                    <button class="nav-icon" id="darkModeToggle" title="Chế độ tối/sáng">
+                        <i class="fas fa-moon"></i>
+                    </button>
                     <a href="cart.html" class="nav-icon" id="cartIcon">
                         <i class="fas fa-shopping-bag"></i>
                         <span class="badge" id="cartCount">0</span>
@@ -444,7 +447,30 @@
         const userDropdown = document.getElementById('userDropdown');
         const cartCount = document.getElementById('cartCount');
         const featuredProducts = document.getElementById('featuredProducts');
-        
+        const darkModeToggle = document.getElementById('darkModeToggle');
+
+        // Dark Mode Toggle
+        darkModeToggle.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+
+            const isDarkMode = document.body.classList.contains('dark-mode');
+            const icon = darkModeToggle.querySelector('i');
+
+            if (isDarkMode) {
+                icon.className = 'fas fa-sun';
+                localStorage.setItem('darkMode', 'enabled');
+            } else {
+                icon.className = 'fas fa-moon';
+                localStorage.setItem('darkMode', 'disabled');
+            }
+        });
+
+        // Check saved dark mode preference
+        if (localStorage.getItem('darkMode') === 'enabled') {
+            document.body.classList.add('dark-mode');
+            darkModeToggle.querySelector('i').className = 'fas fa-sun';
+        }
+
         // Loading
         window.addEventListener('load', () => {
             setTimeout(() => {
@@ -1087,6 +1113,100 @@
         @keyframes shimmer {
             0% { background-position: -200% 0; }
             100% { background-position: 200% 0; }
+        }
+
+        /* Dark Mode Toggle */
+        .dark-mode-toggle {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+
+        .dark-mode-toggle:hover {
+            background: var(--primary-light);
+        }
+
+        .dark-mode-toggle i {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            transition: all 0.3s ease;
+        }
+
+        .dark-mode-toggle:hover i {
+            color: var(--accent);
+        }
+
+        /* Dark Mode Styles */
+        body.dark-mode {
+            --bg-dark: #121212;
+            --bg-card: #1e1e1e;
+            --bg-card-hover: #2a2a2a;
+            --primary-light: #2a2a2a;
+            --secondary: #333;
+            --secondary-light: #404040;
+            --text-primary: #ffffff;
+            --text-secondary: #b0b0b0;
+            --text-muted: #888;
+            --text-dark: #ffffff;
+            --bg-overlay: rgba(0, 0, 0, 0.7);
+        }
+
+        body.dark-mode .header.scrolled {
+            background: rgba(18, 18, 18, 0.95);
+        }
+
+        body.dark-mode .product-card {
+            background: var(--bg-card);
+        }
+
+        body.dark-mode .menu-item {
+            background: var(--bg-card);
+        }
+
+        body.dark-mode .cart-card,
+        body.dark-mode .cart-summary,
+        body.dark-mode .checkout-card,
+        body.dark-mode .order-summary,
+        body.dark-mode .order-card {
+            background: var(--bg-card);
+        }
+
+        body.dark-mode .form-control {
+            background: var(--primary-light);
+            border-color: var(--secondary);
+        }
+
+        body.dark-mode .form-control:focus {
+            border-color: var(--accent);
+        }
+
+        body.dark-mode .quantity-btn {
+            background: var(--secondary);
+        }
+
+        body.dark-mode .footer {
+            background: #0d0d0d;
+        }
+
+        body.dark-mode .footer-bottom {
+            border-top-color: var(--secondary);
+        }
+
+        body.dark-mode .login-required,
+        body.dark-mode .empty-cart,
+        body.dark-mode .empty-orders {
+            background: var(--bg-card);
+        }
+
+        body.dark-mode .testimonial-card {
+            background: var(--bg-card);
+        }
+
+        body.dark-mode .news-card {
+            background: var(--bg-card);
         }
         
         /* Responsive */

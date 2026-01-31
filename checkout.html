@@ -488,7 +488,7 @@
                                 </div>
                             </label>
 
-                            <label class="payment-method">
+                            <div class="payment-method">
                                 <input type="radio" name="payment" value="banking">
                                 <div class="payment-method-icon">
                                     <i class="fas fa-university"></i>
@@ -497,7 +497,19 @@
                                     <h4>Chuyển khoản ngân hàng</h4>
                                     <p>Chuyển khoản qua tài khoản ngân hàng</p>
                                 </div>
-                            </label>
+                            </div>
+
+                            <!-- Banking Details -->
+                            <div id="bankingDetails" class="payment-details" style="display: none; margin-top: 15px; padding: 20px; background: var(--primary-light); border-radius: var(--radius-sm);">
+                                <h4 style="color: var(--accent); margin-bottom: 15px;"><i class="fas fa-info-circle"></i> Thông tin chuyển khoản</h4>
+                                <div style="display: grid; gap: 10px;">
+                                    <p><strong>Ngân hàng:</strong> Vietcombank</p>
+                                    <p><strong>Số tài khoản:</strong> 1234567890123</p>
+                                    <p><strong>Chủ tài khoản:</strong> NGUYEN VAN A</p>
+                                    <p><strong>Nội dung:</strong> THANHTOAN [Mã đơn hàng]</p>
+                                    <p style="color: var(--accent); font-size: 0.9rem;"><i class="fas fa-star"></i> Vui lòng chuyển khoản chính xác số tiền để đơn hàng được xử lý nhanh hơn</p>
+                                </div>
+                            </div>
 
                             <label class="payment-method">
                                 <input type="radio" name="payment" value="momo">
@@ -509,6 +521,17 @@
                                     <p>Thanh toán qua ví điện tử MoMo</p>
                                 </div>
                             </label>
+
+                            <!-- MoMo Details -->
+                            <div id="momoDetails" class="payment-details" style="display: none; margin-top: 15px; padding: 20px; background: var(--primary-light); border-radius: var(--radius-sm);">
+                                <h4 style="color: #ae2070; margin-bottom: 15px;"><i class="fas fa-info-circle"></i> Thông tin thanh toán MoMo</h4>
+                                <div style="display: grid; gap: 10px;">
+                                    <p><strong>Số điện thoại:</strong> 0901234567</p>
+                                    <p><strong>Tên tài khoản:</strong> Moonlight Cafe</p>
+                                    <p><strong>Nội dung:</strong> THANHTOAN [Mã đơn hàng]</p>
+                                    <p style="color: #ae2070; font-size: 0.9rem;"><i class="fas fa-star"></i> Sau khi chuyển khoản, vui lòng gửi screenshot qua Zalo của shop để xác nhận</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -551,6 +574,22 @@
         import { auth, db, ref, push, set, onAuthStateChanged } from './js/firebase-config.js';
 
         let currentUser = null;
+        let isGuest = false;
+
+        // Check login required
+        function requireLogin() {
+            const container = document.querySelector('.checkout-container');
+            container.innerHTML = `
+                <div style="text-align: center; padding: 80px 20px; background: var(--bg-card); border-radius: var(--radius-md); max-width: 500px; margin: 0 auto;">
+                    <i class="fas fa-user-lock" style="font-size: 4rem; color: var(--accent); margin-bottom: 1.5rem;"></i>
+                    <h2 style="margin-bottom: 1rem;">Vui lòng đăng nhập</h2>
+                    <p style="color: var(--text-muted); margin-bottom: 2rem;">Bạn cần đăng nhập để tiến hành thanh toán</p>
+                    <a href="login.html?redirect=checkout.html" class="btn btn-primary">
+                        <i class="fas fa-sign-in-alt"></i> Đăng nhập ngay
+                    </a>
+                </div>
+            `;
+        }
 
         // Loading
         window.addEventListener('load', () => {
@@ -560,9 +599,24 @@
         });
 
         // Auth state
-        onAuthStateChanged(auth, (user) => {
+        onAuthStateChanged(auth, async (user) => {
             currentUser = user;
-            if (user) {
+
+            if (!user) {
+                // Check if there's user data in localStorage (guest checkout)
+                const guestData = localStorage.getItem('moonlight_guest');
+                if (guestData) {
+                    const data = JSON.parse(guestData);
+                    document.getElementById('fullName').value = data.fullName || '';
+                    document.getElementById('phone').value = data.phone || '';
+                    document.getElementById('email').value = data.email || '';
+                    document.getElementById('address').value = data.address || '';
+                    isGuest = true;
+                } else {
+                    requireLogin();
+                    return;
+                }
+            } else {
                 // Pre-fill email if logged in
                 document.getElementById('email').value = user.email;
             }
@@ -623,6 +677,11 @@
                 document.querySelectorAll('.payment-method').forEach(m => m.classList.remove('selected'));
                 method.classList.add('selected');
                 method.querySelector('input').checked = true;
+
+                // Show/hide payment details
+                const paymentValue = method.querySelector('input').value;
+                document.getElementById('bankingDetails').style.display = paymentValue === 'banking' ? 'block' : 'none';
+                document.getElementById('momoDetails').style.display = paymentValue === 'momo' ? 'block' : 'none';
             });
         });
 
@@ -685,6 +744,25 @@
                 const newOrderRef = push(ordersRef);
                 await set(newOrderRef, orderData);
 
+                // Save order to localStorage for order-success page
+                const orderSummary = {
+                    id: newOrderRef.key,
+                    customer: orderData.customer,
+                    items: orderData.items,
+                    subtotal: orderData.subtotal,
+                    shipping: orderData.shipping,
+                    total: orderData.total,
+                    payment: orderData.payment,
+                    status: orderData.status,
+                    createdAt: orderData.createdAt
+                };
+
+                // Lưu vào localStorage TRƯỚC KHI chuyển trang
+                localStorage.setItem('moonlight_last_order', JSON.stringify(orderSummary));
+
+                // Debug: Log để kiểm tra
+                console.log('Order saved:', orderSummary);
+
                 // Clear cart
                 localStorage.removeItem('moonlight_cart');
                 updateCartCount();
@@ -698,10 +776,11 @@
                         <p>Mã đơn hàng: <strong>${newOrderRef.key.slice(-8).toUpperCase()}</strong></p>
                         <p>Chúng tôi sẽ liên hệ sớm nhất để xác nhận.</p>
                     `,
-                    confirmButtonText: 'Về trang chủ',
+                    confirmButtonText: 'Xem chi tiết đơn hàng',
                     confirmButtonColor: '#d4a574'
                 }).then(() => {
-                    window.location.href = 'index.html';
+                    // Chuyển đến trang chi tiết đơn hàng
+                    window.location.href = 'order-success.html';
                 });
 
             } catch (error) {

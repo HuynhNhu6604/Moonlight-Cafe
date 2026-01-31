@@ -20,16 +20,15 @@
 <tr>
 <td align="center" width="50%">
 
-**🎓 Sinh Viên Thực Hiện**
+|**🎓 Sinh Viên Thực Hiện**|
 
-**Nguyễn Thị Huỳnh Như**  
+|**Nguyễn Thị Huỳnh Như**  
 📚 MSSV: **222358**  
 📧 Email: huynhnhu6604@gmail.com
 
 </td>
 <td align="center" width="50%">
 
-**🏫 Thông Tin Trường**
 
 🏛️ **Đại học Nam Cần Thơ**  
 📖 **Đồ Án Cơ Sở 2**  
@@ -45,8 +44,8 @@
 
 - 📌 [Giới thiệu dự án](#-giới-thiệu-dự-án)
 - 🚀 [Tính năng nổi bật](#-tính-năng-nổi-bật)
-- � [Screenshots](#-screenshots)
-- �💻 [Công nghệ sử dụng](#-công-nghệ-sử-dụng)
+- 📸 [Screenshots](#-screenshots)
+- 💻 [Công nghệ sử dụng](#-công-nghệ-sử-dụng)
 - 📂 [Cấu trúc dự án](#-cấu-trúc-dự-án)
 - ⚙️ [Hướng dẫn cài đặt](#️-hướng-dẫn-cài-đặt)
 - 🎯 [Hướng dẫn sử dụng](#-hướng-dẫn-sử-dụng)
@@ -63,152 +62,74 @@
 
 ### ✨ Điểm đặc biệt:
 
-<table>
-<tr>
-<td width="25%" align="center">
-<img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Objects/Artist%20Palette.png" width="60" />
-<br/>
-<b>Giao diện đẹp mắt</b>
-<br/>
-Dark theme với màu cafe ấm áp
-</td>
-<td width="25%" align="center">
-<img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Objects/Mobile%20Phone.png" width="60" />
-<br/>
-<b>Responsive</b>
-<br/>
-Tương thích mọi thiết bị
-</td>
-<td width="25%" align="center">
-<img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Travel%20and%20places/Fire.png" width="60" />
-<br/>
-<b>Firebase</b>
-<br/>
-Auth & Realtime Database
-</td>
-<td width="25%" align="center">
-<img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Objects/Shopping%20Cart.png" width="60" />
-<br/>
-<b>Đầy đủ tính năng</b>
-<br/>
-E-commerce hoàn chỉnh
-</td>
-</tr>
-</table>
+- 🎨 **Giao diện Dark Mode** - Màu tối sang trọng, dễ nhìn
+- ⚡ **Tốc độ cao** - Load nhanh, mượt mà
+- 📱 **Responsive** - Tương thích mọi thiết bị
+- 🔐 **Bảo mật** - Xác thực người dùng với Firebase Auth
+- 💳 **Thanh toán** - Hỗ trợ COD, Banking, MoMo
 
 ---
 
 ## 🚀 TÍNH NĂNG NỔI BẬT
 
-<table>
-<tr>
-<td width="50%" valign="top">
+### 🌙 Giao diện & Trải nghiệm
+- ✅ Dark Mode (Chế độ tối)
+- ✅ Hóa đơn điện tử + QR Code chuyên nghiệp
+- ✅ Xác nhận đơn hàng + Timeline theo dõi
+- ✅ Admin Dashboard (Thống kê, quản lý đơn/sản phẩm)
+- ✅ User Profile + Order History
+- ✅ Wishlist (Yêu thích sản phẩm)
+⭐ Đánh giá sản phẩm (Rating + Bình luận)
+- ✅ Đăng ký/Đăng nhập (Email + Google)
+- ✅ Quên mật khẩu
 
-### 👥 **Dành cho Khách hàng**
+### 🛒 Mua hàng
+- 🛒 Giỏ hàng thông minh
+- 📦 Quản lý sản phẩm (CRUD)
+- 🔍 Tìm kiếm & Lọc sản phẩm
+- 🏷️ Hỗ trợ Promo Code
+- 💳 Thanh toán đa phương thức
 
-```
-✅ Xem danh sách sản phẩm
-✅ Tìm kiếm & lọc sản phẩm
-✅ Chi tiết sản phẩm
-✅ Giỏ hàng thông minh
-✅ Đặt hàng online
-✅ Thanh toán đa dạng
-   • COD (Tiền mặt)
-   • Banking
-   • MoMo
-✅ Theo dõi đơn hàng
-✅ Đăng ký/Đăng nhập
-✅ Quên mật khẩu
-```
+### 👤 Tài khoản
+- 🔐 Đăng ký/Đăng nhập (Firebase Auth)
+- 👑 Phân quyền Admin/User
+- 📋 Lịch sử đơn hàng
+- ❤️ Yêu thích sản phẩm
 
-</td>
-<td width="50%" valign="top">
-
-### 👨‍💼 **Dành cho Admin**
-
-```
-✅ Dashboard thống kê
-   • Doanh thu
-   • Đơn hàng
-   • Sản phẩm
-   • Người dùng
-✅ Quản lý sản phẩm
-   • Thêm/Sửa/Xóa
-   • Upload hình ảnh
-✅ Quản lý đơn hàng
-   • Xem chi tiết
-   • Cập nhật trạng thái
-✅ Quản lý người dùng
-```
-
-</td>
-</tr>
-</table>
-
----
-
-## 📱 SCREENSHOTS
-
-<div align="center">
-
-### 🏠 Trang chủ
-<img src="https://via.placeholder.com/800x400/1a1a2e/d4a574?text=Homepage+%F0%9F%8C%99+Moonlight+Cafe" width="100%" />
-
-### 📋 Menu sản phẩm
-<img src="https://via.placeholder.com/800x400/1a1a2e/d4a574?text=Menu+Page+%E2%98%95+Products" width="100%" />
-
-### 🛒 Giỏ hàng & Thanh toán
-<table width="100%">
-<tr>
-<td width="50%">
-<img src="https://via.placeholder.com/400x300/1a1a2e/d4a574?text=Shopping+Cart+%F0%9F%9B%92" width="100%" />
-</td>
-<td width="50%">
-<img src="https://via.placeholder.com/400x300/1a1a2e/d4a574?text=Checkout+%F0%9F%92%B3" width="100%" />
-</td>
-</tr>
-</table>
-
-### 👨‍💼 Admin Dashboard
-<img src="https://via.placeholder.com/800x400/1a1a2e/d4a574?text=Admin+Dashboard+%F0%9F%93%8A" width="100%" />
-
-</div>
+### 👑 Admin Dashboard
+- 📊 Thống kê doanh thu, đơn hàng, sản phẩm
+- 📈 Biểu đồ Chart.js
+- 🛒 Quản lý đơn hàng (xem, cập nhật trạng thái)
+- ☕ Quản lý sản phẩm
+- 👥 Quản lý khách hàng
 
 ---
 
 ## 💻 CÔNG NGHỆ SỬ DỤNG
 
-<div align="center">
-
 ### Frontend
+| Công nghệ | Mô tả |
+|-----------|-------|
+| **HTML5** | Cấu trúc trang web |
+| **CSS3** | Styling, Responsive, Animations |
+| **JavaScript** | Logic, Tương tác người dùng |
+| **Font Awesome** | Icons |
+| **SweetAlert2** | Thông báo đẹp |
+| **Chart.js** | Biểu đồ thống kê |
+| **QRCode.js** | Tạo mã QR |
 
-![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white)
-![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white)
-![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)
+### Backend & Database
+| Công nghệ | Mô tả |
+|-----------|-------|
+| **Firebase** | Authentication + Realtime Database |
+| **Firebase Auth** | Xác thực người dùng |
+| **Firebase Realtime DB** | Lưu trữ dữ liệu |
 
-### Backend & Services
-
-![Firebase](https://img.shields.io/badge/Firebase-FFCA28?style=for-the-badge&logo=firebase&logoColor=black)
-![Cloudinary](https://img.shields.io/badge/Cloudinary-3448C5?style=for-the-badge&logo=cloudinary&logoColor=white)
-
-### Libraries & Frameworks
-
-![Font Awesome](https://img.shields.io/badge/Font_Awesome-339AF0?style=for-the-badge&logo=fontawesome&logoColor=white)
-![SweetAlert2](https://img.shields.io/badge/SweetAlert2-7952B3?style=for-the-badge)
-
-### Development Tools
-
-![Git](https://img.shields.io/badge/Git-F05032?style=for-the-badge&logo=git&logoColor=white)
-![GitHub](https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white)
-![VS Code](https://img.shields.io/badge/VS_Code-007ACC?style=for-the-badge&logo=visualstudiocode&logoColor=white)
-
-</div>
-
-**Các thư viện chính:**
-- 🎨 **Font Awesome 6.4** - Icons
-- 🎭 **SweetAlert2** - Modal & Alerts
-- 🔤 **Google Fonts** - Playfair Display, Poppins
-- 🔥 **Firebase 10.12** - Auth & Database
+### Deployment
+| Công nghệ | Mô tả |
+|-----------|-------|
+| **Netlify** | Hosting miễn phí |
+| **GitHub** | Quản lý phiên bản |
 
 ---
 
@@ -217,309 +138,207 @@ E-commerce hoàn chỉnh
 ```
 DO_AN_MOONLIGH/
 │
-├── 📄 index.html              # Trang chủ
-├── 📄 menu.html               # Danh sách sản phẩm
-├── 📄 product-detail.html     # Chi tiết sản phẩm
-├── 📄 cart.html               # Giỏ hàng
-├── 📄 checkout.html           # Thanh toán
-├── 📄 orders.html             # Lịch sử đơn hàng
-├── 📄 login.html              # Đăng nhập
-├── 📄 register.html           # Đăng ký
-├── 📄 forgot-password.html    # Quên mật khẩu
-├── 📄 news.html               # Tin tức/Blog
-├── 📄 about.html              # Về chúng tôi
-├── 📄 admin.html              # Quản trị viên
+├── 📄 index.html            # Trang chủ
+├── 📄 menu.html             # Menu sản phẩm
+├── 📄 product-detail.html   # Chi tiết sản phẩm
+├── 📄 cart.html             # Giỏ hàng
+├── 📄 checkout.html         # Thanh toán
+├── 📄 order-success.html    # Xác nhận đơn hàng + Bill + QR Code
+├── 📄 orders.html           # Lịch sử đơn hàng
+├── 📄 profile.html          # Hồ sơ + Yêu thích + Đổi mật khẩu
+├── 📄 admin.html            # Admin Dashboard (thống kê, quản lý)
+├── 📄 login.html            # Đăng nhập
+├── 📄 register.html         # Đăng ký
+├── 📄 forgot-password.html  # Quên mật khẩu
+├── 📄 news.html             # Tin tức/Blog
+├── 📄 news-detail.html      # Chi tiết tin tức + Promo Code
+├── 📄 about.html            # Về chúng tôi
 │
 ├── 📁 css/
-│   ├── 🎨 style.css           # CSS chính
-│   └── 📱 mobile.css          # Responsive styles
+│   ├── 🎨 style.css         # CSS chính
+│   └── 📱 mobile.css        # Responsive styles
 │
 ├── 📁 js/
-│   └── 🔥 firebase-config.js  # Firebase configuration
+│   ├── 🔥 firebase-config.js  # Firebase configuration
+│   └── 🔐 auth-helper.js      # Authorization & roles
 │
-├── 📄 sample-data.json        # Dữ liệu mẫu (18 products)
-└── 📄 README.md               # Tài liệu hướng dẫn
+├── 📄 sample-data.json      # Dữ liệu mẫu
+└── 📄 README.md             # Tài liệu dự án
 ```
-
-**Tổng cộng:**
-- ✅ **13 trang HTML** hoàn chỉnh
-- ✅ **2 file CSS** (main + responsive)
-- ✅ **1 file JavaScript** module
-- ✅ **18 sản phẩm** mẫu trong `sample-data.json`
 
 ---
 
 ## ⚙️ HƯỚNG DẪN CÀI ĐẶT
 
-### 📋 Yêu cầu hệ thống
+### Bước 1: Tải dự án
+```bash
+# Clone hoặc tải dự án về máy
+git clone https://github.com/your-username/moonlight-cafe.git
+cd moonlight-cafe
+```
 
-- ✅ Trình duyệt: Chrome, Firefox, Edge (phiên bản mới nhất)
-- ✅ Node.js v14+ (để chạy local server)
-- ✅ Tài khoản Firebase (miễn phí)
-- ✅ Tài khoản Cloudinary (tùy chọn, miễn phí)
+### Bước 2: Cài đặt Firebase
 
-### 🔥 Bước 1: Cài đặt Firebase
+1. Truy cập [Firebase Console](https://console.firebase.google.com/)
+2. Tạo project mới: **Moonlight Cafe**
+3. Bật **Authentication**:
+   - Chọn "Sign-in method"
+   - Bật **Email/Password**
+   - Bật **Google** (tùy chọn)
+4. Tạo **Realtime Database**:
+   - Chọn "Create Database"
+   - Chọn vị trí (nên chọn Southeast Asia)
+   - Bắt đầu ở **test mode** (cho phép đọc/ghi trong 30 ngày)
+5. Lấy **Firebase Config**:
+   - Project Settings → General → Your apps → Web app
+   - Copy Firebase config
 
-<details>
-<summary><b>👉 Click để xem hướng dẫn chi tiết</b></summary>
+### Bước 3: Cấu hình Firebase Config
 
-#### 1.1. Tạo Firebase Project
-
-1. Truy cập [Firebase Console](https://console.firebase.google.com)
-2. Click **"Add project"**
-3. Đặt tên: `moonlight-cafe`
-4. Bỏ chọn Google Analytics
-5. Click **"Create project"**
-
-#### 1.2. Kích hoạt Authentication
-
-1. **Build** → **Authentication** → **Get started**
-2. Chọn **Email/Password** → Bật → **Save**
-
-#### 1.3. Kích hoạt Realtime Database
-
-1. **Build** → **Realtime Database** → **Create Database**
-2. Location: **United States (us-central1)**
-3. Security rules: **Start in test mode**
-4. Click **Enable**
-
-#### 1.4. Lấy Firebase Config
-
-1. **Project Settings** (⚙️)
-2. **Your apps** → Click Web icon `</>`
-3. Nickname: `Moonlight Cafe Web`
-4. Copy `firebaseConfig`
+Mở `js/firebase-config.js` và thay thế bằng config của bạn:
 
 ```javascript
-const firebaseConfig = {
-  apiKey: "AIzaSyXXXXXXXXXXXXXXXXXX",
-  authDomain: "moonlight-cafe.firebaseapp.com",
-  databaseURL: "https://moonlight-cafe-default-rtdb.firebaseio.com",
-  projectId: "moonlight-cafe",
-  storageBucket: "moonlight-cafe.appspot.com",
-  messagingSenderId: "123456789012",
-  appId: "1:123456789012:web:xxxxx"
+export const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT.firebaseapp.com",
+  databaseURL: "https://YOUR_PROJECT-default-rtdb.firebaseio.com",
+  projectId: "YOUR_PROJECT",
+  storageBucket: "YOUR_PROJECT.appspot.com",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId: "YOUR_APP_ID"
 };
 ```
 
-#### 1.5. Cập nhật project
+### Bước 4: Thêm email Admin
 
-Mở `js/firebase-config.js` và paste config vừa copy:
-
-```javascript
-const firebaseConfig = {
-    apiKey: "YOUR_REAL_API_KEY",      // ← Thay bằng giá trị thật
-    authDomain: "your-project.firebaseapp.com",
-    // ... các trường khác
-};
-```
-
-</details>
-
-### ☁️ Bước 2: Cài đặt Cloudinary (Tùy chọn)
-
-<details>
-<summary><b>� Click để xem hướng dẫn</b></summary>
-
-1. Đăng ký tài khoản tại [Cloudinary](https://cloudinary.com/users/register/free)
-2. Vào **Dashboard** → Copy **Cloud name**
-3. **Settings** → **Upload** → **Add upload preset**
-   - Preset name: `moonlight_products`
-   - Signing Mode: **Unsigned**
-4. Cập nhật `js/firebase-config.js`:
+Mở `js/auth-helper.js` và thêm email của bạn vào danh sách admin:
 
 ```javascript
-export const cloudinaryConfig = {
-    cloudName: 'your-cloud-name',
-    uploadPreset: 'moonlight_products'
-};
+export const ADMIN_EMAILS = [
+  'admin@moonlightcafe.vn',
+  'huynhnhu6604@gmail.com',  // Thêm email của bạn
+  'elisa6604@gmail.com'
+];
 ```
 
-</details>
+### Bước 5: Chạy local
 
-### � Bước 3: Import dữ liệu mẫu
-
-**Cách 1: Firebase Console (Nhanh nhất)**
-
-1. Vào **Realtime Database**
-2. Click menu ⋮ → **Import JSON**
-3. Chọn file `sample-data.json`
-4. Click **Import**
-
-**Cách 2: Admin Dashboard**
-
-1. Truy cập `admin.html`
-2. Đăng ký tài khoản mới
-3. Thêm sản phẩm thủ công qua form
-
----
-
-### � Bước 4: Chạy dự án
-
-**Cách 1: Sử dụng Live Server (Khuyến nghị)**
+Bạn có thể chạy bằng Live Server hoặc bất kỳ web server nào:
 
 ```bash
-# VS Code Extension: Live Server
-# Right-click index.html → Open with Live Server
-→ http://localhost:5500
-```
-
-**Cách 2: Sử dụng npx serve**
-
-```bash
-npx -y serve -l 3000
-→ http://localhost:3000
-```
-
-**Cách 3: Python Server**
-
-```bash
+# Với Python
 python -m http.server 8000
-→ http://localhost:8000
+
+# Với Node.js (nếu đã cài http-server)
+npx http-server
+
+# Với VS Code
+# Right-click index.html → Open with Live Server
 ```
+
+Mở trình duyệt: **http://localhost:8000**
 
 ---
 
 ## 🎯 HƯỚNG DẪN SỬ DỤNG
 
-### 👤 Khách hàng
+### 👤 Cho khách hàng
 
-1. **Xem sản phẩm**: Truy cập `menu.html`
-2. **Tìm kiếm**: Sử dụng search box & filters
-3. **Thêm giỏ hàng**: Click nút "+" trên sản phẩm
-4. **Đặt hàng**:
-   - `cart.html` → Kiểm tra giỏ hàng
-   - `checkout.html` → Điền thông tin
+1. **Đăng ký/Đăng nhập**:
+   - Vào trang Đăng ký/Đăng nhập
+   - Nhập email và mật khẩu
+   - Hoặc đăng nhập bằng Google
+
+2. **Chọn sản phẩm**:
+   - Xem menu tại trang Menu
+   - Click vào sản phẩm để xem chi tiết
+   - Thêm vào giỏ hàng
+
+3. **Giỏ hàng**:
+   - Xem sản phẩm đã chọn
+   - Nhập Promo Code (nếu có)
+   - Tiến hành thanh toán
+
+4. **Thanh toán**:
    - Chọn phương thức thanh toán
-   - Xác nhận đơn hàng
-5. **Theo dõi**: `orders.html` → Xem lịch sử
+   - Nhập thông tin giao hàng
+   - Xác nhận đặt hàng
 
-### 👨‍💼 Admin
+5. **Theo dõi đơn hàng**:
+   - Vào "Đơn hàng của tôi"
+   - Xem trạng thái đơn hàng
 
-1. **Đăng nhập** với tài khoản admin
-2. **Dashboard**: Xem thống kê tổng quan
+### 👑 Cho Admin
+
+1. **Truy cập Admin Dashboard**:
+   - Đăng nhập bằng email admin
+   - Click vào "Quản trị" ở menu user
+
+2. **Quản lý đơn hàng**:
+   - Xem danh sách đơn hàng
+   - Cập nhật trạng thái đơn
+
 3. **Quản lý sản phẩm**:
-   - Thêm mới: Form "Add Product"
-   - Sửa: Click icon ✏️
-   - Xóa: Click icon 🗑️
-4. **Quản lý đơn hàng**:
-   - Xem danh sách
-   - Cập nhật trạng thái
-   - Hủy đơn
+   - Thêm/Sửa/Xóa sản phẩm
+   - Cập nhật giá và tồn kho
+
+4. **Xem thống kê**:
+   - Doanh thu theo tháng
+   - Đơn hàng theo trạng thái
 
 ---
 
 ## 🔒 BẢO MẬT
 
-### Firebase Database Rules (Production)
-
-```json
+### Quy tắc Firebase (firestore.rules)
+```
 {
   "rules": {
-    "products": {
-      ".read": true,
-      ".write": "auth != null"
-    },
-    "orders": {
-      "$orderId": {
-        ".read": "auth != null && auth.uid == data.child('userId').val()",
-        ".write": "auth != null"
-      }
-    },
+    ".read": false,
+    ".write": false,
     "users": {
       "$uid": {
-        ".read": "auth != null && auth.uid == $uid",
-        ".write": "auth != null && auth.uid == $uid"
+        ".read": "$uid === auth.uid",
+        ".write": "$uid === auth.uid"
       }
+    },
+    "orders": {
+      ".read": "auth != null",
+      ".write": "auth != null"
     }
   }
 }
 ```
 
-**⚠️ Lưu ý:**
-- Test mode mở toàn bộ quyền (chỉ dùng khi dev)
-- Production phải giới hạn quyền như trên
-- API keys nên lưu trong `.env` (đối với project lớn hơn)
-
----
-
-## 🆘 TROUBLESHOOTING
-
-<details>
-<summary><b>🔴 Firebase not configured</b></summary>
-
-**Nguyên nhân:** Chưa cấu hình Firebase
-
-**Giải pháp:**
-- Kiểm tra `js/firebase-config.js`
-- Đảm bảo đã paste config từ Firebase Console
-
-</details>
-
-<details>
-<summary><b>🟠 No products found</b></summary>
-
-**Nguyên nhân:** Database trống
-
-**Giải pháp:**
-- Import `sample-data.json` vào Realtime Database
-- Hoặc thêm sản phẩm qua Admin Dashboard
-
-</details>
-
-<details>
-<summary><b>🟡 Permission denied</b></summary>
-
-**Nguyên nhân:** Database Rules quá strict
-
-**Giải pháp:**
-- Firebase Console → Realtime Database → Rules
-- Chuyển sang "test mode" để dev
-
-</details>
-
-<details>
-<summary><b>🔵 CSS không load</b></summary>
-
-**Nguyên nhân:** Đường dẫn file sai
-
-**Giải pháp:**
-- Kiểm tra `<link>` trong HTML
-- Đảm bảo file `css/style.css` tồn tại
-
-</details>
+### Khuyến nghị:
+- 🔑 Không share API key công khai
+- 🔒 Sử dụng environment variables
+- ✅ Bật xác thực email
+- ⚠️ Test kỹ trước khi deploy
 
 ---
 
 ## 📞 LIÊN HỆ
 
+📧 **Email**: huynhnhu6604@gmail.com  
+📱 **Điện thoại**: 0123 456 789  
+🏠 **Địa chỉ**: 123 Đường ABC, Quận 1, TP. Hồ Chí Minh
+
+---
+
+## 📝 GHI CHÚ
+
+- 📌 Dự án chỉ mang mục đích **học tập**
+- 💰 Không sử dụng cho mục đích thương mại
+- 🔧 Có thể tùy chỉnh theo nhu cầu
+- 📚 Tham khảo thêm tại [Firebase Docs](https://firebase.google.com/docs)
+
+---
+
 <div align="center">
 
-**Nguyễn Thị Huỳnh Như**
+### 🌙 Cảm ơn bạn đã sử dụng Moonlight Cafe! ☕
 
-📧 Email: **huynhnhu6604@gmail.com**  
-🔗 GitHub: **[@HuynhNhu6604](https://github.com/HuynhNhu6604)**  
-🏫 Trường: **Đại học Nam Cần Thơ**
-
----
-
-### � ĐÁNH GIÁ DỰ ÁN
-
-Nếu bạn thấy dự án hữu ích, hãy cho repo một ⭐ **star** nhé!
-
-[![GitHub stars](https://img.shields.io/github/stars/HuynhNhu6604/Moonlight-Cafe?style=social)](https://github.com/HuynhNhu6604/Moonlight-Cafe)
-
----
-
-### � LỜI CẢM ƠN
-
-> Cảm ơn thầy/cô giáo và các bạn đã xem qua dự án **Moonlight Cafe**.  
-> Mọi góp ý đều rất đáng trân trọng để giúp em hoàn thiện hơn! 🙏
-
----
-
-<img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Food/Hot%20Beverage.png" alt="Coffee" width="50" /> **Chúc bạn có trải nghiệm tuyệt vời với Moonlight Cafe!** <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Travel%20and%20places/Crescent%20Moon.png" alt="Moon" width="50" />
-
-**© 2024 Moonlight Cafe - Nguyễn Thị Huỳnh Như**
+**Made with ❤️ by Nguyễn Thị Huỳnh Như**
 
 </div>

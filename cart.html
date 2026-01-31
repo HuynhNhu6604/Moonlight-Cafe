@@ -469,8 +469,20 @@
             }
 
             const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-            const shipping = subtotal >= 200000 ? 0 : 25000;
-            const total = subtotal + shipping;
+            let shipping = subtotal >= 200000 ? 0 : 25000;
+
+            // Apply promo discount
+            let discount = 0;
+            if (appliedPromo && promoDiscount > 0) {
+                discount = subtotal * (promoDiscount / 100);
+            }
+
+            // Free shipping promo
+            if (appliedPromo === 'FREESHIP') {
+                shipping = 0;
+            }
+
+            const total = subtotal + shipping - discount;
 
             cartContainer.innerHTML = `
                 <!-- Cart Items -->
@@ -484,7 +496,7 @@
                     <div class="cart-items">
                         ${cart.map(item => `
                             <div class="cart-item" data-id="${item.id}">
-                                <img src="${item.imageUrl || 'https://via.placeholder.com/100x80'}" 
+                                <img src="${item.imageUrl || 'https://via.placeholder.com/100x80'}"
                                      alt="${item.name}" class="cart-item-img">
                                 <div class="cart-item-info">
                                     <h4>${item.name}</h4>
@@ -507,11 +519,11 @@
                         `).join('')}
                     </div>
                 </div>
-                
+
                 <!-- Cart Summary -->
                 <div class="cart-summary">
                     <h3 class="summary-title">Tổng đơn hàng</h3>
-                    
+
                     <div class="summary-row">
                         <span>Tạm tính</span>
                         <span>${formatPrice(subtotal)}</span>
@@ -525,26 +537,44 @@
                             <i class="fas fa-info-circle"></i> Mua thêm ${formatPrice(200000 - subtotal)} để miễn phí ship
                         </p>
                     ` : ''}
-                    
+
+                    ${appliedPromo ? `
+                        <div class="summary-row" style="color: var(--success);">
+                            <span><i class="fas fa-tag"></i> Mã: ${appliedPromo}</span>
+                            <span>-${formatPrice(discount)}</span>
+                        </div>
+                        <button onclick="removePromoCode()" style="background: none; border: none; color: var(--text-muted); font-size: 0.8rem; cursor: pointer;">
+                            <i class="fas fa-times"></i> Xóa mã
+                        </button>
+                    ` : ''}
+
                     <div class="summary-row total">
                         <span>Tổng cộng</span>
                         <span>${formatPrice(total)}</span>
                     </div>
-                    
+
                     <div class="promo-code">
                         <label style="font-size: 0.9rem; color: var(--text-secondary); display: block; margin-bottom: 8px;">
                             Mã giảm giá
                         </label>
                         <div class="promo-input">
                             <input type="text" placeholder="Nhập mã" id="promoCode">
-                            <button class="btn btn-outline btn-sm">Áp dụng</button>
+                            <button class="btn btn-outline btn-sm" onclick="applyPromoCode()">Áp dụng</button>
+                        </div>
+                        <div style="margin-top: 10px;">
+                            <p style="font-size: 0.8rem; color: var(--text-muted);">
+                                <i class="fas fa-gift"></i> Mã thử nghiệm:
+                                <span style="color: var(--accent); cursor: pointer;" onclick="document.getElementById('promoCode').value='WELCOME10'">WELCOME10</span>,
+                                <span style="color: var(--accent); cursor: pointer;" onclick="document.getElementById('promoCode').value='MOONLIGHT20'">MOONLIGHT20</span>,
+                                <span style="color: var(--accent); cursor: pointer;" onclick="document.getElementById('promoCode').value='FREESHIP'">FREESHIP</span>
+                            </p>
                         </div>
                     </div>
-                    
+
                     <a href="checkout.html" class="btn btn-primary checkout-btn">
                         <i class="fas fa-credit-card"></i> Thanh toán
                     </a>
-                    
+
                     <a href="menu.html" class="continue-shopping">
                         <i class="fas fa-arrow-left"></i> Tiếp tục mua sắm
                     </a>
@@ -615,7 +645,68 @@
             });
         };
 
-        // Initialize
+        // Promo codes
+        const promoCodes = {
+            'WELCOME10': 10,  // 10% off
+            'MOONLIGHT20': 20, // 20% off
+            'FREESHIP': 0     // Free ship only
+        };
+
+        let appliedPromo = null;
+        let promoDiscount = 0;
+
+        // Apply promo code
+        window.applyPromoCode = async function() {
+            const codeInput = document.getElementById('promoCode');
+            const code = codeInput.value.trim().toUpperCase();
+
+            if (!code) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Nhập mã!',
+                    text: 'Vui lòng nhập mã giảm giá'
+                });
+                return;
+            }
+
+            if (appliedPromo) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Đã áp dụng!',
+                    text: 'Bạn đã áp dụng mã giảm giá rồi'
+                });
+                return;
+            }
+
+            if (promoCodes.hasOwnProperty(code)) {
+                appliedPromo = code;
+                promoDiscount = promoCodes[code];
+
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Áp dụng thành công!',
+                    text: promoDiscount > 0 ? `Giảm ${promoDiscount}%` : 'Miễn phí vận chuyển',
+                    timer: 1500,
+                    showConfirmButton: false
+                });
+
+                renderCart();
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Mã không hợp lệ!',
+                    text: 'Mã giảm giá không đúng hoặc đã hết hạn'
+                });
+            }
+        };
+
+        // Remove promo code
+        window.removePromoCode = function() {
+            appliedPromo = null;
+            promoDiscount = 0;
+            document.getElementById('promoCode').value = '';
+            renderCart();
+        };
         updateCartCount();
         renderCart();
     </script>

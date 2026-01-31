@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chi tiết tin tức - Moonlight Cafe</title>
+
+    <!-- Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/mobile.css">
+
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <style>
+        .page-header {
+            background: linear-gradient(135deg, var(--bg-dark), var(--primary));
+            padding: 120px 0 60px;
+            text-align: center;
+        }
+
+        .article-section {
+            padding: 60px 0;
+        }
+
+        .article-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .article-header {
+            margin-bottom: 30px;
+        }
+
+        .breadcrumb {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            color: var(--text-muted);
+        }
+
+        .breadcrumb a {
+            color: var(--text-secondary);
+        }
+
+        .breadcrumb a:hover {
+            color: var(--accent);
+        }
+
+        .article-category {
+            display: inline-block;
+            background: rgba(212, 165, 116, 0.2);
+            color: var(--accent);
+            padding: 6px 16px;
+            border-radius: var(--radius-full);
+            font-size: 0.85rem;
+            margin-bottom: 20px;
+        }
+
+        .article-title {
+            font-size: 2.5rem;
+            line-height: 1.3;
+            margin-bottom: 20px;
+        }
+
+        .article-meta {
+            display: flex;
+            gap: 30px;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--secondary);
+        }
+
+        .article-meta span {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .article-meta i {
+            color: var(--accent);
+        }
+
+        .article-featured-image {
+            width: 100%;
+            height: 400px;
+            object-fit: cover;
+            border-radius: var(--radius-md);
+            margin-bottom: 30px;
+        }
+
+        .article-content {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: var(--text-secondary);
+        }
+
+        .article-content h2 {
+            font-size: 1.5rem;
+            color: var(--text-primary);
+            margin: 30px 0 15px;
+        }
+
+        .article-content p {
+            margin-bottom: 20px;
+        }
+
+        .article-content ul,
+        .article-content ol {
+            margin: 20px 0;
+            padding-left: 30px;
+        }
+
+        .article-content li {
+            margin-bottom: 10px;
+        }
+
+        .article-content blockquote {
+            background: var(--primary-light);
+            border-left: 4px solid var(--accent);
+            padding: 20px 25px;
+            margin: 30px 0;
+            border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+            font-style: italic;
+            color: var(--text-muted);
+        }
+
+        .article-content img {
+            max-width: 100%;
+            border-radius: var(--radius-sm);
+            margin: 20px 0;
+        }
+
+        /* Promo Box in Article */
+        .promo-box {
+            background: linear-gradient(135deg, rgba(212, 165, 116, 0.2), rgba(212, 165, 116, 0.1));
+            border: 2px dashed var(--accent);
+            border-radius: var(--radius-md);
+            padding: 30px;
+            margin: 30px 0;
+            text-align: center;
+        }
+
+        .promo-box h3 {
+            color: var(--accent);
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+
+        .promo-box p {
+            margin-bottom: 20px;
+        }
+
+        .promo-code-display {
+            display: inline-block;
+            background: var(--bg-card);
+            padding: 15px 30px;
+            border-radius: var(--radius-sm);
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: 3px;
+            color: var(--accent);
+            border: 2px solid var(--accent);
+            margin-bottom: 15px;
+        }
+
+        .copy-promo-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 25px;
+            background: var(--accent);
+            color: var(--text-dark);
+            border: none;
+            border-radius: var(--radius-sm);
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition-fast);
+        }
+
+        .copy-promo-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        /* Related Articles */
+        .related-section {
+            margin-top: 60px;
+            padding-top: 40px;
+            border-top: 1px solid var(--secondary);
+        }
+
+        .related-title {
+            font-size: 1.5rem;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .related-title i {
+            color: var(--accent);
+        }
+
+        .related-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .related-card {
+            background: var(--bg-card);
+            border-radius: var(--radius-sm);
+            overflow: hidden;
+            transition: var(--transition-normal);
+            cursor: pointer;
+        }
+
+        .related-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .related-card img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+        }
+
+        .related-card-content {
+            padding: 15px;
+        }
+
+        .related-card h4 {
+            font-size: 1rem;
+            margin-bottom: 8px;
+            color: var(--text-primary);
+        }
+
+        .related-card p {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+            transition: var(--transition-fast);
+        }
+
+        .back-link:hover {
+            color: var(--accent);
+        }
+
+        @media (max-width: 768px) {
+            .article-title {
+                font-size: 1.8rem;
+            }
+
+            .article-featured-image {
+                height: 250px;
+            }
+
+            .article-meta {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Loading Overlay -->
+    <div class="loading-overlay">
+        <div class="loader"></div>
+    </div>
+
+    <!-- Header -->
+    <header class="header" id="header">
+        <div class="container">
+            <nav class="nav">
+                <a href="index.html" class="nav-brand">
+                    <span>🌙</span>
+                    <span class="nav-brand-text">Moonlight Cafe</span>
+                </a>
+
+                <ul class="nav-menu" id="navMenu">
+                    <li><a href="index.html" class="nav-link">Trang chủ</a></li>
+                    <li><a href="menu.html" class="nav-link">Menu</a></li>
+                    <li><a href="news.html" class="nav-link active">Tin tức</a></li>
+                    <li><a href="about.html" class="nav-link">Về chúng tôi</a></li>
+                </ul>
+
+                <div class="nav-actions">
+                    <a href="cart.html" class="nav-icon">
+                        <i class="fas fa-shopping-bag"></i>
+                        <span class="badge" id="cartCount">0</span>
+                    </a>
+                    <a href="login.html" class="nav-icon">
+                        <i class="fas fa-user"></i>
+                    </a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Page Header -->
+    <section class="page-header">
+        <div class="container">
+            <h1>Chi tiết tin tức</h1>
+        </div>
+    </section>
+
+    <!-- Article Section -->
+    <section class="article-section">
+        <div class="container">
+            <div class="article-container">
+                <a href="news.html" class="back-link">
+                    <i class="fas fa-arrow-left"></i> Quay lại tin tức
+                </a>
+
+                <article id="articleContent">
+                    <!-- Content will be loaded here -->
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-bottom">
+                <p>&copy; 2024 Moonlight Cafe. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script type="module">
+        // Article data - In production, this would come from Firebase
+        const articles = {
+            '1': {
+                title: 'Moonlight Cafe khai trương chi nhánh mới tại Quận 7',
+                category: 'Tin mới',
+                date: '15/01/2024',
+                author: 'Admin',
+                image: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=1200',
+                content: `
+                    <p>Moonlight Cafe chính thức khai trương chi nhánh thứ 3 tại Quận 7, mang đến không gian thưởng thức cà phê đẳng cấp cho cư dân khu Nam Sài Gòn.</p>
+                    
+                    <h2>🌟 Không gian mới, trải nghiệm mới</h2>
+                    <p>Với diện tích hơn 200m², chi nhánh mới tại Quận 7 được thiết kế theo phong cách hiện đại kết hợp với không gian xanh mát. Đây là nơi lý tưởng để bạn:</p>
+                    <ul>
+                        <li>Thưởng thức những ly cà phê thủ công</li>
+                        <li>Gặp gỡ bạn bè trong không gian ấm cúng</li>
+                        <li>Làm việc với Wi-Fi miễn phí tốc độ cao</li>
+                        <li>Tổ chức các buổi họp mặt nhỏ</li>
+                    </ul>
+
+                    <blockquote>
+                        "Chúng tôi tin rằng mỗi ly cà phê đều kể một câu chuyện. Tại chi nhánh mới, chúng tôi mang đến những câu chuyện mới, những hương vị mới và những trải nghiệm khó quên cho mỗi khách hàng."
+                        <br>— <strong>Nguyễn Thị Huỳnh Như, Founder</strong>
+                    </blockquote>
+
+                    <h2>🎁 Ưu đãi khai trương</h2>
+                    <p>Để chào mừng khai trương, chúng tôi dành tặng nhiều ưu đãi hấp dẫn:</p>
+
+                    <div class="promo-box">
+                        <h3><i class="fas fa-gift"></i> Ưu đãi đặc biệt</h3>
+                        <p>Giảm <strong>20%</strong> cho đơn hàng đầu tiên tại chi nhánh mới!</p>
+                        <div class="promo-code-display" id="promoCode">WELCOME20</div>
+                        <button class="copy-promo-btn" onclick="copyPromoCode()">
+                            <i class="fas fa-copy"></i> Sao chép mã
+                        </button>
+                    </div>
+
+                    <h2>📍 Địa chỉ mới</h2>
+                    <p><strong>Moonlight Cafe - Chi nhánh Quận 7</strong><br>
+                    Số 123, Đường Nguyễn Thị Thập, Quận 7, TP. Hồ Chí Minh<br>
+                    Giờ mở cửa: 7:00 - 22:00 hàng ngày</p>
+
+                    <h2>☕ Đặc sản tại chi nhánh mới</h2>
+                    <p>Bên cạnh các món signature quen thuộc, chi nhánh Quận 7 còn giới thiệu:</p>
+                    <ol>
+                        <li><strong>Moonlight Special Latte</strong> - Cà phê đặc biệt của house</li>
+                        <li><strong>Trà Đào Cam Sả Premium</strong> - Trà trái cây cao cấp</li>
+                        <li><strong>New York Cheesecake</strong> - Bánh phô mai chính hãng</li>
+                    </ol>
+
+                    <p>Chúng tôi rất mong được đón tiếp bạn tại chi nhánh mới!</p>
+                `
+            },
+            '2': {
+                title: 'Bí quyết pha cà phê ngon tại nhà như barista chuyên nghiệp',
+                category: 'Tips & Tricks',
+                date: '10/01/2024',
+                author: 'Barista Team',
+                image: 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=1200',
+                content: `
+                    <p>Với những mẹo nhỏ từ đội ngũ barista của Moonlight, bạn hoàn toàn có thể pha được những ly cà phê thơm ngon không thua gì quán. Hãy cùng khám phá nhé!</p>
+
+                    <h2>☕ Chọn cà phê đúng cách</h2>
+                    <p>Để pha được ly cà phê ngon, điều đầu tiên và quan trọng nhất là chọn được hạt cà phê chất lượng:</p>
+                    <ul>
+                        <li>Chọn hạt nguyên chất 100% Arabica hoặc blend Arabica-Robusta</li>
+                        <li>Ưu tiên hạt rang vừa (medium roast) để giữ hương vị tốt nhất</li>
+                        <li>Mua vừa đủ dùng trong 2-3 tuần để đảm bảo độ tươi</li>
+                        <li>Bảo quản trong hũ kín, tránh ánh sáng và ẩm</li>
+                    </ul>
+
+                    <h2>🔧 Dụng cụ cần thiết</h2>
+                    <p>Để pha cà phê ngon tại nhà, bạn cần chuẩn bị:</p>
+                    <ol>
+                        <li><strong>Máy pha cà phê espresso</strong> hoặc <strong>French Press</strong></li>
+                        <li><strong>Cân điện tử</strong> - để đo chính xác lượng cà phê</li>
+                        <li><strong>Nhiệt kế</strong> - kiểm tra nhiệt độ nước (90-96°C)</li>
+                        <li><strong>Phin pha cà phê</strong> - nếu bạn thích pha kiểu Việt Nam</li>
+                        <li><strong>Tamper</strong> - để nén cà phê (nếu dùng máy)</li>
+                    </ol>
+
+                    <div class="promo-box">
+                        <h3><i class="fas fa-coffee"></i> Combo Pha Cà Phê Tại Nhà</h3>
+                        <p>Mua <strong>Phin pha cà phê + Cà phê Arabica</strong> giảm ngay <strong>15%</strong>!</p>
+                        <div class="promo-code-display" id="promoCode">PHACAFE15</div>
+                        <button class="copy-promo-btn" onclick="copyPromoCode()">
+                            <i class="fas fa-copy"></i> Sao chép mã
+                        </button>
+                    </div>
+
+                    <h2>📝 Công thức pha Latte thơm ngon</h2>
+                    <p><strong>Nguyên liệu:</strong></p>
+                    <ul>
+                        <li>18g cà phê espresso</li>
+                        <li>200ml sữa tươi</li>
+                        <li>Đá viên (nếu uống đá)</li>
+                    </ul>
+
+                    <p><strong>Các bước thực hiện:</strong></p>
+                    <ol>
+                        <li>Pha 1 shot espresso (18g cà phê, 36ml nước)</li>
+                        <li>Đun sữa đến 60-65°C, tạo bọt sữa mịn</li>
+                        <li>Đổ espresso vào ly, thêm sữa và tạo hình latte art</li>
+                        <li>Thưởng thức ngay khi còn nóng!</li>
+                    </ol>
+
+                    <blockquote>
+                        "Pha cà phê là một nghệ thuật. Mỗi ly cà phê đều mang theo tình yêu và sự tâm huyết của người pha chế."
+                        <br>— <strong>Đội ngũ Barista Moonlight</strong>
+                    </blockquote>
+
+                    <h2>💡 Mẹo nhỏ</h2>
+                    <p>Để ly cà phê hoàn hảo, hãy nhớ:</p>
+                    <ul>
+                        <li>Cà phê phải được xay ngay trước khi pha</li>
+                        <li>Tỷ lệ cà phê : nước là 1:15 đến 1:17</li>
+                        <li>Nhiệt độ nước lý tưởng là 92-96°C</li>
+                        <li>Thời gian pha lý tưởng là 25-30 giây (espresso)</li>
+                    </ul>
+                `
+            },
+            '3': {
+                title: 'Ra mắt bộ sưu tập bánh ngọt mùa xuân 2024',
+                category: 'Menu mới',
+                date: '05/01/2024',
+                author: 'Chef Team',
+                image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1200',
+                content: `
+                    <p>Moonlight Cafe giới thiệu bộ sưu tập bánh ngọt mùa xuân với những hương vị mới lạ, kết hợp nguyên liệu tươi theo mùa.</p>
+
+                    <h2>🌸 Bánh Ngọt Mùa Xuân</h2>
+                    <p>Bộ sưu tập mùa xuân 2024 mang đến 5 loại bánh đặc biệt:</p>
+
+                    <h2>🍰 Strawberry Cheesecake</h2>
+                    <p>Bánh phô mai kem mịn màng phủ trên lớp bánh quy giòn, trang trí với dâu tây tươi và kem tươi.</p>
+
+                    <h2>🥭 Mango Mousse</h2>
+                    <p>Bánh mousse xoài mát lạnh, nhẹ nhàng tan trên đầu lưỡi, với lớp gel xoài vàng ươm.</p>
+
+                    <div class="promo-box">
+                        <h3><i class="fas fa-birthday-cake"></i> Giảm 10% Bánh Ngọt</h3>
+                        <p>Nhân dịp ra mắt bộ sưu tập mới!</p>
+                        <div class="promo-code-display" id="promoCode">BANHNGOT10</div>
+                        <button class="copy-promo-btn" onclick="copyPromoCode()">
+                            <i class="fas fa-copy"></i> Sao chép mã
+                        </button>
+                    </div>
+
+                    <h2>🌷 Ưu đãi đặc biệt</h2>
+                    <p>Đặt bánh sinh nhật trước 3 ngày, tặng kèm nến và phục vụ miễn phí tại cửa hàng!</p>
+                `
+            },
+            '4': {
+                title: 'Ưu đãi 20% cho đơn hàng online trong tháng 1',
+                category: 'Khuyến mãi',
+                date: '01/01/2024',
+                author: 'Marketing',
+                image: 'https://images.unsplash.com/photo-1445116572660-236099ec97a0?w=1200',
+                content: `
+                    <p>Chào năm mới 2024, Moonlight Cafe tri ân khách hàng với ưu đãi giảm giá 20% cho tất cả đơn hàng đặt online trong suốt tháng 1.</p>
+
+                    <h2>🎉 Chi tiết chương trình</h2>
+                    <ul>
+                        <li>Giảm 20% cho đơn hàng từ 200.000đ</li>
+                        <li>Áp dụng cho tất cả sản phẩm trên menu</li>
+                        <li>Miễn phí ship cho đơn từ 300.000đ</li>
+                        <li>Thời gian áp dụng: 01/01/2024 - 31/01/2024</li>
+                    </ul>
+
+                    <div class="promo-box">
+                        <h3><i class="fas fa-percentage"></i> Mã Giảm Giá 20%</h3>
+                        <p>Áp dụng cho đơn hàng từ 200.000đ</p>
+                        <div class="promo-code-display" id="promoCode">NEWYEAR2024</div>
+                        <button class="copy-promo-btn" onclick="copyPromoCode()">
+                            <i class="fas fa-copy"></i> Sao chép mã
+                        </button>
+                    </div>
+
+                    <h2>📱 Cách đặt hàng</h2>
+                    <ol>
+                        <li>Truy cập website hoặc gọi điện 0123 456 789</li>
+                        <li>Chọn sản phẩm và thêm vào giỏ hàng</li>
+                        <li>Nhập mã giảm giá <strong>NEWYEAR2024</strong></li>
+                        <li>Chọn địa chỉ giao hàng và thanh toán</li>
+                        <li>Theo dõi đơn hàng qua số điện thoại</li>
+                    </ol>
+
+                    <blockquote>
+                        "Chúng tôi muốn năm mới bắt đầu bằng những điều ngọt ngào. Hãy để Moonlight Cafe đồng hành cùng bạn trong năm 2024!"
+                        <br>— <strong>Ban Giám Đốc Moonlight Cafe</strong>
+                    </blockquote>
+                `
+            },
+            '5': {
+                title: 'Workshop Latte Art - Học làm barista chuyên nghiệp',
+                category: 'Sự kiện',
+                date: '20/12/2023',
+                author: 'Admin',
+                image: 'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=1200',
+                content: `
+                    <p>Đăng ký tham gia workshop Latte Art cùng các barista hàng đầu. Học cách tạo những hình vẽ đẹp mắt trên ly cà phê!</p>
+
+                    <h2>📅 Thông tin Workshop</h2>
+                    <ul>
+                        <li><strong>Ngày:</strong> 15/02/2024</li>
+                        <li><strong>Thời gian:</strong> 14:00 - 16:00</li>
+                        <li><strong>Địa điểm:</strong> Moonlight Cafe - Chi nhánh Quận 1</li>
+                        <li><strong>Học phí:</strong> 350.000đ/người</li>
+                        <li><strong>Số lượng:</strong> Tối đa 15 người</li>
+                    </ul>
+
+                    <h2>🎓 Nội dung workshop</h2>
+                    <ol>
+                        <li>Giới thiệu về cà phê và nguồn gốc</li>
+                        <li>Kỹ thuật pha espresso chuẩn</li>
+                        <li>Kỹ thuật tạo bọt sữa</li>
+                        <li>Hướng dẫn vẽ các hình cơ bản: heart, tulip, rosetta</li>
+                        <li>Thực hành và nhận xét</li>
+                    </ol>
+
+                    <div class="promo-box">
+                        <h3><i class="fas fa-graduation-cap"></i> Ưu đãi Early Bird</h3>
+                        <p>Đăng ký trước 31/01/2024, giảm 50.000đ!</p>
+                        <div class="promo-code-display" id="promoCode">EARLY2024</div>
+                        <button class="copy-promo-btn" onclick="copyPromoCode()">
+                            <i class="fas fa-copy"></i> Sao chép mã
+                        </button>
+                    </div>
+
+                    <h2>📝 Đăng ký ngay</h2>
+                    <p>Liên hệ qua số điện thoại 0123 456 789 hoặc đăng ký trực tiếp tại quầy.</p>
+                `
+            },
+            '6': {
+                title: 'Cam kết sử dụng nguồn cà phê bền vững 100%',
+                category: 'Bền vững',
+                date: '15/12/2023',
+                author: 'Admin',
+                image: 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=1200',
+                content: `
+                    <p>Moonlight Cafe cam kết sử dụng 100% cà phê từ nguồn bền vững, hỗ trợ nông dân và bảo vệ môi trường.</p>
+
+                    <h2>🌱 Cam kết của chúng tôi</h2>
+                    <ul>
+                        <li>100% cà phê Arabica từ vùng trồng bền vững</li>
+                        <li>Hỗ trợ thu mua với giá công bằng cho nông dân</li>
+                        <li>Không sử dụng bao bì nhựa một lần</li>
+                        <li>Tái chế 100% phế phẩm cà phê làm phân bón</li>
+                        <li>Sử dụng năng lượng tái tạo trong cửa hàng</li>
+                    </ul>
+
+                    <h2>☕ Cà phê bền vững là gì?</h2>
+                    <p>Cà phê bền vững là cà phê được trồng và thu hoạch theo phương pháp thân thiện với môi trường, đảm bảo điều kiện lao động công bằng cho nông dân và bảo tồn đa dạng sinh học.</p>
+
+                    <div class="promo-box">
+                        <h3><i class="fas fa-leaf"></i> Ưu đãi "Xanh"</h3>
+                        <p>Mang theo ly/tách riêng, giảm 5.000đ mỗi ly!</p>
+                        <div class="promo-code-display" id="promoCode">XANH5K</div>
+                        <button class="copy-promo-btn" onclick="copyPromoCode()">
+                            <i class="fas fa-copy"></i> Sao chép mã
+                        </button>
+                    </div>
+
+                    <blockquote>
+                        "Mỗi ly cà phê bạn uống có thể thay đổi cuộc sống của một nông dân và bảo vệ một góc rừng."
+                        <br>— <strong>Moonlight Cafe</strong>
+                    </blockquote>
+                `
+            }
+        };
+
+        // Related articles
+        const relatedArticles = [
+            { id: '2', title: 'Bí quyết pha cà phê ngon tại nhà', image: 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=400' },
+            { id: '3', title: 'Bộ sưu tập bánh ngọt mùa xuân', image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400' },
+            { id: '4', title: 'Ưu đãi 20% tháng 1', image: 'https://images.unsplash.com/photo-1445116572660-236099ec97a0?w=400' }
+        ];
+
+        // Get article ID from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const articleId = urlParams.get('id') || '1';
+        const article = articles[articleId];
+
+        // Render article
+        function renderArticle() {
+            const content = document.getElementById('articleContent');
+
+            if (!article) {
+                content.innerHTML = `
+                    <div style="text-align: center; padding: 60px 20px;">
+                        <i class="fas fa-exclamation-circle" style="font-size: 4rem; color: var(--text-muted); margin-bottom: 20px;"></i>
+                        <h2>Không tìm thấy bài viết</h2>
+                        <p style="color: var(--text-muted);">Bài viết không tồn tại hoặc đã bị xóa.</p>
+                        <a href="news.html" class="btn btn-primary" style="margin-top: 20px;">
+                            <i class="fas fa-arrow-left"></i> Quay lại tin tức
+                        </a>
+                    </div>
+                `;
+                return;
+            }
+
+            content.innerHTML = `
+                <header class="article-header">
+                    <span class="article-category">${article.category}</span>
+                    <h1 class="article-title">${article.title}</h1>
+                    <div class="article-meta">
+                        <span><i class="fas fa-calendar"></i> ${article.date}</span>
+                        <span><i class="fas fa-user"></i> ${article.author}</span>
+                        <span><i class="fas fa-eye"></i> ${Math.floor(Math.random() * 1000) + 100} lượt xem</span>
+                    </div>
+                </header>
+
+                <img src="${article.image}" alt="${article.title}" class="article-featured-image">
+
+                <div class="article-content">
+                    ${article.content}
+                </div>
+            `;
+
+            // Render related articles
+            renderRelatedArticles();
+        }
+
+        function renderRelatedArticles() {
+            const relatedSection = document.querySelector('.related-section') || createRelatedSection();
+
+            relatedSection.querySelector('.related-grid').innerHTML = relatedArticles
+                .filter(a => a.id !== articleId)
+                .map(a => `
+                    <div class="related-card" onclick="window.location.href='news-detail.html?id=${a.id}'">
+                        <img src="${a.image}" alt="${a.title}">
+                        <div class="related-card-content">
+                            <h4>${a.title}</h4>
+                            <p><i class="fas fa-arrow-right"></i> Đọc tiếp</p>
+                        </div>
+                    </div>
+                `).join('');
+        }
+
+        function createRelatedSection() {
+            const section = document.createElement('div');
+            section.className = 'related-section';
+            section.innerHTML = `
+                <h3 class="related-title"><i class="fas fa-newspaper"></i> Bài viết liên quan</h3>
+                <div class="related-grid"></div>
+            `;
+            document.querySelector('.article-container').appendChild(section);
+            return section;
+        }
+
+        // Copy promo code
+        window.copyPromoCode = function() {
+            const promoCode = document.getElementById('promoCode').textContent;
+            navigator.clipboard.writeText(promoCode).then(() => {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Đã sao chép!',
+                    text: `Mã ${promoCode} đã được sao chép`,
+                    timer: 1500,
+                    showConfirmButton: false
+                });
+            });
+        };
+
+        // Update cart count
+        function updateCartCount() {
+            const cart = JSON.parse(localStorage.getItem('moonlight_cart')) || [];
+            document.getElementById('cartCount').textContent = cart.reduce((sum, item) => sum + item.quantity, 0);
+        }
+
+        // Initialize
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                document.querySelector('.loading-overlay').classList.add('hidden');
+            }, 500);
+        });
+
+        window.addEventListener('scroll', () => {
+            const header = document.getElementById('header');
+            header.classList.toggle('scrolled', window.scrollY > 50);
+        });
+
+        renderArticle();
+        updateCartCount();
+    </script>
+</body>
+
+</html>

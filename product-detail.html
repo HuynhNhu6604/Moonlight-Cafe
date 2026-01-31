@@ -162,6 +162,406 @@
                 flex-direction: column;
             }
         }
+        
+        /* Reviews Section */
+        .reviews-section {
+            margin-top: 80px;
+            padding-top: 60px;
+            border-top: 1px solid var(--secondary);
+        }
+        
+        .reviews-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        
+        .reviews-header h2 {
+            font-size: 1.8rem;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .reviews-header h2 i {
+            color: var(--accent);
+        }
+        
+        .write-review-btn {
+            padding: 12px 25px;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+        
+        .write-review-btn:hover {
+            background: var(--accent-dark);
+            transform: translateY(-2px);
+        }
+        
+        /* Rating Summary */
+        .rating-summary {
+            display: grid;
+            grid-template-columns: 200px 1fr;
+            gap: 40px;
+            background: var(--bg-card);
+            padding: 30px;
+            border-radius: var(--radius-lg);
+            margin-bottom: 40px;
+        }
+        
+        .rating-average {
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .rating-number {
+            font-size: 4rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            line-height: 1;
+        }
+        
+        .rating-stars {
+            color: #fbbf24;
+            font-size: 1.5rem;
+            margin: 15px 0;
+        }
+        
+        .rating-total {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+        
+        .rating-bars {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .rating-bar-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .rating-bar-label {
+            width: 50px;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+        
+        .rating-bar-container {
+            flex: 1;
+            height: 8px;
+            background: var(--secondary);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .rating-bar-fill {
+            height: 100%;
+            background: #fbbf24;
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+        
+        .rating-bar-count {
+            width: 40px;
+            text-align: right;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+        
+        /* Review Form */
+        .review-form-card {
+            background: var(--bg-card);
+            padding: 30px;
+            border-radius: var(--radius-lg);
+            margin-bottom: 40px;
+            display: none;
+        }
+        
+        .review-form-card.show {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+        
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .review-form-card h3 {
+            margin-bottom: 20px;
+            color: var(--text-primary);
+        }
+        
+        .star-rating-input {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .star-rating-input .star {
+            font-size: 2rem;
+            color: var(--secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .star-rating-input .star:hover,
+        .star-rating-input .star.active {
+            color: #fbbf24;
+            transform: scale(1.1);
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 14px 18px;
+            border: 1px solid var(--secondary);
+            border-radius: var(--radius-sm);
+            font-size: 1rem;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            transition: all 0.2s;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+        
+        textarea.form-control {
+            resize: vertical;
+            min-height: 120px;
+        }
+        
+        .review-form-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: flex-end;
+        }
+        
+        /* Review Cards */
+        .reviews-list {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+        
+        .review-card {
+            background: var(--bg-card);
+            padding: 25px;
+            border-radius: var(--radius-lg);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .review-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-md);
+        }
+        
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+        
+        .reviewer-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .reviewer-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 1.2rem;
+        }
+        
+        .reviewer-details h4 {
+            color: var(--text-primary);
+            margin-bottom: 3px;
+        }
+        
+        .review-date {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+        
+        .review-stars {
+            color: #fbbf24;
+            font-size: 0.9rem;
+        }
+        
+        .review-content {
+            color: var(--text-secondary);
+            line-height: 1.8;
+            margin-bottom: 15px;
+        }
+        
+        .review-images {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .review-image {
+            width: 80px;
+            height: 80px;
+            border-radius: var(--radius-sm);
+            object-fit: cover;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .review-image:hover {
+            transform: scale(1.05);
+        }
+        
+        .review-helpful {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            padding-top: 15px;
+            border-top: 1px solid var(--secondary);
+        }
+        
+        .helpful-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 8px 15px;
+            border-radius: var(--radius-sm);
+            transition: all 0.2s;
+        }
+        
+        .helpful-btn:hover {
+            background: var(--primary-light);
+            color: var(--accent);
+        }
+        
+        .helpful-btn.active {
+            color: var(--accent);
+        }
+        
+        .verified-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+        }
+        
+        .verified-badge i {
+            font-size: 0.7rem;
+        }
+        
+        /* Load More */
+        .load-more-reviews {
+            text-align: center;
+            margin-top: 40px;
+        }
+        
+        .load-more-btn {
+            padding: 15px 40px;
+            background: transparent;
+            border: 2px solid var(--accent);
+            color: var(--accent);
+            border-radius: var(--radius-sm);
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .load-more-btn:hover {
+            background: var(--accent);
+            color: white;
+        }
+        
+        /* Empty Reviews */
+        .no-reviews {
+            text-align: center;
+            padding: 60px 20px;
+            background: var(--bg-card);
+            border-radius: var(--radius-lg);
+        }
+        
+        .no-reviews i {
+            font-size: 4rem;
+            color: var(--secondary);
+            margin-bottom: 20px;
+        }
+        
+        .no-reviews h3 {
+            color: var(--text-primary);
+            margin-bottom: 10px;
+        }
+        
+        .no-reviews p {
+            color: var(--text-muted);
+        }
+        
+        @media (max-width: 768px) {
+            .rating-summary {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+            
+            .rating-bars {
+                margin-top: 20px;
+            }
+            
+            .reviews-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
     </style>
 </head>
 <body>
@@ -214,6 +614,81 @@
                 <!-- Product content will be loaded here -->
                 <div class="text-center" style="grid-column: 1 / -1;">
                     <div class="loader" style="margin: 50px auto;"></div>
+                </div>
+            </div>
+            
+            <!-- Reviews Section -->
+            <div class="reviews-section" id="reviewsSection">
+                <div class="reviews-header">
+                    <h2><i class="fas fa-star"></i> Đánh giá sản phẩm</h2>
+                    <button class="write-review-btn" onclick="toggleReviewForm()">
+                        <i class="fas fa-pen"></i> Viết đánh giá
+                    </button>
+                </div>
+                
+                <!-- Rating Summary -->
+                <div class="rating-summary" id="ratingSummary">
+                    <div class="rating-average">
+                        <div class="rating-number" id="ratingNumber">4.5</div>
+                        <div class="rating-stars" id="ratingStars">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star-half-alt"></i>
+                        </div>
+                        <div class="rating-total" id="ratingTotal">128 đánh giá</div>
+                    </div>
+                    <div class="rating-bars" id="ratingBars">
+                        <!-- Rating bars will be loaded here -->
+                    </div>
+                </div>
+                
+                <!-- Review Form -->
+                <div class="review-form-card" id="reviewFormCard">
+                    <h3>Viết đánh giá của bạn</h3>
+                    <div class="form-group">
+                        <label>Đánh giá của bạn</label>
+                        <div class="star-rating-input" id="starRating">
+                            <i class="fas fa-star star" data-rating="1"></i>
+                            <i class="fas fa-star star" data-rating="2"></i>
+                            <i class="fas fa-star star" data-rating="3"></i>
+                            <i class="fas fa-star star" data-rating="4"></i>
+                            <i class="fas fa-star star" data-rating="5"></i>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Họ tên</label>
+                            <input type="text" class="form-control" id="reviewerName" placeholder="Nhập họ tên của bạn">
+                        </div>
+                        <div class="form-group">
+                            <label>Email</label>
+                            <input type="email" class="form-control" id="reviewerEmail" placeholder="Nhập email của bạn">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Đánh giá của bạn</label>
+                        <textarea class="form-control" id="reviewContent" rows="4" placeholder="Chia sẻ trải nghiệm của bạn về sản phẩm này..."></textarea>
+                    </div>
+                    <div class="review-form-actions">
+                        <button class="btn btn-outline" onclick="toggleReviewForm()">Hủy</button>
+                        <button class="btn btn-primary" onclick="submitReview()">
+                            <i class="fas fa-paper-plane"></i> Gửi đánh giá
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Reviews List -->
+                <div class="reviews-list" id="reviewsList">
+                    <!-- Reviews will be loaded here -->
+                </div>
+                
+                <!-- Load More -->
+                <div class="load-more-reviews" id="loadMoreReviews" style="display: none;">
+                    <button class="load-more-btn" onclick="loadMoreReviews()">
+                        Xem thêm đánh giá
+                    </button>
                 </div>
             </div>
         </div>
@@ -326,7 +801,13 @@
             window.location.href = 'menu.html';
         }
         
-        // Format price
+        // ========== REVIEWS SECTION ==========
+        
+        // Sample reviews data
+        let reviews = [
+            {
+                id: 1,
+                productId: productId,
         function formatPrice(price) {
             return new Intl.NumberFormat('vi-VN', { 
                 style: 'currency', 
@@ -564,6 +1045,306 @@
                 showConfirmButton: false
             });
         });
+        
+        // ========== REVIEWS SECTION ==========
+        
+        // Sample reviews data
+        let reviews = [
+            {
+                id: 1,
+                productId: productId,
+                name: 'Nguyễn Thị Hương',
+                email: 'huong@gmail.com',
+                rating: 5,
+                content: 'Cappuccino ở đây ngon tuyệt vời! Bọt sữa mịn màng, cà phê thơm hương chocolate. Sẽ quay lại nhiều lần nữa!',
+                date: '2024-01-28T14:30:00',
+                helpful: 24,
+                verified: true
+            },
+            {
+                id: 2,
+                productId: productId,
+                name: 'Trần Minh Khoa',
+                email: 'khoa@gmail.com',
+                rating: 4,
+                content: 'Sản phẩm tốt, giao hàng nhanh. Đóng gói cẩn thận. Đánh giá 4 sao vì hơi ngọt hơn mình nghĩ.',
+                date: '2024-01-25T10:15:00',
+                helpful: 12,
+                verified: true
+            },
+            {
+                id: 3,
+                productId: productId,
+                name: 'Lê Phương Anh',
+                email: 'anh@gmail.com',
+                rating: 5,
+                content: 'Lần đầu thử đã trở thành fan! Không gian quán đẹp, nhân viên thân thiện, cà phê ngon xuất sắc!',
+                date: '2024-01-20T16:45:00',
+                helpful: 18,
+                verified: true
+            },
+            {
+                id: 4,
+                productId: productId,
+                name: 'Phạm Đức Long',
+                email: 'long@gmail.com',
+                rating: 4,
+                content: 'Cà phê chuẩn vị, thơm và không bị đắng. Giá cả hợp lý. Sẽ ủng hộ dài dài!',
+                date: '2024-01-15T09:30:00',
+                helpful: 8,
+                verified: true
+            },
+            {
+                id: 5,
+                productId: productId,
+                name: 'Hoàng Mai Linh',
+                email: 'linh@gmail.com',
+                rating: 5,
+                content: 'Perfect! Mình rất thích cách pha chế ở đây. Đặc biệt thích latte art siêu đẹp. Highly recommend!',
+                date: '2024-01-10T11:20:00',
+                helpful: 15,
+                verified: true
+            }
+        ];
+        
+        let currentRating = 0;
+        let reviewsPerPage = 5;
+        let displayedReviews = 5;
+        
+        // Render rating bars
+        function renderRatingBars() {
+            const ratingCounts = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
+            reviews.forEach(r => ratingCounts[r.rating]++);
+            const total = reviews.length;
+            
+            const barsHtml = [5, 4, 3, 2, 1].map(star => `
+                <div class="rating-bar-row">
+                    <span class="rating-bar-label">${star} sao</span>
+                    <div class="rating-bar-container">
+                        <div class="rating-bar-fill" style="width: ${total > 0 ? (ratingCounts[star] / total * 100) : 0}%"></div>
+                    </div>
+                    <span class="rating-bar-count">${ratingCounts[star]}</span>
+                </div>
+            `).join('');
+            
+            document.getElementById('ratingBars').innerHTML = barsHtml;
+        }
+        
+        // Calculate average rating
+        function calculateAverageRating() {
+            if (reviews.length === 0) return { average: 0, total: 0 };
+            const total = reviews.reduce((sum, r) => sum + r.rating, 0);
+            return {
+                average: (total / reviews.length).toFixed(1),
+                total: reviews.length
+            };
+        }
+        
+        // Render stars
+        function renderStars(rating, isInput = false) {
+            let stars = '';
+            for (let i = 1; i <= 5; i++) {
+                if (i <= rating) {
+                    stars += '<i class="fas fa-star"></i>';
+                } else if (i - 0.5 <= rating) {
+                    stars += '<i class="fas fa-star-half-alt"></i>';
+                } else if (isInput) {
+                    stars += '<i class="far fa-star"></i>';
+                } else {
+                    stars += '<i class="fas fa-star" style="color: var(--secondary);"></i>';
+                }
+            }
+            return stars;
+        }
+        
+        // Format date
+        function formatReviewDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('vi-VN', { 
+                day: '2-digit', 
+                month: '2-digit', 
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+        
+        // Render reviews
+        function renderReviews() {
+            const container = document.getElementById('reviewsList');
+            const { average, total } = calculateAverageRating();
+            
+            // Update rating summary
+            document.getElementById('ratingNumber').textContent = average;
+            document.getElementById('ratingStars').innerHTML = renderStars(parseFloat(average));
+            document.getElementById('ratingTotal').textContent = `${total} đánh giá`;
+            
+            renderRatingBars();
+            
+            if (reviews.length === 0) {
+                container.innerHTML = `
+                    <div class="no-reviews">
+                        <i class="far fa-comment-dots"></i>
+                        <h3>Chưa có đánh giá nào</h3>
+                        <p>Hãy là người đầu tiên đánh giá sản phẩm này!</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            const displayed = reviews.slice(0, displayedReviews);
+            container.innerHTML = displayed.map(review => `
+                <div class="review-card">
+                    <div class="review-header">
+                        <div class="reviewer-info">
+                            <div class="reviewer-avatar">${review.name.charAt(0)}</div>
+                            <div class="reviewer-details">
+                                <h4>${review.name} ${review.verified ? '<span class="verified-badge"><i class="fas fa-check"></i> Đã mua hàng</span>' : ''}</h4>
+                                <div class="review-stars">${renderStars(review.rating)}</div>
+                            </div>
+                        </div>
+                        <span class="review-date">${formatReviewDate(review.date)}</span>
+                    </div>
+                    <p class="review-content">${review.content}</p>
+                    <div class="review-helpful">
+                        <button class="helpful-btn ${review.helpful > 0 ? 'active' : ''}" onclick="markHelpful(${review.id})">
+                            <i class="far fa-thumbs-up"></i>
+                            Hữu ích (${review.helpful})
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+            
+            // Show/hide load more button
+            const loadMoreBtn = document.getElementById('loadMoreReviews');
+            if (displayedReviews < reviews.length) {
+                loadMoreBtn.style.display = 'block';
+            } else {
+                loadMoreBtn.style.display = 'none';
+            }
+        }
+        
+        // Toggle review form
+        window.toggleReviewForm = function() {
+            const form = document.getElementById('reviewFormCard');
+            form.classList.toggle('show');
+            
+            // Auto-fill user info if logged in
+            onAuthStateChanged(auth, (user) => {
+                if (user) {
+                    document.getElementById('reviewerName').value = user.displayName || '';
+                    document.getElementById('reviewerEmail').value = user.email || '';
+                }
+            });
+        };
+        
+        // Star rating input
+        document.getElementById('starRating').addEventListener('click', (e) => {
+            if (e.target.classList.contains('star')) {
+                currentRating = parseInt(e.target.dataset.rating);
+                
+                // Update visual
+                document.querySelectorAll('#starRating .star').forEach((star, index) => {
+                    if (index < currentRating) {
+                        star.classList.add('active');
+                        star.classList.remove('far');
+                    } else {
+                        star.classList.remove('active');
+                        star.classList.add('far');
+                    }
+                });
+            }
+        });
+        
+        // Submit review
+        window.submitReview = function() {
+            const name = document.getElementById('reviewerName').value.trim();
+            const email = document.getElementById('reviewerEmail').value.trim();
+            const content = document.getElementById('reviewContent').value.trim();
+            
+            if (!name || !email || !content) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Thiếu thông tin!',
+                    text: 'Vui lòng điền đầy đủ thông tin đánh giá.'
+                });
+                return;
+            }
+            
+            if (currentRating === 0) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Chưa chọn sao!',
+                    text: 'Vui lòng chọn số sao đánh giá.'
+                });
+                return;
+            }
+            
+            // Validate email
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Email không hợp lệ!',
+                    text: 'Vui lòng nhập đúng định dạng email.'
+                });
+                return;
+            }
+            
+            // Add new review
+            const newReview = {
+                id: Date.now(),
+                productId: productId,
+                name: name,
+                email: email,
+                rating: currentRating,
+                content: content,
+                date: new Date().toISOString(),
+                helpful: 0,
+                verified: false
+            };
+            
+            reviews.unshift(newReview);
+            
+            // Reset form
+            document.getElementById('reviewerName').value = '';
+            document.getElementById('reviewerEmail').value = '';
+            document.getElementById('reviewContent').value = '';
+            currentRating = 0;
+            document.querySelectorAll('#starRating .star').forEach(star => {
+                star.classList.remove('active');
+                star.classList.add('far');
+            });
+            
+            // Hide form and re-render
+            toggleReviewForm();
+            renderReviews();
+            
+            Swal.fire({
+                icon: 'success',
+                title: 'Cảm ơn bạn!',
+                text: 'Đánh giá của bạn đã được gửi thành công.',
+                confirmButtonColor: '#d4a574'
+            });
+        };
+        
+        // Mark helpful
+        window.markHelpful = function(reviewId) {
+            const review = reviews.find(r => r.id === reviewId);
+            if (review) {
+                review.helpful++;
+                renderReviews();
+            }
+        };
+        
+        // Load more reviews
+        window.loadMoreReviews = function() {
+            displayedReviews += reviewsPerPage;
+            renderReviews();
+        };
+        
+        // Initialize reviews
+        renderReviews();
     </script>
 </body>
 </html>

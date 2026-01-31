@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Xác nhận đơn hàng - Moonlight Cafe</title>
+
+    <!-- Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/mobile.css">
+
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <!-- QRCode Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+    <style>
+        /* Order Success Page Styles */
+        .order-success-section {
+            padding: 60px 0;
+            min-height: 80vh;
+            background: var(--bg-dark);
+        }
+
+        .order-success-container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        /* Success Header */
+        .success-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .success-icon {
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, var(--success), #22c55e);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 25px;
+            animation: scaleIn 0.5s ease;
+        }
+
+        @keyframes scaleIn {
+            0% { transform: scale(0); opacity: 0; }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .success-icon i {
+            font-size: 3rem;
+            color: white;
+        }
+
+        .success-header h1 {
+            font-size: 2rem;
+            color: var(--text-primary);
+            margin-bottom: 10px;
+        }
+
+        .success-header p {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+
+        .order-number {
+            display: inline-block;
+            background: var(--primary-light);
+            padding: 10px 25px;
+            border-radius: var(--radius-full);
+            margin-top: 20px;
+            font-weight: 600;
+        }
+
+        .order-number span {
+            color: var(--accent);
+        }
+
+        /* Bill Card */
+        .bill-card {
+            background: var(--bg-card);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .bill-header {
+            background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+            color: var(--text-dark);
+            padding: 30px;
+            text-align: center;
+        }
+
+        .bill-logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .bill-logo span:first-child {
+            font-size: 2rem;
+        }
+
+        .bill-logo-text {
+            font-family: var(--font-heading);
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .bill-header p {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            margin: 5px 0;
+        }
+
+        .bill-info {
+            display: flex;
+            justify-content: space-between;
+            padding: 20px 30px;
+            background: var(--primary-light);
+            border-bottom: 1px dashed var(--secondary);
+        }
+
+        .bill-info-item {
+            text-align: center;
+        }
+
+        .bill-info-item label {
+            display: block;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 5px;
+        }
+
+        .bill-info-item span {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        /* Order Items */
+        .bill-items {
+            padding: 20px 30px;
+        }
+
+        .bill-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid var(--secondary);
+        }
+
+        .bill-item:last-child {
+            border-bottom: none;
+        }
+
+        .bill-item-info {
+            flex: 1;
+        }
+
+        .bill-item-name {
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: 5px;
+        }
+
+        .bill-item-qty {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        .bill-item-price {
+            font-weight: 600;
+            color: var(--accent);
+        }
+
+        /* Bill Summary */
+        .bill-summary {
+            padding: 20px 30px;
+            background: var(--primary-light);
+            border-top: 2px dashed var(--secondary);
+        }
+
+        .bill-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            color: var(--text-secondary);
+        }
+
+        .bill-row.total {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            padding-top: 15px;
+            margin-top: 10px;
+            border-top: 1px solid var(--secondary);
+        }
+
+        .bill-row.total span:last-child {
+            color: var(--accent);
+        }
+
+        /* Payment Info */
+        .payment-info {
+            padding: 25px 30px;
+            background: var(--bg-dark);
+            border-top: 1px solid var(--secondary);
+        }
+
+        .payment-info h4 {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            color: var(--text-primary);
+        }
+
+        .payment-info h4 i {
+            color: var(--accent);
+        }
+
+        .payment-method-display {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            background: var(--primary-light);
+            border-radius: var(--radius-sm);
+            margin-bottom: 20px;
+        }
+
+        .payment-icon {
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--radius-sm);
+            font-size: 1.5rem;
+        }
+
+        .payment-icon.cod { background: rgba(74, 222, 128, 0.2); color: var(--success); }
+        .payment-icon.bank { background: rgba(96, 165, 250, 0.2); color: var(--info); }
+        .payment-icon.momo { background: #ae2070; color: white; }
+
+        .payment-details {
+            flex: 1;
+        }
+
+        .payment-details h5 {
+            color: var(--text-primary);
+            margin-bottom: 3px;
+        }
+
+        .payment-details p {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin: 0;
+        }
+
+        /* QR Code */
+        .qr-section {
+            display: flex;
+            gap: 30px;
+            align-items: flex-start;
+        }
+
+        .qr-code {
+            background: white;
+            padding: 15px;
+            border-radius: var(--radius-sm);
+            flex-shrink: 0;
+        }
+
+        .qr-info {
+            flex: 1;
+        }
+
+        .bank-details {
+            background: var(--primary-light);
+            padding: 15px;
+            border-radius: var(--radius-sm);
+            font-size: 0.95rem;
+        }
+
+        .bank-details p {
+            margin: 8px 0;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .bank-details strong {
+            color: var(--text-primary);
+        }
+
+        .bank-details span {
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        .transfer-note {
+            margin-top: 15px;
+            padding: 12px;
+            background: rgba(212, 165, 116, 0.1);
+            border-left: 3px solid var(--accent);
+            border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        /* Order Timeline */
+        .order-timeline {
+            margin-top: 40px;
+        }
+
+        .timeline-title {
+            font-size: 1.2rem;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--text-primary);
+        }
+
+        .timeline-title i {
+            color: var(--accent);
+        }
+
+        .timeline {
+            display: flex;
+            justify-content: space-between;
+            position: relative;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            top: 20px;
+            left: 50px;
+            right: 50px;
+            height: 3px;
+            background: var(--secondary);
+        }
+
+        .timeline-step {
+            text-align: center;
+            position: relative;
+            flex: 1;
+        }
+
+        .step-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--primary-light);
+            border: 3px solid var(--secondary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 10px;
+            color: var(--text-muted);
+            position: relative;
+            z-index: 1;
+        }
+
+        .timeline-step.completed .step-icon {
+            background: var(--success);
+            border-color: var(--success);
+            color: white;
+        }
+
+        .timeline-step.active .step-icon {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: var(--text-dark);
+        }
+
+        .step-label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .timeline-step.completed .step-label,
+        .timeline-step.active .step-label {
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        /* Action Buttons */
+        .order-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 40px;
+            flex-wrap: wrap;
+        }
+
+        .order-actions .btn {
+            flex: 1;
+            min-width: 200px;
+            padding: 15px 25px;
+            font-size: 1rem;
+        }
+
+        /* Print Styles */
+        @media print {
+            body { background: white; }
+            .order-actions, .nav, .footer { display: none; }
+            .bill-card { box-shadow: none; border: 1px solid #ddd; }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .bill-info {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .qr-section {
+                flex-direction: column;
+            }
+
+            .timeline {
+                flex-direction: column;
+                gap: 20px;
+            }
+
+            .timeline::before {
+                display: none;
+            }
+
+            .order-actions {
+                flex-direction: column;
+            }
+
+            .order-actions .btn {
+                min-width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Loading Overlay -->
+    <div class="loading-overlay">
+        <div class="loader"></div>
+    </div>
+
+    <!-- Header -->
+    <header class="header" id="header">
+        <div class="container">
+            <nav class="nav">
+                <a href="index.html" class="nav-brand">
+                    <span>🌙</span>
+                    <span class="nav-brand-text">Moonlight Cafe</span>
+                </a>
+
+                <ul class="nav-menu" id="navMenu">
+                    <li><a href="index.html" class="nav-link">Trang chủ</a></li>
+                    <li><a href="menu.html" class="nav-link">Menu</a></li>
+                    <li><a href="news.html" class="nav-link">Tin tức</a></li>
+                    <li><a href="about.html" class="nav-link">Về chúng tôi</a></li>
+                </ul>
+
+                <div class="nav-actions">
+                    <a href="cart.html" class="nav-icon">
+                        <i class="fas fa-shopping-bag"></i>
+                        <span class="badge" id="cartCount">0</span>
+                    </a>
+                    <a href="login.html" class="nav-icon">
+                        <i class="fas fa-user"></i>
+                    </a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Order Success Section -->
+    <section class="order-success-section">
+        <div class="container">
+            <div class="order-success-container">
+                
+                <!-- Success Header -->
+                <div class="success-header">
+                    <div class="success-icon">
+                        <i class="fas fa-check"></i>
+                    </div>
+                    <h1>Đặt hàng thành công!</h1>
+                    <p>Cảm ơn bạn đã đặt hàng tại Moonlight Cafe</p>
+                    <div class="order-number">
+                        Mã đơn hàng: <span id="orderNumber">MLC-XXXXXXXX</span>
+                    </div>
+                </div>
+
+                <!-- Bill Card -->
+                <div class="bill-card" id="billCard">
+                    <div class="bill-header">
+                        <div class="bill-logo">
+                            <span>🌙</span>
+                            <span class="bill-logo-text">Moonlight Cafe</span>
+                        </div>
+                        <p>123 Đường ABC, Quận 1, TP. Hồ Chí Minh</p>
+                        <p>📞 0123 456 789 | 📧 hello@moonlightcafe.vn</p>
+                    </div>
+
+                    <div class="bill-info">
+                        <div class="bill-info-item">
+                            <label>Ngày đặt</label>
+                            <span id="orderDate">--/--/----</span>
+                        </div>
+                        <div class="bill-info-item">
+                            <label>Khách hàng</label>
+                            <span id="customerName">---</span>
+                        </div>
+                        <div class="bill-info-item">
+                            <label>Phương thức</label>
+                            <span id="paymentMethod">---</span>
+                        </div>
+                        <div class="bill-info-item">
+                            <label>Trạng thái</label>
+                            <span id="orderStatus" style="color: var(--warning);">Chờ xác nhận</span>
+                        </div>
+                    </div>
+
+                    <div class="bill-items" id="billItems">
+                        <!-- Items will be loaded here -->
+                    </div>
+
+                    <div class="bill-summary">
+                        <div class="bill-row">
+                            <span>Tạm tính</span>
+                            <span id="subtotal">0đ</span>
+                        </div>
+                        <div class="bill-row">
+                            <span>Phí vận chuyển</span>
+                            <span id="shipping">0đ</span>
+                        </div>
+                        <div class="bill-row total">
+                            <span>TỔNG CỘNG</span>
+                            <span id="total">0đ</span>
+                        </div>
+                    </div>
+
+                    <div class="payment-info" id="paymentInfo">
+                        <!-- Payment details will be loaded here -->
+                    </div>
+                </div>
+
+                <!-- Order Timeline -->
+                <div class="order-timeline">
+                    <h3 class="timeline-title">
+                        <i class="fas fa-shipping-fast"></i> Theo dõi đơn hàng
+                    </h3>
+                    <div class="timeline">
+                        <div class="timeline-step completed">
+                            <div class="step-icon"><i class="fas fa-check"></i></div>
+                            <span class="step-label">Đặt hàng</span>
+                        </div>
+                        <div class="timeline-step active">
+                            <div class="step-icon"><i class="fas fa-receipt"></i></div>
+                            <span class="step-label">Xác nhận</span>
+                        </div>
+                        <div class="timeline-step">
+                            <div class="step-icon"><i class="fas fa-box"></i></div>
+                            <span class="step-label">Chuẩn bị</span>
+                        </div>
+                        <div class="timeline-step">
+                            <div class="step-icon"><i class="fas fa-truck"></i></div>
+                            <span class="step-label">Giao hàng</span>
+                        </div>
+                        <div class="timeline-step">
+                            <div class="step-icon"><i class="fas fa-home"></i></div>
+                            <span class="step-label">Hoàn thành</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="order-actions">
+                    <a href="orders.html" class="btn btn-primary">
+                        <i class="fas fa-list"></i> Xem đơn hàng
+                    </a>
+                    <a href="menu.html" class="btn btn-outline">
+                        <i class="fas fa-coffee"></i> Tiếp tục mua
+                    </a>
+                    <button class="btn btn-outline" onclick="printBill()">
+                        <i class="fas fa-print"></i> In hóa đơn
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-bottom">
+                <p>&copy; 2024 Moonlight Cafe. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script type="module">
+        // Order data - In production, this would come from Firebase
+        let currentOrder = null;
+
+        // Format price
+        function formatPrice(price) {
+            return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
+        }
+
+        // Format date
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('vi-VN', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        // Get order from localStorage (set during checkout)
+        function getOrder() {
+            const orderData = localStorage.getItem('moonlight_last_order');
+            
+            console.log('LocalStorage data:', orderData);
+            
+            if (orderData) {
+                try {
+                    return JSON.parse(orderData);
+                } catch (e) {
+                    console.error('Error parsing order data:', e);
+                }
+            }
+            
+            // Demo data for testing - nếu không có dữ liệu
+            console.log('Using demo data');
+            return {
+                id: 'ORD' + Date.now().toString().slice(-8),
+                customer: {
+                    fullName: 'Nguyễn Văn A',
+                    phone: '0123 456 789',
+                    email: 'nguyenvana@email.com',
+                    address: '123 Đường ABC, Quận 1, TP. HCM'
+                },
+                items: [
+                    { name: 'Cappuccino', price: 45000, quantity: 2, total: 90000 },
+                    { name: 'Matcha Latte', price: 55000, quantity: 1, total: 55000 },
+                    { name: 'Tiramisu', price: 65000, quantity: 1, total: 65000 }
+                ],
+                subtotal: 210000,
+                shipping: 0,
+                total: 210000,
+                payment: 'cod',
+                status: 'pending',
+                createdAt: new Date().toISOString()
+            };
+        }
+
+        // Render order details
+        function renderOrder() {
+            try {
+                currentOrder = getOrder();
+                
+                console.log('Current order:', currentOrder);
+                
+                // Kiểm tra nếu không có thông tin đơn hàng
+                if (!currentOrder) {
+                    document.querySelector('.order-success-container').innerHTML = `
+                        <div class="text-center" style="padding: 60px 20px;">
+                            <i class="fas fa-exclamation-triangle" style="font-size: 4rem; color: var(--warning); margin-bottom: 20px;"></i>
+                            <h2>Không tìm thấy đơn hàng!</h2>
+                            <p>Vui lòng đặt hàng lại.</p>
+                            <a href="menu.html" class="btn btn-primary" style="margin-top: 20px;">
+                                <i class="fas fa-coffee"></i> Xem menu
+                            </a>
+                        </div>
+                    `;
+                    return;
+                }
+
+                // Header info
+                document.getElementById('orderNumber').textContent = '#' + currentOrder.id.slice(-8).toUpperCase();
+                document.getElementById('orderDate').textContent = formatDate(currentOrder.createdAt);
+                document.getElementById('customerName').textContent = currentOrder.customer.fullName;
+
+                // Payment method
+                const paymentMethods = {
+                    'cod': { name: 'Thanh toán khi nhận hàng', icon: 'fa-money-bill-wave', class: 'cod' },
+                    'banking': { name: 'Chuyển khoản ngân hàng', icon: 'fa-university', class: 'bank' },
+                    'momo': { name: 'Ví MoMo', icon: 'fa-wallet', class: 'momo' }
+                };
+                const payment = paymentMethods[currentOrder.payment] || paymentMethods.cod;
+                document.getElementById('paymentMethod').textContent = payment.name;
+
+                // Render items
+                if (currentOrder.items && currentOrder.items.length > 0) {
+                    const itemsHtml = currentOrder.items.map(item => `
+                        <div class="bill-item">
+                            <div class="bill-item-info">
+                                <div class="bill-item-name">${item.name}</div>
+                                <div class="bill-item-qty">${item.quantity} x ${formatPrice(item.price)}</div>
+                            </div>
+                            <div class="bill-item-price">${formatPrice(item.total || (item.price * item.quantity))}</div>
+                        </div>
+                    `).join('');
+                    document.getElementById('billItems').innerHTML = itemsHtml;
+                } else {
+                    document.getElementById('billItems').innerHTML = '<p class="text-center">Không có sản phẩm</p>';
+                }
+
+                // Render summary
+                document.getElementById('subtotal').textContent = formatPrice(currentOrder.subtotal);
+                document.getElementById('shipping').textContent = currentOrder.shipping === 0 ? 'Miễn phí' : formatPrice(currentOrder.shipping);
+                document.getElementById('total').textContent = formatPrice(currentOrder.total);
+
+                // Render payment info
+                renderPaymentInfo(payment);
+                
+            } catch (error) {
+                console.error('Error rendering order:', error);
+                document.querySelector('.order-success-container').innerHTML = `
+                    <div class="text-center" style="padding: 60px 20px;">
+                        <i class="fas fa-exclamation-circle" style="font-size: 4rem; color: var(--danger); margin-bottom: 20px;"></i>
+                        <h2>Có lỗi xảy ra!</h2>
+                        <p>${error.message}</p>
+                        <a href="menu.html" class="btn btn-primary" style="margin-top: 20px;">
+                            <i class="fas fa-coffee"></i> Quay về menu
+                        </a>
+                    </div>
+                `;
+            }
+        }
+
+        // Render payment info with QR code
+        function renderPaymentInfo(payment) {
+            // Kiểm tra nếu không có currentOrder
+            if (!currentOrder) {
+                currentOrder = getOrder();
+            }
+            
+            const paymentInfo = document.getElementById('paymentInfo');
+            
+            if (!currentOrder.payment || currentOrder.payment === 'cod') {
+                paymentInfo.innerHTML = `
+                    <h4><i class="fas fa-money-bill-wave"></i> Thanh toán khi nhận hàng (COD)</h4>
+                    <p style="color: var(--text-muted);">
+                        <i class="fas fa-info-circle"></i> 
+                        Bạn sẽ thanh toán bằng tiền mặt khi nhận được hàng.
+                        Vui lòng chuẩn bị đúng số tiền ${formatPrice(currentOrder.total)}.
+                    </p>
+                `;
+            } else if (currentOrder.payment === 'banking') {
+                paymentInfo.innerHTML = `
+                    <h4><i class="fas fa-university"></i> Thông tin chuyển khoản</h4>
+                    <div class="qr-section">
+                        <div class="qr-code" id="bankingQR"></div>
+                        <div class="qr-info">
+                            <div class="bank-details">
+                                <p><strong>Ngân hàng:</strong> <span>Vietcombank</span></p>
+                                <p><strong>Số TK:</strong> <span>1234567890123</span></p>
+                                <p><strong>Chủ TK:</strong> <span>NGUYEN VAN A</span></p>
+                                <p><strong>Số tiền:</strong> <span>${formatPrice(currentOrder.total)}</span></p>
+                                <p><strong>Nội dung:</strong> <span>MLC${currentOrder.id.slice(-8).toUpperCase()}</span></p>
+                            </div>
+                            <div class="transfer-note">
+                                <i class="fas fa-exclamation-circle"></i>
+                                Vui lòng chuyển khoản chính xác số tiền và ghi đúng nội dung chuyển khoản để đơn hàng được xử lý nhanh hơn.
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                // Generate QR code
+                setTimeout(() => {
+                    const qrContainer = document.getElementById('bankingQR');
+                    if (qrContainer && qrContainer.innerHTML === '') {
+                        const qrData = `VCB|1234567890123|NGUYEN VAN A|${currentOrder.total}|MLC${currentOrder.id.slice(-8).toUpperCase()}`;
+                        new QRCode(qrContainer, {
+                            text: qrData,
+                            width: 120,
+                            height: 120,
+                            colorDark: "#000000",
+                            colorLight: "#ffffff",
+                            correctLevel: QRCode.CorrectLevel.H
+                        });
+                    }
+                }, 100);
+            } else if (currentOrder.payment === 'momo') {
+                paymentInfo.innerHTML = `
+                    <h4><i class="fas fa-wallet"></i> Thanh toán qua MoMo</h4>
+                    <div class="qr-section">
+                        <div class="qr-code" id="momoQR" style="background: #ae2070;"></div>
+                        <div class="qr-info">
+                            <div class="bank-details">
+                                <p><strong>Số điện thoại:</strong> <span>0901234567</span></p>
+                                <p><strong>Tên tài khoản:</strong> <span>Moonlight Cafe</span></p>
+                                <p><strong>Số tiền:</strong> <span>${formatPrice(currentOrder.total)}</span></p>
+                                <p><strong>Nội dung:</strong> <span>MLC${currentOrder.id.slice(-8).toUpperCase()}</span></p>
+                            </div>
+                            <div class="transfer-note">
+                                <i class="fas fa-exclamation-circle"></i>
+                                Sau khi chuyển khoản, vui lòng gửi screenshot qua Zalo của shop để xác nhận.
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                // Generate MoMo QR
+                setTimeout(() => {
+                    const qrContainer = document.getElementById('momoQR');
+                    if (qrContainer && qrContainer.innerHTML === '') {
+                        const qrData = `2|99|0901234567|||0|0|${currentOrder.total}|MOMO|MLC${currentOrder.id.slice(-8).toUpperCase()}`;
+                        new QRCode(qrContainer, {
+                            text: qrData,
+                            width: 120,
+                            height: 120,
+                            colorDark: "#ffffff",
+                            colorLight: "#ae2070",
+                            correctLevel: QRCode.CorrectLevel.H
+                        });
+                    }
+                }, 100);
+            }
+        }
+
+        // Print bill
+        function printBill() {
+            window.print();
+        }
+
+        // Update cart count
+        function updateCartCount() {
+            const cart = JSON.parse(localStorage.getItem('moonlight_cart')) || [];
+            document.getElementById('cartCount').textContent = cart.reduce((sum, item) => sum + item.quantity, 0);
+        }
+
+        // Initialize
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                document.querySelector('.loading-overlay').classList.add('hidden');
+            }, 500);
+            
+            renderOrder();
+            updateCartCount();
+        });
+
+        window.addEventListener('scroll', () => {
+            const header = document.getElementById('header');
+            header.classList.toggle('scrolled', window.scrollY > 50);
+        });
+    </script>
+</body>
+
+</html>
