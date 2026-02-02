@@ -29,6 +29,7 @@ try {
 
 // Export để sử dụng ở các file khác
 export {
+    firebaseConfig,  // Export config object
     app,
     auth,
     db,

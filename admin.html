@@ -294,10 +294,25 @@
             font-size: 1.5rem;
         }
 
-        .stat-icon.revenue { background: rgba(16, 185, 129, 0.1); color: var(--admin-success); }
-        .stat-icon.orders { background: rgba(59, 130, 246, 0.1); color: var(--admin-info); }
-        .stat-icon.products { background: rgba(245, 158, 11, 0.1); color: var(--admin-warning); }
-        .stat-icon.users { background: rgba(139, 92, 246, 0.1); color: #8b5cf6; }
+        .stat-icon.revenue {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--admin-success);
+        }
+
+        .stat-icon.orders {
+            background: rgba(59, 130, 246, 0.1);
+            color: var(--admin-info);
+        }
+
+        .stat-icon.products {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--admin-warning);
+        }
+
+        .stat-icon.users {
+            background: rgba(139, 92, 246, 0.1);
+            color: #8b5cf6;
+        }
 
         .stat-details h3 {
             font-size: 1.8rem;
@@ -318,8 +333,13 @@
             gap: 5px;
         }
 
-        .stat-change.up { color: var(--admin-success); }
-        .stat-change.down { color: var(--admin-danger); }
+        .stat-change.up {
+            color: var(--admin-success);
+        }
+
+        .stat-change.down {
+            color: var(--admin-danger);
+        }
 
         /* Charts */
         .charts-grid {
@@ -519,12 +539,35 @@
             gap: 5px;
         }
 
-        .status-pending { background: rgba(245, 158, 11, 0.1); color: var(--admin-warning); }
-        .status-confirmed { background: rgba(59, 130, 246, 0.1); color: var(--admin-info); }
-        .status-processing { background: rgba(139, 92, 246, 0.1); color: #8b5cf6; }
-        .status-shipping { background: rgba(16, 185, 129, 0.1); color: var(--admin-success); }
-        .status-delivered { background: rgba(16, 185, 129, 0.2); color: var(--admin-success); }
-        .status-cancelled { background: rgba(239, 68, 68, 0.1); color: var(--admin-danger); }
+        .status-pending {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--admin-warning);
+        }
+
+        .status-confirmed {
+            background: rgba(59, 130, 246, 0.1);
+            color: var(--admin-info);
+        }
+
+        .status-processing {
+            background: rgba(139, 92, 246, 0.1);
+            color: #8b5cf6;
+        }
+
+        .status-shipping {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--admin-success);
+        }
+
+        .status-delivered {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--admin-success);
+        }
+
+        .status-cancelled {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--admin-danger);
+        }
 
         /* Action Buttons */
         .action-btns {
@@ -697,6 +740,7 @@
                 opacity: 0;
                 transform: translateY(-20px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -833,9 +877,20 @@
             flex-shrink: 0;
         }
 
-        .activity-icon.order { background: rgba(59, 130, 246, 0.1); color: var(--admin-info); }
-        .activity-icon.user { background: rgba(16, 185, 129, 0.1); color: var(--admin-success); }
-        .activity-icon.product { background: rgba(245, 158, 11, 0.1); color: var(--admin-warning); }
+        .activity-icon.order {
+            background: rgba(59, 130, 246, 0.1);
+            color: var(--admin-info);
+        }
+
+        .activity-icon.user {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--admin-success);
+        }
+
+        .activity-icon.product {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--admin-warning);
+        }
 
         .activity-content {
             flex: 1;
@@ -876,7 +931,9 @@
         }
 
         @keyframes spin {
-            to { transform: rotate(360deg); }
+            to {
+                transform: rotate(360deg);
+            }
         }
 
         /* Hide sections by default */
@@ -1384,8 +1441,17 @@
         import { getDatabase, ref, onValue, update, get, push, set, remove } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
         import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
 
-        // Firebase config
-        import './js/firebase-config.js';
+        // Firebase config - embedded directly
+        const firebaseConfig = {
+            apiKey: "AIzaSyBhND1gGt1v0_hIBvda-YuOI5jGSqy2Jn8",
+            authDomain: "moonlight-cafe-57e5d.firebaseapp.com",
+            databaseURL: "https://moonlight-cafe-57e5d-default-rtdb.firebaseio.com",
+            projectId: "moonlight-cafe-57e5d",
+            storageBucket: "moonlight-cafe-57e5d.firebasestorage.app",
+            messagingSenderId: "304081978863",
+            appId: "1:304081978863:web:ee97854f5015ecf601221a",
+            measurementId: "G-PRSNTZ81C3"
+        };
 
         // Initialize Firebase
         const app = initializeApp(firebaseConfig);
@@ -1563,7 +1629,7 @@
         }
 
         // View order detail
-        window.viewOrder = function(orderId) {
+        window.viewOrder = function (orderId) {
             const order = sampleOrders.find(o => o.id === orderId);
             if (!order) return;
 
@@ -1612,7 +1678,7 @@
         };
 
         // Update order status
-        window.updateOrderStatus = function(orderId) {
+        window.updateOrderStatus = function (orderId) {
             const order = sampleOrders.find(o => o.id === orderId);
             if (!order) return;
 
@@ -1645,7 +1711,7 @@
         };
 
         // Filter orders
-        window.filterOrders = function(status) {
+        window.filterOrders = function (status) {
             if (status === 'all') {
                 renderOrders();
             } else {
@@ -1655,12 +1721,12 @@
         };
 
         // Open product modal
-        window.openProductModal = function() {
+        window.openProductModal = function () {
             document.getElementById('productModal').classList.add('show');
         };
 
         // Save product
-        window.saveProduct = function() {
+        window.saveProduct = function () {
             const name = document.getElementById('productName').value;
             const price = document.getElementById('productPrice').value;
             const category = document.getElementById('productCategory').value;
@@ -1695,12 +1761,12 @@
         };
 
         // Close modal
-        window.closeModal = function(modalId) {
+        window.closeModal = function (modalId) {
             document.getElementById(modalId).classList.remove('show');
         };
 
         // Show section
-        window.showSection = function(sectionName) {
+        window.showSection = function (sectionName) {
             document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('active'));
             document.getElementById(sectionName + 'Section').classList.add('active');
             document.querySelectorAll('.menu-item').forEach(m => m.classList.remove('active'));
@@ -1733,7 +1799,7 @@
                         y: {
                             beginAtZero: true,
                             ticks: {
-                                callback: function(value) {
+                                callback: function (value) {
                                     return (value / 1000000) + 'M';
                                 }
                             }
