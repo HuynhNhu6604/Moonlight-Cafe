@@ -656,7 +656,7 @@
         let promoDiscount = 0;
 
         // Apply promo code
-        window.applyPromoCode = async function() {
+        window.applyPromoCode = async function () {
             const codeInput = document.getElementById('promoCode');
             const code = codeInput.value.trim().toUpperCase();
 
@@ -701,7 +701,7 @@
         };
 
         // Remove promo code
-        window.removePromoCode = function() {
+        window.removePromoCode = function () {
             appliedPromo = null;
             promoDiscount = 0;
             document.getElementById('promoCode').value = '';
@@ -709,6 +709,13 @@
         };
         updateCartCount();
         renderCart();
+    </script>
+
+    <!-- TuDongChat AI Chatbot -->
+    <script src="https://app.tudongchat.com/js/chatbox.js"></script>
+    <script>
+        const tudong_chatbox = new TuDongChat('XUitpr3VDU2e5vJgSRYO9')
+        tudong_chatbox.initial()
     </script>
 </body>
 
