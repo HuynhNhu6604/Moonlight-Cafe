@@ -1,0 +1,830 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Liên hệ & Đánh giá - Moonlight Cafe</title>
+
+    <!-- Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/mobile.css">
+
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <style>
+        .page-header {
+            background: linear-gradient(135deg, var(--bg-dark), var(--primary));
+            padding: 50px 0 50px;
+            text-align: center;
+        }
+
+        /* ========================
+           SECTION: Form + Info
+        ======================== */
+        .contact-section { padding: 70px 0; }
+        .contact-grid {
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            gap: 50px;
+            align-items: start;
+        }
+
+        /* Review form card */
+        .review-form-card {
+            background: var(--bg-card);
+            border-radius: var(--radius-md);
+            padding: 35px;
+        }
+        .review-form-card h3 {
+            font-size: 1.4rem;
+            margin-bottom: 8px;
+        }
+        .review-form-card .subtitle {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-bottom: 25px;
+        }
+
+        /* star rating */
+        .star-rating {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 20px;
+            flex-direction: row-reverse;
+            justify-content: flex-end;
+        }
+        .star-rating input { display: none; }
+        .star-rating label {
+            font-size: 1.8rem;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: color .2s;
+        }
+        .star-rating input:checked ~ label,
+        .star-rating label:hover,
+        .star-rating label:hover ~ label {
+            color: #f59e0b;
+        }
+
+        /* form fields */
+        .form-group { margin-bottom: 18px; }
+        .form-group label {
+            display: block;
+            font-size: .875rem;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+        }
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            background: var(--bg-dark);
+            border: 1px solid var(--secondary);
+            border-radius: var(--radius-sm);
+            padding: 10px 14px;
+            color: var(--text-primary);
+            font-size: .95rem;
+            transition: border-color .2s;
+        }
+        .form-group textarea { resize: vertical; min-height: 120px; }
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        /* login prompt */
+        .login-prompt {
+            background: var(--bg-card);
+            border-radius: var(--radius-md);
+            padding: 50px 35px;
+            text-align: center;
+        }
+        .login-prompt i { font-size: 3rem; color: var(--accent); margin-bottom: 15px; }
+        .login-prompt h3 { margin-bottom: 8px; }
+        .login-prompt p { color: var(--text-muted); margin-bottom: 25px; }
+        .btn-group-inline { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+
+        /* Contact info sidebar */
+        .contact-info-card {
+            background: var(--bg-card);
+            border-radius: var(--radius-md);
+            padding: 28px;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 18px;
+            align-items: flex-start;
+        }
+        .contact-info-icon {
+            width: 46px; height: 46px;
+            background: var(--accent);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+        }
+        .contact-info-icon i { color: #fff; font-size: 1.1rem; }
+        .contact-info-content h4 { font-size: 1rem; margin-bottom: 4px; }
+        .contact-info-content p { color: var(--text-muted); font-size: .9rem; }
+
+        /* ========================
+           SECTION: Messages (my replies)
+        ======================== */
+        .messages-section { padding: 0 0 60px; }
+        .messages-section .section-header { text-align: center; margin-bottom: 40px; }
+
+        .message-card {
+            background: var(--bg-card);
+            border-radius: var(--radius-md);
+            padding: 25px;
+            margin-bottom: 18px;
+            border-left: 4px solid var(--accent);
+        }
+        .message-card.unread { border-left-color: #10b981; }
+        .msg-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .msg-meta-left { display: flex; align-items: center; gap: 10px; }
+        .msg-date { font-size: .8rem; color: var(--text-muted); }
+        .msg-status-badge {
+            font-size: .75rem;
+            padding: 3px 10px;
+            border-radius: 20px;
+            background: rgba(16,185,129,.15);
+            color: #10b981;
+        }
+        .msg-my-review {
+            padding: 12px 16px;
+            background: var(--bg-dark);
+            border-radius: var(--radius-sm);
+            margin-bottom: 12px;
+            font-size: .9rem;
+        }
+        .msg-reply {
+            padding: 14px 16px;
+            background: rgba(212,165,116,.1);
+            border: 1px solid var(--accent);
+            border-radius: var(--radius-sm);
+        }
+        .msg-reply-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 6px;
+            font-size: .85rem;
+            color: var(--accent);
+            font-weight: 600;
+        }
+        .msg-reply p { font-size: .9rem; margin: 0; }
+        .new-badge {
+            font-size: .7rem;
+            padding: 2px 8px;
+            border-radius: 20px;
+            background: #10b981;
+            color: #fff;
+            margin-left: 8px;
+        }
+
+        /* ========================
+           SECTION: Reviews list
+        ======================== */
+        .reviews-section { padding: 60px 0; background: var(--primary); }
+
+        .reviews-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 24px;
+            margin-top: 40px;
+        }
+        .review-card {
+            background: var(--bg-card);
+            border-radius: var(--radius-md);
+            padding: 25px;
+        }
+        .review-stars { color: #f59e0b; font-size: 1rem; margin-bottom: 12px; }
+        .review-content {
+            font-size: .95rem;
+            line-height: 1.7;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+        }
+        .review-author {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .review-avatar {
+            width: 42px; height: 42px;
+            border-radius: 50%;
+            background: var(--accent);
+            display: flex; align-items: center; justify-content: center;
+            color: #fff;
+            font-weight: 700;
+            font-size: 1rem;
+            flex-shrink: 0;
+        }
+        .review-author-name { font-size: .9rem; font-weight: 600; }
+        .review-author-date { font-size: .78rem; color: var(--text-muted); }
+
+        .empty-reviews {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 50px;
+            color: var(--text-muted);
+        }
+        .empty-reviews i { font-size: 2.5rem; margin-bottom: 12px; display: block; }
+
+        /* Pending notice */
+        .pending-notice {
+            margin-top: 16px;
+            padding: 12px 16px;
+            background: rgba(245,158,11,.1);
+            border: 1px solid #f59e0b;
+            border-radius: var(--radius-sm);
+            font-size: .85rem;
+            color: #f59e0b;
+        }
+
+        @media (max-width: 900px) {
+            .contact-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Loading -->
+    <div class="loading-overlay">
+        <div class="loading-spinner"></div>
+    </div>
+
+    <!-- Header -->
+    <header class="header" id="header">
+        <div class="container">
+            <nav class="nav">
+                <a href="index.html" class="nav-brand">
+                    <div class="nav-logo-wrapper"><img src="images/logo.png?v=4" alt="Moonlight Cafe" class="nav-logo"></div>
+                    <span class="nav-brand-text">Moonlight Cafe</span>
+                </a>
+
+                <ul class="nav-menu" id="navMenu">
+                    <li><a href="index.html" class="nav-link">Trang chủ</a></li>
+                    <li><a href="menu.html" class="nav-link">Menu</a></li>
+                    <li><a href="promotions.html" class="nav-link">Khuyến mãi</a></li>
+                    <li><a href="news.html" class="nav-link">Tin tức</a></li>
+                    <li><a href="about.html" class="nav-link">Về chúng tôi</a></li>
+                    <li><a href="contact.html" class="nav-link active">Liên hệ</a></li>
+                    <li><a href="reservation.html" class="nav-link">Đặt bàn</a></li>
+                </ul>
+
+                <div class="nav-actions">
+                    <a href="contact.html" class="nav-icon hidden" id="msgIcon" title="Tin nhắn từ tiệm">
+                        <i class="fas fa-envelope"></i>
+                        <span class="badge" id="msgCount" style="display:none">0</span>
+                    </a>
+                    <a href="cart.html" class="nav-icon" id="cartIcon">
+                        <i class="fas fa-shopping-bag"></i>
+                        <span class="badge" id="cartCount">0</span>
+                    </a>
+                    <div class="nav-icon" id="userIcon" style="cursor:pointer;">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="nav-toggle" id="navToggle">
+                        <div class="nav-logo-wrapper"><img src="images/logo.png?v=4" alt="Moonlight Cafe" class="nav-logo"></div><div class="nav-logo-wrapper"><img src="images/logo.png?v=4" alt="Moonlight Cafe" class="nav-logo"></div><div class="nav-logo-wrapper"><img src="images/logo.png?v=4" alt="Moonlight Cafe" class="nav-logo"></div>
+                    </div>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Page Header -->
+    <section class="page-header">
+        <div class="container">
+            <h1>Liên hệ & Đánh giá</h1>
+            <p style="color:var(--text-secondary);margin-top:1rem;">
+                Chúng tôi luôn lắng nghe ý kiến của bạn
+            </p>
+            <div class="breadcrumb" style="justify-content:center;margin-top:12px;">
+                <a href="index.html" style="color:var(--text-secondary)">Trang chủ</a>
+                <span>/</span>
+                <span style="color:var(--accent)">Liên hệ</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== Messages section (logged-in users only) ========== -->
+    <div class="messages-section container" id="messagesArea" style="display:none; padding-top:50px">
+        <div class="section-header">
+            <span class="section-subtitle">Hộp thư</span>
+            <h2 class="section-title">Tin nhắn từ tiệm</h2>
+            <div class="section-divider"></div>
+        </div>
+        <div id="messagesList">
+            <p style="text-align:center;color:var(--text-muted);">Đang tải...</p>
+        </div>
+    </div>
+
+    <!-- ========== Form + Info ========== -->
+    <section class="contact-section">
+        <div class="container">
+            <div class="contact-grid">
+
+                <!-- LEFT: Review form / login prompt -->
+                <div>
+                    <!-- Shown when logged in -->
+                    <div id="reviewFormWrap" style="display:none">
+                        <div class="review-form-card">
+                            <h3><i class="fas fa-star" style="color:var(--accent)"></i> Viết đánh giá</h3>
+                            <p class="subtitle">Chia sẻ trải nghiệm của bạn với Moonlight Cafe</p>
+
+                            <form id="reviewForm">
+                                <!-- Star rating -->
+                                <div class="form-group">
+                                    <label>Đánh giá của bạn *</label>
+                                    <div class="star-rating" id="starRating">
+                                        <input type="radio" name="rating" id="s5" value="5"><label for="s5" title="5 sao"><i class="fas fa-star"></i></label>
+                                        <input type="radio" name="rating" id="s4" value="4"><label for="s4" title="4 sao"><i class="fas fa-star"></i></label>
+                                        <input type="radio" name="rating" id="s3" value="3"><label for="s3" title="3 sao"><i class="fas fa-star"></i></label>
+                                        <input type="radio" name="rating" id="s2" value="2"><label for="s2" title="2 sao"><i class="fas fa-star"></i></label>
+                                        <input type="radio" name="rating" id="s1" value="1"><label for="s1" title="1 sao"><i class="fas fa-star"></i></label>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Nội dung đánh giá *</label>
+                                    <textarea id="reviewContent" placeholder="Chia sẻ cảm nhận của bạn về Moonlight Cafe..." rows="5"></textarea>
+                                </div>
+
+                                <button type="submit" class="btn btn-primary" style="width:100%">
+                                    <i class="fas fa-paper-plane"></i> Gửi đánh giá
+                                </button>
+                            </form>
+
+                            <!-- Edit form (hidden by default) -->
+                            <div id="editFormWrap" style="display:none;margin-top:20px">
+                                <hr style="border-color:var(--secondary);margin-bottom:20px">
+                                <h4 style="margin-bottom:12px"><i class="fas fa-edit" style="color:var(--accent)"></i> Chỉnh sửa đánh giá</h4>
+                                <div class="star-rating" id="editStarRating">
+                                    <input type="radio" name="editRating" id="e5" value="5"><label for="e5"><i class="fas fa-star"></i></label>
+                                    <input type="radio" name="editRating" id="e4" value="4"><label for="e4"><i class="fas fa-star"></i></label>
+                                    <input type="radio" name="editRating" id="e3" value="3"><label for="e3"><i class="fas fa-star"></i></label>
+                                    <input type="radio" name="editRating" id="e2" value="2"><label for="e2"><i class="fas fa-star"></i></label>
+                                    <input type="radio" name="editRating" id="e1" value="1"><label for="e1"><i class="fas fa-star"></i></label>
+                                </div>
+                                <textarea id="editContent" style="width:100%;background:var(--bg-dark);border:1px solid var(--secondary);border-radius:var(--radius-sm);padding:10px 14px;color:var(--text-primary);margin:10px 0" rows="4"></textarea>
+                                <div style="display:flex;gap:10px">
+                                    <button class="btn btn-primary btn-sm" onclick="submitEdit()"><i class="fas fa-save"></i> Lưu</button>
+                                    <button class="btn btn-outline btn-sm" onclick="cancelEdit()">Hủy</button>
+                                </div>
+                            </div>
+
+                            <!-- Pending-notice -->
+                            <div id="pendingNotice" class="pending-notice" style="display:none">
+                                <i class="fas fa-clock"></i> Đánh giá của bạn đang chờ duyệt. Bạn có thể chỉnh sửa trước khi được duyệt.
+                            </div>
+
+                            <!-- Already-approved notice -->
+                            <div id="approvedNotice" style="display:none;margin-top:16px;padding:12px 16px;background:rgba(16,185,129,.1);border:1px solid #10b981;border-radius:var(--radius-sm);font-size:.85rem;color:#10b981">
+                                <i class="fas fa-check-circle"></i> Đánh giá của bạn đã được hiển thị công khai. Cảm ơn bạn!
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Shown when NOT logged in -->
+                    <div id="loginPromptWrap" class="login-prompt">
+                        <i class="fas fa-user-lock"></i>
+                        <h3>Đăng nhập để đánh giá</h3>
+                        <p>Bạn cần đăng nhập để chia sẻ cảm nhận về Moonlight Cafe và xem phản hồi của tiệm.</p>
+                        <div class="btn-group-inline">
+                            <a href="login.html" class="btn btn-primary">
+                                <i class="fas fa-sign-in-alt"></i> Đăng nhập
+                            </a>
+                            <a href="register.html" class="btn btn-outline">
+                                <i class="fas fa-user-plus"></i> Đăng ký
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- RIGHT: Contact info -->
+                <div>
+                    <div class="contact-info-card">
+                        <div class="contact-info-icon"><i class="fas fa-map-marker-alt"></i></div>
+                        <div class="contact-info-content">
+                            <h4>Địa chỉ</h4>
+                            <p>66 Nguyễn Đệ, Cái Khế, Cần Thơ</p>
+                        </div>
+                    </div>
+                    <div class="contact-info-card">
+                        <div class="contact-info-icon"><i class="fas fa-phone"></i></div>
+                        <div class="contact-info-content">
+                            <h4>Điện thoại</h4>
+                            <p>0110 766 204</p>
+                        </div>
+                    </div>
+                    <div class="contact-info-card">
+                        <div class="contact-info-icon"><i class="fas fa-envelope"></i></div>
+                        <div class="contact-info-content">
+                            <h4>Email</h4>
+                            <p>moonlightcafe@gmail.com</p>
+                        </div>
+                    </div>
+                    <div class="contact-info-card">
+                        <div class="contact-info-icon"><i class="fas fa-clock"></i></div>
+                        <div class="contact-info-content">
+                            <h4>Giờ mở cửa</h4>
+                            <p>7:00 – 22:00 hàng ngày</p>
+                        </div>
+                    </div>
+                    <div style="border-radius:var(--radius-md);overflow:hidden;margin-top:4px">
+                        <iframe
+                            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3928.605682598124!2d105.76484870000002!3d10.049360800000008!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31a0880944728b17%3A0x94d2724e2e8aa8df!2zxJAuIE5ndXnhu4VuIMSQ4buHLCBCw6xuaCBUaOG7p3ksIEPhuqduIFRoxqEsIFZp4buHdCBOYW0!5e0!3m2!1svi!2s!4v1772164899456!5m2!1svi!2s"
+                            width="100%" height="220" style="border:0;display:block" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== Approved Reviews ========== -->
+    <section class="reviews-section">
+        <div class="container">
+            <div class="section-header" style="text-align:center">
+                <span class="section-subtitle">Đánh giá</span>
+                <h2 class="section-title">Khách hàng nói gì về chúng tôi</h2>
+                <div class="section-divider"></div>
+            </div>
+            <div class="reviews-grid" id="reviewsGrid">
+                <div class="empty-reviews">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <p>Đang tải đánh giá...</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <div class="footer-brand">
+                        <div class="nav-logo-wrapper"><img src="images/logo.png?v=4" alt="Moonlight Cafe" class="nav-logo"></div>
+                        <span class="nav-brand-text">Moonlight Cafe</span>
+                    </div>
+                    <p id="footer-slogan">Nơi thưởng thức cà phê và bánh ngọt thượng hạng trong không gian ấm cúng dưới ánh trăng.</p>
+                    <div class="footer-social">
+                        <a href="#" id="footer-fb"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" id="footer-ig"><i class="fab fa-instagram"></i></a>
+                        <a href="#" id="footer-tt"><i class="fab fa-tiktok"></i></a>
+                        <a href="#" id="footer-yt"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+                <div class="footer-col">
+                    <h4 class="footer-title">Liên kết nhanh</h4>
+                    <ul class="footer-links">
+                        <li><a href="index.html">Trang chủ</a></li>
+                        <li><a href="menu.html">Menu</a></li>
+                        <li><a href="promotions.html">Khuyến mãi</a></li>
+                        <li><a href="news.html">Tin tức</a></li>
+                        <li><a href="about.html">Về chúng tôi</a></li>
+                        <li><a href="contact.html">Liên hệ</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4 class="footer-title">Liên hệ</h4>
+                    <ul class="footer-contact">
+                        <li><i class="fas fa-map-marker-alt"></i> <span id="footer-address">66 Nguyễn Đệ, Cái Khế, Cần Thơ</span></li>
+                        <li><i class="fas fa-phone"></i> <span id="footer-phone">0110 766 204</span></li>
+                        <li><i class="fas fa-envelope"></i> <span id="footer-email">moonlightcafe@gmail.com</span></li>
+                        <li><i class="fas fa-clock"></i> <span id="footer-hours">7:00 - 22:00 hàng ngày</span></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p id="footer-copyright">&copy; 2026 Moonlight Cafe. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- User Dropdown -->
+    <div class="user-dropdown" id="userDropdown">
+        <div class="user-dropdown-header" id="userInfo">
+            <i class="fas fa-user-circle"></i>
+            <span>Tài khoản</span>
+        </div>
+        <div class="user-dropdown-menu"></div>
+    </div>
+
+    <script type="module">
+        import { auth, db, onAuthStateChanged, ref, push, set, get, update } from './js/firebase-config.js';
+        import { initUserDropdown, updateMsgBadge } from './js/nav-helper.js';
+        initUserDropdown();
+
+        let currentUser = null;
+        let currentReviewId = null;  // review của user hiện tại (nếu có)
+
+        // ---- Loading ----
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                document.querySelector('.loading-overlay').classList.add('hidden');
+            }, 500);
+        });
+
+        // ---- Scroll header ----
+        window.addEventListener('scroll', () => {
+            document.getElementById('header').classList.toggle('scrolled', window.scrollY > 50);
+        });
+
+        // ---- Mobile nav ----
+        document.getElementById('navToggle').addEventListener('click', () => {
+            document.getElementById('navMenu').classList.toggle('active');
+        });
+
+        // ---- Helpers ----
+        function starsHTML(n) {
+            let s = '';
+            for (let i = 1; i <= 5; i++)
+                s += `<i class="${i <= n ? 'fas' : 'far'} fa-star"></i>`;
+            return s;
+        }
+        function fmtDate(ts) {
+            if (!ts) return '';
+            return new Date(ts).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' });
+        }
+        function initials(name) {
+            if (!name) return '?';
+            const p = name.trim().split(' ');
+            return (p[0][0] + (p[p.length - 1][0] || '')).toUpperCase();
+        }
+
+        // ---- Load approved reviews ----
+        async function loadReviews() {
+            const grid = document.getElementById('reviewsGrid');
+            try {
+                const snap = await get(ref(db, 'reviews'));
+                if (!snap.exists()) {
+                    grid.innerHTML = `<div class="empty-reviews"><i class="fas fa-comment-slash"></i><p>Chưa có đánh giá nào. Hãy là người đầu tiên!</p></div>`;
+                    return;
+                }
+                const approved = [];
+                snap.forEach(c => {
+                    const r = c.val();
+                    if (r.status === 'approved') approved.push({ id: c.key, ...r });
+                });
+                approved.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+                if (approved.length === 0) {
+                    grid.innerHTML = `<div class="empty-reviews"><i class="fas fa-comment-slash"></i><p>Chưa có đánh giá nào được duyệt.</p></div>`;
+                    return;
+                }
+                grid.innerHTML = approved.map(r => `
+                    <div class="review-card">
+                        <div class="review-stars">${starsHTML(r.rating)}</div>
+                        <p class="review-content">"${r.content}"</p>
+                        <div class="review-author">
+                            <div class="review-avatar">${initials(r.userName)}</div>
+                            <div>
+                                <div class="review-author-name">${r.userName}</div>
+                                <div class="review-author-date">${fmtDate(r.createdAt)}</div>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (e) {
+                grid.innerHTML = `<div class="empty-reviews"><i class="fas fa-exclamation-circle"></i><p>Lỗi tải đánh giá.</p></div>`;
+            }
+        }
+
+        // ---- Load messages (admin replies to current user) ----
+        async function loadMessages(uid) {
+            const area = document.getElementById('messagesArea');
+            const list = document.getElementById('messagesList');
+            try {
+                const snap = await get(ref(db, 'reviews'));
+                if (!snap.exists()) { area.style.display = 'none'; return; }
+
+                const myReplied = [];
+                snap.forEach(c => {
+                    const r = c.val();
+                    if (r.uid === uid && r.adminReply) {
+                        myReplied.push({ id: c.key, ...r });
+                    }
+                });
+
+                if (myReplied.length === 0) { area.style.display = 'none'; return; }
+
+                area.style.display = 'block';
+                myReplied.sort((a, b) => (b.replyAt || 0) - (a.replyAt || 0));
+                list.innerHTML = myReplied.map(r => `
+                    <div class="message-card ${r.userReadReply ? '' : 'unread'}">
+                        <div class="msg-meta">
+                            <div class="msg-meta-left">
+                                <i class="fas fa-envelope" style="color:var(--accent)"></i>
+                                <strong>Phản hồi đánh giá</strong>
+                                ${!r.userReadReply ? '<span class="new-badge">Mới</span>' : ''}
+                            </div>
+                            <span class="msg-date">${fmtDate(r.replyAt)}</span>
+                        </div>
+                        <div class="msg-my-review">
+                            <small style="color:var(--text-muted)">Đánh giá của bạn:</small>
+                            <p style="margin:4px 0 0">"${r.content}"</p>
+                        </div>
+                        <div class="msg-reply">
+                            <div class="msg-reply-header">
+                                <i class="fas fa-store"></i> Moonlight Cafe phản hồi:
+                            </div>
+                            <p>${r.adminReply}</p>
+                        </div>
+                        ${!r.userReadReply ? `<button class="btn btn-outline btn-sm" style="margin-top:12px" onclick="markReplyRead('${r.id}', this)">
+                            <i class="fas fa-check"></i> Đánh dấu đã đọc
+                        </button>` : ''}
+                    </div>
+                `).join('');
+
+                // Auto-mark as read after 3s
+                myReplied.forEach(r => {
+                    if (!r.userReadReply) {
+                        setTimeout(() => markReplyRead(r.id), 3000);
+                    }
+                });
+            } catch (e) {
+                area.style.display = 'none';
+            }
+        }
+
+        // Mark reply as read
+        window.markReplyRead = async function(reviewId, btn) {
+            try {
+                await update(ref(db, `reviews/${reviewId}`), { userReadReply: true });
+                if (btn) {
+                    const card = btn.closest('.message-card');
+                    card.classList.remove('unread');
+                    btn.remove();
+                    const badge = card.querySelector('.new-badge');
+                    if (badge) badge.remove();
+                }
+                // Update nav badge
+                if (currentUser) updateMsgBadge(currentUser.uid);
+            } catch (e) { console.error(e); }
+        };
+
+        // ---- Load user's own review ----
+        async function loadUserReview(uid) {
+            const snap = await get(ref(db, 'reviews'));
+            if (!snap.exists()) return null;
+            let found = null;
+            snap.forEach(c => {
+                const r = c.val();
+                if (r.uid === uid) { found = { id: c.key, ...r }; }
+            });
+            return found;
+        }
+
+        // ---- Auth state ----
+        onAuthStateChanged(auth, async (user) => {
+            currentUser = user;
+            document.getElementById('cartCount').textContent = 0;
+
+            if (user) {
+                document.getElementById('loginPromptWrap').style.display = 'none';
+                document.getElementById('reviewFormWrap').style.display = 'block';
+
+                // Load messages / replies
+                await loadMessages(user.uid);
+
+                // Check existing review
+                const existing = await loadUserReview(user.uid);
+                if (existing) {
+                    currentReviewId = existing.id;
+                    // Pre-fill edit form
+                    document.getElementById('editContent').value = existing.content;
+                    const editRadio = document.querySelector(`input[name="editRating"][value="${existing.rating}"]`);
+                    if (editRadio) editRadio.checked = true;
+                    // Disable new-review form
+                    document.getElementById('reviewForm').style.display = 'none';
+                    if (existing.status === 'pending') {
+                        document.getElementById('pendingNotice').style.display = 'block';
+                        document.getElementById('editFormWrap').style.display = 'block';
+                    } else if (existing.status === 'approved') {
+                        document.getElementById('approvedNotice').style.display = 'block';
+                    } else {
+                        // rejected - allow resubmit
+                        document.getElementById('reviewForm').style.display = 'block';
+                    }
+                }
+            } else {
+                document.getElementById('loginPromptWrap').style.display = 'block';
+                document.getElementById('reviewFormWrap').style.display = 'none';
+                document.getElementById('messagesArea').style.display = 'none';
+            }
+
+            await loadReviews();
+        });
+
+        // ---- Submit review ----
+        document.getElementById('reviewForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (!currentUser) return;
+
+            const ratingEl = document.querySelector('input[name="rating"]:checked');
+            const content = document.getElementById('reviewContent').value.trim();
+
+            if (!ratingEl) {
+                Swal.fire({ icon: 'warning', title: 'Chưa chọn số sao!', text: 'Vui lòng chọn từ 1 đến 5 sao.', confirmButtonColor: '#d4a574' });
+                return;
+            }
+            if (content.length < 10) {
+                Swal.fire({ icon: 'warning', title: 'Nội dung quá ngắn!', text: 'Vui lòng viết ít nhất 10 ký tự.', confirmButtonColor: '#d4a574' });
+                return;
+            }
+
+            const btn = e.submitter;
+            btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang gửi...';
+
+            try {
+                // Lấy tên user
+                const userSnap = await get(ref(db, `users/${currentUser.uid}`));
+                const userData = userSnap.val();
+                const displayName = userData && (userData.firstName || userData.lastName)
+                    ? `${userData.lastName || ''} ${userData.firstName || ''}`.trim()
+                    : currentUser.email.split('@')[0];
+
+                const newRef = push(ref(db, 'reviews'));
+                await set(newRef, {
+                    uid: currentUser.uid,
+                    userName: displayName,
+                    userEmail: currentUser.email,
+                    rating: parseInt(ratingEl.value),
+                    content,
+                    createdAt: Date.now(),
+                    status: 'pending',
+                    adminRead: false,
+                    adminReply: null,
+                    replyAt: null,
+                    userReadReply: false
+                });
+
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Gửi thành công!',
+                    text: 'Đánh giá của bạn đang chờ duyệt. Cảm ơn bạn đã chia sẻ!',
+                    confirmButtonColor: '#d4a574'
+                }).then(() => window.location.reload());
+
+            } catch (err) {
+                console.error(err);
+                Swal.fire({ icon: 'error', title: 'Lỗi!', text: 'Không thể gửi đánh giá. Vui lòng thử lại.' });
+                btn.disabled = false; btn.innerHTML = '<i class="fas fa-paper-plane"></i> Gửi đánh giá';
+            }
+        });
+
+        // ---- Edit review ----
+        window.submitEdit = async function () {
+            if (!currentUser || !currentReviewId) return;
+            const ratingEl = document.querySelector('input[name="editRating"]:checked');
+            const content = document.getElementById('editContent').value.trim();
+            if (!ratingEl || content.length < 10) {
+                Swal.fire({ icon: 'warning', title: 'Vui lòng điền đầy đủ!', confirmButtonColor: '#d4a574' });
+                return;
+            }
+            try {
+                await update(ref(db, `reviews/${currentReviewId}`), {
+                    rating: parseInt(ratingEl.value),
+                    content,
+                    status: 'pending',
+                    adminRead: false,
+                    updatedAt: Date.now()
+                });
+                Swal.fire({ icon: 'success', title: 'Đã cập nhật!', text: 'Đánh giá đang chờ duyệt lại.', confirmButtonColor: '#d4a574' })
+                    .then(() => window.location.reload());
+            } catch (e) {
+                Swal.fire({ icon: 'error', title: 'Lỗi!', text: 'Không thể cập nhật.' });
+            }
+        };
+        window.cancelEdit = function () {
+            document.getElementById('editFormWrap').style.display = 'none';
+        };
+    </script>
+
+    <!-- TuDongChat AI Chatbot -->
+    <script src="https://app.tudongchat.com/js/chatbox.js"></script>
+    <script>
+        const tudong_chatbox = new TuDongChat('XUitpr3VDU2e5vJgSRYO9');
+        tudong_chatbox.initial();
+    </script>
+</body>
+
+</html>

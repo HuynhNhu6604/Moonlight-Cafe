@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="vi">
 
 <head>
@@ -24,7 +24,7 @@
     <style>
         .page-header {
             background: linear-gradient(135deg, var(--bg-dark), var(--primary));
-            padding: 120px 0 60px;
+            padding: 50px 0 50px;
             text-align: center;
         }
 
@@ -352,17 +352,25 @@
         <div class="container">
             <nav class="nav">
                 <a href="index.html" class="nav-brand">
-                    <span>🌙</span>
+                    <div class="nav-logo-wrapper"><img src="images/logo.png?v=4" alt="Moonlight Cafe" class="nav-logo"></div>
                     <span class="nav-brand-text">Moonlight Cafe</span>
                 </a>
 
                 <ul class="nav-menu" id="navMenu">
                     <li><a href="index.html" class="nav-link">Trang chủ</a></li>
                     <li><a href="menu.html" class="nav-link">Menu</a></li>
+                    <li><a href="promotions.html" class="nav-link">Khuyến mãi</a></li>
                     <li><a href="news.html" class="nav-link">Tin tức</a></li>
+                    <li><a href="about.html" class="nav-link">Về chúng tôi</a></li>
+                    <li><a href="contact.html" class="nav-link">Liên hệ</a></li>
+                    <li><a href="reservation.html" class="nav-link">Đặt bàn</a></li>
                 </ul>
 
                 <div class="nav-actions">
+                    <a href="contact.html" class="nav-icon hidden" id="msgIcon" title="Tin nhắn từ tiệm">
+                        <i class="fas fa-envelope"></i>
+                        <span class="badge" id="msgCount" style="display:none">0</span>
+                    </a>
                     <a href="cart.html" class="nav-icon">
                         <i class="fas fa-shopping-bag"></i>
                         <span class="badge" id="cartCount">0</span>
@@ -445,21 +453,24 @@
 
                             <div class="form-row">
                                 <div class="form-group">
-                                    <label class="form-label">Quận/Huyện</label>
-                                    <select class="form-control" id="district">
+                                    <label class="form-label">Quận/Huyện <span class="required">*</span></label>
+                                    <select class="form-control" id="district" required>
                                         <option value="">Chọn quận/huyện</option>
-                                        <option value="quan1">Quận 1</option>
-                                        <option value="quan3">Quận 3</option>
-                                        <option value="quan7">Quận 7</option>
-                                        <option value="binhThanh">Bình Thạnh</option>
-                                        <option value="phuNhuan">Phú Nhuận</option>
-                                        <option value="thuDuc">Thủ Đức</option>
+                                        <option value="ninhKieu">Quận Ninh Kiều</option>
+                                        <option value="binhThuy">Quận Bình Thủy</option>
+                                        <option value="caiRang">Quận Cái Răng</option>
                                     </select>
                                 </div>
                                 <div class="form-group">
-                                    <label class="form-label">Thành phố</label>
-                                    <input type="text" class="form-control" id="city" value="TP. Hồ Chí Minh" readonly>
+                                    <label class="form-label">Phường/Xã <span class="required">*</span></label>
+                                    <select class="form-control" id="ward" required>
+                                        <option value="">Chọn quận/huyện trước</option>
+                                    </select>
                                 </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Tỉnh/Thành phố</label>
+                                <input type="text" class="form-control" id="city" value="Cần Thơ" readonly>
                             </div>
 
                             <div class="form-group">
@@ -500,14 +511,17 @@
                             </div>
 
                             <!-- Banking Details -->
-                            <div id="bankingDetails" class="payment-details" style="display: none; margin-top: 15px; padding: 20px; background: var(--primary-light); border-radius: var(--radius-sm);">
-                                <h4 style="color: var(--accent); margin-bottom: 15px;"><i class="fas fa-info-circle"></i> Thông tin chuyển khoản</h4>
+                            <div id="bankingDetails" class="payment-details"
+                                style="display: none; margin-top: 15px; padding: 20px; background: var(--primary-light); border-radius: var(--radius-sm);">
+                                <h4 style="color: var(--accent); margin-bottom: 15px;"><i
+                                        class="fas fa-info-circle"></i> Thông tin chuyển khoản</h4>
                                 <div style="display: grid; gap: 10px;">
                                     <p><strong>Ngân hàng:</strong> Vietcombank</p>
                                     <p><strong>Số tài khoản:</strong> 1234567890123</p>
                                     <p><strong>Chủ tài khoản:</strong> NGUYEN VAN A</p>
                                     <p><strong>Nội dung:</strong> THANHTOAN [Mã đơn hàng]</p>
-                                    <p style="color: var(--accent); font-size: 0.9rem;"><i class="fas fa-star"></i> Vui lòng chuyển khoản chính xác số tiền để đơn hàng được xử lý nhanh hơn</p>
+                                    <p style="color: var(--accent); font-size: 0.9rem;"><i class="fas fa-star"></i> Vui
+                                        lòng chuyển khoản chính xác số tiền để đơn hàng được xử lý nhanh hơn</p>
                                 </div>
                             </div>
 
@@ -523,13 +537,16 @@
                             </label>
 
                             <!-- MoMo Details -->
-                            <div id="momoDetails" class="payment-details" style="display: none; margin-top: 15px; padding: 20px; background: var(--primary-light); border-radius: var(--radius-sm);">
-                                <h4 style="color: #ae2070; margin-bottom: 15px;"><i class="fas fa-info-circle"></i> Thông tin thanh toán MoMo</h4>
+                            <div id="momoDetails" class="payment-details"
+                                style="display: none; margin-top: 15px; padding: 20px; background: var(--primary-light); border-radius: var(--radius-sm);">
+                                <h4 style="color: #ae2070; margin-bottom: 15px;"><i class="fas fa-info-circle"></i>
+                                    Thông tin thanh toán MoMo</h4>
                                 <div style="display: grid; gap: 10px;">
                                     <p><strong>Số điện thoại:</strong> 0901234567</p>
                                     <p><strong>Tên tài khoản:</strong> Moonlight Cafe</p>
                                     <p><strong>Nội dung:</strong> THANHTOAN [Mã đơn hàng]</p>
-                                    <p style="color: #ae2070; font-size: 0.9rem;"><i class="fas fa-star"></i> Sau khi chuyển khoản, vui lòng gửi screenshot qua Zalo của shop để xác nhận</p>
+                                    <p style="color: #ae2070; font-size: 0.9rem;"><i class="fas fa-star"></i> Sau khi
+                                        chuyển khoản, vui lòng gửi screenshot qua Zalo của shop để xác nhận</p>
                                 </div>
                             </div>
                         </div>
@@ -552,6 +569,24 @@
                         <span>Phí vận chuyển</span>
                         <span id="shipping">0đ</span>
                     </div>
+                    <!-- Promo code -->
+                    <div class="summary-row" style="flex-direction:column;align-items:stretch;gap:8px;padding-top:10px">
+                        <div id="promoSuggestions" style="margin-bottom:8px;display:none"></div>
+                        <div style="display:flex;gap:8px">
+                            <input type="text" id="promoCodeInput" placeholder="Nhập mã khuyến mãi" autocomplete="off"
+                                style="flex:1;padding:8px 12px;border:1px solid var(--border,#e5e7eb);border-radius:8px;font-size:.92rem;text-transform:uppercase;outline:none;background:var(--bg-secondary,#f9fafb);color:inherit"
+                                oninput="this.value=this.value.toUpperCase().replace(/\s/g,'')">
+                            <button type="button" onclick="applyPromoCode()"
+                                style="padding:8px 14px;background:var(--primary,#8b5cf6);color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:.9rem;white-space:nowrap">
+                                Áp dụng
+                            </button>
+                        </div>
+                        <div id="promoMsg" style="font-size:.83rem;min-height:1.2em"></div>
+                    </div>
+                    <div class="summary-row" id="discountRow" style="display:none;color:#10b981">
+                        <span>Giảm giá (<span id="appliedPromoCode"></span>)</span>
+                        <span id="discountAmt">0đ</span>
+                    </div>
                     <div class="summary-row total">
                         <span>Tổng cộng</span>
                         <span id="total">0đ</span>
@@ -571,7 +606,7 @@
     </section>
 
     <script type="module">
-        import { auth, db, ref, push, set, onAuthStateChanged } from './js/firebase-config.js';
+        import { auth, db, ref, push, set, get, onAuthStateChanged } from './js/firebase-config.js';
 
         let currentUser = null;
         let isGuest = false;
@@ -603,28 +638,35 @@
             currentUser = user;
 
             if (!user) {
-                // Check if there's user data in localStorage (guest checkout)
-                const guestData = localStorage.getItem('moonlight_guest');
-                if (guestData) {
-                    const data = JSON.parse(guestData);
-                    document.getElementById('fullName').value = data.fullName || '';
-                    document.getElementById('phone').value = data.phone || '';
-                    document.getElementById('email').value = data.email || '';
-                    document.getElementById('address').value = data.address || '';
-                    isGuest = true;
-                } else {
-                    requireLogin();
-                    return;
-                }
+                requireLogin();
             } else {
-                // Pre-fill email if logged in
-                document.getElementById('email').value = user.email;
+                // Pre-fill email
+                document.getElementById('email').value = user.email || '';
+                // Pre-fill profile from Firebase
+                try {
+                    const snap = await get(ref(db, `users/${user.uid}`));
+                    if (snap.exists()) {
+                        const p = snap.val();
+                        const nameEl = document.getElementById('fullName');
+                        const phoneEl = document.getElementById('phone');
+                        const addrEl  = document.getElementById('address');
+                        if (nameEl && !nameEl.value)  nameEl.value  = p.fullName || p.displayName || '';
+                        if (phoneEl && !phoneEl.value) phoneEl.value = p.phone || '';
+                        if (addrEl  && !addrEl.value)  addrEl.value  = p.address || '';
+                    }
+                } catch (_) {}
+                // Render cart (must wait for auth)
+                updateCartCount();
+                renderOrderItems();
+                loadPromoSuggestions();
             }
         });
 
-        // Get cart
+        // Get cart — chỉ lấy giỏ hàng của user đang đăng nhập
         function getCart() {
-            return JSON.parse(localStorage.getItem('moonlight_cart')) || [];
+            const user = auth.currentUser;
+            if (!user) return [];
+            return JSON.parse(localStorage.getItem(`moonlight_cart_${user.uid}`)) || [];
         }
 
         // Format price
@@ -661,14 +703,167 @@
                 </div>
             `).join('');
 
-            // Calculate totals
-            const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-            const shipping = subtotal >= 200000 ? 0 : 25000;
-            const total = subtotal + shipping;
+            // Tính phí ship theo phường đang chọn
+            const wardSelect = document.getElementById('ward');
+            const wardName = wardSelect.options[wardSelect.selectedIndex]?.value || '';
+            const subtotalInit = getCart().reduce((s, i) => s + i.price * i.quantity, 0);
+            updateTotals(getShippingFee(wardName, subtotalInit));
+        }
 
+        // Khoảng cách ước tính từ quán (Cái Khế, Ninh Kiều) theo phường (đơn vị km)
+        const wardDistanceKm = {
+            // Ninh Kiều
+            'Phường Cái Khế': 0,
+            'Phường An Hòa': 0.8,
+            'Phường An Khánh': 0.9,
+            'Phường An Nghiệp': 1.2,
+            'Phường An Phú': 1.5,
+            'Phường An Bình': 1.8,
+            'Phường An Cư': 2.0,
+            'Phường An Lạc': 2.2,
+            'Phường Tân An': 2.5,
+            'Phường Hưng Lợi': 2.8,
+            'Phường Xuân Khánh': 3.0,
+            'Phường Thới Bình': 3.5,
+            'Phường Trà An': 4.0,
+            'Phường Trà Nóc': 5.0,
+            // Bình Thủy
+            'Phường Bình Thủy': 3.5,
+            'Phường An Thới': 4.0,
+            'Phường Long Tuyền': 4.5,
+            'Phường Bùi Hữu Nghĩa': 5.0,
+            'Phường Long Hòa': 5.5,
+            'Phường Thới An Đông': 6.0,
+            // Cái Răng
+            'Phường Lê Bình': 3.5,
+            'Phường Hưng Phú': 4.0,
+            'Phường Ba Láng': 5.0,
+            'Phường Phú Thứ': 5.5,
+            'Phường Tân Phú': 6.0,
+            // Hàng xóm — mặc định 25k
+        };
+
+        // Tính phí vận chuyển theo khoảng cách
+        // ≤1km: freeship | mỗi km thêm 5.000đ | tối đa 25.000đ
+        function getShippingFee(wardName, subtotal) {
+            if (!wardName) return 25000; // chưa chọn phường → tạm tính max
+            const km = wardDistanceKm[wardName];
+            if (km === undefined) return 25000;
+            if (km <= 1) return 0;
+            const fee = Math.ceil(km - 1) * 5000;
+            return Math.min(fee, 25000);
+        }
+
+        // Applied promo state
+        let appliedPromo = null;
+
+        // Apply promo code
+        window.applyPromoCode = async function () {
+            const code = document.getElementById('promoCodeInput').value.trim().toUpperCase();
+            const msgEl = document.getElementById('promoMsg');
+            if (!code) { msgEl.style.color='#ef4444'; msgEl.textContent='Vui lòng nhập mã khuyến mãi.'; return; }
+
+            msgEl.style.color='#888'; msgEl.textContent='Đang kiểm tra...';
+            try {
+                const snap = await get(ref(db, 'promotions'));
+                let found = null;
+                if (snap.exists()) snap.forEach(c => { const v=c.val(); if(v.code===code) found={id:c.key,...v}; });
+
+                function fmtDate(ts) {
+                    return new Date(ts).toLocaleDateString('vi-VN', { day:'2-digit', month:'2-digit', year:'numeric' });
+                }
+                function setErr(msg) {
+                    msgEl.style.color = '#ef4444';
+                    msgEl.innerHTML = msg;
+                    appliedPromo = null;
+                    refreshDiscountUI();
+                }
+
+                if (!found) { setErr(`❌ Mã <strong>${code}</strong> không tồn tại. Vui lòng kiểm tra lại chính tả.`); return; }
+                if (!found.isActive) { setErr(`🚫 Mã <strong>${found.code}</strong> đã bị vô hiệu hóa và không thể sử dụng.`); return; }
+                const now = Date.now();
+                if (found.startDate > now) {
+                    setErr(`⏳ Mã <strong>${found.code}</strong> chưa đến ngày áp dụng. Mã có hiệu lực từ <strong>${fmtDate(found.startDate)}</strong>.`); return;
+                }
+                if (found.endDate < now) {
+                    setErr(`⌛ Mã <strong>${found.code}</strong> đã hết hạn vào <strong>${fmtDate(found.endDate)}</strong>.`); return;
+                }
+                if (found.usageLimit > 0 && (found.usageCount||0) >= found.usageLimit) {
+                    setErr(`🔒 Mã <strong>${found.code}</strong> đã đạt giới hạn ${found.usageLimit} lượt sử dụng.`); return;
+                }
+
+                // Kiểm tra điều kiện giờ áp dụng
+                if (found.timeStart && found.timeEnd) {
+                    const nowD = new Date();
+                    const curH = String(nowD.getHours()).padStart(2,'0');
+                    const curM = String(nowD.getMinutes()).padStart(2,'0');
+                    const curMin = nowD.getHours() * 60 + nowD.getMinutes();
+                    const [sh, sm] = found.timeStart.split(':').map(Number);
+                    const [eh, em] = found.timeEnd.split(':').map(Number);
+                    if (curMin < sh * 60 + sm || curMin > eh * 60 + em) {
+                        setErr(`🕐 Mã <strong>${found.code}</strong> chỉ áp dụng trong khung giờ <strong>${found.timeStart} – ${found.timeEnd}</strong>. Hiện tại là <strong>${curH}:${curM}</strong>, ngoài khung giờ ưu đãi.`);
+                        return;
+                    }
+                }
+
+                const cart = getCart();
+                const subtotal = cart.reduce((sum, i) => sum + i.price * i.quantity, 0);
+                if (found.minOrder > 0 && subtotal < found.minOrder) {
+                    const missing = formatPrice(found.minOrder - subtotal);
+                    msgEl.style.color = '#ef4444';
+                    msgEl.innerHTML = `🛒 Đơn hàng chưa đủ điều kiện. Mã <strong>${found.code}</strong> yêu cầu tối thiểu <strong>${formatPrice(found.minOrder)}</strong> — cần thêm <strong>${missing}</strong> nữa.`;
+                    appliedPromo = null; refreshDiscountUI(); return;
+                }
+
+                appliedPromo = found;
+                const discount = calcDiscount(found, subtotal);
+                msgEl.style.color = '#10b981';
+                const discTxt = found.discountType === 'percent'
+                    ? `${found.discountValue}%${found.maxDiscount > 0 ? ' (tối đa ' + formatPrice(found.maxDiscount) + ')' : ''}`
+                    : formatPrice(found.discountValue);
+                msgEl.innerHTML = `✅ Áp dụng thành công! Mã <strong>${found.code}</strong> giảm ${discTxt} — bạn tiết kiệm <strong>${formatPrice(discount)}</strong>.`;
+                refreshDiscountUI();
+            } catch(e) { msgEl.style.color='#ef4444'; msgEl.textContent='Lỗi: '+e.message; }
+        };
+
+        function calcDiscount(promo, subtotal) {
+            if (!promo) return 0;
+            let discount = promo.discountType === 'percent'
+                ? subtotal * promo.discountValue / 100
+                : promo.discountValue;
+            if (promo.discountType === 'percent' && promo.maxDiscount > 0)
+                discount = Math.min(discount, promo.maxDiscount);
+            return Math.min(discount, subtotal);
+        }
+
+        function refreshDiscountUI() {
+            const cart = getCart();
+            const subtotal = cart.reduce((sum, i) => sum + i.price * i.quantity, 0);
+            const discount = calcDiscount(appliedPromo, subtotal);
+            const discountRow = document.getElementById('discountRow');
+            if (appliedPromo && discount > 0) {
+                discountRow.style.display = '';
+                document.getElementById('appliedPromoCode').textContent = appliedPromo.code;
+                document.getElementById('discountAmt').textContent = '-' + formatPrice(discount);
+            } else {
+                discountRow.style.display = 'none';
+            }
+            // Dùng phí ship theo phường hiện tại
+            const wardSelect = document.getElementById('ward');
+            const wardName = wardSelect.options[wardSelect.selectedIndex]?.value || '';
+            updateTotals(getShippingFee(wardName, subtotal));
+        }
+
+        // Cập nhật tổng tiền trong order summary
+        function updateTotals(shippingFee) {
+            const cart = getCart();
+            const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const discount = calcDiscount(appliedPromo, subtotal);
+            const total = subtotal + shippingFee - discount;
             document.getElementById('subtotal').textContent = formatPrice(subtotal);
-            document.getElementById('shipping').textContent = shipping === 0 ? 'Miễn phí' : formatPrice(shipping);
-            document.getElementById('total').textContent = formatPrice(total);
+            document.getElementById('shipping').textContent =
+                shippingFee === 0 ? 'Miễn phí 🎉' : formatPrice(shippingFee);
+            document.getElementById('total').textContent = formatPrice(Math.max(0, total));
         }
 
         // Payment method selection
@@ -691,24 +886,34 @@
             const phone = document.getElementById('phone').value.trim();
             const email = document.getElementById('email').value.trim();
             const address = document.getElementById('address').value.trim();
-            const district = document.getElementById('district').value;
+            const district = document.getElementById('district');
+            const ward = document.getElementById('ward');
+            const districtText = district.options[district.selectedIndex]?.text || '';
+            const wardVal    = ward.options[ward.selectedIndex]?.value || '';
+            const wardText   = ward.options[ward.selectedIndex]?.text  || '';
             const note = document.getElementById('note').value.trim();
             const payment = document.querySelector('input[name="payment"]:checked').value;
 
             // Validation
             if (!fullName || !phone || !email || !address) {
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'Thiếu thông tin!',
-                    text: 'Vui lòng điền đầy đủ thông tin bắt buộc'
-                });
+                Swal.fire({ icon: 'warning', title: 'Thiếu thông tin!', text: 'Vui lòng điền đầy đủ thông tin bắt buộc (họ tên, điện thoại, email, địa chỉ).' });
+                return;
+            }
+            if (!district.value) {
+                Swal.fire({ icon: 'warning', title: 'Thiếu thông tin!', text: 'Vui lòng chọn Quận/Huyện.' });
+                return;
+            }
+            if (!wardVal) {
+                Swal.fire({ icon: 'warning', title: 'Thiếu thông tin!', text: 'Vui lòng chọn Phường/Xã.' });
                 return;
             }
 
             const cart = getCart();
+            if (!cart.length) { window.location.href = 'cart.html'; return; }
             const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-            const shipping = subtotal >= 200000 ? 0 : 25000;
-            const total = subtotal + shipping;
+            const shipping = getShippingFee(wardVal, subtotal);
+            const discount = calcDiscount(appliedPromo, subtotal);
+            const total = Math.max(0, subtotal + shipping - discount);
 
             const orderData = {
                 customer: {
@@ -716,17 +921,20 @@
                     phone,
                     email,
                     address,
-                    district,
-                    city: 'TP. Hồ Chí Minh'
+                    ward: wardText,
+                    district: districtText,
+                    city: 'Cần Thơ'
                 },
                 items: cart,
                 subtotal,
                 shipping,
+                discount,
+                promoCode: appliedPromo ? appliedPromo.code : null,
                 total,
                 payment,
                 note,
                 status: 'pending',
-                createdAt: new Date().toISOString(),
+                createdAt: Date.now(),
                 userId: currentUser ? currentUser.uid : null
             };
 
@@ -744,6 +952,16 @@
                 const newOrderRef = push(ordersRef);
                 await set(newOrderRef, orderData);
 
+                // Increment promo usageCount
+                if (appliedPromo) {
+                    try {
+                        const snap = await get(ref(db, `promotions/${appliedPromo.id}/usageCount`));
+                        const current = snap.exists() ? (snap.val() || 0) : 0;
+                        await set(ref(db, `promotions/${appliedPromo.id}/usageCount`), current + 1);
+                    } catch(_) {}
+                    appliedPromo = null;
+                }
+
                 // Save order to localStorage for order-success page
                 const orderSummary = {
                     id: newOrderRef.key,
@@ -751,6 +969,8 @@
                     items: orderData.items,
                     subtotal: orderData.subtotal,
                     shipping: orderData.shipping,
+                    discount: orderData.discount,
+                    promoCode: orderData.promoCode,
                     total: orderData.total,
                     payment: orderData.payment,
                     status: orderData.status,
@@ -763,8 +983,9 @@
                 // Debug: Log để kiểm tra
                 console.log('Order saved:', orderSummary);
 
-                // Clear cart
-                localStorage.removeItem('moonlight_cart');
+                // Clear cart theo user
+                const cartUser = auth.currentUser;
+                if (cartUser) localStorage.removeItem(`moonlight_cart_${cartUser.uid}`);
                 updateCartCount();
 
                 // Show success
@@ -793,17 +1014,184 @@
             }
         });
 
-        // Initialize
-        updateCartCount();
-        renderOrderItems();
+        // Initialize — cart/items được render trong onAuthStateChanged khi user sẵn sàng
+        // (không gọi ở đây vì auth.currentUser chưa sẵn sàng ngay lập tức)
+
+        // Danh sách phường/xã theo quận/huyện Cần Thơ
+        const wardsData = {
+            ninhKieu: [
+                'Phường An Bình', 'Phường An Cư', 'Phường An Hòa', 'Phường An Khánh',
+                'Phường An Lạc', 'Phường An Nghiệp', 'Phường An Phú', 'Phường Cái Khế',
+                'Phường Hưng Lợi', 'Phường Tân An', 'Phường Xuân Khánh',
+                'Phường Thới Bình', 'Phường Trà An', 'Phường Trà Nóc'
+            ],
+            binhThuy: [
+                'Phường An Thới', 'Phường Bình Thủy', 'Phường Bùi Hữu Nghĩa',
+                'Phường Long Hòa', 'Phường Long Tuyền', 'Phường Thới An Đông',
+                'Phường Trà An', 'Phường Trà Nóc'
+            ],
+            caiRang: [
+                'Phường Lê Bình', 'Phường Hưng Phú',
+                'Phường Ba Láng', 'Phường Phú Thứ', 'Phường Tân Phú'
+            ]
+        };
+
+        // Cập nhật dropdown phường khi chọn quận
+        document.getElementById('district').addEventListener('change', function () {
+            const wardSelect = document.getElementById('ward');
+            const selectedDistrict = this.value;
+            const wards = wardsData[selectedDistrict] || [];
+
+            if (!selectedDistrict || wards.length === 0) {
+                wardSelect.innerHTML = '<option value="">Chọn quận/huyện trước</option>';
+                updateTotals(25000);
+                return;
+            }
+
+            wardSelect.innerHTML = '<option value="">Chọn phường/xã</option>' +
+                wards.map(w => `<option value="${w}">${w}</option>`).join('');
+
+            // Tự chọn phường đầu tiên để hiển thị phí ship ngay lập tức
+            wardSelect.selectedIndex = 1;
+            const firstWard = wards[0];
+            const sub = getCart().reduce((s, i) => s + i.price * i.quantity, 0);
+            updateTotals(getShippingFee(firstWard, sub));
+        });
+
+        // Cập nhật phí ship realtime khi chọn phường/xã
+        document.getElementById('ward').addEventListener('change', function () {
+            const wardName = this.value;
+            const sub = getCart().reduce((s, i) => s + i.price * i.quantity, 0);
+            updateTotals(getShippingFee(wardName, sub));
+        });
+
+        // Load gợi ý mã khuyến mãi — xếp hạng theo mức giảm thực tế
+        async function loadPromoSuggestions() {
+            const el = document.getElementById('promoSuggestions');
+            if (!el) return;
+            try {
+                const snap = await get(ref(db, 'promotions'));
+                const now  = Date.now();
+                const nowD = new Date();
+                const curMin = nowD.getHours() * 60 + nowD.getMinutes();
+                const subtotal = getCart().reduce((s, i) => s + i.price * i.quantity, 0);
+
+                const applicable = [];   // mã đủ điều kiện ngay bây giờ
+                const needMore   = [];   // mã cần thêm tiền
+
+                if (snap.exists()) {
+                    snap.forEach(c => {
+                        const p = c.val();
+                        if (!p.isActive || p.startDate > now || p.endDate < now) return;
+                        if (p.usageLimit > 0 && (p.usageCount || 0) >= p.usageLimit) return;
+                        if (p.timeStart && p.timeEnd) {
+                            const [sh, sm] = p.timeStart.split(':').map(Number);
+                            const [eh, em] = p.timeEnd.split(':').map(Number);
+                            if (curMin < sh * 60 + sm || curMin > eh * 60 + em) return;
+                        }
+                        const promo = { id: c.key, ...p };
+                        // Tính mức giảm thực tế
+                        let discAmt = 0;
+                        if (subtotal >= (promo.minOrder || 0)) {
+                            discAmt = promo.discountType === 'percent'
+                                ? subtotal * promo.discountValue / 100
+                                : promo.discountValue;
+                            if (promo.discountType === 'percent' && promo.maxDiscount > 0)
+                                discAmt = Math.min(discAmt, promo.maxDiscount);
+                            discAmt = Math.min(discAmt, subtotal);
+                            applicable.push({ ...promo, discAmt });
+                        } else {
+                            needMore.push({ ...promo, discAmt: 0, missing: promo.minOrder - subtotal });
+                        }
+                    });
+                }
+
+                if (!applicable.length && !needMore.length) { el.style.display = 'none'; return; }
+
+                // Xếp theo mức giảm giảm dần
+                applicable.sort((a, b) => b.discAmt - a.discAmt);
+                needMore.sort((a, b) => a.missing - b.missing);
+
+                const best = applicable[0];
+
+                let html = '';
+
+                // Banner mã lợi nhất
+                if (best) {
+                    html += `
+                    <div style="background:linear-gradient(135deg,rgba(212,165,116,.18),rgba(212,165,116,.06));border:1.5px solid var(--accent,#d4a574);border-radius:10px;padding:10px 13px;margin-bottom:8px">
+                        <div style="font-size:.73rem;color:var(--accent);font-weight:700;margin-bottom:4px;letter-spacing:.03em">
+                            <i class="fas fa-crown"></i> GỢI Ý TỐT NHẤT CHO BẠN
+                        </div>
+                        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+                            <div>
+                                <span style="font-weight:800;font-size:.95rem;color:var(--accent)">${best.code}</span>
+                                ${best.title ? `<span style="font-size:.78rem;color:var(--text-muted);margin-left:6px">${best.title}</span>` : ''}
+                                <div style="font-size:.78rem;color:var(--text-secondary);margin-top:2px">
+                                    Giảm ngay <strong style="color:#10b981">${formatPrice(best.discAmt)}</strong>
+                                    ${best.discountType==='percent' ? `(${best.discountValue}%${best.maxDiscount>0?' · tối đa '+formatPrice(best.maxDiscount):''})` : ''}
+                                </div>
+                            </div>
+                            <button type="button"
+                                onclick="document.getElementById('promoCodeInput').value='${best.code}';applyPromoCode();"
+                                style="flex-shrink:0;padding:7px 14px;background:var(--accent,#d4a574);color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:.82rem;font-weight:700;white-space:nowrap">
+                                <i class="fas fa-bolt"></i> Dùng ngay
+                            </button>
+                        </div>
+                    </div>`;
+                }
+
+                // Các mã khác dưới dạng chip
+                const others = applicable.slice(1);
+                if (others.length > 0) {
+                    html += `<div style="font-size:.72rem;color:var(--text-muted);margin-bottom:4px">Mã khác đang hoạt động:</div>`;
+                    html += `<div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:6px">`;
+                    others.forEach(p => {
+                        const discTxt = p.discountType === 'percent' ? `Giảm ${p.discountValue}%` : `Giảm ${formatPrice(p.discountValue)}`;
+                        html += `<button type="button"
+                            onclick="document.getElementById('promoCodeInput').value='${p.code}';applyPromoCode();"
+                            title="${p.title||p.code} — ${discTxt} · Tiết kiệm ${formatPrice(p.discAmt)}"
+                            style="padding:3px 10px;border:1.5px dashed var(--accent,#d4a574);background:transparent;color:var(--accent,#d4a574);border-radius:20px;cursor:pointer;font-size:.74rem;font-weight:700"
+                            onmouseover="this.style.background='rgba(212,165,116,.13)'" onmouseout="this.style.background='transparent'">
+                            ${p.code} <span style="font-weight:400;font-size:.68rem">— ${formatPrice(p.discAmt)}</span>
+                        </button>`;
+                    });
+                    html += `</div>`;
+                }
+
+                // Mã cần thêm tiền
+                if (needMore.length > 0) {
+                    html += `<div style="font-size:.72rem;color:var(--text-muted);margin-bottom:4px">Mua thêm để dùng mã:</div>`;
+                    html += `<div style="display:flex;flex-wrap:wrap;gap:5px">`;
+                    needMore.slice(0, 3).forEach(p => {
+                        const discTxt = p.discountType === 'percent' ? `${p.discountValue}%` : formatPrice(p.discountValue);
+                        html += `<span title="Cần thêm ${formatPrice(p.missing)} để dùng mã này"
+                            style="padding:3px 10px;border:1.5px dashed #9ca3af;color:#9ca3af;border-radius:20px;font-size:.72rem;font-weight:600;cursor:default">
+                            ${p.code} · còn thiếu ${formatPrice(p.missing)}
+                        </span>`;
+                    });
+                    html += `</div>`;
+                }
+
+                el.style.display = '';
+                el.innerHTML = html;
+            } catch (_) { el.style.display = 'none'; }
+        }
     </script>
 
 
     <!-- TuDongChat AI Chatbot -->
     <script src="https://app.tudongchat.com/js/chatbox.js"></script>
     <script>
-        const tudong_chatbox = new TuDongChat('XUitpr3VDU2e5vJgSRYO9')
-        tudong_chatbox.initial()
+        try {
+            const tudong_chatbox = new TuDongChat('XUitpr3VDU2e5vJgSRYO9');
+            tudong_chatbox.initial();
+        } catch(e) {}
+    </script>
+    <script type="module">
+        import { updateMsgBadge } from './js/nav-helper.js';
+        import { auth, onAuthStateChanged } from './js/firebase-config.js';
+        onAuthStateChanged(auth, user => updateMsgBadge(user ? user.uid : null));
     </script>
 </body>
 

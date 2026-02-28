@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="vi">
 
 <head>
@@ -163,18 +163,69 @@
             padding-left: 45px;
         }
 
-        .password-toggle {
-            position: absolute;
-            right: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            cursor: pointer;
+        /* Ẩn icon native của Chrome/Edge */
+        input[type="password"]::-ms-reveal,
+        input[type="password"]::-ms-clear {
+            display: none !important;
+        }
+
+        /* Wrapper cho field mật khẩu */
+        .password-wrapper {
+            display: flex;
+            align-items: center;
+            border: 1px solid var(--secondary);
+            border-radius: var(--radius-sm);
+            background: var(--bg-dark);
+            overflow: hidden;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .password-wrapper:focus-within {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(212, 165, 116, 0.1);
+        }
+
+        .password-wrapper .input-left-icon {
+            position: static;
+            transform: none;
+            padding: 0 0 0 15px;
+            flex-shrink: 0;
             color: var(--text-muted);
-            transition: var(--transition-fast);
+        }
+
+        .password-wrapper .form-control {
+            border: none !important;
+            box-shadow: none !important;
+            background: transparent !important;
+            flex: 1;
+            padding-left: 10px;
+            padding-right: 8px;
+        }
+
+        .password-wrapper .form-control:focus {
+            border: none !important;
+            box-shadow: none !important;
+            outline: none !important;
+        }
+
+        .password-toggle {
+            flex-shrink: 0;
+            background: none;
+            border: none;
+            border-left: 1px solid var(--secondary);
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 0.95rem;
+            padding: 0 14px;
+            min-height: 48px;
+            display: flex;
+            align-items: center;
+            transition: color 0.2s, background 0.2s;
         }
 
         .password-toggle:hover {
             color: var(--accent);
+            background: rgba(212, 165, 116, 0.08);
         }
 
         .password-strength {
@@ -351,7 +402,7 @@
             <div class="auth-form-container">
                 <div class="auth-header">
                     <div class="auth-logo">
-                        <span>🌙</span>
+                        <div class="nav-logo-wrapper"><img src="images/logo.png?v=4" alt="Moonlight Cafe" class="nav-logo"></div>
                         <span class="auth-logo-text">Moonlight Cafe</span>
                     </div>
                     <h1 class="auth-title">Tạo tài khoản</h1>
@@ -395,11 +446,13 @@
 
                     <div class="form-group">
                         <label class="form-label">Mật khẩu</label>
-                        <div class="input-icon-wrapper">
-                            <i class="fas fa-lock"></i>
+                        <div class="password-wrapper">
+                            <i class="fas fa-lock input-left-icon"></i>
                             <input type="password" class="form-control" id="password" placeholder="••••••••" required
                                 minlength="6">
-                            <i class="fas fa-eye password-toggle" id="togglePassword"></i>
+                            <button type="button" class="password-toggle" id="togglePassword" title="Ẩn/hiện mật khẩu">
+                                <i class="fas fa-eye"></i>
+                            </button>
                         </div>
                         <div class="password-strength">
                             <div class="strength-bar">
@@ -411,11 +464,14 @@
 
                     <div class="form-group">
                         <label class="form-label">Xác nhận mật khẩu</label>
-                        <div class="input-icon-wrapper">
-                            <i class="fas fa-lock"></i>
+                        <div class="password-wrapper">
+                            <i class="fas fa-lock input-left-icon"></i>
                             <input type="password" class="form-control" id="confirmPassword" placeholder="••••••••"
                                 required>
-                            <i class="fas fa-eye password-toggle" id="toggleConfirmPassword"></i>
+                            <button type="button" class="password-toggle" id="toggleConfirmPassword"
+                                title="Ẩn/hiện mật khẩu">
+                                <i class="fas fa-eye"></i>
+                            </button>
                         </div>
                     </div>
 
@@ -471,17 +527,17 @@
 
         // Toggle password visibility
         togglePassword.addEventListener('click', () => {
-            const type = passwordInput.type === 'password' ? 'text' : 'password';
-            passwordInput.type = type;
-            togglePassword.classList.toggle('fa-eye');
-            togglePassword.classList.toggle('fa-eye-slash');
+            const icon = togglePassword.querySelector('i');
+            passwordInput.type = passwordInput.type === 'password' ? 'text' : 'password';
+            icon.classList.toggle('fa-eye');
+            icon.classList.toggle('fa-eye-slash');
         });
 
         toggleConfirmPassword.addEventListener('click', () => {
-            const type = confirmPasswordInput.type === 'password' ? 'text' : 'password';
-            confirmPasswordInput.type = type;
-            toggleConfirmPassword.classList.toggle('fa-eye');
-            toggleConfirmPassword.classList.toggle('fa-eye-slash');
+            const icon = toggleConfirmPassword.querySelector('i');
+            confirmPasswordInput.type = confirmPasswordInput.type === 'password' ? 'text' : 'password';
+            icon.classList.toggle('fa-eye');
+            icon.classList.toggle('fa-eye-slash');
         });
 
         // Password strength checker
@@ -610,34 +666,22 @@
             }
         });
 
-        // Google Sign-In (dùng redirect thay vì popup để tránh bị chặn)
+        // Google Sign-In
         const googleBtn = document.querySelector('.social-btn.google');
         googleBtn.addEventListener('click', async () => {
             try {
-                const provider = new GoogleAuthProvider();
-                await signInWithRedirect(auth, provider);
-            } catch (error) {
-                console.error('Google sign-in error:', error);
+                // Show loading
                 Swal.fire({
-                    icon: 'error',
-                    title: 'Đăng nhập thất bại!',
-                    html: `
-                        <p>Trình duyệt đã chặn đăng nhập Google.</p>
-                        <p><strong>Cách khắc phục:</strong></p>
-                        <ul style="text-align: left; font-size: 0.9rem;">
-                            <li>Cho phép popup trên thanh địa chỉ</li>
-                            <li>Hoặc dùng đăng ký bằng email/password</li>
-                        </ul>
-                    `
+                    title: 'Đang đăng nhập...',
+                    text: 'Vui lòng chọn tài khoản Google',
+                    allowOutsideClick: false,
+                    didOpen: () => { Swal.showLoading(); }
                 });
-            }
-        });
 
-        // Xử lý redirect sau khi Google đăng nhập
-        getRedirectResult(auth).then(async (result) => {
-            if (result) {
+                const provider = new GoogleAuthProvider();
+                const result = await signInWithPopup(auth, provider);
                 const user = result.user;
-                console.log('Google redirect success:', user.email);
+                console.log('Google login success:', user.email);
 
                 const userRef = ref(db, 'users/' + user.uid);
                 const snapshot = await get(userRef);
@@ -695,9 +739,29 @@
                 }).then(() => {
                     window.location.href = 'index.html';
                 });
+
+            } catch (error) {
+                console.error('Google sign-in error:', error);
+
+                let errorMsg = 'Không thể đăng nhập bằng Google';
+                if (error.code === 'auth/popup-closed-by-user') {
+                    errorMsg = 'Bạn đã đóng cửa sổ đăng nhập';
+                } else if (error.code === 'auth/popup-blocked') {
+                    errorMsg = 'Trình duyệt chặn popup. Vui lòng cho phép popup cho trang này';
+                } else if (error.code === 'auth/operation-not-allowed') {
+                    errorMsg = 'LỖI: Phương thức đăng nhập Google chưa được bật trong cài đặt Firebase Console.';
+                } else if (error.code === 'auth/unauthorized-domain') {
+                    errorMsg = 'LỖI: Tên miền hiện tại chưa được thêm vào danh sách Authorized Domains trên Firebase.';
+                } else {
+                    errorMsg = error.message;
+                }
+
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Đăng nhập thất bại!',
+                    text: errorMsg
+                });
             }
-        }).catch((error) => {
-            console.error('Redirect result error:', error);
         });
 
         // Facebook Sign-In (placeholder - requires Facebook App setup)
@@ -715,8 +779,10 @@
     <!-- TuDongChat AI Chatbot -->
     <script src="https://app.tudongchat.com/js/chatbox.js"></script>
     <script>
-        const tudong_chatbox = new TuDongChat('XUitpr3VDU2e5vJgSRYO9')
-        tudong_chatbox.initial()
+        try {
+            const tudong_chatbox = new TuDongChat('XUitpr3VDU2e5vJgSRYO9');
+            tudong_chatbox.initial();
+        } catch(e) {}
     </script>
 </body>
 

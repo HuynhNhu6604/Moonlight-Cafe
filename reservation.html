@@ -1,0 +1,968 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đặt Bàn - Moonlight Cafe</title>
+    <meta name="description" content="Đặt bàn trước tại Moonlight Cafe  đảm bảo chỗ ngồi lý tưởng">
+
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/mobile.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <style>
+        .page-header { background: linear-gradient(135deg,var(--bg-dark),var(--primary)); padding:50px 0; text-align:center; }
+        .page-header h1 { font-size:3rem; margin-bottom:1rem; }
+        .breadcrumb { display:flex; justify-content:center; gap:10px; color:var(--text-muted); }
+        .breadcrumb a { color:var(--text-secondary); }
+        .breadcrumb a:hover { color:var(--accent); }
+
+        /* LOGIN GATE */
+        #loginGate { min-height:50vh; display:flex; align-items:center; justify-content:center; padding:60px 20px; }
+        .login-gate-card { background:var(--bg-card); border-radius:var(--radius-md); padding:50px 40px; text-align:center; max-width:480px; width:100%; }
+        .login-gate-card .gate-icon { font-size:3.5rem; color:var(--accent); margin-bottom:20px; opacity:.7; }
+        .login-gate-card h2 { font-family:'Playfair Display',serif; font-size:1.8rem; margin-bottom:10px; }
+        .login-gate-card p { color:var(--text-muted); margin-bottom:28px; line-height:1.7; }
+        .gate-actions { display:flex; gap:14px; justify-content:center; flex-wrap:wrap; }
+
+        /* RESERVATION APP */
+        #reservationApp { padding:60px 0 20px; display:none; }
+
+        /* Steps bar */
+        .steps-bar { display:flex; align-items:center; margin-bottom:40px; background:var(--bg-card); border-radius:var(--radius-md); overflow:hidden; }
+        .step-item { flex:1; padding:16px 20px; display:flex; align-items:center; gap:10px; cursor:pointer; transition:background .2s; border-right:1px solid rgba(255,255,255,0.05); }
+        .step-item:last-child { border-right:none; }
+        .step-item.active { background:rgba(212,165,116,0.15); }
+        .step-item.done { background:rgba(76,175,80,0.08); }
+        .step-num { width:30px; height:30px; border-radius:50%; background:var(--primary-light); color:var(--text-muted); display:flex; align-items:center; justify-content:center; font-size:.82rem; font-weight:700; flex-shrink:0; transition:all .25s; }
+        .step-item.active .step-num { background:var(--accent); color:var(--bg-dark); }
+        .step-item.done .step-num { background:#4caf50; color:#fff; }
+        .step-label { font-size:.85rem; color:var(--text-muted); }
+        .step-item.active .step-label { color:var(--accent); font-weight:600; }
+        .step-item.done .step-label { color:#4caf50; }
+
+        .step-panel { display:none; }
+        .step-panel.active { display:block; }
+
+        /* Booking form */
+        .booking-grid { display:grid; grid-template-columns:1fr 340px; gap:30px; align-items:start; }
+        .form-card { background:var(--bg-card); border-radius:var(--radius-md); padding:32px; }
+        .form-card-title { font-family:'Playfair Display',serif; font-size:1.5rem; color:var(--accent); margin-bottom:24px; display:flex; align-items:center; gap:10px; }
+
+        /* Table type cards */
+        .table-types-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:6px; }
+        .table-type-card { border:2px solid rgba(255,255,255,0.08); border-radius:var(--radius-sm); padding:16px 10px; text-align:center; cursor:pointer; transition:all .2s; }
+        .table-type-card:hover { border-color:var(--accent); }
+        .table-type-card.selected { border-color:var(--accent); background:rgba(212,165,116,0.12); }
+        .table-type-card .tt-icon { font-size:1.6rem; color:var(--accent); margin-bottom:8px; }
+        .table-type-card .tt-label { font-size:.8rem; font-weight:600; color:var(--text-primary); }
+        .table-type-card .tt-avail { font-size:.72rem; color:var(--text-muted); margin-top:4px; }
+        .table-type-card.unavail { opacity:.4; cursor:not-allowed; }
+        .table-type-card.unavail:hover { border-color:rgba(255,255,255,0.08); }
+
+        /* Counter */
+        .counter-row { display:flex; align-items:center; gap:14px; background:var(--primary-light); border-radius:var(--radius-sm); padding:12px 16px; }
+        .qty-btn { width:34px; height:34px; border-radius:50%; border:2px solid var(--accent); background:transparent; color:var(--accent); font-size:1.1rem; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all .2s; flex-shrink:0; }
+        .qty-btn:hover { background:var(--accent); color:var(--bg-dark); }
+        .qty-val { min-width:40px; text-align:center; font-size:1.1rem; font-weight:700; color:var(--text-primary); }
+
+        /* Avail summary */
+        .avail-summary { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin:14px 0; }
+        .avail-badge { padding:12px; border-radius:8px; text-align:center; border:1px solid rgba(255,255,255,.06); }
+        .avail-badge .ab-type { font-size:.75rem; color:var(--text-muted); margin-bottom:4px; }
+        .avail-badge .ab-count { font-size:1.3rem; font-weight:700; }
+        .avail-badge.has { background:rgba(76,175,80,0.1); }
+        .avail-badge.has .ab-count { color:#4caf50; }
+        .avail-badge.none { background:rgba(229,62,62,0.08); }
+        .avail-badge.none .ab-count { color:#e57373; }
+        .avail-title { font-size:.9rem; font-weight:600; color:var(--text-secondary); margin-bottom:10px; }
+
+        /* Form elements */
+        .form-group { margin-bottom:18px; }
+        .form-group label { display:block; font-size:.88rem; font-weight:500; color:var(--text-secondary); margin-bottom:7px; }
+        .form-group label .req { color:#e57373; margin-left:2px; }
+        .form-control { width:100%; padding:11px 14px; background:var(--primary-light); border:2px solid transparent; border-radius:var(--radius-sm); color:var(--text-primary); font-family:'Poppins',sans-serif; font-size:.93rem; outline:none; transition:border-color .2s; box-sizing:border-box; }
+        .form-control:focus { border-color:var(--accent); }
+        .form-control.is-error { border-color:#e57373; }
+        .field-err { font-size:.78rem; color:#e57373; margin-top:4px; display:none; }
+        .form-row { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+        textarea.form-control { resize:vertical; min-height:80px; }
+
+        /* Deposit */
+        .deposit-box { background:rgba(212,165,116,0.08); border:1px solid rgba(212,165,116,0.3); border-radius:var(--radius-sm); padding:20px; margin-bottom:20px; }
+        .deposit-box h4 { color:var(--accent); font-size:.95rem; margin-bottom:14px; display:flex; align-items:center; gap:8px; }
+        .deposit-info-row { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; font-size:.88rem; }
+        .deposit-info-row .di-label { color:var(--text-muted); }
+        .deposit-info-row .di-val { color:var(--text-primary); font-weight:600; }
+        .deposit-info-row .di-val.accent { color:var(--accent); font-size:1.1rem; }
+        .copy-btn { background:var(--primary-light); border:none; padding:3px 10px; border-radius:4px; color:var(--text-secondary); cursor:pointer; font-size:.75rem; margin-left:8px; transition:.2s; }
+        .copy-btn:hover { background:var(--accent); color:var(--bg-dark); }
+        .deposit-note { font-size:.8rem; color:var(--text-muted); margin-top:10px; line-height:1.6; }
+
+        /* Summary card */
+        .summary-card { background:var(--bg-card); border-radius:var(--radius-md); padding:24px; position:sticky; top:100px; }
+        .sum-title { font-family:'Playfair Display',serif; font-size:1.1rem; color:var(--accent); margin-bottom:16px; }
+        .sum-row { display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid rgba(255,255,255,.05); font-size:.88rem; }
+        .sum-row:last-child { border-bottom:none; }
+        .sum-row .sr-label { color:var(--text-muted); }
+        .sum-row .sr-val { color:var(--text-primary); font-weight:600; }
+        .sum-placeholder { color:var(--text-muted); font-size:.85rem; font-style:italic; }
+
+        /* Info card */
+        .info-card { background:var(--bg-card); border-radius:var(--radius-md); padding:24px; margin-bottom:16px; }
+        .info-card-title { font-family:'Playfair Display',serif; font-size:1.05rem; color:var(--accent); margin-bottom:14px; display:flex; align-items:center; gap:8px; }
+        .info-list { list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:9px; }
+        .info-list li { display:flex; align-items:flex-start; gap:10px; font-size:.85rem; color:var(--text-secondary); line-height:1.55; }
+        .info-list li i { color:var(--accent); flex-shrink:0; font-size:.8rem; margin-top:3px; width:14px; }
+
+        /* Buttons */
+        .btn-res { width:100%; padding:14px; border:none; background:linear-gradient(135deg,var(--accent),#c8904a); border-radius:var(--radius-sm); color:var(--bg-dark); font-family:'Poppins',sans-serif; font-size:1rem; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; transition:transform .2s,box-shadow .2s; }
+        .btn-res:hover { transform:translateY(-2px); box-shadow:0 8px 20px rgba(212,165,116,0.35); }
+        .btn-res:disabled { opacity:.6; cursor:not-allowed; transform:none; }
+        .btn-outline-sm { padding:9px 18px; border-radius:var(--radius-sm); background:transparent; border:1.5px solid var(--accent); color:var(--accent); font-family:'Poppins',sans-serif; font-size:.88rem; font-weight:600; cursor:pointer; transition:.2s; }
+        .btn-outline-sm:hover { background:var(--accent); color:var(--bg-dark); }
+
+        /* My reservations */
+        #myResSection { padding:0 0 70px; display:none; }
+        .res-section-hdr { display:flex; align-items:center; justify-content:space-between; margin-bottom:24px; }
+        .res-section-hdr h2 { font-family:'Playfair Display',serif; font-size:1.8rem; color:var(--accent); }
+        .res-card-list { display:flex; flex-direction:column; gap:16px; }
+        .res-card { background:var(--bg-card); border-radius:var(--radius-md); padding:22px 26px; border-left:4px solid transparent; transition:transform .2s; }
+        .res-card:hover { transform:translateX(3px); }
+        .res-card.status-pending { border-color:#ffc107; }
+        .res-card.status-confirmed { border-color:#4caf50; }
+        .res-card.status-rejected { border-color:#e53e3e; }
+        .res-card.status-negotiating { border-color:#f59e0b; }
+        .res-card.status-completed { border-color:#64b5f6; }
+        .res-card.status-cancelled { border-color:#888; }
+        .res-card-hdr { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; flex-wrap:wrap; gap:8px; }
+        .res-card-id { font-size:.78rem; color:var(--text-muted); font-family:monospace; }
+        .status-badge-res { display:inline-flex; align-items:center; gap:5px; padding:4px 12px; border-radius:20px; font-size:.75rem; font-weight:700; text-transform:uppercase; }
+        .status-badge-res.pending { background:rgba(255,193,7,.15); color:#ffc107; }
+        .status-badge-res.confirmed { background:rgba(76,175,80,.15); color:#4caf50; }
+        .status-badge-res.rejected { background:rgba(229,62,62,.15); color:#e57373; }
+        .status-badge-res.negotiating { background:rgba(245,158,11,.15); color:#f59e0b; }
+        .status-badge-res.completed { background:rgba(100,181,246,.15); color:#64b5f6; }
+        .status-badge-res.cancelled { background:rgba(128,128,128,.15); color:#aaa; }
+        .res-card-body { display:grid; grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:10px 20px; margin-bottom:14px; }
+        .res-field { font-size:.85rem; }
+        .res-field .rf-label { color:var(--text-muted); display:block; font-size:.75rem; margin-bottom:2px; }
+        .res-field .rf-val { color:var(--text-primary); font-weight:600; }
+        .res-card-notify { padding:12px 16px; background:rgba(212,165,116,.1); border:1px solid rgba(212,165,116,.3); border-radius:8px; font-size:.85rem; color:var(--text-secondary); line-height:1.6; }
+        .res-card-notify .notify-title { color:var(--accent); font-weight:600; margin-bottom:6px; display:flex; align-items:center; gap:6px; }
+        .negotiate-actions { display:flex; gap:10px; margin-top:12px; }
+        .btn-accept { padding:8px 18px; border-radius:6px; border:none; background:#4caf50; color:#fff; font-size:.85rem; font-weight:600; cursor:pointer; transition:.2s; }
+        .btn-reject-alt { padding:8px 18px; border-radius:6px; border:1.5px solid #e57373; background:transparent; color:#e57373; font-size:.85rem; font-weight:600; cursor:pointer; transition:.2s; }
+        .btn-accept:hover { background:#388e3c; }
+        .btn-reject-alt:hover { background:rgba(229,62,62,.1); }
+        .deposit-qr-alert { font-size:.83rem; color:#ffc107; display:flex; align-items:center; gap:6px; margin-top:8px; }
+
+        @media(max-width:900px) { .booking-grid { grid-template-columns:1fr; } .summary-card { position:static; } }
+        @media(max-width:600px) { .table-types-grid { grid-template-columns:repeat(2,1fr); } .form-row { grid-template-columns:1fr; } .avail-summary { grid-template-columns:repeat(2,1fr); } .steps-bar { flex-direction:column; border-radius:var(--radius-sm); } .step-item { border-right:none; border-bottom:1px solid rgba(255,255,255,.05); } }
+    </style>
+</head>
+
+<body>
+    <div class="loading-overlay"><div class="loader"></div></div>
+
+    <header class="header" id="header">
+        <div class="container">
+            <nav class="nav">
+                <a href="index.html" class="nav-brand">
+                    <div class="nav-logo-wrapper"><img src="images/logo.png?v=4" alt="Moonlight Cafe" class="nav-logo"></div>
+                    <span class="nav-brand-text">Moonlight Cafe</span>
+                </a>
+                <ul class="nav-menu" id="navMenu">
+                    <li><a href="index.html" class="nav-link">Trang chủ</a></li>
+                    <li><a href="menu.html" class="nav-link">Menu</a></li>
+                    <li><a href="promotions.html" class="nav-link">Khuyến mãi</a></li>
+                    <li><a href="news.html" class="nav-link">Tin tức</a></li>
+                    <li><a href="about.html" class="nav-link">Về chúng tôi</a></li>
+                    <li><a href="contact.html" class="nav-link">Liên hệ</a></li>
+                    <li><a href="reservation.html" class="nav-link active">Đặt bàn</a></li>
+                </ul>
+                <div class="nav-actions">
+                    <a href="cart.html" class="nav-icon"><i class="fas fa-shopping-bag"></i><span class="badge" id="cartCount">0</span></a>
+                    <div class="nav-icon" id="userIcon" style="cursor:pointer;"><i class="fas fa-user"></i></div>
+                    <div class="nav-toggle" id="navToggle">
+                        <div class="nav-logo-wrapper"><img src="images/logo.png?v=4" alt="" class="nav-logo"></div>
+                        <div class="nav-logo-wrapper"><img src="images/logo.png?v=4" alt="" class="nav-logo"></div>
+                        <div class="nav-logo-wrapper"><img src="images/logo.png?v=4" alt="" class="nav-logo"></div>
+                    </div>
+                </div>
+            </nav>
+        </div>
+    </header>
+    <div class="nav-overlay" id="navOverlay"></div>
+
+    <!-- Page Header -->
+    <section class="page-header">
+        <div class="container">
+            <h1>Đặt Bàn</h1>
+            <div class="breadcrumb"><a href="index.html">Trang chủ</a><span>/</span><span>Đặt bàn</span></div>
+        </div>
+    </section>
+
+    <!-- LOGIN GATE -->
+    <div id="loginGate">
+        <div class="login-gate-card">
+            <div class="gate-icon"><i class="fas fa-user-lock"></i></div>
+            <h2>Đăng nhập để đặt bàn</h2>
+            <p>Bạn cần đăng nhập để đặt bàn tại Moonlight Cafe. Đặt bàn trực tuyến giúp bạn đảm bảo chỗ ngồi và nhận thông báo xác nhận ngay lập tức.</p>
+            <div class="gate-actions">
+                <a href="login.html?redirect=reservation.html" class="btn btn-primary"><i class="fas fa-sign-in-alt"></i> Đăng nhập</a>
+                <a href="register.html" class="btn btn-outline"><i class="fas fa-user-plus"></i> Đăng ký</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- RESERVATION APP -->
+    <div id="reservationApp">
+        <div class="container">
+            <!-- Steps -->
+            <div class="steps-bar">
+                <div class="step-item active" id="stepBar1"><div class="step-num">1</div><div class="step-label">Chọn bàn & khung giờ</div></div>
+                <div class="step-item" id="stepBar2"><div class="step-num">2</div><div class="step-label">Thông tin liên hệ</div></div>
+                <div class="step-item" id="stepBar3"><div class="step-num">3</div><div class="step-label">Thanh toán cọc & Xác nhận</div></div>
+            </div>
+
+            <!-- STEP 1 -->
+            <div class="step-panel active" id="step1">
+                <div class="booking-grid">
+                    <div>
+                        <!-- Date & Time -->
+                        <div class="form-card" style="margin-bottom:20px">
+                            <div class="form-card-title"><i class="fas fa-calendar-alt"></i> Chọn ngày & khung giờ</div>
+                            <div class="form-row" style="margin-bottom:20px">
+                                <div class="form-group" style="margin:0">
+                                    <label>Ngày đến <span class="req">*</span></label>
+                                    <input type="date" id="resDate" class="form-control" required>
+                                </div>
+                                <div class="form-group" style="margin:0">
+                                    <label>Khung giờ <span class="req">*</span></label>
+                                    <select id="resTimeSelect" class="form-control">
+                                        <option value="">-- Chọn ngày trước --</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div id="availSummaryWrap" style="display:none">
+                                <div class="avail-title">Tình trạng bàn trống (giờ đã chọn)</div>
+                                <div class="avail-summary" id="availSummary"></div>
+                            </div>
+                        </div>
+
+                        <!-- Table type -->
+                        <div class="form-card" style="margin-bottom:20px">
+                            <div class="form-card-title"><i class="fas fa-chair"></i> Loại bàn & số lượng</div>
+                            <div class="form-group" style="margin-bottom:16px">
+                                <label>Loại bàn <span class="req">*</span></label>
+                                <div class="table-types-grid" id="tableTypesGrid">
+                                    <div class="table-type-card" data-type="2" onclick="selectTableType(2)">
+                                        <div class="tt-icon"><i class="fas fa-user-friends"></i></div>
+                                        <div class="tt-label">Bàn 2 người</div>
+                                        <div class="tt-avail" id="avail-t2"></div>
+                                    </div>
+                                    <div class="table-type-card" data-type="4" onclick="selectTableType(4)">
+                                        <div class="tt-icon"><i class="fas fa-users"></i></div>
+                                        <div class="tt-label">Bàn 4 người</div>
+                                        <div class="tt-avail" id="avail-t4"></div>
+                                    </div>
+                                    <div class="table-type-card" data-type="6" onclick="selectTableType(6)">
+                                        <div class="tt-icon"><i class="fas fa-users"></i></div>
+                                        <div class="tt-label">Bàn 6 người</div>
+                                        <div class="tt-avail" id="avail-t6"></div>
+                                    </div>
+                                    <div class="table-type-card" data-type="10" onclick="selectTableType(10)">
+                                        <div class="tt-icon"><i class="fas fa-user-friends"></i></div>
+                                        <div class="tt-label">Bàn 10 người</div>
+                                        <div class="tt-avail" id="avail-t10"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group" style="margin-bottom:0">
+                                <label>Số bàn cần đặt <span class="req">*</span></label>
+                                <div class="counter-row">
+                                    <label>Số bàn (tối đa 5)</label>
+                                    <button class="qty-btn" type="button" onclick="changeTableCount(-1)"><i class="fas fa-minus"></i></button>
+                                    <div class="qty-val" id="tableCountVal">1</div>
+                                    <button class="qty-btn" type="button" onclick="changeTableCount(1)"><i class="fas fa-plus"></i></button>
+                                </div>
+                                <div style="margin-top:8px;font-size:.82rem;color:var(--text-muted)" id="totalSeatHint"></div>
+                            </div>
+                        </div>
+
+                        <button class="btn-res" onclick="gotoStep2()"><i class="fas fa-arrow-right"></i> Tiếp theo: Thông tin liên hệ</button>
+                    </div>
+
+                    <div>
+                        <div class="info-card">
+                            <div class="info-card-title"><i class="fas fa-info-circle"></i> Lưu ý đặt bàn</div>
+                            <ul class="info-list">
+                                <li><i class="fas fa-clock"></i><span>Bàn được giữ <strong>30 phút</strong> sau khi đặt để bạn hoàn tất chuyển khoản cọc. Nếu chưa TT, bàn sẽ tự động mở lại.</span></li>
+                                <li><i class="fas fa-user-clock"></i><span>Sau giờ nhận bàn <strong>20 phút</strong> không thấy khách, hệ thống tự mở lại bàn cho người khác.</span></li>
+                                <li><i class="fas fa-ban"></i><span>Chỉ hủy được trước giờ nhận bàn <strong>2 tiếng</strong>. Hủy muộn hơn cọc sẽ không được hoàn.</span></li>
+                                <li><i class="fas fa-coins"></i><span>Phí đặt cọc theo loại bàn: <strong>Bàn 2 ngươi: 20.000đ · Bàn 4 người: 40.000đ · Bàn 6 người: 60.000đ · Bàn 10 người: 100.000đ</strong>. Cọc qua chuyển khoản, trừ vào hoá đơn khi đến quán.</span></li>
+                                <li><i class="fas fa-calendar-check"></i><span>Cửa hàng xác nhận trong vòng <strong>30 phút</strong>. Thông báo gửi tại trang Tài khoản.</span></li>
+                                <li><i class="fas fa-history"></i><span>Nếu không có bàn phù hợp, cửa hàng có thể gợi ý bàn thay thế.</span></li>
+                                <li><i class="fas fa-phone"></i><span>Hỗ trợ: <a href="tel:0110766204" style="color:var(--accent)">0110 766 204</a></span></li>
+                            </ul>
+                        </div>
+                        <div class="info-card">
+                            <div class="info-card-title"><i class="fas fa-sun"></i> Giờ mở cửa</div>
+                            <ul class="info-list">
+                                <li><i class="fas fa-circle" style="opacity:.5"></i><span>Thứ 26: <strong>07:00  22:00</strong></span></li>
+                                <li><i class="fas fa-circle" style="opacity:.5"></i><span>Thứ 7CN: <strong>07:00  23:00</strong></span></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- STEP 2 -->
+            <div class="step-panel" id="step2">
+                <div class="booking-grid">
+                    <div class="form-card">
+                        <div class="form-card-title"><i class="fas fa-user"></i> Thông tin liên hệ</div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Họ và tên <span class="req">*</span></label>
+                                <input type="text" id="resName" class="form-control" placeholder="Nguyễn Văn A">
+                                <div class="field-err" id="err-name">Vui lòng nhập họ tên.</div>
+                            </div>
+                            <div class="form-group">
+                                <label>Số điện thoại <span class="req">*</span></label>
+                                <input type="tel" id="resPhone" class="form-control" placeholder="0909 123 456">
+                                <div class="field-err" id="err-phone">Vui lòng nhập SĐT hợp lệ.</div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Ghi chú (tùy chọn)</label>
+                            <textarea id="resNote" class="form-control" placeholder="Ví dụ: chỗ ngoài trời, dịp sinh nhật, ghế cao cho bé..."></textarea>
+                        </div>
+                        <div style="display:flex;gap:12px;margin-top:8px">
+                            <button class="btn-outline-sm" onclick="gotoStep(1)" style="flex:1"><i class="fas fa-arrow-left"></i> Quay lại</button>
+                            <button class="btn-res" style="flex:2" onclick="gotoStep3()"><i class="fas fa-arrow-right"></i> Tiếp theo: Thanh toán cọc</button>
+                        </div>
+                    </div>
+                    <div class="summary-card" id="summaryCard">
+                        <div class="sum-title">Tóm tắt đặt bàn</div>
+                        <div id="summaryContent"><div class="sum-placeholder">Điền thông tin để xem tóm tắt</div></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- STEP 3 -->
+            <div class="step-panel" id="step3">
+                <div class="booking-grid">
+                    <div class="form-card">
+                        <div class="form-card-title"><i class="fas fa-money-bill-wave"></i> Thanh toán cọc & Xác nhận</div>
+                        <div class="deposit-box">
+                            <h4><i class="fas fa-university"></i> Thông tin chuyển khoản</h4>
+                            <div class="deposit-info-row"><span class="di-label">Ngân hàng</span><span class="di-val">Vietcombank</span></div>
+                            <div class="deposit-info-row">
+                                <span class="di-label">Số tài khoản</span>
+                                <span class="di-val">1234567890 <button class="copy-btn" onclick="copyText('1234567890')"><i class="fas fa-copy"></i> Copy</button></span>
+                            </div>
+                            <div class="deposit-info-row"><span class="di-label">Tên tài khoản</span><span class="di-val">MOONLIGHT CAFE</span></div>
+                            <div class="deposit-info-row"><span class="di-label">Số tiền</span><span class="di-val accent" id="depositAmountDisplay">15.000đ</span></div>
+                            <div class="deposit-info-row">
+                                <span class="di-label">Nội dung CK</span>
+                                <span class="di-val"><span id="depositRefDisplay"></span> <button class="copy-btn" onclick="copyRef()"><i class="fas fa-copy"></i> Copy</button></span>
+                            </div>
+                            <div class="deposit-note">
+                                <i class="fas fa-exclamation-circle" style="color:var(--accent)"></i>
+                                Vui lòng chuyển khoản đúng nội dung để hệ thống xác nhận. <span id="depositNoteText">Tiền cọc sẽ được trừ vào hoá đơn khi đến quán.</span><br>
+                                Sau khi chuyển, nhấn <strong>"Gửi yêu cầu đặt bàn"</strong>.
+                            </div>
+                        </div>
+                        <div class="summary-card" style="position:static;margin-bottom:20px" id="step3Summary"></div>
+                        <div style="display:flex;gap:12px">
+                            <button class="btn-outline-sm" onclick="gotoStep(2)" style="flex:1"><i class="fas fa-arrow-left"></i> Quay lại</button>
+                            <button class="btn-res" style="flex:2" id="confirmBtn" onclick="submitReservation()"><i class="fas fa-calendar-check"></i> Gửi yêu cầu đặt bàn</button>
+                        </div>
+                    </div>
+                    <div class="info-card" style="background:var(--bg-card);border-radius:var(--radius-md);padding:24px">
+                        <div class="info-card-title"><i class="fas fa-exclamation-triangle"></i> Lưu ý quan trọng</div>
+                        <ul class="info-list">
+                            <li><i class="fas fa-hourglass-half"></i><span>Sau khi đặt, bàn được <strong>tạm giữ 30 phút</strong>. Vui lòng chuyển khoản trong thời gian này.</span></li>
+                            <li><i class="fas fa-check-circle"></i><span>Admin xác nhận trong 30 phút  nhận thông báo tại <a href="profile.html" style="color:var(--accent)">Tài khoản</a>.</span></li>
+                            <li><i class="fas fa-exchange-alt"></i><span>Nếu bàn đầy, admin có thể gợi ý bàn thay thế. Bạn có quyền chấp nhận hoặc từ chối.</span></li>
+                            <li><i class="fas fa-receipt"></i><span>Tiền cọc <strong>trừ 100%</strong> vào hoá đơn khi đến quán.</span></li>
+                            <li><i class="fas fa-undo"></i><span>Hủy trước <strong>2 tiếng</strong>: hoàn cọc. Hủy trễ hơn hoặc không đến: <strong>mất cọc</strong>.</span></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MY RESERVATIONS -->
+    <section id="myResSection">
+        <div class="container">
+            <div class="res-section-hdr">
+                <h2><i class="fas fa-history" style="color:var(--accent);margin-right:10px"></i>Lịch sử đặt bàn</h2>
+                <button class="btn-outline-sm" onclick="loadMyReservations()"><i class="fas fa-sync-alt"></i> Làm mới</button>
+            </div>
+            <div id="resCardList" class="res-card-list">
+                <div style="text-align:center;padding:40px;color:var(--text-muted)"><i class="fas fa-spinner fa-spin" style="font-size:1.5rem;color:var(--accent)"></i></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <div class="footer-brand">
+                        <div class="nav-logo-wrapper"><img src="images/logo.png?v=4" alt="Moonlight Cafe" class="nav-logo"></div>
+                        <span class="nav-brand-text">Moonlight Cafe</span>
+                    </div>
+                    <p>Nơi thưởng thức cà phê và bánh ngọt thượng hạng.</p>
+                    <div class="footer-social">
+                        <a href="#"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-tiktok"></i></a>
+                    </div>
+                </div>
+                <div class="footer-col">
+                    <h4 class="footer-title">Liên kết</h4>
+                    <ul class="footer-links">
+                        <li><a href="index.html">Trang chủ</a></li>
+                        <li><a href="menu.html">Menu</a></li>
+                        <li><a href="about.html">Về chúng tôi</a></li>
+                        <li><a href="reservation.html">Đặt bàn</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4 class="footer-title">Liên hệ</h4>
+                    <ul class="footer-contact">
+                        <li><i class="fas fa-map-marker-alt"></i> 66 Nguyễn Đệ, Cái Khế, Cần Thơ</li>
+                        <li><i class="fas fa-phone"></i> 0110 766 204</li>
+                        <li><i class="fas fa-envelope"></i> moonlightcafe@gmail.com</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom"><p>&copy; 2026 Moonlight Cafe. All rights reserved.</p></div>
+        </div>
+    </footer>
+
+    <div class="user-dropdown" id="userDropdown">
+        <div class="user-dropdown-header" id="userInfo"><i class="fas fa-user-circle"></i><span>Tài khoản</span></div>
+        <div class="user-dropdown-menu"></div>
+    </div>
+
+    <script type="module">
+        import { auth, db, ref, push, set, get, update, onAuthStateChanged, query, orderByChild, equalTo } from './js/firebase-config.js';
+        import { initUserDropdown } from './js/nav-helper.js';
+        initUserDropdown();
+
+        let currentUser = null;
+        let allTables   = [];
+        let tableSlots  = {};
+        let selectedTableType = null;
+        let tableCount  = 1;
+        let currentStep = 1;
+        let depositRef  = '';
+
+        // Phí cọc theo loại bàn (VND/bàn)
+        const DEPOSIT_MAP = { 2: 20000, 4: 40000, 6: 60000, 10: 100000 };
+        function getDeposit(type, count) { return (DEPOSIT_MAP[type] || 20000) * (count || 1); }
+
+        const TIME_SLOTS = ['07:00','08:00','09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00','20:00','21:00','22:00'];
+
+        window.addEventListener('load', () => setTimeout(() => document.querySelector('.loading-overlay')?.classList.add('hidden'), 600));
+        window.addEventListener('scroll', () => document.getElementById('header').classList.toggle('scrolled', window.scrollY > 50));
+        document.getElementById('navToggle').addEventListener('click', () => { document.getElementById('navMenu').classList.toggle('active'); document.getElementById('navOverlay').classList.toggle('active'); });
+        document.getElementById('navOverlay').addEventListener('click', () => { document.getElementById('navMenu').classList.remove('active'); document.getElementById('navOverlay').classList.remove('active'); });
+
+        const dateInput = document.getElementById('resDate');
+        dateInput.min = new Date().toISOString().slice(0,10);
+        dateInput.addEventListener('change', onDateChange);
+        document.getElementById('resTimeSelect').addEventListener('change', onTimeChange);
+
+        onAuthStateChanged(auth, user => {
+            if (user) {
+                currentUser = user;
+                document.getElementById('loginGate').style.display = 'none';
+                document.getElementById('reservationApp').style.display = 'block';
+                document.getElementById('myResSection').style.display = 'block';
+                get(ref(db, 'users/' + user.uid)).then(snap => {
+                    if (snap.exists()) {
+                        const d = snap.val();
+                        if (d.fullName) document.getElementById('resName').value = d.fullName;
+                        if (d.phone) document.getElementById('resPhone').value = d.phone;
+                    }
+                });
+                loadAllTables();
+                loadMyReservations();
+            } else {
+                document.getElementById('loginGate').style.display = 'flex';
+                document.getElementById('reservationApp').style.display = 'none';
+                document.getElementById('myResSection').style.display = 'none';
+            }
+        });
+
+        async function loadAllTables() {
+            try {
+                const snap = await get(ref(db, 'tables'));
+                allTables = [];
+                if (snap.exists()) snap.forEach(c => { const t = c.val(); if (t.isActive !== false) allTables.push({ id: c.key, ...t }); });
+                if (allTables.length === 0) allTables = generateDefaultTables();
+            } catch (e) { allTables = generateDefaultTables(); }
+        }
+
+        function generateDefaultTables() {
+            const defs = [
+                // Khu A — 2 người (8 bàn), cọc 20.000đ
+                { code:'A1', name:'Bàn A1', type:2,  location:'Khu A', depositAmount:20000 },
+                { code:'A2', name:'Bàn A2', type:2,  location:'Khu A', depositAmount:20000 },
+                { code:'A3', name:'Bàn A3', type:2,  location:'Khu A', depositAmount:20000 },
+                { code:'A4', name:'Bàn A4', type:2,  location:'Khu A', depositAmount:20000 },
+                { code:'A5', name:'Bàn A5', type:2,  location:'Khu A', depositAmount:20000 },
+                { code:'A6', name:'Bàn A6', type:2,  location:'Khu A', depositAmount:20000 },
+                { code:'A7', name:'Bàn A7', type:2,  location:'Khu A', depositAmount:20000 },
+                { code:'A8', name:'Bàn A8', type:2,  location:'Khu A', depositAmount:20000 },
+                // Khu B — 4 người (6 bàn), cọc 40.000đ
+                { code:'B1', name:'Bàn B1', type:4,  location:'Khu B', depositAmount:40000 },
+                { code:'B2', name:'Bàn B2', type:4,  location:'Khu B', depositAmount:40000 },
+                { code:'B3', name:'Bàn B3', type:4,  location:'Khu B', depositAmount:40000 },
+                { code:'B4', name:'Bàn B4', type:4,  location:'Khu B', depositAmount:40000 },
+                { code:'B5', name:'Bàn B5', type:4,  location:'Khu B', depositAmount:40000 },
+                { code:'B6', name:'Bàn B6', type:4,  location:'Khu B', depositAmount:40000 },
+                // Khu C — 6 người (4 bàn), cọc 60.000đ
+                { code:'C1', name:'Bàn C1', type:6,  location:'Khu C', depositAmount:60000 },
+                { code:'C2', name:'Bàn C2', type:6,  location:'Khu C', depositAmount:60000 },
+                { code:'C3', name:'Bàn C3', type:6,  location:'Khu C', depositAmount:60000 },
+                { code:'C4', name:'Bàn C4', type:6,  location:'Khu C', depositAmount:60000 },
+                // Khu D — VIP 10 người (2 bàn), cọc 100.000đ
+                { code:'D1', name:'Bàn D1', type:10, location:'Khu D', depositAmount:100000 },
+                { code:'D2', name:'Bàn D2', type:10, location:'Khu D', depositAmount:100000 },
+            ];
+            return defs.map(t => ({ id: t.code, ...t, isActive: true }));
+        }
+
+        async function onDateChange() {
+            const date = dateInput.value;
+            if (!date) return;
+            const sel = document.getElementById('resTimeSelect');
+            sel.innerHTML = '<option value="">-- Chọn khung giờ --</option>';
+            TIME_SLOTS.forEach(t => { const o = document.createElement('option'); o.value = t; o.textContent = t; sel.appendChild(o); });
+            document.getElementById('availSummaryWrap').style.display = 'none';
+            tableSlots = {};
+            updateSummary();
+        }
+
+        async function onTimeChange() {
+            const date = dateInput.value;
+            const time = document.getElementById('resTimeSelect').value;
+            if (!date || !time) return;
+            const slotKey = time.replace(':','');
+            tableSlots = {};
+
+            // Auto-release: nếu ngày/giờ đặt bàn đã qua 20 phút mà chưa xác nhận khách đến
+            const slotDateTime   = new Date(date + 'T' + time + ':00').getTime();
+            const releaseAfterMs = slotDateTime + 20 * 60 * 1000;
+            const shouldAutoRelease = Date.now() > releaseAfterMs;
+
+            const autoReleaseWrites = {};
+            const noShowResIds    = new Set();
+
+            try {
+                const snap = await get(ref(db, 'tableSlots/' + date));
+                if (snap.exists()) {
+                    snap.forEach(tableSnap => {
+                        const tid = tableSnap.key;
+                        const slotSnap = tableSnap.child(slotKey);
+                        if (slotSnap.exists()) {
+                            const s = slotSnap.val();
+                            if (typeof s === 'string') {
+                                tableSlots[tid] = s;
+                            } else if (s && s.status) {
+                                // Hết giờ giữ chỗ (pending 15 phút)
+                                if (s.status === 'reserved' && s.expiresAt && Date.now() > s.expiresAt) {
+                                    tableSlots[tid] = 'available';
+                                    autoReleaseWrites['tableSlots/' + date + '/' + tid + '/' + slotKey + '/status'] = 'available';
+                                }
+                                // Quá 20 phút sau giờ đặt mà chưa check-in (admin chưa nhấn "Đã nhận bàn")
+                                else if (shouldAutoRelease && (s.status === 'confirmed' || s.status === 'occupied')) {
+                                    tableSlots[tid] = 'available';
+                                    autoReleaseWrites['tableSlots/' + date + '/' + tid + '/' + slotKey + '/status'] = 'available';
+                                    if (s.resId) noShowResIds.add(s.resId);
+                                } else {
+                                    tableSlots[tid] = s.status;
+                                }
+                            }
+                        }
+                    });
+                }
+            } catch(e) { console.warn(e); }
+
+            // Ghi batch auto-release về Firebase
+            if (Object.keys(autoReleaseWrites).length) {
+                try { await update(ref(db), autoReleaseWrites); } catch(e) { console.warn('auto-release write:', e); }
+            }
+            // Đánh dấu no-show cho các reservation bị hệ thống tự động giải phóng
+            if (noShowResIds.size) {
+                const nowTs = Date.now();
+                const resWrites = {};
+                noShowResIds.forEach(id => {
+                    resWrites['reservations/' + id + '/status']          = 'no-show';
+                    resWrites['reservations/' + id + '/autoReleasedAt']  = nowTs;
+                    resWrites['reservations/' + id + '/updatedAt']       = nowTs;
+                    resWrites['reservations/' + id + '/notificationRead']= false;
+                });
+                try { await update(ref(db), resWrites); } catch(e) { console.warn('no-show write:', e); }
+            }
+
+            updateAvailability();
+            updateSummary();
+        }
+
+        function countAvail(type) {
+            return allTables.filter(t => t.type === type && (!tableSlots[t.id] || tableSlots[t.id] === 'available')).length;
+        }
+
+        function updateAvailability() {
+            const types = [2,4,6,10];
+            types.forEach(tp => {
+                const cnt = countAvail(tp);
+                const el = document.getElementById('avail-t'+tp);
+                if (el) el.textContent = cnt > 0 ? cnt + ' bàn trống' : 'Hết chỗ';
+                const card = document.querySelector('.table-type-card[data-type="'+tp+'"]');
+                if (card) {
+                    card.classList.toggle('unavail', cnt === 0);
+                    if (cnt === 0 && selectedTableType === tp) { selectedTableType = null; card.classList.remove('selected'); updateSummary(); }
+                }
+            });
+            const date = dateInput.value, time = document.getElementById('resTimeSelect').value;
+            if (date && time) {
+                document.getElementById('availSummary').innerHTML = types.map(tp => {
+                    const cnt = countAvail(tp);
+                    return '<div class="avail-badge '+(cnt>0?'has':'none')+'"><div class="ab-type">Bàn '+tp+' người</div><div class="ab-count">'+cnt+'</div></div>';
+                }).join('');
+                document.getElementById('availSummaryWrap').style.display = 'block';
+            }
+        }
+
+        window.selectTableType = function(type) {
+            if (countAvail(type) === 0) {
+                if (dateInput.value && document.getElementById('resTimeSelect').value)
+                    Swal.fire({ icon:'warning', title:'Hết bàn', text:'Không còn bàn '+type+' người vào khung giờ này.', confirmButtonColor:'#d4a574' });
+                else
+                    Swal.fire({ icon:'info', title:'Chọn ngày & giờ trước', text:'Vui lòng chọn ngày và khung giờ để xem tình trạng bàn.', confirmButtonColor:'#d4a574' });
+                return;
+            }
+            selectedTableType = type;
+            document.querySelectorAll('.table-type-card').forEach(c => c.classList.remove('selected'));
+            document.querySelector('.table-type-card[data-type="'+type+'"]')?.classList.add('selected');
+            tableCount = 1;
+            document.getElementById('tableCountVal').textContent = 1;
+            updateTotalSeatHint();
+            updateSummary();
+        };
+
+        window.changeTableCount = function(delta) {
+            const max = selectedTableType ? Math.min(5, countAvail(selectedTableType)) : 5;
+            tableCount = Math.max(1, Math.min(max, tableCount + delta));
+            document.getElementById('tableCountVal').textContent = tableCount;
+            updateTotalSeatHint();
+            updateSummary();
+        };
+
+        function updateTotalSeatHint() {
+            document.getElementById('totalSeatHint').textContent = selectedTableType
+                ? ' Tổng ' + (tableCount * selectedTableType) + ' chỗ  ·  Phí cọc: ' + getDeposit(selectedTableType, tableCount).toLocaleString('vi-VN') + 'đ'
+                : '';
+        }
+
+        function buildSummaryHTML() {
+            const date = dateInput.value, time = document.getElementById('resTimeSelect').value;
+            if (!date || !time || !selectedTableType) return '<div class="sum-placeholder">Hoàn tất bước 1 để xem tóm tắt</div>';
+            const dep = getDeposit(selectedTableType, tableCount);
+            return '<div class="sum-row"><span class="sr-label">Ngày</span><span class="sr-val">'+date+'</span></div>'
+                 + '<div class="sum-row"><span class="sr-label">Giờ</span><span class="sr-val">'+time+'</span></div>'
+                 + '<div class="sum-row"><span class="sr-label">Loại bàn</span><span class="sr-val">Bàn '+selectedTableType+' người</span></div>'
+                 + '<div class="sum-row"><span class="sr-label">Số bàn</span><span class="sr-val">'+tableCount+'</span></div>'
+                 + '<div class="sum-row"><span class="sr-label">Tổng chỗ ngồi</span><span class="sr-val">'+(tableCount*selectedTableType)+' người</span></div>'
+                 + '<div class="sum-row" style="margin-top:8px"><span class="sr-label">Phí cọc</span><span class="sr-val" style="color:var(--accent)">'+dep.toLocaleString('vi-VN')+'đ</span></div>';
+        }
+
+        function updateSummary() {
+            const html = buildSummaryHTML();
+            ['summaryCard','summaryCard3'].forEach(id => { const el = document.getElementById(id); if(el) el.innerHTML = '<div class="sum-title">Tóm tắt đặt bàn</div>' + html; });
+            const s3 = document.getElementById('step3Summary'); if(s3) s3.innerHTML = html;
+        }
+
+        window.gotoStep = function(step) {
+            currentStep = step;
+            document.querySelectorAll('.step-panel').forEach(p => p.classList.remove('active'));
+            document.getElementById('step'+step).classList.add('active');
+            ['stepBar1','stepBar2','stepBar3'].forEach((id,i) => {
+                const el = document.getElementById(id);
+                el.classList.remove('active','done');
+                if (i+1 < step) el.classList.add('done');
+                if (i+1 === step) el.classList.add('active');
+            });
+            window.scrollTo({ top:0, behavior:'smooth' });
+            updateSummary();
+        };
+
+        window.gotoStep2 = function() {
+            if (!dateInput.value) return Swal.fire({ icon:'warning', title:'Thiếu thông tin', text:'Vui lòng chọn ngày đến.', confirmButtonColor:'#d4a574' });
+            if (!document.getElementById('resTimeSelect').value) return Swal.fire({ icon:'warning', title:'Thiếu thông tin', text:'Vui lòng chọn khung giờ.', confirmButtonColor:'#d4a574' });
+            if (!selectedTableType) return Swal.fire({ icon:'warning', title:'Thiếu thông tin', text:'Vui lòng chọn loại bàn.', confirmButtonColor:'#d4a574' });
+            gotoStep(2);
+        };
+
+        window.gotoStep3 = function() {
+            const name = document.getElementById('resName').value.trim();
+            const phone = document.getElementById('resPhone').value.trim().replace(/\s/g,'');
+            let ok = true;
+            if (!name) { showErr('resName','err-name'); ok=false; } else clearErr('resName','err-name');
+            if (!/^(0|\+84)[0-9]{8,10}$/.test(phone)) { showErr('resPhone','err-phone'); ok=false; } else clearErr('resPhone','err-phone');
+            if (!ok) return;
+            depositRef = 'MC' + Date.now().toString(36).toUpperCase().slice(-6);
+            document.getElementById('depositRefDisplay').textContent = depositRef;
+            const depAmt = getDeposit(selectedTableType, tableCount);
+            document.getElementById('depositAmountDisplay').textContent = depAmt.toLocaleString('vi-VN') + 'đ';
+            document.getElementById('depositNoteText').textContent = 'Tiền cọc ' + depAmt.toLocaleString('vi-VN') + 'đ sẽ được trừ vào hoá đơn khi đến quán.';
+            gotoStep(3);
+        };
+
+        function showErr(iid,eid) { document.getElementById(iid).classList.add('is-error'); document.getElementById(eid).style.display='block'; }
+        function clearErr(iid,eid) { document.getElementById(iid).classList.remove('is-error'); document.getElementById(eid).style.display='none'; }
+
+        window.copyText = function(text) {
+            navigator.clipboard.writeText(text).then(() => Swal.fire({ icon:'success', title:'Đã copy!', timer:1000, showConfirmButton:false, toast:true, position:'top-end' }));
+        };
+        window.copyRef = function() { copyText(depositRef); };
+
+        window.submitReservation = async function() {
+            const btn = document.getElementById('confirmBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang gửi...';
+            const date = dateInput.value, time = document.getElementById('resTimeSelect').value;
+            const slotKey = time.replace(':','');
+            const deposit = getDeposit(selectedTableType, tableCount);
+            const expiresAt = Date.now() + 30*60*1000; // giữ chỗ 30 phút để khách kịp chuyển khoản
+            const reservation = {
+                uid: currentUser.uid, email: currentUser.email,
+                name: document.getElementById('resName').value.trim(),
+                phone: document.getElementById('resPhone').value.trim(),
+                date, time, tableType: selectedTableType, tableCount,
+                totalSeats: tableCount * selectedTableType,
+                note: document.getElementById('resNote').value.trim() || null,
+                status: 'pending', depositAmount: deposit, depositRef, depositStatus: 'pending_payment',
+                assignedTableIds: [], alternativeTables: [], alternativeNote: null,
+                userResponse: null, adminNote: null, notificationRead: false,
+                createdAt: Date.now(), updatedAt: Date.now(), expiresAt
+            };
+            try {
+                const newRef = push(ref(db, 'reservations'));
+                await set(newRef, reservation);
+                const resId = newRef.key;
+                const slotUpdates = {};
+                allTables.filter(t => t.type===selectedTableType && (!tableSlots[t.id]||tableSlots[t.id]==='available')).slice(0,tableCount).forEach(t => {
+                    slotUpdates['tableSlots/'+date+'/'+t.id+'/'+slotKey] = { status:'reserved', resId, expiresAt };
+                });
+                if (Object.keys(slotUpdates).length) await update(ref(db), slotUpdates);
+                await Swal.fire({
+                    icon:'success', title:'Đặt bàn thành công!',
+                    html:'<div style="line-height:1.8;text-align:left"><p> Yêu cầu đặt bàn đã gửi.</p><p> Chuyển khoản <strong>'+deposit.toLocaleString('vi-VN')+'đ</strong> nội dung <strong>'+depositRef+'</strong> để giữ chỗ.</p><p> Admin xác nhận trong 30 phút  thông báo tại <a href="profile.html" style="color:#d4a574">Tài khoản</a>.</p></div>',
+                    confirmButtonText:'Xem lịch sử đặt bàn', confirmButtonColor:'#d4a574'
+                });
+                gotoStep(1);
+                selectedTableType=null; tableCount=1;
+                document.querySelectorAll('.table-type-card').forEach(c=>c.classList.remove('selected'));
+                dateInput.value='';
+                document.getElementById('resTimeSelect').innerHTML='<option value="">-- Chọn ngày trước --</option>';
+                document.getElementById('availSummaryWrap').style.display='none';
+                document.getElementById('tableCountVal').textContent=1;
+                document.getElementById('totalSeatHint').textContent='';
+                loadMyReservations();
+            } catch(err) {
+                console.error(err);
+                Swal.fire({ icon:'error', title:'Có lỗi', text:'Không thể gửi đặt bàn. Vui lòng thử lại.', confirmButtonColor:'#d4a574' });
+            } finally {
+                btn.disabled=false;
+                btn.innerHTML='<i class="fas fa-calendar-check"></i> Gửi yêu cầu đặt bàn';
+            }
+        };
+
+        window.loadMyReservations = async function() {
+            if (!currentUser) return;
+            const list = document.getElementById('resCardList');
+            list.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-muted)"><i class="fas fa-spinner fa-spin" style="font-size:1.5rem;color:var(--accent)"></i></div>';
+            try {
+                const snap = await get(query(ref(db,'reservations'), orderByChild('uid'), equalTo(currentUser.uid)));
+                if (!snap.exists()) {
+                    list.innerHTML='<div style="text-align:center;padding:50px;color:var(--text-muted)"><i class="fas fa-calendar-times" style="font-size:2.5rem;opacity:.4;display:block;margin-bottom:12px;color:var(--accent)"></i><p>Bạn chưa có đặt bàn nào.</p></div>';
+                    return;
+                }
+                const rows=[];
+                snap.forEach(c => rows.push({ id:c.key, ...c.val() }));
+                rows.sort((a,b)=>b.createdAt-a.createdAt);
+                list.innerHTML = rows.map(r=>buildResCard(r)).join('');
+            } catch(err) { list.innerHTML='<div style="color:#e57373;padding:20px">Không thể tải dữ liệu.</div>'; }
+        };
+
+        const STATUS_MAP = {
+            pending:     { cls:'pending',     icon:'fa-clock',          label:'Chờ xác nhận' },
+            confirmed:   { cls:'confirmed',   icon:'fa-check-circle',   label:'Đã xác nhận' },
+            rejected:    { cls:'rejected',    icon:'fa-times-circle',   label:'Từ chối' },
+            negotiating: { cls:'negotiating', icon:'fa-exchange-alt',   label:'Đang thương lượng' },
+            agreed:      { cls:'confirmed',   icon:'fa-handshake',      label:'Đã đồng ý' },
+            serving:     { cls:'confirmed',   icon:'fa-fire',           label:'Đang phục vụ' },
+            completed:   { cls:'completed',   icon:'fa-flag-checkered', label:'Hoàn thành' },
+            'no-show':   { cls:'cancelled',   icon:'fa-user-slash',     label:'Không đến' },
+            cancelled:   { cls:'cancelled',   icon:'fa-ban',            label:'Đã hủy' },
+            cancelled_no_payment: { cls:'cancelled', icon:'fa-clock',   label:'Hủy (hết hạn cọc)' },
+            cancelled_absent:     { cls:'cancelled', icon:'fa-user-slash', label:'Hủy (vắng mặt)' },
+        };
+
+        function buildResCard(r) {
+            const sm = STATUS_MAP[r.status] || { cls:'pending', icon:'fa-question', label:r.status };
+            const created = r.createdAt ? new Date(r.createdAt).toLocaleString('vi-VN') : '';
+            const deposit = r.depositAmount ? r.depositAmount.toLocaleString('vi-VN')+'đ' : '15.000đ';
+            const depLabel = {unpaid:'Chưa TT',pending_payment:'Chờ xác nhận CK',paid:'Đã thanh toán',refunded:'Đã hoàn'}[r.depositStatus]||r.depositStatus||'';
+            let notifyHTML = '';
+            if (r.status==='confirmed' && !r.notificationRead) {
+                const tables = (r.assignedTableIds||[]).join(', ')||'(admin chỉ định)';
+                notifyHTML = '<div class="res-card-notify"><div class="notify-title"><i class="fas fa-bell"></i> Bàn đã được xác nhận!</div>'
+                    +'<p> Mã bàn: <strong>'+tables+'</strong></p>'
+                    +'<p> '+r.date+' '+r.time+'  Bàn '+r.tableType+' người '+r.tableCount+'</p>'
+                    +(r.adminNote?'<p> '+r.adminNote+'</p>':'')
+                    +'<button style="margin-top:8px" class="btn-outline-sm" onclick="markNotifRead(\''+r.id+'\')">Đã xem</button></div>';
+            }
+            if (r.status==='negotiating') {
+                const alt = (r.alternativeTables||[]).join(', ')||'xem ghi chú';
+                notifyHTML = '<div class="res-card-notify" style="border-color:rgba(245,158,11,.4)">'
+                    +'<div class="notify-title" style="color:#f59e0b"><i class="fas fa-exchange-alt"></i> Admin đề xuất bàn thay thế</div>'
+                    +'<p>Đề xuất: <strong>'+alt+'</strong></p>'
+                    +(r.alternativeNote?'<p> '+r.alternativeNote+'</p>':'')
+                    +'<p style="margin-top:8px;font-size:.82rem;color:var(--text-muted)">Bạn có đồng ý không?</p>'
+                    +'<div class="negotiate-actions">'
+                    +'<button class="btn-accept" onclick="respondNegotiation(\''+r.id+'\',\'accepted\')"><i class="fas fa-check"></i> Đồng ý & Thanh toán cọc</button>'
+                    +'<button class="btn-reject-alt" onclick="respondNegotiation(\''+r.id+'\',\'rejected\')"><i class="fas fa-times"></i> Từ chối</button>'
+                    +'</div></div>';
+            }
+            if (r.status==='rejected' && !r.notificationRead) {
+                notifyHTML = '<div class="res-card-notify" style="border-color:rgba(229,62,62,.3)">'
+                    +'<div class="notify-title" style="color:#e57373"><i class="fas fa-times-circle"></i> Đặt bàn không thành công</div>'
+                    +'<p>'+(r.adminNote||'Rất tiếc, quán không thể đáp ứng yêu cầu của bạn.')+'</p>'
+                    +'<button style="margin-top:8px" class="btn-outline-sm" onclick="markNotifRead(\''+r.id+'\')">Đã xem</button></div>';
+            }
+            if (r.status==='agreed' && r.depositStatus!=='paid') {
+                notifyHTML = '<div class="res-card-notify"><div class="notify-title"><i class="fas fa-handshake"></i> Đã đồng ý  Vui lòng thanh toán cọc</div>'
+                    +'<p>Chuyển <strong>'+deposit+'</strong> đến VCB 1234567890 - MOONLIGHT CAFE</p>'
+                    +'<p>Nội dung: <strong>'+(r.depositRef||'')+'</strong> <button class="copy-btn" onclick="copyText(\''+(r.depositRef||'')+'\')"><i class="fas fa-copy"></i></button></p>'
+                    +'<div class="deposit-qr-alert"><i class="fas fa-exclamation-triangle"></i> Bàn giữ 15 phút.</div></div>';
+            }
+            // Kiểm tra có thể hủy không (trước giờ nhận bàn ≥ 2 tiếng)
+            let cancelBtn = '';
+            if (['pending','confirmed','agreed','negotiating'].includes(r.status) && r.date && r.time) {
+                const resTs   = new Date(r.date + 'T' + r.time + ':00').getTime();
+                const canCancelUntil = resTs - 2 * 60 * 60 * 1000;
+                if (Date.now() < canCancelUntil) {
+                    cancelBtn = '<button class="btn-outline-sm" style="margin-top:12px;border-color:rgba(229,62,62,.5);color:#e57373;font-size:.8rem" onclick="cancelReservation(\''+r.id+'\',\''+r.date+'\',\''+r.time+'\','+JSON.stringify(r.depositStatus)+','+JSON.stringify(r.depositRef||'')+')">'+'<i class="fas fa-times"></i> Hủy đặt bàn</button>';
+                } else if (Date.now() < resTs) {
+                    cancelBtn = '<div style="margin-top:10px;font-size:.78rem;color:#f59e0b"><i class="fas fa-exclamation-triangle"></i> Chỉ còn dưới 2 tiếng – không thể hủy hoàn cọc</div>';
+                }
+            }
+            return '<div class="res-card status-'+sm.cls+'" id="rescard-'+r.id+'">'
+                +'<div class="res-card-hdr"><span class="res-card-id">#'+r.id.slice(-8).toUpperCase()+'</span>'
+                +'<span class="status-badge-res '+sm.cls+'"><i class="fas '+sm.icon+'"></i>'+sm.label+'</span></div>'
+                +'<div class="res-card-body">' + cancelBtn
+                +'<div class="res-field"><span class="rf-label">Ngày</span><span class="rf-val">'+(r.date||'')+'</span></div>'
+                +'<div class="res-field"><span class="rf-label">Giờ</span><span class="rf-val">'+(r.time||'')+'</span></div>'
+                +'<div class="res-field"><span class="rf-label">Loại bàn</span><span class="rf-val">Bàn '+(r.tableType||'')+' người</span></div>'
+                +'<div class="res-field"><span class="rf-label">Số bàn</span><span class="rf-val">'+(r.tableCount||1)+'</span></div>'
+                +'<div class="res-field"><span class="rf-label">Phí cọc</span><span class="rf-val" style="color:var(--accent)">'+deposit+'</span></div>'
+                +'<div class="res-field"><span class="rf-label">Mã CK</span><span class="rf-val">'+(r.depositRef||'')+'</span></div>'
+                +'<div class="res-field"><span class="rf-label">Trạng thái cọc</span><span class="rf-val">'+depLabel+'</span></div>'
+                +(r.assignedTableIds&&r.assignedTableIds.length?'<div class="res-field"><span class="rf-label">Mã bàn</span><span class="rf-val" style="color:var(--accent)">'+r.assignedTableIds.join(', ')+'</span></div>':'')
+                +'<div class="res-field"><span class="rf-label">Đặt lúc</span><span class="rf-val">'+created+'</span></div>'
+                +'</div>'+notifyHTML+'</div>';
+        }
+
+        window.cancelReservation = async function(resId, resDate, resTime, depStatus, depRef) {
+            const resTs  = new Date(resDate + 'T' + resTime + ':00').getTime();
+            const twoHrB = resTs - 2 * 60 * 60 * 1000;
+            if (Date.now() >= twoHrB) {
+                return Swal.fire({ icon:'warning', title:'Không thể hủy', text:'Chỉ còn dưới 2 tiếng trước giờ nhận bàn. Tiền cọc sẽ không được hoàn nếu bạn vắng mặt.', confirmButtonColor:'#d4a574' });
+            }
+            const willRefund = depStatus === 'paid';
+            const msg = willRefund
+                ? 'Bạn đã chuyển cọc. Sau khi hủy, admin sẽ hoàn tiền về tài khoản cho bạn.'
+                : 'Bạn chưa chuyển cọc. Đặt bàn sẽ bị hủy ngay.';
+            const { isConfirmed } = await Swal.fire({
+                icon:'question', title:'Xác nhận hủy đặt bàn?', text: msg,
+                showCancelButton:true, confirmButtonText:'Hủy đặt bàn', cancelButtonText:'Giữ nguyên',
+                confirmButtonColor:'#e53e3e'
+            });
+            if (!isConfirmed) return;
+            try {
+                const updates = {
+                    status: 'cancelled',
+                    updatedAt: Date.now(),
+                    notificationRead: false,
+                    cancelledByUser: true
+                };
+                if (willRefund) updates.depositStatus = 'refund_requested';
+                await update(ref(db,'reservations/'+resId), updates);
+                // Giải phóng slot nếu tồn tại
+                const slotKey = resTime.replace(':','');
+                const slotSnap = await get(ref(db,'tableSlots/'+resDate));
+                if (slotSnap.exists()) {
+                    const freeWrites = {};
+                    slotSnap.forEach(tSnap => {
+                        const s = tSnap.child(slotKey).val();
+                        if (s && s.resId === resId) {
+                            freeWrites['tableSlots/'+resDate+'/'+tSnap.key+'/'+slotKey+'/status'] = 'available';
+                        }
+                    });
+                    if (Object.keys(freeWrites).length) await update(ref(db), freeWrites);
+                }
+                await Swal.fire({
+                    icon:'success', timer:2000, showConfirmButton:false,
+                    title: willRefund ? 'Đã hủy – Admin sẽ hoàn cọc cho bạn' : 'Đã hủy đặt bàn'
+                });
+                loadMyReservations();
+            } catch(e) { Swal.fire({ icon:'error', title:'Có lỗi', text:e.message }); }
+        };
+
+        window.markNotifRead = async function(resId) {
+            try { await update(ref(db,'reservations/'+resId),{notificationRead:true}); loadMyReservations(); } catch(e){}
+        };
+
+        window.respondNegotiation = async function(resId, response) {
+            if (response==='accepted') {
+                const snap = await get(ref(db,'reservations/'+resId));
+                const r = snap.val();
+                const dep = (r.depositAmount||15000).toLocaleString('vi-VN');
+                const { isConfirmed } = await Swal.fire({
+                    icon:'info', title:'Xác nhận đồng ý',
+                    html:'<div style="text-align:left;line-height:1.9"><p>Bàn thay thế do admin đề xuất.</p><p>Chuyển cọc <strong>'+dep+'đ</strong>  VCB <strong>1234567890 MOONLIGHT CAFE</strong></p><p>ND: <strong>'+(r.depositRef||'RES-'+resId.slice(-6))+'</strong></p></div>',
+                    showCancelButton:true, confirmButtonText:'Xác nhận đồng ý', cancelButtonText:'Hủy', confirmButtonColor:'#4caf50'
+                });
+                if (!isConfirmed) return;
+                await update(ref(db,'reservations/'+resId),{status:'agreed',userResponse:'accepted',updatedAt:Date.now(),notificationRead:false});
+            } else {
+                const { isConfirmed } = await Swal.fire({
+                    icon:'question', title:'Từ chối bàn thay thế?', text:'Yêu cầu đặt bàn sẽ bị hủy.',
+                    showCancelButton:true, confirmButtonText:'Từ chối', cancelButtonText:'Hủy', confirmButtonColor:'#e53e3e'
+                });
+                if (!isConfirmed) return;
+                await update(ref(db,'reservations/'+resId),{status:'cancelled',userResponse:'rejected',updatedAt:Date.now()});
+            }
+            loadMyReservations();
+        };
+    </script>
+    <script src="https://app.tudongchat.com/js/chatbox.js"></script>
+    <script>try{new TuDongChat('XUitpr3VDU2e5vJgSRYO9').initial();}catch(e){}</script>
+</body>
+</html>

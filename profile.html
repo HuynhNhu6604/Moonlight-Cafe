@@ -95,15 +95,18 @@
             display: grid;
             grid-template-columns: 300px 1fr;
             gap: 30px;
+            align-items: start;
         }
 
-        /* Sidebar Menu */
+        /* Sidebar Menu - sticky */
         .profile-sidebar {
             background: var(--bg-card);
             border-radius: var(--radius-lg);
             overflow: hidden;
             box-shadow: var(--shadow-md);
             height: fit-content;
+            position: sticky;
+            top: 90px;
         }
 
         .sidebar-menu {
@@ -135,10 +138,18 @@
 
         /* Main Content */
         .profile-main {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        /* Mỗi section riêng biệt */
+        .profile-tab {
             background: var(--bg-card);
             border-radius: var(--radius-lg);
             box-shadow: var(--shadow-md);
             overflow: hidden;
+            scroll-margin-top: 100px;
         }
 
         .profile-section-title {
@@ -413,12 +424,35 @@
             gap: 6px;
         }
 
-        .status-pending { background: rgba(245, 158, 11, 0.15); color: #f59e0b; }
-        .status-confirmed { background: rgba(59, 130, 246, 0.15); color: #3b82f6; }
-        .status-processing { background: rgba(139, 92, 246, 0.15); color: #8b5cf6; }
-        .status-shipping { background: rgba(16, 185, 129, 0.15); color: #10b981; }
-        .status-delivered { background: rgba(16, 185, 129, 0.25); color: #10b981; }
-        .status-cancelled { background: rgba(239, 68, 68, 0.15); color: #ef4444; }
+        .status-pending {
+            background: rgba(245, 158, 11, 0.15);
+            color: #f59e0b;
+        }
+
+        .status-confirmed {
+            background: rgba(59, 130, 246, 0.15);
+            color: #3b82f6;
+        }
+
+        .status-processing {
+            background: rgba(139, 92, 246, 0.15);
+            color: #8b5cf6;
+        }
+
+        .status-shipping {
+            background: rgba(16, 185, 129, 0.15);
+            color: #10b981;
+        }
+
+        .status-delivered {
+            background: rgba(16, 185, 129, 0.25);
+            color: #10b981;
+        }
+
+        .status-cancelled {
+            background: rgba(239, 68, 68, 0.15);
+            color: #ef4444;
+        }
 
         /* Reorder Button */
         .reorder-btn {
@@ -437,6 +471,33 @@
         .reorder-btn:hover {
             background: var(--accent);
             color: white;
+        }
+
+        /* Order Filters */
+        .order-filters {
+            scrollbar-width: none;
+            /* Firefox */
+            -ms-overflow-style: none;
+            /* Internet Explorer 10+ */
+        }
+
+        .order-filters::-webkit-scrollbar {
+            display: none;
+            /* WebKit */
+        }
+
+        .order-filter-btn {
+            border-radius: 20px;
+            white-space: nowrap;
+            padding: 8px 16px;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .order-filter-btn.active {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
         }
 
         /* Wishlist */
@@ -498,19 +559,61 @@
             padding: 30px;
         }
 
+        /* Ẩn icon ổ khóa native của Chrome/Edge trong input password */
+        input[type="password"]::-ms-reveal,
+        input[type="password"]::-ms-clear,
+        input[type="password"]::-webkit-textfield-decoration-container {
+            display: none !important;
+        }
+
         .current-password-group {
-            position: relative;
+            display: flex;
+            align-items: center;
+            border: 1px solid var(--secondary);
+            border-radius: var(--radius-sm);
+            background: var(--bg-dark);
+            overflow: hidden;
+            transition: all 0.2s;
+        }
+
+        .current-password-group:focus-within {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(212, 165, 116, 0.1);
+        }
+
+        .current-password-group .form-control {
+            border: none !important;
+            box-shadow: none !important;
+            background: transparent !important;
+            flex: 1;
+            padding-right: 8px;
+        }
+
+        .current-password-group .form-control:focus {
+            border: none !important;
+            box-shadow: none !important;
+            outline: none !important;
         }
 
         .password-toggle {
-            position: absolute;
-            right: 15px;
-            top: 50%;
-            transform: translateY(-50%);
+            flex-shrink: 0;
             background: none;
             border: none;
+            border-left: 1px solid var(--secondary);
             color: var(--text-muted);
             cursor: pointer;
+            font-size: 1rem;
+            padding: 0 14px;
+            height: 100%;
+            min-height: 48px;
+            display: flex;
+            align-items: center;
+            transition: color 0.2s, background 0.2s;
+        }
+
+        .password-toggle:hover {
+            color: var(--accent);
+            background: rgba(212, 165, 116, 0.08);
         }
 
         /* Empty State */
@@ -598,18 +701,25 @@
         <div class="container">
             <nav class="nav">
                 <a href="index.html" class="nav-brand">
-                    <span>🌙</span>
+                    <div class="nav-logo-wrapper"><img src="images/logo.png?v=4" alt="Moonlight Cafe" class="nav-logo"></div>
                     <span class="nav-brand-text">Moonlight Cafe</span>
                 </a>
 
                 <ul class="nav-menu" id="navMenu">
                     <li><a href="index.html" class="nav-link">Trang chủ</a></li>
                     <li><a href="menu.html" class="nav-link">Menu</a></li>
+                    <li><a href="promotions.html" class="nav-link">Khuyến mãi</a></li>
                     <li><a href="news.html" class="nav-link">Tin tức</a></li>
                     <li><a href="about.html" class="nav-link">Về chúng tôi</a></li>
+                    <li><a href="contact.html" class="nav-link">Liên hệ</a></li>
+                    <li><a href="reservation.html" class="nav-link">Đặt bàn</a></li>
                 </ul>
 
                 <div class="nav-actions">
+                    <a href="contact.html" class="nav-icon hidden" id="msgIcon" title="Tin nhắn từ tiệm">
+                        <i class="fas fa-envelope"></i>
+                        <span class="badge" id="msgCount" style="display:none">0</span>
+                    </a>
                     <a href="cart.html" class="nav-icon">
                         <i class="fas fa-heart"></i>
                         <span class="badge" id="wishlistCount">0</span>
@@ -630,7 +740,7 @@
     <section class="profile-section">
         <div class="container">
             <div class="profile-container">
-                
+
                 <!-- Profile Header -->
                 <div class="profile-header">
                     <div class="profile-avatar" id="profileAvatar">U</div>
@@ -671,14 +781,18 @@
                                 <i class="fas fa-heart"></i>
                                 <span>Sản phẩm yêu thích</span>
                             </div>
+                            <div class="profile-menu-item" data-tab="reservations">
+                                <i class="fas fa-calendar-check"></i>
+                                <span>Đặt bàn</span>
+                            </div>
                             <div class="profile-menu-item" data-tab="password">
                                 <i class="fas fa-lock"></i>
                                 <span>Đổi mật khẩu</span>
                             </div>
-                            <a href="index.html" class="profile-menu-item" style="text-decoration: none;">
+                            <div class="profile-menu-item" id="logoutBtn" style="cursor:pointer;">
                                 <i class="fas fa-sign-out-alt"></i>
                                 <span>Đăng xuất</span>
-                            </a>
+                            </div>
                         </div>
                     </div>
 
@@ -694,11 +808,13 @@
                                 <div class="form-row">
                                     <div class="form-group">
                                         <label>Họ và tên</label>
-                                        <input type="text" class="form-control" id="fullName" placeholder="Nhập họ và tên">
+                                        <input type="text" class="form-control" id="fullName"
+                                            placeholder="Nhập họ và tên">
                                     </div>
                                     <div class="form-group">
                                         <label>Số điện thoại</label>
-                                        <input type="tel" class="form-control" id="phone" placeholder="Nhập số điện thoại">
+                                        <input type="tel" class="form-control" id="phone"
+                                            placeholder="Nhập số điện thoại">
                                     </div>
                                 </div>
                                 <div class="form-group">
@@ -707,7 +823,8 @@
                                 </div>
                                 <div class="form-group">
                                     <label>Địa chỉ</label>
-                                    <textarea class="form-control" id="address" rows="3" placeholder="Nhập địa chỉ"></textarea>
+                                    <textarea class="form-control" id="address" rows="3"
+                                        placeholder="Nhập địa chỉ"></textarea>
                                 </div>
                                 <div class="form-row">
                                     <div class="form-group">
@@ -737,10 +854,25 @@
 
                         <!-- Orders Tab -->
                         <div class="profile-tab" id="ordersTab">
-                            <h3 class="profile-section-title">
-                                <i class="fas fa-shopping-bag"></i>
-                                Lịch sử đơn hàng
-                            </h3>
+                            <div
+                                style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                                <h3 class="profile-section-title" style="margin-bottom: 0;">
+                                    <i class="fas fa-shopping-bag"></i>
+                                    Lịch sử đơn hàng
+                                </h3>
+                            </div>
+                            <!-- Order Filter Tabs -->
+                            <div class="order-filters"
+                                style="display: flex; gap: 10px; margin-bottom: 20px; overflow-x: auto; padding-bottom: 5px;">
+                                <button class="btn btn-outline order-filter-btn active" data-status="all"
+                                    onclick="filterCustomerOrders('all')">Tất cả</button>
+                                <button class="btn btn-outline order-filter-btn" data-status="shipping"
+                                    onclick="filterCustomerOrders('shipping')">Chờ nhận hàng</button>
+                                <button class="btn btn-outline order-filter-btn" data-status="delivered"
+                                    onclick="filterCustomerOrders('delivered')">Hoàn thành</button>
+                                <button class="btn btn-outline order-filter-btn" data-status="cancelled"
+                                    onclick="filterCustomerOrders('cancelled')">Đã hủy</button>
+                            </div>
                             <div class="order-history-list" id="orderHistoryList">
                                 <!-- Orders will be loaded here -->
                             </div>
@@ -757,6 +889,34 @@
                             </div>
                         </div>
 
+                        <!-- Reservations Tab -->
+                        <div class="profile-tab" id="reservationsTab">
+                            <h3 class="profile-section-title">
+                                <i class="fas fa-calendar-check"></i>
+                                Lịch sử đặt bàn
+                            </h3>
+                            <div style="padding:24px">
+                                <!-- Notification banner -->
+                                <div id="profileResNotifBanner" style="display:none;margin-bottom:16px;padding:14px 18px;background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.35);border-radius:var(--radius-sm)">
+                                    <div style="display:flex;align-items:center;gap:8px;font-weight:600;color:#f59e0b;margin-bottom:4px"><i class="fas fa-bell"></i> Bạn có thông báo đặt bàn mới</div>
+                                    <div style="font-size:.85rem;color:var(--text-secondary)" id="profileResNotifText"></div>
+                                </div>
+                                <div style="margin-bottom:16px;display:flex;gap:8px;flex-wrap:wrap">
+                                    <a href="reservation.html" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> Đặt bàn mới</a>
+                                    <button class="btn btn-sm" style="background:transparent;border:1px solid rgba(255,255,255,.15)" onclick="refreshProfileRes()"><i class="fas fa-sync-alt"></i> Làm mới</button>
+                                </div>
+                                <div id="profileResLoading" style="text-align:center;padding:40px;color:var(--text-muted)">
+                                    <i class="fas fa-spinner fa-spin" style="font-size:1.5rem;color:var(--accent)"></i>
+                                </div>
+                                <div id="profileResEmpty" style="display:none;text-align:center;padding:40px;color:var(--text-muted)">
+                                    <i class="fas fa-calendar-times" style="font-size:2.5rem;color:var(--accent);opacity:.4;display:block;margin-bottom:12px"></i>
+                                    <p>Bạn chưa có đặt bàn nào.</p>
+                                    <small>Đặt bàn để đảm bảo chỗ ngồi lý tưởng!</small>
+                                </div>
+                                <div id="profileResWrap" style="display:none;flex-direction:column;gap:14px"></div>
+                            </div>
+                        </div>
+
                         <!-- Password Tab -->
                         <div class="profile-tab" id="passwordTab">
                             <h3 class="profile-section-title">
@@ -767,8 +927,10 @@
                                 <div class="form-group">
                                     <label>Mật khẩu hiện tại</label>
                                     <div class="current-password-group">
-                                        <input type="password" class="form-control" id="currentPassword" placeholder="Nhập mật khẩu hiện tại">
-                                        <button type="button" class="password-toggle" onclick="togglePassword('currentPassword')">
+                                        <input type="password" class="form-control" id="currentPassword"
+                                            placeholder="Nhập mật khẩu hiện tại">
+                                        <button type="button" class="password-toggle"
+                                            onclick="togglePassword('currentPassword')">
                                             <i class="fas fa-eye"></i>
                                         </button>
                                     </div>
@@ -776,8 +938,10 @@
                                 <div class="form-group">
                                     <label>Mật khẩu mới</label>
                                     <div class="current-password-group">
-                                        <input type="password" class="form-control" id="newPassword" placeholder="Nhập mật khẩu mới">
-                                        <button type="button" class="password-toggle" onclick="togglePassword('newPassword')">
+                                        <input type="password" class="form-control" id="newPassword"
+                                            placeholder="Nhập mật khẩu mới">
+                                        <button type="button" class="password-toggle"
+                                            onclick="togglePassword('newPassword')">
                                             <i class="fas fa-eye"></i>
                                         </button>
                                     </div>
@@ -785,8 +949,10 @@
                                 <div class="form-group">
                                     <label>Xác nhận mật khẩu mới</label>
                                     <div class="current-password-group">
-                                        <input type="password" class="form-control" id="confirmPassword" placeholder="Nhập lại mật khẩu mới">
-                                        <button type="button" class="password-toggle" onclick="togglePassword('confirmPassword')">
+                                        <input type="password" class="form-control" id="confirmPassword"
+                                            placeholder="Nhập lại mật khẩu mới">
+                                        <button type="button" class="password-toggle"
+                                            onclick="togglePassword('confirmPassword')">
                                             <i class="fas fa-eye"></i>
                                         </button>
                                     </div>
@@ -807,20 +973,69 @@
     <!-- Footer -->
     <footer class="footer">
         <div class="container">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <div class="footer-brand">
+                        <div class="nav-logo-wrapper"><img src="images/logo.png?v=4" alt="Moonlight Cafe" class="nav-logo"></div>
+                        <span class="nav-brand-text">Moonlight Cafe</span>
+                    </div>
+                    <p id="footer-slogan">Nơi thưởng thức cà phê và bánh ngọt thượng hạng trong không gian ấm cúng dưới ánh trăng.</p>
+                    <div class="footer-social">
+                        <a href="#" id="footer-fb"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" id="footer-ig"><i class="fab fa-instagram"></i></a>
+                        <a href="#" id="footer-tt"><i class="fab fa-tiktok"></i></a>
+                        <a href="#" id="footer-yt"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+                <div class="footer-col">
+                    <h4 class="footer-title">Liên kết nhanh</h4>
+                    <ul class="footer-links">
+                        <li><a href="index.html">Trang chủ</a></li>
+                        <li><a href="menu.html">Menu</a></li>
+                        <li><a href="promotions.html">Khuyến mãi</a></li>
+                        <li><a href="news.html">Tin tức</a></li>
+                        <li><a href="about.html">Về chúng tôi</a></li>
+                        <li><a href="contact.html">Liên hệ</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4 class="footer-title">Liên hệ</h4>
+                    <ul class="footer-contact">
+                        <li><i class="fas fa-map-marker-alt"></i> <span id="footer-address">66 Nguyễn Đệ, Cái Khế, Cần Thơ</span></li>
+                        <li><i class="fas fa-phone"></i> <span id="footer-phone">0110 766 204</span></li>
+                        <li><i class="fas fa-envelope"></i> <span id="footer-email">moonlightcafe@gmail.com</span></li>
+                        <li><i class="fas fa-clock"></i> <span id="footer-hours">7:00 - 22:00 hàng ngày</span></li>
+                    </ul>
+                </div>
+            </div>
             <div class="footer-bottom">
-                <p>&copy; 2024 Moonlight Cafe. All rights reserved.</p>
+                <p id="footer-copyright">&copy; 2026 Moonlight Cafe. All rights reserved.</p>
             </div>
         </div>
     </footer>
 
     <script type="module">
+        import { loadStoreInfo } from './js/nav-helper.js';
+        loadStoreInfo();
+    </script>
+
+    <script type="module">
         // Firebase imports
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-        import { getDatabase, ref, onValue, update } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
-        import { getAuth, onAuthStateChanged, updatePassword, reauthenticateWithCredential, EmailAuthProvider } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        import { getDatabase, ref, onValue, update, get, query, orderByChild, equalTo } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+        import { getAuth, onAuthStateChanged, updatePassword, reauthenticateWithCredential, EmailAuthProvider, signOut } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
 
-        // Firebase config
-        import './js/firebase-config.js';
+        // Firebase config - nhúng trực tiếp
+        const firebaseConfig = {
+            apiKey: "AIzaSyBhND1gGt1v0_hIBvda-YuOI5jGSqy2Jn8",
+            authDomain: "moonlight-cafe-57e5d.firebaseapp.com",
+            databaseURL: "https://moonlight-cafe-57e5d-default-rtdb.firebaseio.com",
+            projectId: "moonlight-cafe-57e5d",
+            storageBucket: "moonlight-cafe-57e5d.firebasestorage.app",
+            messagingSenderId: "304081978863",
+            appId: "1:304081978863:web:ee97854f5015ecf601221a",
+            measurementId: "G-PRSNTZ81C3"
+        };
 
         // Initialize Firebase
         const app = initializeApp(firebaseConfig);
@@ -831,69 +1046,10 @@
         let currentUser = null;
         let userData = null;
 
-        // Sample data
-        const sampleOrders = [
-            {
-                id: 'ORD2024013001',
-                items: [
-                    { name: 'Cappuccino', price: 45000, quantity: 2, image: 'https://images.unsplash.com/photo-1572442388796-11668a67e53d?w=200' },
-                    { name: 'Matcha Latte', price: 55000, quantity: 1, image: 'https://images.unsplash.com/photo-1515823664-b6e16561678e?w=200' }
-                ],
-                subtotal: 145000,
-                shipping: 0,
-                total: 145000,
-                status: 'delivered',
-                payment: 'cod',
-                customer: { fullName: 'Nguyễn Văn A', phone: '0123456789', address: '123 Đường ABC, Quận 1, TP. HCM' },
-                createdAt: '2024-01-30T14:30:00'
-            },
-            {
-                id: 'ORD2024012802',
-                items: [
-                    { name: 'Trà sữa trân châu', price: 35000, quantity: 2, image: 'https://images.unsplash.com/photo-1558857563-b371033873b8?w=200' }
-                ],
-                subtotal: 70000,
-                shipping: 0,
-                total: 70000,
-                status: 'delivered',
-                payment: 'banking',
-                customer: { fullName: 'Nguyễn Văn A', phone: '0123456789', address: '123 Đường ABC, Quận 1, TP. HCM' },
-                createdAt: '2024-01-28T10:15:00'
-            },
-            {
-                id: 'ORD2024012503',
-                items: [
-                    { name: 'Tiramisu', price: 65000, quantity: 1, image: 'https://images.unsplash.com/photo-1571877227200-a0d98ea607e9?w=200' },
-                    { name: 'Americano', price: 40000, quantity: 2, image: 'https://images.unsplash.com/photo-1510707577719-ae7c14805e3a?w=200' }
-                ],
-                subtotal: 145000,
-                shipping: 20000,
-                total: 165000,
-                status: 'delivered',
-                payment: 'momo',
-                customer: { fullName: 'Nguyễn Văn A', phone: '0123456789', address: '123 Đường ABC, Quận 1, TP. HCM' },
-                createdAt: '2024-01-25T18:45:00'
-            },
-            {
-                id: 'ORD2024012004',
-                items: [
-                    { name: 'Latte', price: 50000, quantity: 3, image: 'https://images.unsplash.com/photo-1541167760496-1628856ab772?w=200' }
-                ],
-                subtotal: 150000,
-                shipping: 0,
-                total: 150000,
-                status: 'cancelled',
-                payment: 'cod',
-                customer: { fullName: 'Nguyễn Văn A', phone: '0123456789', address: '123 Đường ABC, Quận 1, TP. HCM' },
-                createdAt: '2024-01-20T12:00:00'
-            }
-        ];
+        // Real-time orders array
+        let sampleOrders = [];
 
-        const sampleWishlist = [
-            { id: 1, name: 'Cold Brew', price: 42000, image: 'https://images.unsplash.com/photo-1517701604599-bb29b5dd73ad?w=300', category: 'coffee' },
-            { id: 2, name: 'Cheesecake', price: 55000, image: 'https://images.unsplash.com/photo-1524351199678-941a58a3df50?w=300', category: 'cake' },
-            { id: 3, name: 'Peach Tea', price: 38000, image: 'https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=300', category: 'tea' }
-        ];
+        const sampleWishlist = []; // Kept variable name reference to not break anything unexpected, but empty. Use localStorage instead.
 
         // Format currency
         function formatCurrency(amount) {
@@ -928,7 +1084,7 @@
                 document.getElementById('profileEmail').textContent = currentUser.email || 'user@email.com';
                 document.getElementById('email').value = currentUser.email || '';
                 document.getElementById('totalOrdersStat').textContent = sampleOrders.length;
-                
+
                 const totalSpent = sampleOrders.filter(o => o.status !== 'cancelled').reduce((sum, o) => sum + o.total, 0);
                 document.getElementById('totalSpentStat').textContent = formatCurrency(totalSpent);
                 document.getElementById('memberSince').textContent = currentUser.metadata.creationTime ? new Date(currentUser.metadata.creationTime).getFullYear() : '2024';
@@ -936,15 +1092,15 @@
         }
 
         // Render orders
-        function renderOrders() {
+        function renderOrders(ordersToRender = sampleOrders) {
             const container = document.getElementById('orderHistoryList');
-            
-            if (sampleOrders.length === 0) {
+
+            if (ordersToRender.length === 0) {
                 container.innerHTML = `
                     <div class="empty-state">
                         <i class="fas fa-shopping-bag"></i>
                         <h3>Chưa có đơn hàng nào</h3>
-                        <p>Bạn chưa có đơn hàng nào. Hãy đặt hàng ngay!</p>
+                        <p>Không tìm thấy đơn hàng trong mục này. Hãy đặt hàng ngay!</p>
                         <a href="menu.html" class="btn btn-primary">
                             <i class="fas fa-coffee"></i> Xem menu
                         </a>
@@ -953,7 +1109,7 @@
                 return;
             }
 
-            container.innerHTML = sampleOrders.map(order => `
+            container.innerHTML = ordersToRender.map(order => `
                 <div class="order-card">
                     <div class="order-header" onclick="toggleOrderDetails('${order.id}')">
                         <div class="order-header-left">
@@ -1006,7 +1162,12 @@
                             <span>TỔNG CỘNG</span>
                             <span>${formatCurrency(order.total)}</span>
                         </div>
-                        ${order.status !== 'cancelled' ? `
+                        ${order.status === 'shipping' ? `
+                            <button class="btn btn-success" style="width: 100%; margin-top: 15px; background: #10b981; color: white;" onclick="confirmReceived('${order.id}')">
+                                <i class="fas fa-check-circle"></i> Đã nhận hàng
+                            </button>
+                        ` : ''}
+                        ${order.status !== 'cancelled' && order.status !== 'shipping' && order.status !== 'pending' && order.status !== 'confirmed' && order.status !== 'processing' ? `
                             <button class="reorder-btn" onclick="reorder('${order.id}')">
                                 <i class="fas fa-redo"></i> Đặt lại sản phẩm
                             </button>
@@ -1016,20 +1177,109 @@
             `).join('');
         }
 
-        // Toggle order details
-        window.toggleOrderDetails = function(orderId) {
-            const details = document.getElementById(`details-${orderId}`);
-            const chevron = document.getElementById(`chevron-${orderId}`);
-            details.classList.toggle('show');
-            chevron.style.transform = details.classList.contains('show') ? 'rotate(180deg)' : 'rotate(0)';
+        // Filter customer orders
+        window.filterCustomerOrders = function (status) {
+            // Cập nhật giao diện tab active
+            document.querySelectorAll('.order-filter-btn').forEach(btn => btn.classList.remove('active'));
+            const clickedBtn = document.querySelector(`.order-filter-btn[data-status="${status}"]`);
+            if (clickedBtn) clickedBtn.classList.add('active');
+
+            if (status === 'all') {
+                renderOrders(sampleOrders);
+            } else if (status === 'shipping') {
+                // Chỉ nhóm 'shipping', 'processing' trong mục Chờ nhận hàng
+                const filtered = sampleOrders.filter(o => o.status === 'shipping' || o.status === 'processing');
+                renderOrders(filtered);
+            } else if (status === 'delivered') {
+                // Nhóm 'delivered', 'completed', 'confirmed' trong mục Đã hoàn thành
+                const filtered = sampleOrders.filter(o => o.status === 'delivered' || o.status === 'completed' || o.status === 'confirmed');
+                renderOrders(filtered);
+            } else {
+                const filtered = sampleOrders.filter(o => o.status === status);
+                renderOrders(filtered);
+            }
         };
 
+        // Fetch Orders for current user
+        function loadOrders() {
+            if (!currentUser) return;
+            const ordersRef = query(ref(db, 'orders'), orderByChild('userId'), equalTo(currentUser.uid));
+            onValue(ordersRef, (snapshot) => {
+                sampleOrders = [];
+                if (snapshot.exists()) {
+                    snapshot.forEach((childSnapshot) => {
+                        const data = childSnapshot.val();
+                        data.id = childSnapshot.key;
+                        sampleOrders.push(data);
+                    });
+
+                    // Sort descending by creation date
+                    sampleOrders.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+                }
+
+                renderOrders();
+                renderUserProfile(); // Also update profile stats
+            });
+        }
+
+        window.confirmReceived = async function (orderId) {
+            Swal.fire({
+                title: 'Xác nhận đã nhận hàng?',
+                text: "Bạn xác nhận đã nhận được sản phẩm từ người giao hàng?",
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#10b981',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Đã nhận',
+                cancelButtonText: 'Hủy'
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    try {
+                        await update(ref(db, 'orders/' + orderId), {
+                            status: 'completed'
+                        });
+                        Swal.fire(
+                            'Thành công!',
+                            'Cảm ơn bạn đã mua hàng tại Moonlight Cafe.',
+                            'success'
+                        );
+                        // Status will auto update via onValue listener
+                    } catch (error) {
+                        console.error('Lỗi khi cập nhật:', error);
+                        Swal.fire('Lỗi', 'Không thể xác nhận. Vui lòng thử lại.', 'error');
+                    }
+                }
+            });
+        };
+
+        // Toggle order details visibility
+        window.toggleOrderDetails = function (orderId) {
+            const details = document.getElementById('details-' + orderId);
+            const chevron = document.getElementById('chevron-' + orderId);
+            const preview = details.previousElementSibling;
+
+            if (details.style.display === 'block') {
+                details.style.display = 'none';
+                preview.style.display = 'flex';
+                chevron.style.transform = 'rotate(0deg)';
+            } else {
+                details.style.display = 'block';
+                preview.style.display = 'none';
+                chevron.style.transform = 'rotate(180deg)';
+            }
+        };
+
+
         // Reorder
-        window.reorder = function(orderId) {
+        window.reorder = function (orderId) {
             const order = sampleOrders.find(o => o.id === orderId);
             if (!order) return;
-
-            let cart = JSON.parse(localStorage.getItem('moonlight_cart')) || [];
+            if (!currentUser || currentUser.uid === 'demo-user') {
+                Swal.fire({ icon: 'warning', title: 'Chưa đăng nhập', text: 'Vui lòng đăng nhập để đặt lại đơn hàng!' });
+                return;
+            }
+            const cartKey = `moonlight_cart_${currentUser.uid}`;
+            let cart = JSON.parse(localStorage.getItem(cartKey)) || [];
             order.items.forEach(item => {
                 cart.push({
                     id: Date.now() + Math.random(),
@@ -1039,7 +1289,7 @@
                     image: item.image
                 });
             });
-            localStorage.setItem('moonlight_cart', JSON.stringify(cart));
+            localStorage.setItem(cartKey, JSON.stringify(cart));
 
             Swal.fire({
                 icon: 'success',
@@ -1052,10 +1302,11 @@
         };
 
         // Render wishlist
-        function renderWishlist() {
+        window.renderWishlist = function () {
             const container = document.getElementById('wishlistGrid');
-            
-            if (sampleWishlist.length === 0) {
+            const wishlist = JSON.parse(localStorage.getItem('moonlight_wishlist')) || [];
+
+            if (wishlist.length === 0) {
                 container.innerHTML = `
                     <div class="empty-state" style="grid-column: 1 / -1;">
                         <i class="fas fa-heart"></i>
@@ -1066,49 +1317,53 @@
                         </a>
                     </div>
                 `;
+                document.getElementById('wishlistCount').textContent = 0;
                 return;
             }
 
-            container.innerHTML = sampleWishlist.map(item => `
+            container.innerHTML = wishlist.map(item => `
                 <div class="wishlist-item">
-                    <img src="${item.image}" alt="${item.name}" class="wishlist-img">
+                <img src="${item.image || 'https://via.placeholder.com/300x200'}" alt="${item.name}" class="wishlist-img">
                     <div class="wishlist-content">
                         <h4 class="wishlist-name">${item.name}</h4>
                         <div class="wishlist-price">${formatCurrency(item.price)}</div>
                         <div class="wishlist-actions">
-                            <button class="btn btn-primary" onclick="addToCart(${item.id})">
-                                <i class="fas fa-shopping-cart"></i> Thêm vào giỏ
-                            </button>
-                            <button class="btn btn-outline" onclick="removeFromWishlist(${item.id})">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </div>
+                            <button class="btn btn-primary" onclick="addToCart('${item.id}', '${item.name.replace(/'/g, "\\'")}', ${item.price}, '${item.image || ''}')">
+                            <i class="fas fa-shopping-cart"></i> Thêm vào giỏ
+                        </button>
+                        <button class="btn btn-outline" onclick="removeFromWishlist('${item.id}')">
+                            <i class="fas fa-trash"></i>
+                        </button>
                     </div>
                 </div>
-            `).join('');
+                </div>
+                `).join('');
 
-            document.getElementById('wishlistCount').textContent = sampleWishlist.length;
+            document.getElementById('wishlistCount').textContent = wishlist.length;
         }
 
         // Add to cart from wishlist
-        window.addToCart = function(itemId) {
-            const item = sampleWishlist.find(i => i.id === itemId);
-            if (!item) return;
+        window.addToCart = function (id, name, price, imageUrl) {
+            if (!currentUser || currentUser.uid === 'demo-user') {
+                Swal.fire({ icon: 'warning', title: 'Chưa đăng nhập', text: 'Vui lòng đăng nhập để thêm vào giỏ hàng!' });
+                return;
+            }
+            const cartKey = `moonlight_cart_${currentUser.uid}`;
+            let cart = JSON.parse(localStorage.getItem(cartKey)) || [];
+            const existingItem = cart.find(item => item.id === id);
 
-            let cart = JSON.parse(localStorage.getItem('moonlight_cart')) || [];
-            cart.push({
-                id: Date.now(),
-                name: item.name,
-                price: item.price,
-                quantity: 1,
-                image: item.image
-            });
-            localStorage.setItem('moonlight_cart', JSON.stringify(cart));
+            if (existingItem) {
+                existingItem.quantity += 1;
+            } else {
+                cart.push({ id, name, price, imageUrl, quantity: 1 });
+            }
+
+            localStorage.setItem(cartKey, JSON.stringify(cart));
 
             Swal.fire({
                 icon: 'success',
                 title: 'Đã thêm vào giỏ!',
-                text: `${item.name} đã được thêm vào giỏ hàng.`,
+                text: `${name} đã được thêm vào giỏ hàng.`,
                 confirmButtonColor: '#d4a574'
             });
 
@@ -1116,12 +1371,15 @@
         };
 
         // Remove from wishlist
-        window.removeFromWishlist = function(itemId) {
-            const index = sampleWishlist.findIndex(i => i.id === itemId);
+        window.removeFromWishlist = function (itemId) {
+            let wishlist = JSON.parse(localStorage.getItem('moonlight_wishlist')) || [];
+            const index = wishlist.findIndex(i => String(i.id) === String(itemId));
+
             if (index > -1) {
-                sampleWishlist.splice(index, 1);
+                wishlist.splice(index, 1);
+                localStorage.setItem('moonlight_wishlist', JSON.stringify(wishlist));
                 renderWishlist();
-                
+
                 Swal.fire({
                     icon: 'success',
                     title: 'Đã xóa!',
@@ -1132,7 +1390,7 @@
         };
 
         // Toggle password visibility
-        window.togglePassword = function(fieldId) {
+        window.togglePassword = function (fieldId) {
             const field = document.getElementById(fieldId);
             const icon = field.nextElementSibling.querySelector('i');
             if (field.type === 'password') {
@@ -1146,25 +1404,42 @@
             }
         };
 
-        // Tab switching
+        // Scroll đến section khi click menu item
         document.querySelectorAll('.profile-menu-item[data-tab]').forEach(item => {
             item.addEventListener('click', () => {
                 const tab = item.dataset.tab;
-                
-                // Update menu active state
+                const target = document.getElementById(tab + 'Tab');
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+                // Highlight ngay khi click
                 document.querySelectorAll('.profile-menu-item').forEach(m => m.classList.remove('active'));
                 item.classList.add('active');
-                
-                // Update tab content
-                document.querySelectorAll('.profile-tab').forEach(t => t.classList.remove('active'));
-                document.getElementById(tab + 'Tab').classList.add('active');
             });
+        });
+
+        // IntersectionObserver: tự động highlight menu khi scroll đến section
+        const sectionIds = ['account', 'orders', 'wishlist', 'reservations', 'password'];
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const id = entry.target.id.replace('Tab', '');
+                    document.querySelectorAll('.profile-menu-item').forEach(m => m.classList.remove('active'));
+                    const activeMenu = document.querySelector(`.profile - menu - item[data - tab="${id}"]`);
+                    if (activeMenu) activeMenu.classList.add('active');
+                }
+            });
+        }, { rootMargin: '-80px 0px -60% 0px', threshold: 0 });
+
+        sectionIds.forEach(id => {
+            const el = document.getElementById(id + 'Tab');
+            if (el) observer.observe(el);
         });
 
         // Form submissions
         document.getElementById('accountForm').addEventListener('submit', (e) => {
             e.preventDefault();
-            
+
             const userRef = ref(db, 'users/' + currentUser.uid);
             update(userRef, {
                 fullName: document.getElementById('fullName').value,
@@ -1191,7 +1466,7 @@
 
         document.getElementById('passwordForm').addEventListener('submit', (e) => {
             e.preventDefault();
-            
+
             const currentPassword = document.getElementById('currentPassword').value;
             const newPassword = document.getElementById('newPassword').value;
             const confirmPassword = document.getElementById('confirmPassword').value;
@@ -1249,19 +1524,213 @@
 
         // Update cart count
         function updateCartCount() {
-            const cart = JSON.parse(localStorage.getItem('moonlight_cart')) || [];
+            if (!currentUser || currentUser.uid === 'demo-user') {
+                document.getElementById('cartCount').textContent = 0;
+                return;
+            }
+            const cart = JSON.parse(localStorage.getItem(`moonlight_cart_${currentUser.uid}`)) || [];
             document.getElementById('cartCount').textContent = cart.reduce((sum, item) => sum + item.quantity, 0);
         }
+
+        // ============================================================
+        // Profile reservations
+        // ============================================================
+        function profileResStatusBadge(status) {
+            const map = {
+                pending:   { color: '#ffc107', label: 'Chờ xác nhận' },
+                confirmed: { color: '#4caf50', label: 'Đã xác nhận'  },
+                rejected:  { color: '#e53e3e', label: 'Từ chối'      },
+                completed: { color: '#64b5f6', label: 'Hoàn thành'   },
+                'no-show': { color: '#bbb',    label: 'Không đến'    }
+            };
+            const s = map[status] || { color: '#bbb', label: status };
+            return `<span style="padding:4px 12px;border-radius:20px;background:${s.color}22;color:${s.color};font-size:.78rem;font-weight:600">${s.label}</span>`;
+        }
+
+        async function loadProfileReservations(uid) {
+            const loading = document.getElementById('profileResLoading');
+            const empty   = document.getElementById('profileResEmpty');
+            const wrap    = document.getElementById('profileResWrap');
+            if (!loading) return;
+
+            try {
+                const snap = await get(query(ref(db, 'reservations'), orderByChild('uid'), equalTo(uid)));
+                loading.style.display = 'none';
+
+                if (!snap.exists()) { empty.style.display = 'block'; return; }
+
+                const rows = [];
+                snap.forEach(c => rows.push({ id: c.key, ...c.val() }));
+                rows.sort((a, b) => b.createdAt - a.createdAt);
+
+                // Update notification banner
+                const actionNeeded = rows.filter(r =>
+                    (r.status === 'confirmed' && !r.notificationRead) ||
+                    (r.status === 'negotiating' && !r.userResponse)   ||
+                    (r.status === 'rejected'    && !r.notificationRead)
+                );
+                const banner   = document.getElementById('profileResNotifBanner');
+                const bannerTx = document.getElementById('profileResNotifText');
+                if (banner && actionNeeded.length > 0) {
+                    banner.style.display = 'block';
+                    const msgs = actionNeeded.map(r => {
+                        if (r.status === 'confirmed') return '🎉 Bàn ngày <strong>'+r.date+' '+r.time+'</strong> đã được xác nhận!';
+                        if (r.status === 'negotiating') return '💬 Admin đề xuất bàn thay thế cho đặt bàn ngày <strong>'+r.date+'</strong>.';
+                        if (r.status === 'rejected') return '❌ Đặt bàn ngày <strong>'+r.date+'</strong> không thể thực hiện.';
+                    });
+                    bannerTx.innerHTML = msgs.join('<br>');
+                } else if (banner) { banner.style.display = 'none'; }
+
+                const statusMap = {
+                    pending:     { cls:'#ffc107', label:'Chờ xác nhận', icon:'fa-clock' },
+                    confirmed:   { cls:'#4caf50', label:'Đã xác nhận',  icon:'fa-check-circle' },
+                    rejected:    { cls:'#e57373', label:'Từ chối',       icon:'fa-times-circle' },
+                    negotiating: { cls:'#f59e0b', label:'Đề xuất thay', icon:'fa-exchange-alt' },
+                    agreed:      { cls:'#4caf50', label:'Đã đồng ý',    icon:'fa-handshake' },
+                    completed:   { cls:'#64b5f6', label:'Hoàn thành',   icon:'fa-flag-checkered' },
+                    cancelled:   { cls:'#888',    label:'Đã hủy',       icon:'fa-ban' },
+                    'no-show':   { cls:'#888',    label:'Không đến',    icon:'fa-user-slash' },
+                };
+
+                wrap.style.display = 'flex';
+                wrap.innerHTML = rows.map(r => {
+                    const sm = statusMap[r.status] || { cls:'#bbb', label:r.status, icon:'fa-question' };
+                    const dep = r.depositAmount ? r.depositAmount.toLocaleString('vi-VN')+'đ' : '–';
+                    const depLabel = {
+                        unpaid:           'Chưa TT',
+                        pending_payment:  'Chờ xác nhận CK',
+                        paid:             '<span style="color:#4caf50">Đã TT</span>',
+                        refund_requested: '<span style="color:#f59e0b">↩ Yêu cầu hoàn</span>',
+                        refunded:         '<span style="color:#64b5f6">✓ Đã hoàn</span>',
+                    }[r.depositStatus] || '–';
+                    let notifHTML = '';
+
+                    if (r.status==='confirmed' && !r.notificationRead) {
+                        const tables = (r.assignedTableIds||[]).join(', ')||'(pending)';
+                        notifHTML = `<div style="margin-top:12px;padding:12px;background:rgba(76,175,80,.1);border:1px solid rgba(76,175,80,.3);border-radius:8px;font-size:.85rem">
+                            <div style="color:#4caf50;font-weight:600;margin-bottom:6px"><i class="fas fa-bell"></i> Đặt bàn đã xác nhận!</div>
+                            <p>🎉 Mã bàn: <strong>${tables}</strong> · Ngày: <strong>${r.date} ${r.time}</strong></p>
+                            ${r.adminNote?`<p>📝 ${r.adminNote}</p>`:''}
+                            <button style="margin-top:8px;padding:6px 14px;border-radius:6px;border:1.5px solid rgba(212,165,116,.5);background:transparent;color:var(--accent);cursor:pointer;font-size:.82rem" onclick="profileMarkRead('${r.id}')">Đã xem</button>
+                        </div>`;
+                    }
+                    if (r.status==='negotiating' && !r.userResponse) {
+                        const alt = (r.alternativeTables||[]).join(', ')||'–';
+                        notifHTML = `<div style="margin-top:12px;padding:12px;background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.35);border-radius:8px;font-size:.85rem">
+                            <div style="color:#f59e0b;font-weight:600;margin-bottom:6px"><i class="fas fa-exchange-alt"></i> Admin đề xuất bàn thay thế</div>
+                            <p>Bàn đề xuất: <strong>${alt}</strong></p>
+                            ${r.alternativeNote?`<p>📝 ${r.alternativeNote}</p>`:''}
+                            <div style="display:flex;gap:8px;margin-top:10px">
+                                <button style="padding:7px 18px;border-radius:6px;border:none;background:#4caf50;color:#fff;font-size:.82rem;cursor:pointer" onclick="profileRespondNeg('${r.id}','accepted','${r.depositRef||''}','${r.depositAmount||15000}')"><i class="fas fa-check"></i> Đồng ý & TT cọc</button>
+                                <button style="padding:7px 18px;border-radius:6px;border:1.5px solid #e57373;background:transparent;color:#e57373;font-size:.82rem;cursor:pointer" onclick="profileRespondNeg('${r.id}','rejected','','0')"><i class="fas fa-times"></i> Từ chối</button>
+                            </div>
+                        </div>`;
+                    }
+                    if (r.status==='rejected' && !r.notificationRead) {
+                        notifHTML = `<div style="margin-top:12px;padding:12px;background:rgba(229,62,62,.08);border:1px solid rgba(229,62,62,.3);border-radius:8px;font-size:.85rem">
+                            <div style="color:#e57373;font-weight:600;margin-bottom:6px"><i class="fas fa-times-circle"></i> Đặt bàn không thành công</div>
+                            <p>${r.adminNote||'Rất tiếc, quán không thể đáp ứng yêu cầu của bạn.'}</p>
+                            <button style="margin-top:8px;padding:6px 14px;border-radius:6px;border:1.5px solid rgba(212,165,116,.5);background:transparent;color:var(--accent);cursor:pointer;font-size:.82rem" onclick="profileMarkRead('${r.id}')">Đã xem</button>
+                        </div>`;
+                    }
+                    if (r.status==='agreed' && r.depositStatus!=='paid') {
+                        notifHTML = `<div style="margin-top:12px;padding:12px;background:rgba(212,165,116,.08);border:1px solid rgba(212,165,116,.3);border-radius:8px;font-size:.85rem">
+                            <div style="color:var(--accent);font-weight:600;margin-bottom:6px"><i class="fas fa-handshake"></i> Đã đồng ý – Vui lòng chuyển khoản cọc</div>
+                            <p>Vietcombank · <strong>1234567890 MOONLIGHT CAFE</strong></p>
+                            <p>Số tiền: <strong>${dep}</strong> · Nội dung: <strong>${r.depositRef||'–'}</strong></p>
+                        </div>`;
+                    }
+                    if (r.depositStatus === 'refunded' && !r.notificationRead) {
+                        notifHTML = `<div style="margin-top:12px;padding:12px;background:rgba(100,181,246,.08);border:1px solid rgba(100,181,246,.3);border-radius:8px;font-size:.85rem">
+                            <div style="color:#64b5f6;font-weight:600;margin-bottom:6px"><i class="fas fa-undo"></i> Tiền cọc đã được hoàn!</div>
+                            <p>Số tiền <strong>${dep}</strong> đã được admin xác nhận hoàn về cho bạn. Vui lòng kiểm tra tài khoản.</p>
+                            <button style="margin-top:8px;padding:6px 14px;border-radius:6px;border:1.5px solid rgba(212,165,116,.5);background:transparent;color:var(--accent);cursor:pointer;font-size:.82rem" onclick="profileMarkRead('${r.id}')">Đã xem</button>
+                        </div>`;
+                    }
+                    if (r.status === 'no-show' && !r.notificationRead && r.depositStatus === 'paid') {
+                        notifHTML = `<div style="margin-top:12px;padding:12px;background:rgba(255,160,0,.07);border:1px solid rgba(255,160,0,.25);border-radius:8px;font-size:.85rem">
+                            <div style="color:#ffa000;font-weight:600;margin-bottom:6px"><i class="fas fa-exclamation-triangle"></i> Bạn đã không đến đúng giờ</div>
+                            <p>Bàn đã được mở lại sau 20 phút. Tiền cọc <strong>${dep}</strong> không được hoàn do đến trễ.</p>
+                            <button style="margin-top:8px;padding:6px 14px;border-radius:6px;border:1.5px solid rgba(212,165,116,.5);background:transparent;color:var(--accent);cursor:pointer;font-size:.82rem" onclick="profileMarkRead('${r.id}')">Đã xem</button>
+                        </div>`;
+                    }
+
+                    return `<div style="background:var(--bg-card);border-radius:var(--radius-sm);padding:18px 22px;border-left:4px solid ${sm.cls}">
+                        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:12px">
+                            <span style="font-size:.78rem;color:var(--text-muted);font-family:monospace">#${r.id.slice(-8).toUpperCase()}</span>
+                            <span style="padding:4px 12px;border-radius:20px;background:${sm.cls}22;color:${sm.cls};font-size:.75rem;font-weight:700"><i class="fas ${sm.icon}"></i> ${sm.label}</span>
+                        </div>
+                        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px;font-size:.85rem">
+                            <div><span style="color:var(--text-muted);font-size:.72rem;display:block">Ngày</span><strong>${r.date||'–'}</strong></div>
+                            <div><span style="color:var(--text-muted);font-size:.72rem;display:block">Giờ</span><strong>${r.time||'–'}</strong></div>
+                            <div><span style="color:var(--text-muted);font-size:.72rem;display:block">Loại bàn</span><strong>${r.tableType?'Bàn '+r.tableType+' người':'–'}</strong></div>
+                            <div><span style="color:var(--text-muted);font-size:.72rem;display:block">Số bàn</span><strong>${r.tableCount||1}</strong></div>
+                            <div><span style="color:var(--text-muted);font-size:.72rem;display:block">Phí cọc</span><strong style="color:var(--accent)">${dep}</strong></div>
+                            <div><span style="color:var(--text-muted);font-size:.72rem;display:block">Trạng thái cọc</span>${depLabel}</div>
+                            ${r.assignedTableIds&&r.assignedTableIds.length ? `<div><span style="color:var(--text-muted);font-size:.72rem;display:block">Mã bàn</span><strong style="color:var(--accent)">${r.assignedTableIds.join(', ')}</strong></div>` : ''}
+                        </div>
+                        ${notifHTML}
+                    </div>`;
+                }).join('');
+
+                wrap.style.display = 'flex';
+            } catch (err) {
+                console.error('loadProfileReservations error:', err);
+                loading.style.display = 'none';
+                empty.style.display = 'block';
+            }
+        }
+
+        window.refreshProfileRes = function() { if (currentUser) loadProfileReservations(currentUser.uid); };
+
+        window.profileMarkRead = async function(resId) {
+            try { await update(ref(db,'reservations/'+resId),{notificationRead:true}); if(currentUser) loadProfileReservations(currentUser.uid); } catch(e){}
+        };
+
+        window.profileRespondNeg = async function(resId, response, depRef, depAmt) {
+            const amt = parseInt(depAmt)||15000;
+            if (response==='accepted') {
+                const { isConfirmed } = await Swal.fire({
+                    icon:'info', title:'Xác nhận đồng ý bàn thay thế',
+                    html:`<div style="line-height:1.9;text-align:left"><p>Sau khi đồng ý, vui lòng chuyển cọc <strong>${amt.toLocaleString('vi-VN')}đ</strong>:</p><p>🏦 Vietcombank · 1234567890 - MOONLIGHT CAFE</p><p>📝 Nội dung: <strong>${depRef||'–'}</strong></p></div>`,
+                    showCancelButton:true, confirmButtonText:'Xác nhận đồng ý', cancelButtonText:'Hủy', confirmButtonColor:'#4caf50'
+                });
+                if (!isConfirmed) return;
+                await update(ref(db,'reservations/'+resId),{status:'agreed',userResponse:'accepted',updatedAt:Date.now(),notificationRead:false});
+            } else {
+                const { isConfirmed } = await Swal.fire({
+                    icon:'question', title:'Từ chối bàn thay thế?', text:'Yêu cầu đặt bàn sẽ bị hủy.',
+                    showCancelButton:true, confirmButtonText:'Từ chối', cancelButtonText:'Hủy', confirmButtonColor:'#e53e3e'
+                });
+                if (!isConfirmed) return;
+                await update(ref(db,'reservations/'+resId),{status:'cancelled',userResponse:'rejected',updatedAt:Date.now()});
+            }
+            if (currentUser) loadProfileReservations(currentUser.uid);
+        };
 
         // Initialize
         onAuthStateChanged(auth, (user) => {
             setTimeout(() => {
                 document.querySelector('.loading-overlay').classList.add('hidden');
+
+                // Read URL param to scroll to tab
+                const urlParams = new URLSearchParams(window.location.search);
+                const tab = urlParams.get('tab');
+                if (tab) {
+                    const targetTab = document.getElementById(tab + 'Tab');
+                    if (targetTab) {
+                        // Small extra delay to ensure rendering is complete before scrolling
+                        setTimeout(() => {
+                            targetTab.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                            const activeMenu = document.querySelector(`.profile - menu - item[data - tab="${tab}"]`);
+                        }, 100);
+                    }
+                }
             }, 500);
 
             if (user) {
                 currentUser = user;
-                
+
                 // Load user data from Firebase
                 const userRef = ref(db, 'users/' + user.uid);
                 onValue(userRef, (snapshot) => {
@@ -1274,10 +1743,16 @@
                         document.getElementById('gender').value = userData.gender || '';
                     }
                 });
+
+                // Load realtime orders
+                loadOrders();
+
+                // Load reservation history
+                loadProfileReservations(user.uid);
             } else {
                 // Demo mode - use sample data
-                currentUser = { 
-                    displayName: 'Nguyễn Văn A', 
+                currentUser = {
+                    displayName: 'Nguyễn Văn A',
                     email: 'user@email.com',
                     uid: 'demo-user',
                     metadata: { creationTime: new Date().toISOString() }
@@ -1285,15 +1760,43 @@
             }
 
             renderUserProfile();
-            renderOrders();
+            // renderOrders() will be called by loadOrders()
             renderWishlist();
             updateCartCount();
+        });
+
+        // Logout
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            Swal.fire({
+                icon: 'question',
+                title: 'Đăng xuất?',
+                text: 'Bạn có chắc chắn muốn đăng xuất?',
+                showCancelButton: true,
+                confirmButtonText: 'Đăng xuất',
+                cancelButtonText: 'Hủy',
+                confirmButtonColor: '#d4a574'
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    try {
+                        await signOut(auth);
+                    } catch (e) {
+                        console.warn('signOut error:', e);
+                    }
+                    localStorage.removeItem('moonlight_user');
+                    window.location.href = 'login.html';
+                }
+            });
         });
 
         window.addEventListener('scroll', () => {
             const header = document.getElementById('header');
             header.classList.toggle('scrolled', window.scrollY > 50);
         });
+    </script>
+    <script type="module">
+        import { updateMsgBadge } from './js/nav-helper.js';
+        import { auth, onAuthStateChanged } from './js/firebase-config.js';
+        onAuthStateChanged(auth, user => updateMsgBadge(user ? user.uid : null));
     </script>
 </body>
 

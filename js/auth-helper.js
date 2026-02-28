@@ -110,16 +110,16 @@ export async function requireAuth(auth, redirectUrl = 'login.html') {
     return new Promise((resolve) => {
         import('./firebase-config.js').then(({ onAuthStateChanged }) => {
 
-        onAuthStateChanged(auth, (user) => {
-            if (!user) {
-                // Lưu URL hiện tại để redirect sau khi login
-                const currentPath = window.location.pathname.split('/').pop();
-                window.location.href = redirectUrl + '?redirect=' + encodeURIComponent(currentPath);
-                resolve(false);
-                return;
-            }
-            resolve(true);
-        });
+            onAuthStateChanged(auth, (user) => {
+                if (!user) {
+                    // Lưu URL hiện tại để redirect sau khi login
+                    const currentPath = window.location.pathname.split('/').pop();
+                    window.location.href = redirectUrl + '?redirect=' + encodeURIComponent(currentPath);
+                    resolve(false);
+                    return;
+                }
+                resolve(true);
+            });
         });
     });
 }
@@ -141,7 +141,7 @@ export function getUserDropdownHTML(userData) {
         <a href="profile.html" class="dropdown-item">
             <i class="fas fa-user"></i> Hồ sơ của tôi
         </a>
-        <a href="orders.html" class="dropdown-item">
+        <a href="profile.html?tab=orders" class="dropdown-item">
             <i class="fas fa-box"></i> Đơn hàng của tôi
         </a>
         <a href="profile.html?tab=wishlist" class="dropdown-item">

@@ -24,7 +24,7 @@
     <style>
         .page-header {
             background: linear-gradient(135deg, var(--bg-dark), var(--primary));
-            padding: 120px 0 60px;
+            padding: 50px 0 50px;
             text-align: center;
         }
 
@@ -294,18 +294,25 @@
         <div class="container">
             <nav class="nav">
                 <a href="index.html" class="nav-brand">
-                    <span>🌙</span>
+                    <div class="nav-logo-wrapper"><img src="images/logo.png?v=4" alt="Moonlight Cafe" class="nav-logo"></div>
                     <span class="nav-brand-text">Moonlight Cafe</span>
                 </a>
 
                 <ul class="nav-menu" id="navMenu">
                     <li><a href="index.html" class="nav-link">Trang chủ</a></li>
                     <li><a href="menu.html" class="nav-link">Menu</a></li>
+                    <li><a href="promotions.html" class="nav-link">Khuyến mãi</a></li>
                     <li><a href="news.html" class="nav-link active">Tin tức</a></li>
                     <li><a href="about.html" class="nav-link">Về chúng tôi</a></li>
+                    <li><a href="contact.html" class="nav-link">Liên hệ</a></li>
+                    <li><a href="reservation.html" class="nav-link">Đặt bàn</a></li>
                 </ul>
 
                 <div class="nav-actions">
+                    <a href="contact.html" class="nav-icon hidden" id="msgIcon" title="Tin nhắn từ tiệm">
+                        <i class="fas fa-envelope"></i>
+                        <span class="badge" id="msgCount" style="display:none">0</span>
+                    </a>
                     <a href="cart.html" class="nav-icon">
                         <i class="fas fa-shopping-bag"></i>
                         <span class="badge" id="cartCount">0</span>
@@ -343,8 +350,43 @@
     <!-- Footer -->
     <footer class="footer">
         <div class="container">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <div class="footer-brand">
+                        <div class="nav-logo-wrapper"><img src="images/logo.png?v=4" alt="Moonlight Cafe" class="nav-logo"></div>
+                        <span class="nav-brand-text">Moonlight Cafe</span>
+                    </div>
+                    <p id="footer-slogan">Nơi thưởng thức cà phê và bánh ngọt thượng hạng trong không gian ấm cúng dưới ánh trăng.</p>
+                    <div class="footer-social">
+                        <a href="#" id="footer-fb"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" id="footer-ig"><i class="fab fa-instagram"></i></a>
+                        <a href="#" id="footer-tt"><i class="fab fa-tiktok"></i></a>
+                        <a href="#" id="footer-yt"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+                <div class="footer-col">
+                    <h4 class="footer-title">Liên kết nhanh</h4>
+                    <ul class="footer-links">
+                        <li><a href="index.html">Trang chủ</a></li>
+                        <li><a href="menu.html">Menu</a></li>
+                        <li><a href="promotions.html">Khuyến mãi</a></li>
+                        <li><a href="news.html">Tin tức</a></li>
+                        <li><a href="about.html">Về chúng tôi</a></li>
+                        <li><a href="contact.html">Liên hệ</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4 class="footer-title">Liên hệ</h4>
+                    <ul class="footer-contact">
+                        <li><i class="fas fa-map-marker-alt"></i> <span id="footer-address">66 Nguyễn Đệ, Cái Khế, Cần Thơ</span></li>
+                        <li><i class="fas fa-phone"></i> <span id="footer-phone">0110 766 204</span></li>
+                        <li><i class="fas fa-envelope"></i> <span id="footer-email">moonlightcafe@gmail.com</span></li>
+                        <li><i class="fas fa-clock"></i> <span id="footer-hours">7:00 - 22:00 hàng ngày</span></li>
+                    </ul>
+                </div>
+            </div>
             <div class="footer-bottom">
-                <p>&copy; 2024 Moonlight Cafe. All rights reserved.</p>
+                <p id="footer-copyright">&copy; 2026 Moonlight Cafe. All rights reserved.</p>
             </div>
         </div>
     </footer>
@@ -353,16 +395,16 @@
         // Article data - In production, this would come from Firebase
         const articles = {
             '1': {
-                title: 'Moonlight Cafe khai trương chi nhánh mới tại Quận 7',
+                title: 'Moonlight Cafe khai trương cơ sở mới tại Ninh Kiều, TP. Cần Thơ',
                 category: 'Tin mới',
-                date: '15/01/2024',
+                date: '10/01/2026',
                 author: 'Admin',
-                image: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=1200',
+                image: 'https://images.unsplash.com/photo-1559925393-8be0ec4767c8?w=1200',
                 content: `
-                    <p>Moonlight Cafe chính thức khai trương chi nhánh thứ 3 tại Quận 7, mang đến không gian thưởng thức cà phê đẳng cấp cho cư dân khu Nam Sài Gòn.</p>
+                    <p>Moonlight Cafe chính thức khai trương cơ sở mới ngay trung tâm quận Ninh Kiều, mang đến không gian thưởng thức cà phê ấm cúng giữa lòng TP. Cần Thơ.</p>
                     
                     <h2>🌟 Không gian mới, trải nghiệm mới</h2>
-                    <p>Với diện tích hơn 200m², chi nhánh mới tại Quận 7 được thiết kế theo phong cách hiện đại kết hợp với không gian xanh mát. Đây là nơi lý tưởng để bạn:</p>
+                    <p>Với diện tích hơn 200m², cơ sở mới tại Ninh Kiều được thiết kế theo phong cách hiện đại kết hợp với không gian xanh mát. Đây là nơi lý tưởng để bạn:</p>
                     <ul>
                         <li>Thưởng thức những ly cà phê thủ công</li>
                         <li>Gặp gỡ bạn bè trong không gian ấm cúng</li>
@@ -387,13 +429,14 @@
                         </button>
                     </div>
 
-                    <h2>📍 Địa chỉ mới</h2>
-                    <p><strong>Moonlight Cafe - Chi nhánh Quận 7</strong><br>
-                    Số 123, Đường Nguyễn Thị Thập, Quận 7, TP. Hồ Chí Minh<br>
-                    Giờ mở cửa: 7:00 - 22:00 hàng ngày</p>
+                    <h2>📍 Địa chỉ</h2>
+                    <p><strong>Moonlight Cafe</strong><br>
+                    66 Nguyễn Đệ, Cái Khế, Ninh Kiều, TP. Cần Thơ<br>
+                    Giờ mở cửa: 7:00 - 22:00 hàng ngày<br>
+                    Hotline: 0110 766 204</p>
 
-                    <h2>☕ Đặc sản tại chi nhánh mới</h2>
-                    <p>Bên cạnh các món signature quen thuộc, chi nhánh Quận 7 còn giới thiệu:</p>
+                    <h2>☕ Đặc sản tại cơ sở mới</h2>
+                    <p>Bên cạnh các món signature quen thuộc, cơ sở mới tại Ninh Kiều còn giới thiệu:</p>
                     <ol>
                         <li><strong>Moonlight Special Latte</strong> - Cà phê đặc biệt của house</li>
                         <li><strong>Trà Đào Cam Sả Premium</strong> - Trà trái cây cao cấp</li>
@@ -404,11 +447,11 @@
                 `
             },
             '2': {
-                title: 'Bí quyết pha cà phê ngon tại nhà như barista chuyên nghiệp',
+                title: 'Bí quyết pha cà phê phin Việt Nam thơm ngon đúng điệu',
                 category: 'Tips & Tricks',
-                date: '10/01/2024',
+                date: '05/01/2026',
                 author: 'Barista Team',
-                image: 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=1200',
+                image: 'https://images.unsplash.com/photo-1519082274554-1ca37b2df78d?w=1200',
                 content: `
                     <p>Với những mẹo nhỏ từ đội ngũ barista của Moonlight, bạn hoàn toàn có thể pha được những ly cà phê thơm ngon không thua gì quán. Hãy cùng khám phá nhé!</p>
 
@@ -472,16 +515,16 @@
                 `
             },
             '3': {
-                title: 'Ra mắt bộ sưu tập bánh ngọt mùa xuân 2024',
+                title: 'Ra mắt bộ sưu tập bánh ngọt Tết Bính Ngọ 2026',
                 category: 'Menu mới',
-                date: '05/01/2024',
+                date: '25/12/2025',
                 author: 'Chef Team',
-                image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1200',
+                image: 'https://images.unsplash.com/photo-1551024601-bec78aea704b?w=1200',
                 content: `
                     <p>Moonlight Cafe giới thiệu bộ sưu tập bánh ngọt mùa xuân với những hương vị mới lạ, kết hợp nguyên liệu tươi theo mùa.</p>
 
-                    <h2>🌸 Bánh Ngọt Mùa Xuân</h2>
-                    <p>Bộ sưu tập mùa xuân 2024 mang đến 5 loại bánh đặc biệt:</p>
+                    <h2>🌸 Bánh Ngọt Tết Bính Ngọ 2026</h2>
+                    <p>Bộ sưu tập Tết 2026 mang đến 5 loại bánh đặc sản vùng miền:</p>
 
                     <h2>🍰 Strawberry Cheesecake</h2>
                     <p>Bánh phô mai kem mịn màng phủ trên lớp bánh quy giòn, trang trí với dâu tây tươi và kem tươi.</p>
@@ -503,26 +546,26 @@
                 `
             },
             '4': {
-                title: 'Ưu đãi 20% cho đơn hàng online trong tháng 1',
+                title: 'Ưu đãi 20% cho đơn hàng online mừng năm mới 2026',
                 category: 'Khuyến mãi',
-                date: '01/01/2024',
+                date: '01/01/2026',
                 author: 'Marketing',
-                image: 'https://images.unsplash.com/photo-1445116572660-236099ec97a0?w=1200',
+                image: 'https://images.unsplash.com/photo-1461023058943-07fcbe16d735?w=1200',
                 content: `
-                    <p>Chào năm mới 2024, Moonlight Cafe tri ân khách hàng với ưu đãi giảm giá 20% cho tất cả đơn hàng đặt online trong suốt tháng 1.</p>
+                    <p>Chào năm mới 2026, Moonlight Cafe tri ân khách hàng với ưu đãi giảm giá 20% cho tất cả đơn hàng đặt online trong suốt tháng 1.</p>
 
                     <h2>🎉 Chi tiết chương trình</h2>
                     <ul>
                         <li>Giảm 20% cho đơn hàng từ 200.000đ</li>
                         <li>Áp dụng cho tất cả sản phẩm trên menu</li>
                         <li>Miễn phí ship cho đơn từ 300.000đ</li>
-                        <li>Thời gian áp dụng: 01/01/2024 - 31/01/2024</li>
+                        <li>Thời gian áp dụng: 01/01/2026 - 31/01/2026</li>
                     </ul>
 
                     <div class="promo-box">
                         <h3><i class="fas fa-percentage"></i> Mã Giảm Giá 20%</h3>
                         <p>Áp dụng cho đơn hàng từ 200.000đ</p>
-                        <div class="promo-code-display" id="promoCode">NEWYEAR2024</div>
+                        <div class="promo-code-display" id="promoCode">NEWYEAR2026</div>
                         <button class="copy-promo-btn" onclick="copyPromoCode()">
                             <i class="fas fa-copy"></i> Sao chép mã
                         </button>
@@ -530,33 +573,33 @@
 
                     <h2>📱 Cách đặt hàng</h2>
                     <ol>
-                        <li>Truy cập website hoặc gọi điện 0123 456 789</li>
+                        <li>Truy cập website hoặc gọi điện <strong>0110 766 204</strong></li>
                         <li>Chọn sản phẩm và thêm vào giỏ hàng</li>
-                        <li>Nhập mã giảm giá <strong>NEWYEAR2024</strong></li>
+                        <li>Nhập mã giảm giá <strong>NEWYEAR2026</strong></li>
                         <li>Chọn địa chỉ giao hàng và thanh toán</li>
-                        <li>Theo dõi đơn hàng qua số điện thoại</li>
+                        <li>Hotline hỗ trợ: 0110 766 204</li>
                     </ol>
 
                     <blockquote>
-                        "Chúng tôi muốn năm mới bắt đầu bằng những điều ngọt ngào. Hãy để Moonlight Cafe đồng hành cùng bạn trong năm 2024!"
+                        "Chúng tôi muốn năm mới bắt đầu bằng những điều ngọt ngào. Hãy để Moonlight Cafe đồng hành cùng bạn trong năm 2026!"
                         <br>— <strong>Ban Giám Đốc Moonlight Cafe</strong>
                     </blockquote>
                 `
             },
             '5': {
-                title: 'Workshop Latte Art - Học làm barista chuyên nghiệp',
+                title: 'Workshop Latte Art tại Moonlight Cafe Cần Thơ',
                 category: 'Sự kiện',
-                date: '20/12/2023',
+                date: '15/12/2025',
                 author: 'Admin',
-                image: 'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=1200',
+                image: 'https://images.unsplash.com/photo-1447933601403-0c6688de566e?w=1200',
                 content: `
                     <p>Đăng ký tham gia workshop Latte Art cùng các barista hàng đầu. Học cách tạo những hình vẽ đẹp mắt trên ly cà phê!</p>
 
                     <h2>📅 Thông tin Workshop</h2>
                     <ul>
-                        <li><strong>Ngày:</strong> 15/02/2024</li>
+                        <li><strong>Ngày:</strong> 15/01/2026</li>
                         <li><strong>Thời gian:</strong> 14:00 - 16:00</li>
-                        <li><strong>Địa điểm:</strong> Moonlight Cafe - Chi nhánh Quận 1</li>
+                        <li><strong>Địa điểm:</strong> Moonlight Cafe - 66 Nguyễn Đệ, Ninh Kiều, TP. Cần Thơ</li>
                         <li><strong>Học phí:</strong> 350.000đ/người</li>
                         <li><strong>Số lượng:</strong> Tối đa 15 người</li>
                     </ul>
@@ -572,23 +615,23 @@
 
                     <div class="promo-box">
                         <h3><i class="fas fa-graduation-cap"></i> Ưu đãi Early Bird</h3>
-                        <p>Đăng ký trước 31/01/2024, giảm 50.000đ!</p>
-                        <div class="promo-code-display" id="promoCode">EARLY2024</div>
+                        <p>Đăng ký trước 31/12/2025, giảm 50.000đ!</p>
+                        <div class="promo-code-display" id="promoCode">EARLY2025</div>
                         <button class="copy-promo-btn" onclick="copyPromoCode()">
                             <i class="fas fa-copy"></i> Sao chép mã
                         </button>
                     </div>
 
                     <h2>📝 Đăng ký ngay</h2>
-                    <p>Liên hệ qua số điện thoại 0123 456 789 hoặc đăng ký trực tiếp tại quầy.</p>
+                    <p>Liên hệ qua số điện thoại <strong>0110 766 204</strong> hoặc đăng ký trực tiếp tại quầy - 66 Nguyễn Đệ, Ninh Kiều, TP. Cần Thơ.</p>
                 `
             },
             '6': {
-                title: 'Cam kết sử dụng nguồn cà phê bền vững 100%',
+                title: 'Cam kết sử dụng nguồn cà phê Tây Nguyên sạch 100%',
                 category: 'Bền vững',
-                date: '15/12/2023',
+                date: '10/12/2025',
                 author: 'Admin',
-                image: 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=1200',
+                image: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=1200',
                 content: `
                     <p>Moonlight Cafe cam kết sử dụng 100% cà phê từ nguồn bền vững, hỗ trợ nông dân và bảo vệ môi trường.</p>
 
@@ -623,9 +666,9 @@
 
         // Related articles
         const relatedArticles = [
-            { id: '2', title: 'Bí quyết pha cà phê ngon tại nhà', image: 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=400' },
-            { id: '3', title: 'Bộ sưu tập bánh ngọt mùa xuân', image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400' },
-            { id: '4', title: 'Ưu đãi 20% tháng 1', image: 'https://images.unsplash.com/photo-1445116572660-236099ec97a0?w=400' }
+            { id: '2', title: 'Bí quyết pha cà phê phin Việt Nam thơm ngon', image: 'https://images.unsplash.com/photo-1519082274554-1ca37b2df78d?w=400' },
+            { id: '3', title: 'Bộ sưu tập bánh ngọt Tết Bính Ngọ 2026', image: 'https://images.unsplash.com/photo-1551024601-bec78aea704b?w=400' },
+            { id: '4', title: 'Ưu đãi 20% mừng năm mới 2026', image: 'https://images.unsplash.com/photo-1461023058943-07fcbe16d735?w=400' }
         ];
 
         // Get article ID from URL
@@ -715,9 +758,9 @@
         };
 
         // Update cart count
+        // Update cart count — khởi tạo 0, nav-helper sẽ cập nhật sau khi auth giải quyết
         function updateCartCount() {
-            const cart = JSON.parse(localStorage.getItem('moonlight_cart')) || [];
-            document.getElementById('cartCount').textContent = cart.reduce((sum, item) => sum + item.quantity, 0);
+            document.getElementById('cartCount').textContent = 0;
         }
 
         // Initialize
@@ -734,6 +777,12 @@
 
         renderArticle();
         updateCartCount();
+    </script>
+    <script type="module">
+        import { updateMsgBadge, loadStoreInfo } from './js/nav-helper.js';
+        loadStoreInfo();
+        import { auth, onAuthStateChanged } from './js/firebase-config.js';
+        onAuthStateChanged(auth, user => updateMsgBadge(user ? user.uid : null));
     </script>
 </body>
 

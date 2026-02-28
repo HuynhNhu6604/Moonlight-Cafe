@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Công Cụ Thêm Dữ Liệu Sản Phẩm Bật Chế Độ Hàng Loạt</title>
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            background: var(--bg-card);
+            padding: 40px;
+            border-radius: var(--radius-md);
+            max-width: 600px;
+            text-align: center;
+            box-shadow: var(--shadow-lg);
+        }
+
+        h1 {
+            color: var(--accent);
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+
+        p {
+            color: var(--text-muted);
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: var(--primary-light);
+            padding: 20px;
+            border-radius: var(--radius-sm);
+        }
+
+        .stat-card h3 {
+            font-size: 28px;
+            color: var(--accent);
+            margin: 0 0 10px;
+        }
+
+        .stat-card span {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        #importBtn {
+            width: 100%;
+            padding: 15px;
+            font-size: 16px;
+        }
+
+        .log-area {
+            margin-top: 20px;
+            padding: 15px;
+            background: var(--primary);
+            border-radius: var(--radius-sm);
+            text-align: left;
+            font-size: 13px;
+            color: var(--success);
+            max-height: 150px;
+            overflow-y: auto;
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <h1>Công Cụ Import Hàng Loạt 150 Sản Phẩm</h1>
+        <p>Công cụ này sẽ xử lý đọc file <strong>bulk_products.json</strong> (chứa 150 sản phẩm mới được tạo tự động với
+            các mô tả hấp dẫn) và đẩy lên Firebase Realtime Database vào nhánh <code>products</code> một cách độc lập và
+            minh bạch.</p>
+
+        <div class="stats">
+            <div class="stat-card">
+                <h3 id="itemCount">0</h3>
+                <span>Sản Phẩm Đọc Được</span>
+            </div>
+            <div class="stat-card">
+                <h3 id="successCount">0</h3>
+                <span>Đã Tải Lên</span>
+            </div>
+        </div>
+
+        <button id="importBtn" class="btn btn-primary" disabled>Đang đọc file JSON...</button>
+        <div class="log-area" id="logArea"></div>
+    </div>
+
+    <script type="module">
+        import { db, ref, push, set } from './js/firebase-config.js';
+
+        let productsToImport = [];
+        const importBtn = document.getElementById('importBtn');
+        const itemCountEl = document.getElementById('itemCount');
+        const successCountEl = document.getElementById('successCount');
+        const logArea = document.getElementById('logArea');
+
+        // B1: Fetch JSON
+        async function loadJson() {
+            try {
+                const response = await fetch('bulk_products.json');
+                const data = await response.json();
+                productsToImport = data;
+                itemCountEl.textContent = data.length;
+
+                importBtn.textContent = "BẮT ĐẦU IMPORT VÀO FIREBASE";
+                importBtn.disabled = false;
+            } catch (err) {
+                console.error("Lỗi đọc JSON:", err);
+                importBtn.textContent = "Lỗi đọc file bulk_products.json";
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Lỗi',
+                    text: 'Không tìm thấy file bulk_products.json hoặc file bị lỗi.'
+                });
+            }
+        }
+
+        async function startImport() {
+            importBtn.disabled = true;
+            importBtn.textContent = "Đang xử lý...";
+            logArea.style.display = 'block';
+
+            let count = 0;
+            const productsRef = ref(db, 'products');
+
+            for (const item of productsToImport) {
+                try {
+                    // Xóa id nếu có lọt vào để cho Firebase tự sinh ID tự động
+                    if (item.id) delete item.id;
+
+                    const newItemRef = push(productsRef);
+                    await set(newItemRef, item);
+
+                    count++;
+                    successCountEl.textContent = count;
+                    logArea.innerHTML = `[Thành công] Tải lên: ${item.name}<br>` + logArea.innerHTML;
+                } catch (err) {
+                    console.error("Lỗi thêm:", err);
+                    logArea.innerHTML = `<span style="color:var(--danger)">[Bỏ qua] Lỗi: ${item.name}</span><br>` + logArea.innerHTML;
+                }
+            }
+
+            importBtn.textContent = "ĐÃ HOÀN TẤT!";
+            Swal.fire({
+                icon: 'success',
+                title: 'Thành Công!',
+                text: `Đã đưa ${count} sản phẩm lên Firebase an toàn.`
+            }).then(() => {
+                setTimeout(() => {
+                    window.location.href = 'admin.html';
+                }, 1500);
+            });
+        }
+
+        importBtn.addEventListener('click', startImport);
+        loadJson();
+    </script>
+</body>
+
+</html>

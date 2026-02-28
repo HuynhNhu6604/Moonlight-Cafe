@@ -1,0 +1,565 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Khuyến mãi - Moonlight Cafe</title>
+
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/mobile.css">
+
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <style>
+        .page-header {
+            background: linear-gradient(135deg, var(--bg-dark), var(--primary));
+            padding: 50px 0 50px;
+            text-align: center;
+        }
+
+        /* ======================== Tab Filter ======================== */
+        .promo-tabs {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 40px 0 30px;
+        }
+        .promo-tab-btn {
+            padding: 10px 28px;
+            border-radius: 30px;
+            border: 2px solid var(--secondary);
+            background: transparent;
+            color: var(--text-secondary);
+            font-size: .95rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all .25s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .promo-tab-btn.active {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: #fff;
+        }
+        .promo-tab-btn .tab-count {
+            background: rgba(255,255,255,.25);
+            color: inherit;
+            padding: 1px 8px;
+            border-radius: 20px;
+            font-size: .78rem;
+        }
+        .promo-tab-btn.active .tab-count { background: rgba(0,0,0,.2); }
+
+        /* ======================== Promo Grid ======================== */
+        .promos-section { padding: 20px 0 80px; }
+
+        .promo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
+            gap: 24px;
+        }
+
+        .promo-card {
+            background: var(--bg-card);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            border: 1px solid var(--secondary);
+            transition: transform .25s, box-shadow .25s;
+            position: relative;
+        }
+        .promo-card:hover { transform: translateY(-4px); box-shadow: 0 12px 30px rgba(0,0,0,.3); }
+
+        .promo-card.expired { opacity: .6; }
+        .promo-card.expired:hover { transform: none; box-shadow: none; }
+
+        .promo-card-banner {
+            height: 8px;
+        }
+        .promo-card-banner.active   { background: linear-gradient(90deg, #10b981, #34d399); }
+        .promo-card-banner.upcoming { background: linear-gradient(90deg, #3b82f6, #60a5fa); }
+        .promo-card-banner.expired  { background: linear-gradient(90deg, #6b7280, #9ca3af); }
+
+        .promo-card-body { padding: 24px; }
+
+        .promo-status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: .72rem;
+            font-weight: 600;
+            padding: 4px 12px;
+            border-radius: 20px;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: .04em;
+        }
+        .promo-status-badge.active   { background: rgba(16,185,129,.15); color: #10b981; }
+        .promo-status-badge.upcoming { background: rgba(59,130,246,.15); color: #3b82f6; }
+        .promo-status-badge.expired  { background: rgba(107,114,128,.15); color: #9ca3af; }
+        .promo-status-badge i { font-size: .65rem; }
+
+        .promo-card-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: var(--text-primary);
+        }
+        .promo-card-desc {
+            font-size: .88rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 16px;
+        }
+
+        /* Discount badge */
+        .promo-discount-badge {
+            display: inline-block;
+            background: var(--accent);
+            color: #fff;
+            font-size: 1.5rem;
+            font-weight: 700;
+            padding: 10px 20px;
+            border-radius: var(--radius-sm);
+            margin-bottom: 16px;
+        }
+
+        .promo-details {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-bottom: 20px;
+            font-size: .82rem;
+            color: var(--text-muted);
+        }
+        .promo-details span {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .promo-details i { width: 14px; color: var(--accent); }
+
+        /* Code copy box */
+        .promo-code-box {
+            display: flex;
+            align-items: center;
+            gap: 0;
+            border: 2px dashed var(--accent);
+            border-radius: var(--radius-sm);
+            overflow: hidden;
+        }
+        .promo-code-text {
+            flex: 1;
+            padding: 10px 16px;
+            font-family: 'Courier New', monospace;
+            font-size: 1rem;
+            font-weight: 700;
+            letter-spacing: .1em;
+            color: var(--accent);
+            background: rgba(212,165,116,.07);
+            user-select: all;
+        }
+        .promo-copy-btn {
+            padding: 10px 16px;
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            font-size: .85rem;
+            font-weight: 600;
+            white-space: nowrap;
+            transition: background .2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .promo-copy-btn:hover { background: #c49460; }
+        .promo-copy-btn.copied { background: #10b981; }
+
+        .promo-expired-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0,0,0,.05);
+            pointer-events: none;
+        }
+
+        /* Empty state */
+        .promo-empty {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-muted);
+        }
+        .promo-empty i { font-size: 3rem; margin-bottom: 16px; display: block; opacity: .4; }
+        .promo-empty h3 { margin-bottom: 8px; }
+
+        /* Loading */
+        .promos-loading {
+            text-align: center;
+            padding: 60px;
+            color: var(--text-muted);
+        }
+
+        @media (max-width: 600px) {
+            .promo-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Loading -->
+    <div class="loading-overlay">
+        <div class="loading-spinner"></div>
+    </div>
+
+    <!-- Header -->
+    <header class="header" id="header">
+        <div class="container">
+            <nav class="nav">
+                <a href="index.html" class="nav-brand">
+                    <div class="nav-logo-wrapper"><img src="images/logo.png?v=4" alt="Moonlight Cafe" class="nav-logo"></div>
+                    <span class="nav-brand-text">Moonlight Cafe</span>
+                </a>
+
+                <ul class="nav-menu" id="navMenu">
+                    <li><a href="index.html" class="nav-link">Trang chủ</a></li>
+                    <li><a href="menu.html" class="nav-link">Menu</a></li>
+                    <li><a href="promotions.html" class="nav-link active">Khuyến mãi</a></li>
+                    <li><a href="news.html" class="nav-link">Tin tức</a></li>
+                    <li><a href="about.html" class="nav-link">Về chúng tôi</a></li>
+                    <li><a href="contact.html" class="nav-link">Liên hệ</a></li>
+                    <li><a href="reservation.html" class="nav-link">Đặt bàn</a></li>
+                </ul>
+
+                <div class="nav-actions">
+                    <a href="contact.html" class="nav-icon hidden" id="msgIcon" title="Tin nhắn từ tiệm">
+                        <i class="fas fa-envelope"></i>
+                        <span class="badge" id="msgCount" style="display:none">0</span>
+                    </a>
+                    <a href="cart.html" class="nav-icon">
+                        <i class="fas fa-shopping-bag"></i>
+                        <span class="badge" id="cartCount">0</span>
+                    </a>
+                    <div class="nav-icon" id="userIcon" style="cursor:pointer;">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="nav-toggle" id="navToggle">
+                        <div class="nav-logo-wrapper"><img src="images/logo.png?v=4" alt="Moonlight Cafe" class="nav-logo"></div><div class="nav-logo-wrapper"><img src="images/logo.png?v=4" alt="Moonlight Cafe" class="nav-logo"></div><div class="nav-logo-wrapper"><img src="images/logo.png?v=4" alt="Moonlight Cafe" class="nav-logo"></div>
+                    </div>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Page Header -->
+    <section class="page-header">
+        <div class="container">
+            <h1><i class="fas fa-tags" style="color:var(--accent);margin-right:12px"></i>Khuyến mãi</h1>
+            <p style="color:var(--text-secondary);margin-top:1rem;">
+                Ưu đãi đặc biệt dành cho khách hàng Moonlight Cafe
+            </p>
+            <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-top:12px;font-size:.85rem;color:var(--text-muted)">
+                <a href="index.html" style="color:var(--text-muted);text-decoration:none">Trang chủ</a>
+                <span>/</span>
+                <span style="color:var(--accent)">Khuyến mãi</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Promotions Section -->
+    <section class="promos-section">
+        <div class="container">
+            <!-- Tab filter -->
+            <div class="promo-tabs">
+                <button class="promo-tab-btn active" id="tab-active" onclick="switchTab('active')">
+                    <i class="fas fa-fire"></i> Đang diễn ra
+                    <span class="tab-count" id="count-active">0</span>
+                </button>
+                <button class="promo-tab-btn" id="tab-upcoming" onclick="switchTab('upcoming')">
+                    <i class="fas fa-clock"></i> Sắp diễn ra
+                    <span class="tab-count" id="count-upcoming">0</span>
+                </button>
+                <button class="promo-tab-btn" id="tab-expired" onclick="switchTab('expired')">
+                    <i class="fas fa-history"></i> Đã hết
+                    <span class="tab-count" id="count-expired">0</span>
+                </button>
+            </div>
+
+            <!-- Promos grid -->
+            <div id="promosContainer">
+                <div class="promos-loading">
+                    <i class="fas fa-spinner fa-spin fa-2x"></i>
+                    <p style="margin-top:14px">Đang tải khuyến mãi...</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <a href="index.html" style="display:flex;align-items:center;gap:10px;text-decoration:none">
+                        <div class="nav-logo-wrapper"><img src="images/logo.png?v=4" alt="Moonlight Cafe" class="nav-logo"></div>
+                        <span class="nav-brand-text">Moonlight Cafe</span>
+                    </a>
+                    <p id="footer-slogan">Nơi mỗi ly cà phê là một câu chuyện, mỗi khoảnh khắc là một kỷ niệm đáng nhớ.</p>
+                </div>
+                <div class="footer-links">
+                    <h4>Liên kết nhanh</h4>
+                    <ul>
+                        <li><a href="index.html">Trang chủ</a></li>
+                        <li><a href="menu.html">Menu</a></li>
+                        <li><a href="promotions.html">Khuyến mãi</a></li>
+                        <li><a href="about.html">Về chúng tôi</a></li>
+                        <li><a href="contact.html">Liên hệ</a></li>
+                    </ul>
+                </div>
+                <div class="footer-contact">
+                    <h4>Liên hệ</h4>
+                    <p><i class="fas fa-map-marker-alt"></i> <span id="footer-address">66 Nguyễn Đệ, Cái Khế, Cần Thơ</span></p>
+                    <p><i class="fas fa-phone"></i> <span id="footer-phone">0110 766 204</span></p>
+                    <p><i class="fas fa-envelope"></i> <span id="footer-email">moonlightcafe@gmail.com</span></p>
+                    <p><i class="fas fa-clock"></i> <span id="footer-hours">7:00 - 22:00 hàng ngày</span></p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p id="footer-copyright">&copy; 2026 Moonlight Cafe. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Nav Overlay -->
+    <div class="nav-overlay" id="navOverlay"></div>
+
+    <!-- User Dropdown -->
+    <div class="user-dropdown" id="userDropdown">
+        <div class="user-dropdown-header" id="userInfo">
+            <i class="fas fa-user-circle"></i>
+            <span>Tài khoản</span>
+        </div>
+        <div class="user-dropdown-menu"></div>
+    </div>
+
+    <script type="module">
+        import { initUserDropdown } from './js/nav-helper.js';
+
+        initUserDropdown();
+
+        // Loading overlay
+        window.addEventListener('load', () => {
+            setTimeout(() => document.querySelector('.loading-overlay').classList.add('hidden'), 500);
+        });
+
+        // Header scroll
+        window.addEventListener('scroll', () => {
+            document.getElementById('header').classList.toggle('scrolled', window.scrollY > 50);
+        });
+
+        // Mobile nav toggle
+        document.getElementById('navToggle')?.addEventListener('click', () => {
+            document.getElementById('navMenu').classList.toggle('active');
+            document.getElementById('navOverlay').classList.toggle('active');
+        });
+        document.getElementById('navOverlay')?.addEventListener('click', () => {
+            document.getElementById('navMenu').classList.remove('active');
+            document.getElementById('navOverlay').classList.remove('active');
+        });
+
+        // ===== PROMOTIONS LOGIC =====
+        const DB_URL = 'https://moonlight-cafe-57e5d-default-rtdb.firebaseio.com';
+        let allPromos = [];
+        let currentTab = 'active';
+
+        function formatPrice(n) {
+            return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(n);
+        }
+        function formatDate(ts) {
+            if (!ts) return '';
+            return new Date(ts).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' });
+        }
+        function getPromoStatus(p) {
+            const now = Date.now();
+            if (!p.isActive) return 'expired';
+            if (p.startDate > now) return 'upcoming';
+            if (p.endDate < now) return 'expired';
+            return 'active';
+        }
+        function discountLabel(p) {
+            if (p.discountType === 'percent') return 'Giảm ' + p.discountValue + '%';
+            return 'Giảm ' + formatPrice(p.discountValue);
+        }
+
+        async function loadPromotions() {
+            try {
+                const res = await fetch(DB_URL + '/promotions.json');
+                if (!res.ok) throw new Error('HTTP ' + res.status);
+                const data = await res.json();
+                allPromos = [];
+                if (data) {
+                    Object.entries(data).forEach(([key, val]) => {
+                        if (val) allPromos.push({ id: key, ...val });
+                    });
+                    allPromos.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+                }
+                const counts = { active: 0, upcoming: 0, expired: 0 };
+                allPromos.forEach(p => counts[getPromoStatus(p)]++);
+                document.getElementById('count-active').textContent = counts.active;
+                document.getElementById('count-upcoming').textContent = counts.upcoming;
+                document.getElementById('count-expired').textContent = counts.expired;
+                renderPromos(currentTab);
+            } catch (e) {
+                console.error('loadPromotions error:', e);
+                document.getElementById('promosContainer').innerHTML =
+                    '<div class="promos-loading"><i class="fas fa-exclamation-circle fa-2x" style="color:#ef4444"></i><p style="margin-top:12px">Không thể tải khuyến mãi. Vui lòng thử lại.</p></div>';
+            }
+        }
+
+        window.switchTab = function (tab) {
+            currentTab = tab;
+            document.querySelectorAll('.promo-tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`tab-${tab}`).classList.add('active');
+            renderPromos(tab);
+        };
+
+        function buildPromoCard(p) {
+            const status = getPromoStatus(p);
+            const statusLabel = { active: 'Đang diễn ra', upcoming: 'Sắp diễn ra', expired: 'Đã hết hạn' };
+            const statusIcon  = { active: 'fa-fire', upcoming: 'fa-clock', expired: 'fa-history' };
+
+            const usageInfo = p.usageLimit > 0
+                ? (p.usageCount || 0) + '/' + p.usageLimit + ' lượt dùng'
+                : 'Không giới hạn lượt dùng';
+            const minOrderInfo = p.minOrder > 0
+                ? 'Đơn tối thiểu ' + formatPrice(p.minOrder)
+                : 'Không yêu cầu đơn tối thiểu';
+            const maxDiscHTML = (p.discountType === 'percent' && p.maxDiscount > 0)
+                ? '<span><i class="fas fa-arrow-down"></i> Giảm tối đa ' + formatPrice(p.maxDiscount) + '</span>'
+                : '';
+
+            let copyBtnHTML;
+            if (status !== 'expired') {
+                copyBtnHTML = '<button class="promo-copy-btn" data-id="' + p.id + '" data-code="' + p.code + '">'
+                    + '<i class="fas fa-copy"></i> Sao chép</button>';
+            } else {
+                copyBtnHTML = '<div style="padding:10px 16px;font-size:.8rem;color:#9ca3af">Hết hạn</div>';
+            }
+
+            let html = '<div class="promo-card' + (status === 'expired' ? ' expired' : '') + '">';
+            html += '<div class="promo-card-banner ' + status + '"></div>';
+            html += '<div class="promo-card-body">';
+            html += '<div class="promo-status-badge ' + status + '">'
+                + '<i class="fas ' + statusIcon[status] + '"></i> ' + statusLabel[status] + '</div>';
+            html += '<div class="promo-card-title">' + (p.title || 'Khuyến mãi') + '</div>';
+            html += '<p class="promo-card-desc">' + (p.description || '') + '</p>';
+            html += '<div class="promo-discount-badge">' + discountLabel(p) + '</div>';
+            html += '<div class="promo-details">';
+            html += '<span><i class="fas fa-calendar-alt"></i> ' + formatDate(p.startDate) + ' – ' + formatDate(p.endDate) + '</span>';
+            html += '<span><i class="fas fa-receipt"></i> ' + minOrderInfo + '</span>';
+            if (p.timeStart && p.timeEnd)
+                html += '<span><i class="fas fa-clock"></i> Chỉ áp dụng ' + p.timeStart + ' – ' + p.timeEnd + '</span>';
+            html += maxDiscHTML;
+            html += '<span><i class="fas fa-users"></i> ' + usageInfo + '</span>';
+            html += '</div>';
+            html += '<div class="promo-code-box">';
+            html += '<div class="promo-code-text" id="code-' + p.id + '">' + p.code + '</div>';
+            html += copyBtnHTML;
+            html += '</div></div>';
+            if (status === 'expired') html += '<div class="promo-expired-overlay"></div>';
+            html += '</div>';
+            return html;
+        }
+
+        function renderPromos(tab) {
+            const list = allPromos.filter(p => getPromoStatus(p) === tab);
+            const container = document.getElementById('promosContainer');
+
+            if (list.length === 0) {
+                const msgs = {
+                    active: 'Hiện không có khuyến mãi nào đang diễn ra.',
+                    upcoming: 'Chưa có khuyến mãi nào sắp diễn ra.',
+                    expired: 'Không có khuyến mãi nào đã hết hạn.'
+                };
+                container.innerHTML = '<div class="promo-grid"><div class="promo-empty">'
+                    + '<i class="fas fa-tags"></i><h3>Không có khuyến mãi</h3>'
+                    + '<p>' + msgs[tab] + '</p></div></div>';
+                return;
+            }
+
+            let html = '<div class="promo-grid">';
+            list.forEach(p => { html += buildPromoCard(p); });
+            html += '</div>';
+            container.innerHTML = html;
+
+            // Gắn sự kiện nút sao chép sau khi render
+            container.querySelectorAll('.promo-copy-btn').forEach(btn => {
+                btn.addEventListener('click', function () {
+                    copyCode(this.dataset.id, this.dataset.code, this);
+                });
+            });
+        }
+
+        window.copyCode = function (id, code, btnEl) {
+            const btn = btnEl || document.querySelector('[data-id="' + id + '"]');
+            navigator.clipboard.writeText(code).then(() => {
+                btn.innerHTML = '<i class="fas fa-check"></i> Đã sao chép';
+                btn.classList.add('copied');
+                setTimeout(() => {
+                    btn.innerHTML = '<i class="fas fa-copy"></i> Sao chép';
+                    btn.classList.remove('copied');
+                }, 2000);
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Đã sao chép mã <strong>' + code + '</strong>',
+                    text: 'Dán mã vào ô khuyến mãi khi thanh toán nhé!',
+                    timer: 2000,
+                    showConfirmButton: false,
+                    toast: true,
+                    position: 'top-end'
+                });
+            }).catch(() => {
+                const el = document.getElementById('code-' + id);
+                if (el) {
+                    const range = document.createRange();
+                    range.selectNode(el);
+                    window.getSelection().removeAllRanges();
+                    window.getSelection().addRange(range);
+                    document.execCommand('copy');
+                    window.getSelection().removeAllRanges();
+                }
+                btn.innerHTML = '<i class="fas fa-check"></i> Đã sao chép';
+                btn.classList.add('copied');
+                setTimeout(() => {
+                    btn.innerHTML = '<i class="fas fa-copy"></i> Sao chép';
+                    btn.classList.remove('copied');
+                }, 2000);
+            });
+        };
+
+        loadPromotions();
+    </script>
+
+    <!-- TuDongChat AI Chatbot -->
+    <script src="https://cdn.tudongchat.com/js/chatbox.js"></script>
+    <script>
+        try {
+            const tudong_chatbox = new TuDongChat('XUitpr3VDU2e5vJgSRYO9');
+            tudong_chatbox.initial();
+        } catch(e) {}
+    </script>
+</body>
+
+</html>

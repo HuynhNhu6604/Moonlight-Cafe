@@ -56,9 +56,19 @@
         }
 
         @keyframes scaleIn {
-            0% { transform: scale(0); opacity: 0; }
-            50% { transform: scale(1.1); }
-            100% { transform: scale(1); opacity: 1; }
+            0% {
+                transform: scale(0);
+                opacity: 0;
+            }
+
+            50% {
+                transform: scale(1.1);
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
         }
 
         .success-icon i {
@@ -256,9 +266,20 @@
             font-size: 1.5rem;
         }
 
-        .payment-icon.cod { background: rgba(74, 222, 128, 0.2); color: var(--success); }
-        .payment-icon.bank { background: rgba(96, 165, 250, 0.2); color: var(--info); }
-        .payment-icon.momo { background: #ae2070; color: white; }
+        .payment-icon.cod {
+            background: rgba(74, 222, 128, 0.2);
+            color: var(--success);
+        }
+
+        .payment-icon.bank {
+            background: rgba(96, 165, 250, 0.2);
+            color: var(--info);
+        }
+
+        .payment-icon.momo {
+            background: #ae2070;
+            color: white;
+        }
 
         .payment-details {
             flex: 1;
@@ -420,9 +441,20 @@
 
         /* Print Styles */
         @media print {
-            body { background: white; }
-            .order-actions, .nav, .footer { display: none; }
-            .bill-card { box-shadow: none; border: 1px solid #ddd; }
+            body {
+                background: white;
+            }
+
+            .order-actions,
+            .nav,
+            .footer {
+                display: none;
+            }
+
+            .bill-card {
+                box-shadow: none;
+                border: 1px solid #ddd;
+            }
         }
 
         /* Responsive */
@@ -467,18 +499,25 @@
         <div class="container">
             <nav class="nav">
                 <a href="index.html" class="nav-brand">
-                    <span>🌙</span>
+                    <div class="nav-logo-wrapper"><img src="images/logo.png?v=4" alt="Moonlight Cafe" class="nav-logo"></div>
                     <span class="nav-brand-text">Moonlight Cafe</span>
                 </a>
 
                 <ul class="nav-menu" id="navMenu">
                     <li><a href="index.html" class="nav-link">Trang chủ</a></li>
                     <li><a href="menu.html" class="nav-link">Menu</a></li>
+                    <li><a href="promotions.html" class="nav-link">Khuyến mãi</a></li>
                     <li><a href="news.html" class="nav-link">Tin tức</a></li>
                     <li><a href="about.html" class="nav-link">Về chúng tôi</a></li>
+                    <li><a href="contact.html" class="nav-link">Liên hệ</a></li>
+                    <li><a href="reservation.html" class="nav-link">Đặt bàn</a></li>
                 </ul>
 
                 <div class="nav-actions">
+                    <a href="contact.html" class="nav-icon hidden" id="msgIcon" title="Tin nhắn từ tiệm">
+                        <i class="fas fa-envelope"></i>
+                        <span class="badge" id="msgCount" style="display:none">0</span>
+                    </a>
                     <a href="cart.html" class="nav-icon">
                         <i class="fas fa-shopping-bag"></i>
                         <span class="badge" id="cartCount">0</span>
@@ -495,7 +534,7 @@
     <section class="order-success-section">
         <div class="container">
             <div class="order-success-container">
-                
+
                 <!-- Success Header -->
                 <div class="success-header">
                     <div class="success-icon">
@@ -512,11 +551,11 @@
                 <div class="bill-card" id="billCard">
                     <div class="bill-header">
                         <div class="bill-logo">
-                            <span>🌙</span>
+                            <div class="nav-logo-wrapper"><img src="images/logo.png?v=4" alt="Moonlight Cafe" class="nav-logo"></div>
                             <span class="bill-logo-text">Moonlight Cafe</span>
                         </div>
-                        <p>123 Đường ABC, Quận 1, TP. Hồ Chí Minh</p>
-                        <p>📞 0123 456 789 | 📧 hello@moonlightcafe.vn</p>
+                        <p>66 Nguyễn Đệ, Cái Khế, Cần Thơ</p>
+                        <p>📞 0110 766 204 | 📧 moonlightcafe@gmail.com</p>
                     </div>
 
                     <div class="bill-info">
@@ -611,8 +650,43 @@
     <!-- Footer -->
     <footer class="footer">
         <div class="container">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <div class="footer-brand">
+                        <div class="nav-logo-wrapper"><img src="images/logo.png?v=4" alt="Moonlight Cafe" class="nav-logo"></div>
+                        <span class="nav-brand-text">Moonlight Cafe</span>
+                    </div>
+                    <p id="footer-slogan">Nơi thưởng thức cà phê và bánh ngọt thượng hạng trong không gian ấm cúng dưới ánh trăng.</p>
+                    <div class="footer-social">
+                        <a href="#" id="footer-fb"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" id="footer-ig"><i class="fab fa-instagram"></i></a>
+                        <a href="#" id="footer-tt"><i class="fab fa-tiktok"></i></a>
+                        <a href="#" id="footer-yt"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+                <div class="footer-col">
+                    <h4 class="footer-title">Liên kết nhanh</h4>
+                    <ul class="footer-links">
+                        <li><a href="index.html">Trang chủ</a></li>
+                        <li><a href="menu.html">Menu</a></li>
+                        <li><a href="promotions.html">Khuyến mãi</a></li>
+                        <li><a href="news.html">Tin tức</a></li>
+                        <li><a href="about.html">Về chúng tôi</a></li>
+                        <li><a href="contact.html">Liên hệ</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4 class="footer-title">Liên hệ</h4>
+                    <ul class="footer-contact">
+                        <li><i class="fas fa-map-marker-alt"></i> <span id="footer-address">66 Nguyễn Đệ, Cái Khế, Cần Thơ</span></li>
+                        <li><i class="fas fa-phone"></i> <span id="footer-phone">0110 766 204</span></li>
+                        <li><i class="fas fa-envelope"></i> <span id="footer-email">moonlightcafe@gmail.com</span></li>
+                        <li><i class="fas fa-clock"></i> <span id="footer-hours">7:00 - 22:00 hàng ngày</span></li>
+                    </ul>
+                </div>
+            </div>
             <div class="footer-bottom">
-                <p>&copy; 2024 Moonlight Cafe. All rights reserved.</p>
+                <p id="footer-copyright">&copy; 2026 Moonlight Cafe. All rights reserved.</p>
             </div>
         </div>
     </footer>
@@ -641,9 +715,9 @@
         // Get order from localStorage (set during checkout)
         function getOrder() {
             const orderData = localStorage.getItem('moonlight_last_order');
-            
+
             console.log('LocalStorage data:', orderData);
-            
+
             if (orderData) {
                 try {
                     return JSON.parse(orderData);
@@ -651,7 +725,7 @@
                     console.error('Error parsing order data:', e);
                 }
             }
-            
+
             // Demo data for testing - nếu không có dữ liệu
             console.log('Using demo data');
             return {
@@ -680,9 +754,9 @@
         function renderOrder() {
             try {
                 currentOrder = getOrder();
-                
+
                 console.log('Current order:', currentOrder);
-                
+
                 // Kiểm tra nếu không có thông tin đơn hàng
                 if (!currentOrder) {
                     document.querySelector('.order-success-container').innerHTML = `
@@ -735,7 +809,7 @@
 
                 // Render payment info
                 renderPaymentInfo(payment);
-                
+
             } catch (error) {
                 console.error('Error rendering order:', error);
                 document.querySelector('.order-success-container').innerHTML = `
@@ -757,9 +831,9 @@
             if (!currentOrder) {
                 currentOrder = getOrder();
             }
-            
+
             const paymentInfo = document.getElementById('paymentInfo');
-            
+
             if (!currentOrder.payment || currentOrder.payment === 'cod') {
                 paymentInfo.innerHTML = `
                     <h4><i class="fas fa-money-bill-wave"></i> Thanh toán khi nhận hàng (COD)</h4>
@@ -789,7 +863,7 @@
                         </div>
                     </div>
                 `;
-                
+
                 // Generate QR code
                 setTimeout(() => {
                     const qrContainer = document.getElementById('bankingQR');
@@ -824,7 +898,7 @@
                         </div>
                     </div>
                 `;
-                
+
                 // Generate MoMo QR
                 setTimeout(() => {
                     const qrContainer = document.getElementById('momoQR');
@@ -848,10 +922,9 @@
             window.print();
         }
 
-        // Update cart count
+        // Update cart count — giỏ hàng đã được xóa sau khi thanh toán, luôn = 0
         function updateCartCount() {
-            const cart = JSON.parse(localStorage.getItem('moonlight_cart')) || [];
-            document.getElementById('cartCount').textContent = cart.reduce((sum, item) => sum + item.quantity, 0);
+            document.getElementById('cartCount').textContent = 0;
         }
 
         // Initialize
@@ -859,7 +932,7 @@
             setTimeout(() => {
                 document.querySelector('.loading-overlay').classList.add('hidden');
             }, 500);
-            
+
             renderOrder();
             updateCartCount();
         });
@@ -868,6 +941,12 @@
             const header = document.getElementById('header');
             header.classList.toggle('scrolled', window.scrollY > 50);
         });
+    </script>
+    <script type="module">
+        import { updateMsgBadge, loadStoreInfo } from './js/nav-helper.js';
+        loadStoreInfo();
+        import { auth, onAuthStateChanged } from './js/firebase-config.js';
+        onAuthStateChanged(auth, user => updateMsgBadge(user ? user.uid : null));
     </script>
 </body>
 

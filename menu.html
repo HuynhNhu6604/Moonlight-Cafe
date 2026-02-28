@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="vi">
 
 <head>
@@ -27,7 +27,7 @@
         /* Page Header */
         .page-header {
             background: linear-gradient(135deg, var(--bg-dark), var(--primary));
-            padding: 120px 0 60px;
+            padding: 50px 0 50px;
             text-align: center;
         }
 
@@ -340,6 +340,11 @@
             color: var(--text-dark);
         }
 
+        .product-action-btn i.fa-heart.active {
+            color: #ef4444;
+            font-weight: 900;
+        }
+
         .product-info {
             padding: 20px;
         }
@@ -364,6 +369,7 @@
             margin-bottom: 10px;
             display: -webkit-box;
             -webkit-line-clamp: 2;
+            line-clamp: 2;
             -webkit-box-orient: vertical;
             overflow: hidden;
         }
@@ -562,29 +568,36 @@
         <div class="container">
             <nav class="nav">
                 <a href="index.html" class="nav-brand">
-                    <span class="nav-brand-icon">🌙</span>
+                    <div class="nav-logo-wrapper"><img src="images/logo.png?v=4" alt="Moonlight Cafe" class="nav-logo"></div>
                     <span class="nav-brand-text">Moonlight Cafe</span>
                 </a>
 
                 <ul class="nav-menu" id="navMenu">
                     <li><a href="index.html" class="nav-link">Trang chủ</a></li>
                     <li><a href="menu.html" class="nav-link active">Menu</a></li>
+                    <li><a href="promotions.html" class="nav-link">Khuyến mãi</a></li>
                     <li><a href="news.html" class="nav-link">Tin tức</a></li>
                     <li><a href="about.html" class="nav-link">Về chúng tôi</a></li>
+                    <li><a href="contact.html" class="nav-link">Liên hệ</a></li>
+                    <li><a href="reservation.html" class="nav-link">Đặt bàn</a></li>
                 </ul>
 
                 <div class="nav-actions">
+                    <a href="contact.html" class="nav-icon hidden" id="msgIcon" title="Tin nhắn từ tiệm">
+                        <i class="fas fa-envelope"></i>
+                        <span class="badge" id="msgCount" style="display:none">0</span>
+                    </a>
                     <a href="cart.html" class="nav-icon">
                         <i class="fas fa-shopping-bag"></i>
                         <span class="badge" id="cartCount">0</span>
                     </a>
-                    <a href="login.html" class="nav-icon">
+                    <div class="nav-icon" id="userIcon" style="cursor:pointer;">
                         <i class="fas fa-user"></i>
-                    </a>
+                    </div>
                     <div class="nav-toggle" id="navToggle">
-                        <span></span>
-                        <span></span>
-                        <span></span>
+                        <div class="nav-logo-wrapper"><img src="images/logo.png?v=4" alt="Moonlight Cafe" class="nav-logo"></div>
+                        <div class="nav-logo-wrapper"><img src="images/logo.png?v=4" alt="Moonlight Cafe" class="nav-logo"></div>
+                        <div class="nav-logo-wrapper"><img src="images/logo.png?v=4" alt="Moonlight Cafe" class="nav-logo"></div>
                     </div>
                 </div>
             </nav>
@@ -732,14 +745,14 @@
             <div class="footer-grid">
                 <div class="footer-col">
                     <div class="footer-brand">
-                        <span>🌙</span>
+                        <div class="nav-logo-wrapper"><img src="images/logo.png?v=4" alt="Moonlight Cafe" class="nav-logo"></div>
                         <span class="nav-brand-text">Moonlight Cafe</span>
                     </div>
-                    <p>Nơi thưởng thức cà phê và bánh ngọt thượng hạng.</p>
+                    <p id="footer-slogan">Nơi thưởng thức cà phê và bánh ngọt thượng hạng.</p>
                     <div class="footer-social">
-                        <a href="#"><i class="fab fa-facebook-f"></i></a>
-                        <a href="#"><i class="fab fa-instagram"></i></a>
-                        <a href="#"><i class="fab fa-tiktok"></i></a>
+                        <a href="#" id="footer-fb"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" id="footer-ig"><i class="fab fa-instagram"></i></a>
+                        <a href="#" id="footer-tt"><i class="fab fa-tiktok"></i></a>
                     </div>
                 </div>
 
@@ -756,22 +769,33 @@
                 <div class="footer-col">
                     <h4 class="footer-title">Liên hệ</h4>
                     <ul class="footer-contact">
-                        <li><i class="fas fa-map-marker-alt"></i> 123 Đường ABC, TP.HCM</li>
-                        <li><i class="fas fa-phone"></i> 0123 456 789</li>
-                        <li><i class="fas fa-envelope"></i> hello@moonlightcafe.vn</li>
+                        <li><i class="fas fa-map-marker-alt"></i> <span id="footer-address">66 Nguyễn Đệ, Cái Khế, Cần Thơ</span></li>
+                        <li><i class="fas fa-phone"></i> <span id="footer-phone">0110 766 204</span></li>
+                        <li><i class="fas fa-envelope"></i> <span id="footer-email">moonlightcafe@gmail.com</span></li>
                     </ul>
                 </div>
             </div>
 
             <div class="footer-bottom">
-                <p>&copy; 2024 Moonlight Cafe. All rights reserved.</p>
+                <p id="footer-copyright">&copy; 2026 Moonlight Cafe. All rights reserved.</p>
             </div>
         </div>
     </footer>
 
+    <!-- User Dropdown -->
+    <div class="user-dropdown" id="userDropdown">
+        <div class="user-dropdown-header" id="userInfo">
+            <i class="fas fa-user-circle"></i>
+            <span>Tài khoản</span>
+        </div>
+        <div class="user-dropdown-menu"></div>
+    </div>
+
     <script type="module">
         import { auth, db, ref, get, onValue, onAuthStateChanged } from './js/firebase-config.js';
         import { saveUserSession } from './js/auth-helper.js';
+        import { initUserDropdown } from './js/nav-helper.js';
+        initUserDropdown();
 
         // State
         let allProducts = [];
@@ -854,8 +878,8 @@
                 const productsRef = ref(db, 'products');
                 const snapshot = await get(productsRef);
 
+                allProducts = [];
                 if (snapshot.exists()) {
-                    allProducts = [];
                     snapshot.forEach((child) => {
                         const product = child.val();
                         product.id = child.key;
@@ -863,9 +887,6 @@
                             allProducts.push(product);
                         }
                     });
-                } else {
-                    // Sample products for demo
-                    allProducts = getSampleProducts();
                 }
 
                 updateCategoryCounts();
@@ -873,29 +894,10 @@
 
             } catch (error) {
                 console.error('Error loading products:', error);
-                allProducts = getSampleProducts();
+                allProducts = [];
                 updateCategoryCounts();
                 filterAndRenderProducts();
             }
-        }
-
-        function getSampleProducts() {
-            return [
-                { id: '1', name: 'Cappuccino', category: 'coffee', price: 45000, imageUrl: 'https://images.unsplash.com/photo-1572442388796-11668a67e53d?w=400', description: 'Cà phê espresso pha với sữa nóng và bọt sữa mịn', badge: 'Hot' },
-                { id: '2', name: 'Latte', category: 'coffee', price: 50000, imageUrl: 'https://images.unsplash.com/photo-1570968915860-54d5c301fa9f?w=400', description: 'Cà phê espresso với nhiều sữa nóng' },
-                { id: '3', name: 'Americano', category: 'coffee', price: 40000, imageUrl: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=400', description: 'Cà phê espresso pha loãng với nước nóng' },
-                { id: '4', name: 'Espresso', category: 'coffee', price: 35000, imageUrl: 'https://images.unsplash.com/photo-1510707577719-ae7c14805e3a?w=400', description: 'Cà phê đậm đặc nguyên chất' },
-                { id: '5', name: 'Matcha Latte', category: 'tea', price: 55000, imageUrl: 'https://images.unsplash.com/photo-1515823064-d6e0c04616a7?w=400', description: 'Trà xanh Nhật Bản pha với sữa', badge: 'Best Seller' },
-                { id: '6', name: 'Trà Đào', category: 'tea', price: 45000, imageUrl: 'https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=400', description: 'Trà đào mát lạnh với đào tươi' },
-                { id: '7', name: 'Trà Chanh Mật Ong', category: 'tea', price: 40000, imageUrl: 'https://images.unsplash.com/photo-1544787219-7f47ccb76574?w=400', description: 'Trà chanh pha mật ong nguyên chất' },
-                { id: '8', name: 'Sinh Tố Xoài', category: 'smoothie', price: 50000, imageUrl: 'https://images.unsplash.com/photo-1623065422902-30a2d299bbe4?w=400', description: 'Sinh tố xoài tươi mát lạnh' },
-                { id: '9', name: 'Sinh Tố Dâu', category: 'smoothie', price: 55000, imageUrl: 'https://images.unsplash.com/photo-1553530666-ba11a7da3888?w=400', description: 'Sinh tố dâu tây tươi' },
-                { id: '10', name: 'Tiramisu', category: 'pastry', price: 65000, imageUrl: 'https://images.unsplash.com/photo-1571877227200-a0d98ea607e9?w=400', description: 'Bánh Tiramisu Italy chính hiệu', badge: 'New' },
-                { id: '11', name: 'Croissant', category: 'pastry', price: 35000, imageUrl: 'https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=400', description: 'Bánh sừng bò Pháp thơm bơ' },
-                { id: '12', name: 'Cheesecake', category: 'pastry', price: 60000, imageUrl: 'https://images.unsplash.com/photo-1533134242443-d4fd215305ad?w=400', description: 'Bánh phô mai New York style' },
-                { id: '13', name: 'Bánh Mì Việt Nam', category: 'snack', price: 30000, imageUrl: 'https://images.unsplash.com/photo-1600326145552-327f74b9c189?w=400', description: 'Bánh mì Việt Nam truyền thống' },
-                { id: '14', name: 'Sandwich', category: 'snack', price: 45000, imageUrl: 'https://images.unsplash.com/photo-1528735602780-2552fd46c7af?w=400', description: 'Sandwich thịt nguội phô mai' }
-            ];
         }
 
         function updateCategoryCounts() {
@@ -972,41 +974,47 @@
                 return;
             }
 
-            productsGrid.innerHTML = pageProducts.map(product => `
+            const favorites = JSON.parse(localStorage.getItem('moonlight_wishlist')) || [];
+
+            productsGrid.innerHTML = pageProducts.map(product => {
+                const isFavorite = favorites.some(item => String(item.id) === String(product.id));
+                const heartClass = isFavorite ? 'fas fa-heart active' : 'far fa-heart';
+
+                return `
                 <div class="product-card">
                     <div class="product-img-wrapper">
-                        <img src="${product.imageUrl || 'https://via.placeholder.com/300x200'}" 
-                             alt="${product.name}" class="product-img">
+                        <img src="${product.imageUrl || 'https://via.placeholder.com/300x200'}"
+                             alt="${product.name}" class="product-img" onclick="viewProduct('${product.id}')" style="cursor: pointer;">
                         ${product.badge ? `<span class="product-badge">${product.badge}</span>` : ''}
                         <div class="product-actions">
-                            <button class="product-action-btn" onclick="addToCart('${product.id}', '${product.name}', ${product.price}, '${product.imageUrl || ''}')">
+                            <button class="product-action-btn" onclick="addToCart('${product.id}', '${product.name}', ${product.price}, '${product.imageUrl || ''}')" title="Thêm vào giỏ hàng">
                                 <i class="fas fa-shopping-bag"></i>
                             </button>
-                            <button class="product-action-btn">
-                                <i class="fas fa-heart"></i>
+                            <button class="product-action-btn" onclick="toggleFavorite('${product.id}', '${product.name.replace(/'/g, "\\'")}', ${product.price}, '${product.imageUrl || ''}', '${product.category || 'coffee'}')" title="Yêu thích">
+                                <i class="${heartClass}" id="heart-icon-${product.id}"></i>
                             </button>
-                            <button class="product-action-btn" onclick="viewProduct('${product.id}')">
+                            <button class="product-action-btn" onclick="viewProduct('${product.id}')" title="Xem chi tiết">
                                 <i class="fas fa-eye"></i>
                             </button>
                         </div>
                     </div>
                     <div class="product-info">
                         <span class="product-category">${getCategoryName(product.category)}</span>
-                        <h4 class="product-name">${product.name}</h4>
+                        <h4 class="product-name" onclick="viewProduct('${product.id}')" style="cursor: pointer;">${product.name}</h4>
                         <p class="product-description">${product.description || ''}</p>
                         <div class="product-footer">
                             <div class="product-price">
                                 ${formatPrice(product.price)}
                                 ${product.oldPrice ? `<span class="product-price-old">${formatPrice(product.oldPrice)}</span>` : ''}
                             </div>
-                            <button class="btn btn-primary btn-sm add-to-cart-btn" 
+                            <button class="btn btn-primary btn-sm add-to-cart-btn"
                                     onclick="addToCart('${product.id}', '${product.name}', ${product.price}, '${product.imageUrl || ''}')">
                                 <i class="fas fa-plus"></i>
                             </button>
                         </div>
                     </div>
                 </div>
-            `).join('');
+            `}).join('');
         }
 
         function renderPagination() {
@@ -1112,7 +1120,23 @@
         };
 
         window.addToCart = function (id, name, price, imageUrl) {
-            const cart = JSON.parse(localStorage.getItem('moonlight_cart')) || [];
+            const user = auth.currentUser;
+            if (!user) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Chưa đăng nhập',
+                    text: 'Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng!',
+                    showCancelButton: true,
+                    confirmButtonText: 'Đăng nhập',
+                    cancelButtonText: 'Hủy',
+                    confirmButtonColor: '#d4a574'
+                }).then((result) => {
+                    if (result.isConfirmed) window.location.href = 'login.html';
+                });
+                return;
+            }
+            const cartKey = `moonlight_cart_${user.uid}`;
+            const cart = JSON.parse(localStorage.getItem(cartKey)) || [];
             const existingItem = cart.find(item => item.id === id);
 
             if (existingItem) {
@@ -1121,7 +1145,7 @@
                 cart.push({ id, name, price, imageUrl, quantity: 1 });
             }
 
-            localStorage.setItem('moonlight_cart', JSON.stringify(cart));
+            localStorage.setItem(cartKey, JSON.stringify(cart));
             updateCartCount();
 
             Swal.fire({
@@ -1139,8 +1163,51 @@
             window.location.href = `product-detail.html?id=${id}`;
         };
 
+        window.toggleFavorite = function (id, name, price, imageUrl, category) {
+            let wishlist = JSON.parse(localStorage.getItem('moonlight_wishlist')) || [];
+            const index = wishlist.findIndex(item => String(item.id) === String(id));
+            const icon = document.getElementById(`heart-icon-${id}`);
+
+            if (index > -1) {
+                wishlist.splice(index, 1);
+                if (icon) {
+                    icon.className = 'far fa-heart';
+                }
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Đã bỏ yêu thích',
+                    text: 'Sản phẩm đã được xóa khỏi danh sách yêu thích.',
+                    toast: true,
+                    position: 'bottom-end',
+                    showConfirmButton: false,
+                    timer: 2000
+                });
+            } else {
+                wishlist.push({ id, name, price: parseInt(price), image: imageUrl, category });
+                if (icon) {
+                    icon.className = 'fas fa-heart active';
+                }
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Đã thêm yêu thích',
+                    text: 'Sản phẩm đã ghim vào mục Yêu thích.',
+                    toast: true,
+                    position: 'bottom-end',
+                    showConfirmButton: false,
+                    timer: 2000
+                });
+            }
+
+            localStorage.setItem('moonlight_wishlist', JSON.stringify(wishlist));
+        };
+
         function updateCartCount() {
-            const cart = JSON.parse(localStorage.getItem('moonlight_cart')) || [];
+            const user = auth.currentUser;
+            if (!user) {
+                document.getElementById('cartCount').textContent = 0;
+                return;
+            }
+            const cart = JSON.parse(localStorage.getItem(`moonlight_cart_${user.uid}`)) || [];
             const total = cart.reduce((sum, item) => sum + item.quantity, 0);
             document.getElementById('cartCount').textContent = total;
         }
@@ -1153,8 +1220,10 @@
     <!-- TuDongChat AI Chatbot -->
     <script src="https://app.tudongchat.com/js/chatbox.js"></script>
     <script>
-        const tudong_chatbox = new TuDongChat('XUitpr3VDU2e5vJgSRYO9')
-        tudong_chatbox.initial()
+        try {
+            const tudong_chatbox = new TuDongChat('XUitpr3VDU2e5vJgSRYO9');
+            tudong_chatbox.initial();
+        } catch(e) {}
     </script>
 </body>
 

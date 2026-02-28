@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="vi">
 
 <head>
@@ -116,17 +116,69 @@
             padding-left: 45px;
         }
 
-        .password-toggle {
-            position: absolute;
-            right: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            cursor: pointer;
+        /* Ẩn icon native của Chrome/Edge */
+        input[type="password"]::-ms-reveal,
+        input[type="password"]::-ms-clear {
+            display: none !important;
+        }
+
+        /* Wrapper cho field mật khẩu */
+        .password-wrapper {
+            display: flex;
+            align-items: center;
+            border: 1px solid var(--secondary);
+            border-radius: var(--radius-sm);
+            background: var(--bg-dark);
+            overflow: hidden;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .password-wrapper:focus-within {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(212, 165, 116, 0.1);
+        }
+
+        .password-wrapper .input-left-icon {
+            position: static;
+            transform: none;
+            padding: 0 0 0 15px;
+            flex-shrink: 0;
             color: var(--text-muted);
+        }
+
+        .password-wrapper .form-control {
+            border: none !important;
+            box-shadow: none !important;
+            background: transparent !important;
+            flex: 1;
+            padding-left: 10px;
+            padding-right: 8px;
+        }
+
+        .password-wrapper .form-control:focus {
+            border: none !important;
+            box-shadow: none !important;
+            outline: none !important;
+        }
+
+        .password-toggle {
+            flex-shrink: 0;
+            background: none;
+            border: none;
+            border-left: 1px solid var(--secondary);
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 0.95rem;
+            padding: 0 14px;
+            min-height: 48px;
+            display: flex;
+            align-items: center;
+            transition: color 0.2s, background 0.2s;
         }
 
         .password-toggle:hover {
             color: var(--accent);
+            background: rgba(212, 165, 116, 0.08);
         }
 
         .auth-btn {
@@ -235,7 +287,7 @@
             </div>
             <div class="auth-form-container">
                 <div class="auth-header">
-                    <div class="auth-logo"><span>🌙</span><span class="auth-logo-text">Moonlight Cafe</span></div>
+                    <div class="auth-logo"><div class="nav-logo-wrapper"><img src="images/logo.png?v=4" alt="Moonlight Cafe" class="nav-logo"></div><span class="auth-logo-text">Moonlight Cafe</span></div>
                     <h1 class="auth-title">Đăng nhập</h1>
                     <p class="auth-subtitle">Nhập thông tin tài khoản của bạn</p>
                 </div>
@@ -249,10 +301,12 @@
                     </div>
                     <div class="form-group">
                         <label class="form-label">Mật khẩu</label>
-                        <div class="input-icon-wrapper">
-                            <i class="fas fa-lock"></i>
+                        <div class="password-wrapper">
+                            <i class="fas fa-lock input-left-icon"></i>
                             <input type="password" class="form-control" id="password" placeholder="••••••••" required>
-                            <i class="fas fa-eye password-toggle" id="togglePassword"></i>
+                            <button type="button" class="password-toggle" id="togglePassword" title="Ẩn/hiện mật khẩu">
+                                <i class="fas fa-eye"></i>
+                            </button>
                         </div>
                     </div>
                     <div class="form-options"
@@ -295,7 +349,7 @@
             // Initialize Firebase (only once)
             const { initializeApp } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js');
             const { getAuth, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, getRedirectResult, onAuthStateChanged } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js');
-            const { getDatabase, ref, set, get, onValue } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js');
+            const { getDatabase, ref, set, get, update, onValue } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js');
             const { ADMIN_EMAILS } = await import('./js/auth-helper.js');
 
             let app;
@@ -320,10 +374,10 @@
             if (togglePasswordBtn) {
                 togglePasswordBtn.addEventListener('click', function () {
                     const input = document.getElementById('password');
-                    const type = input.type === 'password' ? 'text' : 'password';
-                    input.type = type;
-                    this.classList.toggle('fa-eye');
-                    this.classList.toggle('fa-eye-slash');
+                    const icon = this.querySelector('i');
+                    input.type = input.type === 'password' ? 'text' : 'password';
+                    icon.classList.toggle('fa-eye');
+                    icon.classList.toggle('fa-eye-slash');
                 });
             }
 
@@ -340,6 +394,9 @@
                     if (snapshot.exists()) {
                         userData = snapshot.val();
                     }
+
+                    // Track last login time for activity status
+                    try { await update(userRef, { lastLoginAt: Date.now() }); } catch(_) {}
 
                     // Save to localStorage
                     localStorage.setItem('moonlight_user', JSON.stringify({
@@ -463,6 +520,12 @@
                             errorMsg = 'Bạn đã đóng cửa sổ đăng nhập';
                         } else if (error.code === 'auth/popup-blocked') {
                             errorMsg = 'Trình duyệt chặn popup. Vui lòng cho phép popup cho trang này';
+                        } else if (error.code === 'auth/operation-not-allowed') {
+                            errorMsg = 'LỖI: Phương thức đăng nhập Google chưa được bật trong cài đặt Firebase Console.';
+                        } else if (error.code === 'auth/unauthorized-domain') {
+                            errorMsg = 'LỖI: Tên miền hiện tại chưa được thêm vào danh sách Authorized Domains trên Firebase.';
+                        } else {
+                            errorMsg = error.message;
                         }
 
                         Swal.fire({
@@ -482,8 +545,10 @@
     <!-- TuDongChat AI Chatbot -->
     <script src="https://app.tudongchat.com/js/chatbox.js"></script>
     <script>
-        const tudong_chatbox = new TuDongChat('XUitpr3VDU2e5vJgSRYO9')
-        tudong_chatbox.initial()
+        try {
+            const tudong_chatbox = new TuDongChat('XUitpr3VDU2e5vJgSRYO9');
+            tudong_chatbox.initial();
+        } catch(e) {}
     </script>
 </body>
 

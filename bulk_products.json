@@ -1,0 +1,1352 @@
+[
+    {
+        "name": "Signature Sữa Đá",
+        "category": "coffee",
+        "price": 31000,
+        "description": "Thưởng thức Signature Sữa Đá - một bản giao hưởng hương vị tuyệt vời. Vị béo ngậy của sữa hòa quyện vị đắng nhẹ lưu luyến mãi nơi đầu lưỡi.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Signature Trứng",
+        "category": "coffee",
+        "price": 38000,
+        "description": "Từng giọt Signature Trứng là sự chắt lọc tinh túy. Thanh tao, êm dịu và đậm đà khó quên đến bất ngờ.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Cold Brew Caramel",
+        "category": "coffee",
+        "price": 62000,
+        "description": "Trải nghiệm chuẩn mực mới của cà phê. Cold Brew Caramel mang đến sự kết hợp hoàn hảo giữa hạt cà phê rang mộc chuẩn Ý và bí quyết pha chế độc quyền.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Moonlight Cốt Dừa Đặc Biệt",
+        "category": "coffee",
+        "price": 38000,
+        "description": "Từng giọt Moonlight Cốt Dừa Đặc Biệt là sự chắt lọc tinh túy. Thanh tao, êm dịu và nồng nàn quyến rũ đến bất ngờ.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Moonlight Sữa Đá Đặc Biệt",
+        "category": "coffee",
+        "price": 27000,
+        "description": "Khởi đầu ngày mới với Moonlight Sữa Đá Đặc Biệt. Hương vị nồng nàn quyến rũ từ những hạt cà phê phối trộn độc quyền tuyển chọn khắt khe nhất.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Signature Mocha",
+        "category": "coffee",
+        "price": 61000,
+        "description": "Từng giọt Signature Mocha là sự chắt lọc tinh túy. Thanh tao, êm dịu và đậm đà khó quên đến bất ngờ.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Trứng Caramel",
+        "category": "coffee",
+        "price": 31000,
+        "description": "Trải nghiệm chuẩn mực mới của cà phê. Trứng Caramel mang đến sự kết hợp hoàn hảo giữa Robusta Đắk Lắk thượng hạng và bí quyết pha chế độc quyền.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Americano Sương Sớm",
+        "category": "coffee",
+        "price": 38000,
+        "description": "Thưởng thức Americano Sương Sớm - một bản giao hưởng hương vị tuyệt vời. Vị mộc mạc, đậm chất lưu luyến mãi nơi đầu lưỡi.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Signature Americano",
+        "category": "coffee",
+        "price": 54000,
+        "description": "Khởi đầu ngày mới với Signature Americano. Hương vị thơm lừng lan tỏa từ những hạt Robusta Đắk Lắk thượng hạng tuyển chọn khắt khe nhất.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Cà phê Espresso Hoàng Gia",
+        "category": "coffee",
+        "price": 50000,
+        "description": "Khởi đầu ngày mới với Cà phê Espresso Hoàng Gia. Hương vị thơm lừng lan tỏa từ những hạt cà phê phối trộn độc quyền tuyển chọn khắt khe nhất.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Signature Cappuccino",
+        "category": "coffee",
+        "price": 41000,
+        "description": "Từng giọt Signature Cappuccino là sự chắt lọc tinh túy. Thanh tao, êm dịu và tinh tế đến bất ngờ.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Espresso Hương Mộc",
+        "category": "coffee",
+        "price": 39000,
+        "description": "Thưởng thức Espresso Hương Mộc - một bản giao hưởng hương vị tuyệt vời. Vị thanh tao, chua nhẹ đặc trưng lưu luyến mãi nơi đầu lưỡi.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Cà phê Muối Đậm Đà",
+        "category": "coffee",
+        "price": 49000,
+        "description": "Trải nghiệm chuẩn mực mới của cà phê. Cà phê Muối Đậm Đà mang đến sự kết hợp hoàn hảo giữa hạt cà phê rang mộc chuẩn Ý và bí quyết pha chế độc quyền.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Cà phê Mocha Hoàng Gia",
+        "category": "coffee",
+        "price": 32000,
+        "description": "Khởi đầu ngày mới với Cà phê Mocha Hoàng Gia. Hương vị đậm đà khó quên từ những hạt cà phê phối trộn độc quyền tuyển chọn khắt khe nhất.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Moonlight Latte Đặc Biệt",
+        "category": "coffee",
+        "price": 65000,
+        "description": "Khởi đầu ngày mới với Moonlight Latte Đặc Biệt. Hương vị nồng nàn quyến rũ từ những hạt Arabica Cầu Đất nguyên chất tuyển chọn khắt khe nhất.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Moonlight Muối Đặc Biệt",
+        "category": "coffee",
+        "price": 59000,
+        "description": "Trải nghiệm chuẩn mực mới của cà phê. Moonlight Muối Đặc Biệt mang đến sự kết hợp hoàn hảo giữa Robusta Đắk Lắk thượng hạng và bí quyết pha chế độc quyền.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Cà phê Đen Đá Hoàng Gia",
+        "category": "coffee",
+        "price": 44000,
+        "description": "Từng giọt Cà phê Đen Đá Hoàng Gia là sự chắt lọc tinh túy. Thanh tao, êm dịu và đậm đà khó quên đến bất ngờ.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Đen Đá Hương Mộc",
+        "category": "coffee",
+        "price": 59000,
+        "description": "Khởi đầu ngày mới với Đen Đá Hương Mộc. Hương vị đậm đà khó quên từ những hạt Arabica Cầu Đất nguyên chất tuyển chọn khắt khe nhất.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Bạc Xỉu Sô Cô La Đen",
+        "category": "coffee",
+        "price": 59000,
+        "description": "Trải nghiệm chuẩn mực mới của cà phê. Bạc Xỉu Sô Cô La Đen mang đến sự kết hợp hoàn hảo giữa Robusta Đắk Lắk thượng hạng và bí quyết pha chế độc quyền.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Moonlight Mocha Đặc Biệt",
+        "category": "coffee",
+        "price": 46000,
+        "description": "Khởi đầu ngày mới với Moonlight Mocha Đặc Biệt. Hương vị thơm lừng lan tỏa từ những hạt Arabica Cầu Đất nguyên chất tuyển chọn khắt khe nhất.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Cà phê Macchiato Nguyên Bản",
+        "category": "coffee",
+        "price": 39000,
+        "description": "Trải nghiệm chuẩn mực mới của cà phê. Cà phê Macchiato Nguyên Bản mang đến sự kết hợp hoàn hảo giữa Arabica Cầu Đất nguyên chất và bí quyết pha chế độc quyền.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Cà phê Đen Đá Hiện Đại",
+        "category": "coffee",
+        "price": 59000,
+        "description": "Trải nghiệm chuẩn mực mới của cà phê. Cà phê Đen Đá Hiện Đại mang đến sự kết hợp hoàn hảo giữa Robusta Đắk Lắk thượng hạng và bí quyết pha chế độc quyền.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Trứng Hương Mộc",
+        "category": "coffee",
+        "price": 37000,
+        "description": "Từng giọt Trứng Hương Mộc là sự chắt lọc tinh túy. Thanh tao, êm dịu và thơm lừng lan tỏa đến bất ngờ.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Cà phê Sữa Đá Rang Mộc",
+        "category": "coffee",
+        "price": 28000,
+        "description": "Thưởng thức Cà phê Sữa Đá Rang Mộc - một bản giao hưởng hương vị tuyệt vời. Vị thanh tao, chua nhẹ đặc trưng lưu luyến mãi nơi đầu lưỡi.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Signature Flat White",
+        "category": "coffee",
+        "price": 40000,
+        "description": "Khởi đầu ngày mới với Signature Flat White. Hương vị tinh tế từ những hạt Arabica Cầu Đất nguyên chất tuyển chọn khắt khe nhất.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Espresso Sô Cô La Đen",
+        "category": "coffee",
+        "price": 54000,
+        "description": "Trải nghiệm chuẩn mực mới của cà phê. Espresso Sô Cô La Đen mang đến sự kết hợp hoàn hảo giữa cà phê phối trộn độc quyền và bí quyết pha chế độc quyền.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Muối Sô Cô La Đen",
+        "category": "coffee",
+        "price": 40000,
+        "description": "Khởi đầu ngày mới với Muối Sô Cô La Đen. Hương vị đậm đà khó quên từ những hạt Arabica Cầu Đất nguyên chất tuyển chọn khắt khe nhất.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Latte Sô Cô La Đen",
+        "category": "coffee",
+        "price": 49000,
+        "description": "Trải nghiệm chuẩn mực mới của cà phê. Latte Sô Cô La Đen mang đến sự kết hợp hoàn hảo giữa Robusta Đắk Lắk thượng hạng và bí quyết pha chế độc quyền.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Cà phê Latte Hiện Đại",
+        "category": "coffee",
+        "price": 37000,
+        "description": "Thưởng thức Cà phê Latte Hiện Đại - một bản giao hưởng hương vị tuyệt vời. Vị thanh tao, chua nhẹ đặc trưng lưu luyến mãi nơi đầu lưỡi.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Moonlight Espresso Đặc Biệt",
+        "category": "coffee",
+        "price": 62000,
+        "description": "Khởi đầu ngày mới với Moonlight Espresso Đặc Biệt. Hương vị nồng nàn quyến rũ từ những hạt Arabica Cầu Đất nguyên chất tuyển chọn khắt khe nhất.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Trà Vải Nhiệt Đới",
+        "category": "tea",
+        "price": 49000,
+        "description": "Thanh lọc cơ thể và tâm hồn với Trà Vải Nhiệt Đới. Vị trà thanh mát mượt mà được ủ từ những lá trà cổ thụ nguyên sương hái tay lúc bình minh.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Trà Earl Grey Mật Ong",
+        "category": "tea",
+        "price": 43000,
+        "description": "Thanh lọc cơ thể và tâm hồn với Trà Earl Grey Mật Ong. Vị trà ngát hương hoa được ủ từ những lá trà cổ thụ nguyên sương hái tay lúc bình minh.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Trà Cúc Cung Đình",
+        "category": "tea",
+        "price": 37000,
+        "description": "Dành cho những tâm hồn tinh tế, Trà Cúc Cung Đình tỏa ra hương thơm nồng nàn của hồng trà nhập khẩu cao cấp, đọng lại vị thơm ngát hoa trái tươi.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Moonlight Dâu Điền Trang",
+        "category": "tea",
+        "price": 30000,
+        "description": "Dành cho những tâm hồn tinh tế, Moonlight Dâu Điền Trang tỏa ra hương thơm nồng nàn của trà cổ thụ nguyên sương, đọng lại vị thanh tao thư thái.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Trà Cúc Nhiệt Đới",
+        "category": "tea",
+        "price": 41000,
+        "description": "Thanh lọc cơ thể và tâm hồn với Trà Cúc Nhiệt Đới. Vị trà ngát hương hoa được ủ từ những lá búp trà non tươi tắn hái tay lúc bình minh.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Trà Sen Sả Tắc",
+        "category": "tea",
+        "price": 51000,
+        "description": "Trà Sen Sả Tắc mang theo hơi thở của thiên nhiên. Sự hòa quyện bùng nổ giữa thanh tao thư thái tạo nên thức uống giải nhiệt hoàn hảo.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Bạch Trà Thượng Cát",
+        "category": "tea",
+        "price": 53000,
+        "description": "Bạch Trà Thượng Cát mang theo hơi thở của thiên nhiên. Sự hòa quyện bùng nổ giữa chát nhẹ, ngọt sâu tạo nên thức uống giải nhiệt hoàn hảo.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Xanh Thượng Cát",
+        "category": "tea",
+        "price": 46000,
+        "description": "Xanh Thượng Cát mang theo hơi thở của thiên nhiên. Sự hòa quyện bùng nổ giữa thơm ngát hoa trái tươi tạo nên thức uống giải nhiệt hoàn hảo.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Trà Bạch Trà Nhiệt Đới",
+        "category": "tea",
+        "price": 40000,
+        "description": "Thư giãn tuyệt đối với một ly Trà Bạch Trà Nhiệt Đới. Công thức độc quyền mang đến trải nghiệm tươi mới rạng rỡ vượt ngoài mong đợi.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Earl Grey Hoàng Kim",
+        "category": "tea",
+        "price": 32000,
+        "description": "Thư giãn tuyệt đối với một ly Earl Grey Hoàng Kim. Công thức độc quyền mang đến trải nghiệm êm ái vượt ngoài mong đợi.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Trà Xanh Cung Đình",
+        "category": "tea",
+        "price": 31000,
+        "description": "Dành cho những tâm hồn tinh tế, Trà Xanh Cung Đình tỏa ra hương thơm nồng nàn của búp trà non tươi tắn, đọng lại vị ngọt ngào khó cưỡng.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Moonlight Lài Điền Trang",
+        "category": "tea",
+        "price": 54000,
+        "description": "Moonlight Lài Điền Trang mang theo hơi thở của thiên nhiên. Sự hòa quyện bùng nổ giữa chát nhẹ, ngọt sâu tạo nên thức uống giải nhiệt hoàn hảo.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Dâu Thượng Cát",
+        "category": "tea",
+        "price": 43000,
+        "description": "Dâu Thượng Cát mang theo hơi thở của thiên nhiên. Sự hòa quyện bùng nổ giữa thơm ngát hoa trái tươi tạo nên thức uống giải nhiệt hoàn hảo.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Trà Xanh Sả Tắc",
+        "category": "tea",
+        "price": 55000,
+        "description": "Thư giãn tuyệt đối với một ly Trà Xanh Sả Tắc. Công thức độc quyền mang đến trải nghiệm ngát hương hoa vượt ngoài mong đợi.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Trà Đen Cung Đình",
+        "category": "tea",
+        "price": 41000,
+        "description": "Thư giãn tuyệt đối với một ly Trà Đen Cung Đình. Công thức độc quyền mang đến trải nghiệm ngát hương hoa vượt ngoài mong đợi.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Moonlight Sen Điền Trang",
+        "category": "tea",
+        "price": 32000,
+        "description": "Moonlight Sen Điền Trang mang theo hơi thở của thiên nhiên. Sự hòa quyện bùng nổ giữa thanh tao thư thái tạo nên thức uống giải nhiệt hoàn hảo.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Trà Earl Grey Nhiệt Đới",
+        "category": "tea",
+        "price": 48000,
+        "description": "Thanh lọc cơ thể và tâm hồn với Trà Earl Grey Nhiệt Đới. Vị trà thanh mát mượt mà được ủ từ những lá búp trà non tươi tắn hái tay lúc bình minh.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Moonlight Oolong Điền Trang",
+        "category": "tea",
+        "price": 49000,
+        "description": "Thư giãn tuyệt đối với một ly Moonlight Oolong Điền Trang. Công thức độc quyền mang đến trải nghiệm tươi mới rạng rỡ vượt ngoài mong đợi.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Đen Thượng Cát",
+        "category": "tea",
+        "price": 30000,
+        "description": "Đen Thượng Cát mang theo hơi thở của thiên nhiên. Sự hòa quyện bùng nổ giữa chát nhẹ, ngọt sâu tạo nên thức uống giải nhiệt hoàn hảo.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Vải Thượng Cát",
+        "category": "tea",
+        "price": 51000,
+        "description": "Vải Thượng Cát mang theo hơi thở của thiên nhiên. Sự hòa quyện bùng nổ giữa ngọt ngào khó cưỡng tạo nên thức uống giải nhiệt hoàn hảo.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Moonlight Cúc Điền Trang",
+        "category": "tea",
+        "price": 40000,
+        "description": "Thanh lọc cơ thể và tâm hồn với Moonlight Cúc Điền Trang. Vị trà tươi mới rạng rỡ được ủ từ những lá lục trà Thái Nguyên sấy lạnh hái tay lúc bình minh.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Trà Matcha Nhiệt Đới",
+        "category": "tea",
+        "price": 51000,
+        "description": "Trà Matcha Nhiệt Đới mang theo hơi thở của thiên nhiên. Sự hòa quyện bùng nổ giữa ngọt ngào khó cưỡng tạo nên thức uống giải nhiệt hoàn hảo.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Moonlight Bạch Trà Điền Trang",
+        "category": "tea",
+        "price": 51000,
+        "description": "Dành cho những tâm hồn tinh tế, Moonlight Bạch Trà Điền Trang tỏa ra hương thơm nồng nàn của lục trà Thái Nguyên sấy lạnh, đọng lại vị ngọt ngào khó cưỡng.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Vải Thượng Dược",
+        "category": "tea",
+        "price": 32000,
+        "description": "Vải Thượng Dược mang theo hơi thở của thiên nhiên. Sự hòa quyện bùng nổ giữa thanh tao thư thái tạo nên thức uống giải nhiệt hoàn hảo.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Xanh Hoa Quả",
+        "category": "tea",
+        "price": 43000,
+        "description": "Xanh Hoa Quả mang theo hơi thở của thiên nhiên. Sự hòa quyện bùng nổ giữa chát nhẹ, ngọt sâu tạo nên thức uống giải nhiệt hoàn hảo.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Trà Dâu Cung Đình",
+        "category": "tea",
+        "price": 54000,
+        "description": "Trà Dâu Cung Đình mang theo hơi thở của thiên nhiên. Sự hòa quyện bùng nổ giữa chát nhẹ, ngọt sâu tạo nên thức uống giải nhiệt hoàn hảo.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Trà Sen Nhiệt Đới",
+        "category": "tea",
+        "price": 44000,
+        "description": "Thư giãn tuyệt đối với một ly Trà Sen Nhiệt Đới. Công thức độc quyền mang đến trải nghiệm thanh mát mượt mà vượt ngoài mong đợi.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Đào Kem Cheese",
+        "category": "tea",
+        "price": 35000,
+        "description": "Dành cho những tâm hồn tinh tế, Đào Kem Cheese tỏa ra hương thơm nồng nàn của lục trà Thái Nguyên sấy lạnh, đọng lại vị ngọt ngào khó cưỡng.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Trà Đào Cung Đình",
+        "category": "tea",
+        "price": 38000,
+        "description": "Trà Đào Cung Đình mang theo hơi thở của thiên nhiên. Sự hòa quyện bùng nổ giữa ngọt ngào khó cưỡng tạo nên thức uống giải nhiệt hoàn hảo.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Trà Đen Nhiệt Đới",
+        "category": "tea",
+        "price": 47000,
+        "description": "Trà Đen Nhiệt Đới mang theo hơi thở của thiên nhiên. Sự hòa quyện bùng nổ giữa thanh tao thư thái tạo nên thức uống giải nhiệt hoàn hảo.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Sinh tố Dâu Tây Hạt Chia",
+        "category": "smoothie",
+        "price": 61000,
+        "description": "Giải nhiệt ngày hè cùng Sinh tố Dâu Tây Hạt Chia. Mỗi ngụm đều cảm nhận được sự sảng khoái từ trái cây tươi được thu hoạch mỗi ngày.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Moonlight Lựu Detox",
+        "category": "smoothie",
+        "price": 59000,
+        "description": "Giải nhiệt ngày hè cùng Moonlight Lựu Detox. Mỗi ngụm đều cảm nhận được sự sảng khoái từ trái cây tươi được thu hoạch mỗi ngày.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Cực Phẩm Chuối Xay",
+        "category": "smoothie",
+        "price": 54000,
+        "description": "Giải nhiệt ngày hè cùng Cực Phẩm Chuối Xay. Mỗi ngụm đều cảm nhận được sự sảng khoái từ trái cây tươi được thu hoạch mỗi ngày.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Moonlight Táo Detox",
+        "category": "smoothie",
+        "price": 62000,
+        "description": "Đầy ắp năng lượng tự nhiên trong ly Moonlight Táo Detox. Vị béo thơm thanh mát sẽ chinh phục cả những vị khách khó tính nhất.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Moonlight Bơ Detox",
+        "category": "smoothie",
+        "price": 74000,
+        "description": "Giải nhiệt ngày hè cùng Moonlight Bơ Detox. Mỗi ngụm đều cảm nhận được sự sảng khoái từ trái cây tươi được thu hoạch mỗi ngày.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Cực Phẩm Bơ Xay",
+        "category": "smoothie",
+        "price": 64000,
+        "description": "Bổ sung vitamin dồi dào với Cực Phẩm Bơ Xay. Trái cây tươi tuyển chọn 100% kết hợp cùng sữa chua Hy Lạp cho hương vị bùng nổ.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Nước ép Bơ Sữa Chua",
+        "category": "smoothie",
+        "price": 56000,
+        "description": "Thức uống organic thượng hạng mang tên Nước ép Bơ Sữa Chua. Giải pháp healthy 100% không đường tinh luyện, tôn vinh vị đậm đà hương trái cây nhiệt đới.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Moonlight Cà Chốt Detox",
+        "category": "smoothie",
+        "price": 57000,
+        "description": "Bổ sung vitamin dồi dào với Moonlight Cà Chốt Detox. Trái cây thanh lành kết hợp cùng sữa tươi không đường cho hương vị bùng nổ.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Nước ép Kiwi Detox",
+        "category": "smoothie",
+        "price": 36000,
+        "description": "Bổ sung vitamin dồi dào với Nước ép Kiwi Detox. Trái cây tươi tuyển chọn 100% kết hợp cùng sữa chua Hy Lạp cho hương vị bùng nổ.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Cực Phẩm Dâu Tây Xay",
+        "category": "smoothie",
+        "price": 51000,
+        "description": "Giải nhiệt ngày hè cùng Cực Phẩm Dâu Tây Xay. Mỗi ngụm đều cảm nhận được sự sảng khoái từ trái cây tươi được thu hoạch mỗi ngày.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Dâu Tây Nhiệt Đới Mix",
+        "category": "smoothie",
+        "price": 72000,
+        "description": "Bổ sung vitamin dồi dào với Dâu Tây Nhiệt Đới Mix. Trái cây organic thượng hạng kết hợp cùng sữa tươi không đường cho hương vị bùng nổ.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Sinh tố Cà Chốt Cốt Dừa",
+        "category": "smoothie",
+        "price": 72000,
+        "description": "Giải nhiệt ngày hè cùng Sinh tố Cà Chốt Cốt Dừa. Mỗi ngụm đều cảm nhận được sự sảng khoái từ trái cây tươi được thu hoạch mỗi ngày.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Healthy Kiwi",
+        "category": "smoothie",
+        "price": 69000,
+        "description": "Thức uống tươi tuyển chọn 100% mang tên Healthy Kiwi. Giải pháp healthy 100% không đường tinh luyện, tôn vinh vị chua ngọt tự nhiên.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Moonlight Kiwi Detox",
+        "category": "smoothie",
+        "price": 41000,
+        "description": "Thức uống tươi tuyển chọn 100% mang tên Moonlight Kiwi Detox. Giải pháp healthy 100% không đường tinh luyện, tôn vinh vị đậm đà hương trái cây nhiệt đới.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Healthy Dâu Tây",
+        "category": "smoothie",
+        "price": 72000,
+        "description": "Thức uống thanh lành mang tên Healthy Dâu Tây. Giải pháp healthy 100% không đường tinh luyện, tôn vinh vị đậm đà hương trái cây nhiệt đới.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Lựu Nhiệt Đới Mix",
+        "category": "smoothie",
+        "price": 71000,
+        "description": "Thức uống thanh lành mang tên Lựu Nhiệt Đới Mix. Giải pháp healthy 100% không đường tinh luyện, tôn vinh vị béo thơm thanh mát.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Cực Phẩm Kiwi Xay",
+        "category": "smoothie",
+        "price": 66000,
+        "description": "Bổ sung vitamin dồi dào với Cực Phẩm Kiwi Xay. Trái cây thanh lành kết hợp cùng sữa chua Hy Lạp cho hương vị bùng nổ.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Nước ép Lựu Sữa Chua",
+        "category": "smoothie",
+        "price": 40000,
+        "description": "Thức uống chín mọng nguyên chất mang tên Nước ép Lựu Sữa Chua. Giải pháp healthy 100% không đường tinh luyện, tôn vinh vị chua ngọt tự nhiên.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Nước ép Chuối Nguyên Chất",
+        "category": "smoothie",
+        "price": 36000,
+        "description": "Đầy ắp năng lượng tự nhiên trong ly Nước ép Chuối Nguyên Chất. Vị đậm đà hương trái cây nhiệt đới sẽ chinh phục cả những vị khách khó tính nhất.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Sinh tố Cà Chốt Hạnh Nhân",
+        "category": "smoothie",
+        "price": 70000,
+        "description": "Đầy ắp năng lượng tự nhiên trong ly Sinh tố Cà Chốt Hạnh Nhân. Vị ngọt dịu mọng nước sẽ chinh phục cả những vị khách khó tính nhất.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Cực Phẩm Lựu Xay",
+        "category": "smoothie",
+        "price": 54000,
+        "description": "Thức uống chín mọng nguyên chất mang tên Cực Phẩm Lựu Xay. Giải pháp healthy 100% không đường tinh luyện, tôn vinh vị đậm đà hương trái cây nhiệt đới.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Mãng Cầu Nhiệt Đới Mix",
+        "category": "smoothie",
+        "price": 47000,
+        "description": "Đầy ắp năng lượng tự nhiên trong ly Mãng Cầu Nhiệt Đới Mix. Vị chua ngọt tự nhiên sẽ chinh phục cả những vị khách khó tính nhất.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Healthy Chanh Dây",
+        "category": "smoothie",
+        "price": 49000,
+        "description": "Thức uống tươi tuyển chọn 100% mang tên Healthy Chanh Dây. Giải pháp healthy 100% không đường tinh luyện, tôn vinh vị béo thơm thanh mát.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Healthy Dưa Hấu",
+        "category": "smoothie",
+        "price": 75000,
+        "description": "Bổ sung vitamin dồi dào với Healthy Dưa Hấu. Trái cây tươi tuyển chọn 100% kết hợp cùng sữa chua Hy Lạp cho hương vị bùng nổ.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Moonlight Xoài Detox",
+        "category": "smoothie",
+        "price": 56000,
+        "description": "Thức uống thanh lành mang tên Moonlight Xoài Detox. Giải pháp healthy 100% không đường tinh luyện, tôn vinh vị đậm đà hương trái cây nhiệt đới.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Sinh tố Xoài Hạnh Nhân",
+        "category": "smoothie",
+        "price": 71000,
+        "description": "Bổ sung vitamin dồi dào với Sinh tố Xoài Hạnh Nhân. Trái cây tươi tuyển chọn 100% kết hợp cùng sữa chua Hy Lạp cho hương vị bùng nổ.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Xoài Nhiệt Đới Mix",
+        "category": "smoothie",
+        "price": 63000,
+        "description": "Giải nhiệt ngày hè cùng Xoài Nhiệt Đới Mix. Mỗi ngụm đều cảm nhận được sự sảng khoái từ trái cây tươi được thu hoạch mỗi ngày.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Chanh Dây Nhiệt Đới Mix",
+        "category": "smoothie",
+        "price": 51000,
+        "description": "Bổ sung vitamin dồi dào với Chanh Dây Nhiệt Đới Mix. Trái cây tươi tuyển chọn 100% kết hợp cùng sữa chua Hy Lạp cho hương vị bùng nổ.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Healthy Xoài",
+        "category": "smoothie",
+        "price": 61000,
+        "description": "Đầy ắp năng lượng tự nhiên trong ly Healthy Xoài. Vị béo thơm thanh mát sẽ chinh phục cả những vị khách khó tính nhất.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Moonlight Chuối Detox",
+        "category": "smoothie",
+        "price": 53000,
+        "description": "Thức uống tươi tuyển chọn 100% mang tên Moonlight Chuối Detox. Giải pháp healthy 100% không đường tinh luyện, tôn vinh vị béo thơm thanh mát.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Bông Lan Nghệ Nhân",
+        "category": "pastry",
+        "price": 39000,
+        "description": "Chạm vào vị giác với hương vị Bông Lan Nghệ Nhân. Cắn một miếng cảm nhận ngay độ mềm xốp êm ái và vị ngào ngạt bơ Pháp thượng hạng.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Macaron Nghệ Nhân",
+        "category": "pastry",
+        "price": 32000,
+        "description": "Tinh hoa nghệ thuật làm bánh phương Đài Loan hội tụ trong Macaron Nghệ Nhân. Vỏ bánh mịn như nhung, nhân mịn màng khó cưỡng.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Éclair Kiểu Đài Loan",
+        "category": "pastry",
+        "price": 27000,
+        "description": "Chạm vào vị giác với hương vị Éclair Kiểu Đài Loan. Cắn một miếng cảm nhận ngay độ mềm xốp êm ái và vị ngào ngạt bơ Pháp thượng hạng.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Éclair Kiểu Ý",
+        "category": "pastry",
+        "price": 77000,
+        "description": "Tinh hoa nghệ thuật làm bánh phương Á Đông hội tụ trong Éclair Kiểu Ý. Vỏ bánh mềm xốp êm ái, nhân mịn màng khó cưỡng.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Moonlight Panna Cotta",
+        "category": "pastry",
+        "price": 77000,
+        "description": "Bản tình ca ngọt ngào mang tên Moonlight Panna Cotta. Nguyên liệu chuẩn Á Đông mang đến trải nghiệm bồng bềnh như mây tan chảy trọn vẹn.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Croissant Kiểu Đài Loan",
+        "category": "pastry",
+        "price": 51000,
+        "description": "Chạm vào vị giác với hương vị Croissant Kiểu Đài Loan. Cắn một miếng cảm nhận ngay độ giòn rụm bên ngoài dai bên trong và vị ngọt thanh không gắt.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Ý Tiramisu Đặc Mệnh",
+        "category": "pastry",
+        "price": 77000,
+        "description": "Chạm vào vị giác với hương vị Ý Tiramisu Đặc Mệnh. Cắn một miếng cảm nhận ngay độ bồng bềnh như mây và vị ngọt thanh không gắt.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Bánh Cookie Chanh Vàng",
+        "category": "pastry",
+        "price": 53000,
+        "description": "Tinh hoa nghệ thuật làm bánh phương Á Đông hội tụ trong Bánh Cookie Chanh Vàng. Vỏ bánh bồng bềnh như mây, nhân mịn màng khó cưỡng.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Bánh Cheesecake Vani Madagascar",
+        "category": "pastry",
+        "price": 65000,
+        "description": "Chạm vào vị giác với hương vị Bánh Cheesecake Vani Madagascar. Cắn một miếng cảm nhận ngay độ mềm xốp êm ái và vị ngào ngạt bơ Pháp thượng hạng.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Nhật Bản Phô Mai Nướng Đặc Mệnh",
+        "category": "pastry",
+        "price": 78000,
+        "description": "Chạm vào vị giác với hương vị Nhật Bản Phô Mai Nướng Đặc Mệnh. Cắn một miếng cảm nhận ngay độ mềm xốp êm ái và vị ngào ngạt bơ Pháp thượng hạng.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Bánh Bông Lan Trái Cây Rừng",
+        "category": "pastry",
+        "price": 55000,
+        "description": "Bản tình ca ngọt ngào mang tên Bánh Bông Lan Trái Cây Rừng. Nguyên liệu chuẩn Đài Loan mang đến trải nghiệm bồng bềnh như mây tan chảy trọn vẹn.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Bông Lan Thượng Hạng",
+        "category": "pastry",
+        "price": 46000,
+        "description": "Bông Lan Thượng Hạng - Nét quyến rũ từ tráng miệng kiểu Đài Loan. Sự giao thoa tinh tế giữa ngọt thanh không gắt tạo nên kiệt tác ẩm thực.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Á Đông Mousse Đặc Mệnh",
+        "category": "pastry",
+        "price": 55000,
+        "description": "Chạm vào vị giác với hương vị Á Đông Mousse Đặc Mệnh. Cắn một miếng cảm nhận ngay độ bồng bềnh như mây và vị béo ngậy phô mai.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Moonlight Tart",
+        "category": "pastry",
+        "price": 49000,
+        "description": "Bản tình ca ngọt ngào mang tên Moonlight Tart. Nguyên liệu chuẩn Châu Âu mang đến trải nghiệm giòn rụm bên ngoài dai bên trong tan chảy trọn vẹn.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Phô Mai Nướng Trứng Muối",
+        "category": "pastry",
+        "price": 27000,
+        "description": "Bản tình ca ngọt ngào mang tên Phô Mai Nướng Trứng Muối. Nguyên liệu chuẩn Đài Loan mang đến trải nghiệm giòn rụm bên ngoài dai bên trong tan chảy trọn vẹn.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Bánh Dứa Thượng Hạng",
+        "category": "pastry",
+        "price": 34000,
+        "description": "Bản tình ca ngọt ngào mang tên Bánh Dứa Thượng Hạng. Nguyên liệu chuẩn Á Đông mang đến trải nghiệm mềm xốp êm ái tan chảy trọn vẹn.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Cookie Kiểu Đài Loan",
+        "category": "pastry",
+        "price": 79000,
+        "description": "Chạm vào vị giác với hương vị Cookie Kiểu Đài Loan. Cắn một miếng cảm nhận ngay độ mềm xốp êm ái và vị ngào ngạt bơ Pháp thượng hạng.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Bánh Dứa Nghệ Nhân",
+        "category": "pastry",
+        "price": 68000,
+        "description": "Bản tình ca ngọt ngào mang tên Bánh Dứa Nghệ Nhân. Nguyên liệu chuẩn Á Đông mang đến trải nghiệm giòn rụm bên ngoài dai bên trong tan chảy trọn vẹn.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Moonlight Cheesecake",
+        "category": "pastry",
+        "price": 44000,
+        "description": "Tinh hoa nghệ thuật làm bánh phương Á Đông hội tụ trong Moonlight Cheesecake. Vỏ bánh giòn rụm bên ngoài dai bên trong, nhân mịn màng khó cưỡng.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Bánh Tiramisu Trà Xanh",
+        "category": "pastry",
+        "price": 58000,
+        "description": "Chạm vào vị giác với hương vị Bánh Tiramisu Trà Xanh. Cắn một miếng cảm nhận ngay độ giòn rụm bên ngoài dai bên trong và vị ngào ngạt bơ Pháp thượng hạng.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Panna Cotta Kiểu Nhật Bản",
+        "category": "pastry",
+        "price": 83000,
+        "description": "Panna Cotta Kiểu Nhật Bản - Nét quyến rũ từ tráng miệng kiểu Đài Loan. Sự giao thoa tinh tế giữa ngào ngạt bơ Pháp thượng hạng tạo nên kiệt tác ẩm thực.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Á Đông Macaron Đặc Mệnh",
+        "category": "pastry",
+        "price": 82000,
+        "description": "Chạm vào vị giác với hương vị Á Đông Macaron Đặc Mệnh. Cắn một miếng cảm nhận ngay độ mềm xốp êm ái và vị đậm vị matcha nguyên bản.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Moonlight Cookie",
+        "category": "pastry",
+        "price": 41000,
+        "description": "Bản tình ca ngọt ngào mang tên Moonlight Cookie. Nguyên liệu chuẩn Á Đông mang đến trải nghiệm bồng bềnh như mây tan chảy trọn vẹn.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Mousse Kiểu Đài Loan",
+        "category": "pastry",
+        "price": 43000,
+        "description": "Tinh hoa nghệ thuật làm bánh phương Châu Âu hội tụ trong Mousse Kiểu Đài Loan. Vỏ bánh mịn như nhung, nhân mịn màng khó cưỡng.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Mousse Nghệ Nhân",
+        "category": "pastry",
+        "price": 74000,
+        "description": "Chạm vào vị giác với hương vị Mousse Nghệ Nhân. Cắn một miếng cảm nhận ngay độ bồng bềnh như mây và vị ngọt thanh không gắt.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Panna Cotta Cốt Dừa",
+        "category": "pastry",
+        "price": 66000,
+        "description": "Panna Cotta Cốt Dừa - Nét quyến rũ từ tráng miệng kiểu Á Đông. Sự giao thoa tinh tế giữa béo ngậy phô mai tạo nên kiệt tác ẩm thực.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Bánh Mousse Trà Xanh",
+        "category": "pastry",
+        "price": 72000,
+        "description": "Chạm vào vị giác với hương vị Bánh Mousse Trà Xanh. Cắn một miếng cảm nhận ngay độ mịn như nhung và vị ngọt thanh không gắt.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Macaron Kiểu Châu Âu",
+        "category": "pastry",
+        "price": 76000,
+        "description": "Chạm vào vị giác với hương vị Macaron Kiểu Châu Âu. Cắn một miếng cảm nhận ngay độ mịn như nhung và vị béo ngậy phô mai.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Moonlight Éclair",
+        "category": "pastry",
+        "price": 48000,
+        "description": "Tinh hoa nghệ thuật làm bánh phương Châu Âu hội tụ trong Moonlight Éclair. Vỏ bánh bồng bềnh như mây, nhân mịn màng khó cưỡng.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Bánh Phô Mai Nướng Trà Xanh",
+        "category": "pastry",
+        "price": 49000,
+        "description": "Tinh hoa nghệ thuật làm bánh phương Châu Âu hội tụ trong Bánh Phô Mai Nướng Trà Xanh. Vỏ bánh mịn như nhung, nhân mịn màng khó cưỡng.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Túi Rong Biển Nhâm Nhi",
+        "category": "snack",
+        "price": 59000,
+        "description": "Nhâm nhi trọn vẹn hương vị thủ công cùng Túi Rong Biển Nhâm Nhi. Vị mặn ngọt đậm đà được tẩm ướp kỹ lưỡng sẽ khiến bạn không thể ngừng tay.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Rong Biển Lắc Muối Tiêu",
+        "category": "snack",
+        "price": 46000,
+        "description": "Món ăn vặt lý tưởng lúc buồn miệng: Rong Biển Lắc Muối Tiêu. Từng miếng thơm lừng mang theo vị cay tê đầu lưỡi hấp dẫn.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Snack Trái Cây Sấy Giòn Rụm",
+        "category": "snack",
+        "price": 26000,
+        "description": "Ăn ngon không sợ béo với Snack Trái Cây Sấy Giòn Rụm. Sản phẩm chế biến sạch, thơm lừng cực đã, nổi bật hương mặn ngọt đậm đà.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Khô Gà Bơ Tỏi",
+        "category": "snack",
+        "price": 57000,
+        "description": "Thêm phần rôm rả cho buổi trò chuyện cùng Khô Gà Bơ Tỏi. Giòn, thơm, hương vị tẩm ướp độc quyền - đích thị là ngọt thanh chua nhẹ dẻo ngọt số một.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Túi Trái Cây Sấy Nhâm Nhi",
+        "category": "snack",
+        "price": 37000,
+        "description": "Món ăn vặt lý tưởng lúc buồn miệng: Túi Trái Cây Sấy Nhâm Nhi. Từng miếng thơm lừng mang theo vị ngọt thanh chua nhẹ dẻo ngọt hấp dẫn.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Snack Rong Biển Cay Nồng",
+        "category": "snack",
+        "price": 26000,
+        "description": "Thêm phần rôm rả cho buổi trò chuyện cùng Snack Rong Biển Cay Nồng. Giòn, thơm, sấy thăng hoa giữ nguyên chất - đích thị là cay tê đầu lưỡi số một.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Moonlight Khoai Tây Trứng Muối",
+        "category": "snack",
+        "price": 25000,
+        "description": "Nhâm nhi trọn vẹn hương vị thủ công cùng Moonlight Khoai Tây Trứng Muối. Vị ngọt thanh chua nhẹ dẻo ngọt được tẩm ướp kỹ lưỡng sẽ khiến bạn không thể ngừng tay.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Túi Bánh Quy Bơ Nhâm Nhi",
+        "category": "snack",
+        "price": 35000,
+        "description": "Món ăn vặt lý tưởng lúc buồn miệng: Túi Bánh Quy Bơ Nhâm Nhi. Từng miếng giòn rôm rốp mang theo vị cay tê đầu lưỡi hấp dẫn.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Biscotti Phô Mai Lắc",
+        "category": "snack",
+        "price": 41000,
+        "description": "Nhâm nhi trọn vẹn hương vị thủ công cùng Biscotti Phô Mai Lắc. Vị giòn tan bắt vị được tẩm ướp kỹ lưỡng sẽ khiến bạn không thể ngừng tay.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Biscotti Mật Ong Cay",
+        "category": "snack",
+        "price": 31000,
+        "description": "Nhâm nhi trọn vẹn hương vị thủ công cùng Biscotti Mật Ong Cay. Vị cay tê đầu lưỡi được tẩm ướp kỹ lưỡng sẽ khiến bạn không thể ngừng tay.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Snack Bánh Mì Sấy Giòn Rụm",
+        "category": "snack",
+        "price": 57000,
+        "description": "Món ăn vặt lý tưởng lúc buồn miệng: Snack Bánh Mì Sấy Giòn Rụm. Từng miếng hương vị tẩm ướp độc quyền mang theo vị giòn tan bắt vị hấp dẫn.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Snack Trái Cây Sấy Thủ Công",
+        "category": "snack",
+        "price": 48000,
+        "description": "Món ăn vặt lý tưởng lúc buồn miệng: Snack Trái Cây Sấy Thủ Công. Từng miếng giòn rôm rốp mang theo vị ngọt thanh chua nhẹ dẻo ngọt hấp dẫn.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Moonlight Khô Gà",
+        "category": "snack",
+        "price": 53000,
+        "description": "Thêm phần rôm rả cho buổi trò chuyện cùng Moonlight Khô Gà. Giòn, thơm, sấy thăng hoa giữ nguyên chất - đích thị là mặn ngọt đậm đà số một.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Moonlight Granola",
+        "category": "snack",
+        "price": 47000,
+        "description": "Món ăn vặt lý tưởng lúc buồn miệng: Moonlight Granola. Từng miếng thơm lừng mang theo vị ngọt thanh chua nhẹ dẻo ngọt hấp dẫn.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Túi Mix Hạt Dinh Dưỡng Nhâm Nhi",
+        "category": "snack",
+        "price": 40000,
+        "description": "Thêm phần rôm rả cho buổi trò chuyện cùng Túi Mix Hạt Dinh Dưỡng Nhâm Nhi. Giòn, thơm, giòn rôm rốp - đích thị là mặn ngọt đậm đà số một.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Trái Cây Sấy Lắc Muối Tiêu",
+        "category": "snack",
+        "price": 58000,
+        "description": "Ăn ngon không sợ béo với Trái Cây Sấy Lắc Muối Tiêu. Sản phẩm chế biến sạch, hương vị tẩm ướp độc quyền cực đã, nổi bật hương ngọt thanh chua nhẹ dẻo ngọt.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Bò Khô Lắc Truely Sả Chanh",
+        "category": "snack",
+        "price": 55000,
+        "description": "Thêm phần rôm rả cho buổi trò chuyện cùng Bò Khô Lắc Truely Sả Chanh. Giòn, thơm, giòn rôm rốp - đích thị là mặn ngọt đậm đà số một.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Đậu Phộng Bơ Tỏi",
+        "category": "snack",
+        "price": 40000,
+        "description": "Thêm phần rôm rả cho buổi trò chuyện cùng Đậu Phộng Bơ Tỏi. Giòn, thơm, thơm lừng - đích thị là mặn ngọt đậm đà số một.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Rong Biển Khô",
+        "category": "snack",
+        "price": 24000,
+        "description": "Ăn ngon không sợ béo với Rong Biển Khô. Sản phẩm chế biến sạch, sấy thăng hoa giữ nguyên chất cực đã, nổi bật hương ngọt thanh chua nhẹ dẻo ngọt.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Snack Mix Hạt Dinh Dưỡng Giòn Rụm",
+        "category": "snack",
+        "price": 55000,
+        "description": "Món ăn vặt lý tưởng lúc buồn miệng: Snack Mix Hạt Dinh Dưỡng Giòn Rụm. Từng miếng hương vị tẩm ướp độc quyền mang theo vị giòn tan bắt vị hấp dẫn.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Snack Biscotti Thơm Phức",
+        "category": "snack",
+        "price": 42000,
+        "description": "Ăn ngon không sợ béo với Snack Biscotti Thơm Phức. Sản phẩm chế biến sạch, giòn rôm rốp cực đã, nổi bật hương ngọt thanh chua nhẹ dẻo ngọt.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Túi Đậu Phộng Nhâm Nhi",
+        "category": "snack",
+        "price": 26000,
+        "description": "Ăn ngon không sợ béo với Túi Đậu Phộng Nhâm Nhi. Sản phẩm chế biến sạch, hương vị tẩm ướp độc quyền cực đã, nổi bật hương cay tê đầu lưỡi.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Khô Gà Lắc Muối Tiêu",
+        "category": "snack",
+        "price": 42000,
+        "description": "Thêm phần rôm rả cho buổi trò chuyện cùng Khô Gà Lắc Muối Tiêu. Giòn, thơm, sấy thăng hoa giữ nguyên chất - đích thị là mặn ngọt đậm đà số một.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Rong Biển Lắc Mật Ong Cay",
+        "category": "snack",
+        "price": 58000,
+        "description": "Nhâm nhi trọn vẹn hương vị thủ công cùng Rong Biển Lắc Mật Ong Cay. Vị mặn ngọt đậm đà được tẩm ướp kỹ lưỡng sẽ khiến bạn không thể ngừng tay.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Túi Bò Khô Nhâm Nhi",
+        "category": "snack",
+        "price": 42000,
+        "description": "Ăn ngon không sợ béo với Túi Bò Khô Nhâm Nhi. Sản phẩm chế biến sạch, hương vị tẩm ướp độc quyền cực đã, nổi bật hương cay tê đầu lưỡi.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Snack Trái Cây Sấy Cay Nồng",
+        "category": "snack",
+        "price": 60000,
+        "description": "Thêm phần rôm rả cho buổi trò chuyện cùng Snack Trái Cây Sấy Cay Nồng. Giòn, thơm, giòn rôm rốp - đích thị là giòn tan bắt vị số một.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Snack Mix Hạt Dinh Dưỡng Thủ Công",
+        "category": "snack",
+        "price": 49000,
+        "description": "Nhâm nhi trọn vẹn hương vị thủ công cùng Snack Mix Hạt Dinh Dưỡng Thủ Công. Vị ngọt thanh chua nhẹ dẻo ngọt được tẩm ướp kỹ lưỡng sẽ khiến bạn không thể ngừng tay.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Moonlight Trái Cây Sấy",
+        "category": "snack",
+        "price": 29000,
+        "description": "Ăn ngon không sợ béo với Moonlight Trái Cây Sấy. Sản phẩm chế biến sạch, giòn rôm rốp cực đã, nổi bật hương mặn ngọt đậm đà.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Biscotti Matcha",
+        "category": "snack",
+        "price": 47000,
+        "description": "Món ăn vặt lý tưởng lúc buồn miệng: Biscotti Matcha. Từng miếng hương vị tẩm ướp độc quyền mang theo vị ngọt thanh chua nhẹ dẻo ngọt hấp dẫn.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    },
+    {
+        "name": "Biscotti Khô",
+        "category": "snack",
+        "price": 42000,
+        "description": "Ăn ngon không sợ béo với Biscotti Khô. Sản phẩm chế biến sạch, sấy thăng hoa giữ nguyên chất cực đã, nổi bật hương mặn ngọt đậm đà.",
+        "imageUrl": "",
+        "isAvailable": true,
+        "createdAt": "2024-03-01T08:00:00.000Z"
+    }
+]

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="vi">
 
 <head>
@@ -38,15 +38,18 @@
         <div class="container">
             <nav class="nav">
                 <a href="index.html" class="nav-brand">
-                    <span class="nav-brand-icon">🌙</span>
+                    <div class="nav-logo-wrapper"><img src="images/logo.png?v=4" alt="Moonlight Cafe" class="nav-logo"></div>
                     <span class="nav-brand-text">Moonlight Cafe</span>
                 </a>
 
                 <ul class="nav-menu" id="navMenu">
                     <li><a href="index.html" class="nav-link active">Trang chủ</a></li>
                     <li><a href="menu.html" class="nav-link">Menu</a></li>
+                    <li><a href="promotions.html" class="nav-link">Khuyến mãi</a></li>
                     <li><a href="news.html" class="nav-link">Tin tức</a></li>
                     <li><a href="about.html" class="nav-link">Về chúng tôi</a></li>
+                    <li><a href="contact.html" class="nav-link">Liên hệ</a></li>
+                    <li><a href="reservation.html" class="nav-link">Đặt bàn</a></li>
                     <li class="admin-nav-item hidden"><a href="admin.html" class="nav-link admin-link">
                             <i class="fas fa-cog"></i> Quản trị
                         </a></li>
@@ -56,6 +59,10 @@
                     <button class="nav-icon" id="darkModeToggle" title="Chế độ tối/sáng">
                         <i class="fas fa-moon"></i>
                     </button>
+                    <a href="contact.html" class="nav-icon hidden" id="msgIcon" title="Tin nhắn từ tiệm">
+                        <i class="fas fa-envelope"></i>
+                        <span class="badge" id="msgCount" style="display:none">0</span>
+                    </a>
                     <a href="cart.html" class="nav-icon" id="cartIcon">
                         <i class="fas fa-shopping-bag"></i>
                         <span class="badge" id="cartCount">0</span>
@@ -64,9 +71,9 @@
                         <i class="fas fa-user"></i>
                     </a>
                     <div class="nav-toggle" id="navToggle">
-                        <span></span>
-                        <span></span>
-                        <span></span>
+                        <div class="nav-logo-wrapper"><img src="images/logo.png?v=4" alt="Moonlight Cafe" class="nav-logo"></div>
+                        <div class="nav-logo-wrapper"><img src="images/logo.png?v=4" alt="Moonlight Cafe" class="nav-logo"></div>
+                        <div class="nav-logo-wrapper"><img src="images/logo.png?v=4" alt="Moonlight Cafe" class="nav-logo"></div>
                     </div>
                 </div>
             </nav>
@@ -105,8 +112,8 @@
     <section class="section" id="featured">
         <div class="container">
             <div class="section-header">
-                <span class="section-subtitle">Menu nổi bật</span>
-                <h2 class="section-title">Đặc sản của chúng tôi</h2>
+                <span class="section-subtitle">Sản phẩm nổi bật</span>
+                <h2 class="section-title">Best Seller</h2>
                 <div class="section-divider"></div>
             </div>
 
@@ -213,68 +220,17 @@
             </div>
 
             <div class="testimonials-slider" id="testimonials">
-                <div class="testimonial-card">
-                    <div class="testimonial-rating">
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                    </div>
-                    <p class="testimonial-text">
-                        "Cà phê ở đây thực sự rất ngon! Không gian lung linh dưới ánh đèn vàng ấm.
-                        Đây là nơi tuyệt vời để làm việc và thư giãn."
-                    </p>
-                    <div class="testimonial-author">
-                        <img src="https://i.pravatar.cc/100?img=1" alt="Customer">
-                        <div class="testimonial-author-info">
-                            <h5>Nguyễn Minh Anh</h5>
-                            <span>Khách hàng thường xuyên</span>
-                        </div>
-                    </div>
+                <!-- Loaded dynamically from Firebase -->
+                <div style="text-align:center;padding:40px;color:var(--text-secondary)">
+                    <i class="fas fa-spinner fa-spin fa-2x"></i>
+                    <p style="margin-top:12px">Đang tải đánh giá...</p>
                 </div>
+            </div>
 
-                <div class="testimonial-card">
-                    <div class="testimonial-rating">
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                    </div>
-                    <p class="testimonial-text">
-                        "Bánh ngọt ở Moonlight là ngon nhất mà tôi từng ăn!
-                        Đặc biệt là Tiramisu, mỗi lần ghé là phải order một miếng."
-                    </p>
-                    <div class="testimonial-author">
-                        <img src="https://i.pravatar.cc/100?img=5" alt="Customer">
-                        <div class="testimonial-author-info">
-                            <h5>Trần Hương Giang</h5>
-                            <span>Food Blogger</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="testimonial-card">
-                    <div class="testimonial-rating">
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star-half-alt"></i>
-                    </div>
-                    <p class="testimonial-text">
-                        "Nhân viên thân thiện, phục vụ nhanh. Đặt hàng online rất tiện,
-                        giao hàng đúng giờ và đồ uống vẫn giữ nguyên chất lượng!"
-                    </p>
-                    <div class="testimonial-author">
-                        <img src="https://i.pravatar.cc/100?img=8" alt="Customer">
-                        <div class="testimonial-author-info">
-                            <h5>Lê Văn Hùng</h5>
-                            <span>Doanh nhân</span>
-                        </div>
-                    </div>
-                </div>
+            <div style="text-align:center;margin-top:24px">
+                <a href="contact.html" class="btn btn-outline" style="display:inline-flex;align-items:center;gap:8px">
+                    <i class="fas fa-star"></i> Viết đánh giá của bạn
+                </a>
             </div>
         </div>
     </section>
@@ -289,43 +245,91 @@
             </div>
 
             <div class="gallery-grid">
-                <div class="gallery-item large">
-                    <img src="https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=600"
-                        alt="Coffee Shop Interior">
+
+                <!-- Ảnh 1: dọc (portrait) — đặt images/gallery/anh-1.jpg -->
+                <div class="gallery-item g-tall" id="g1">
+                    <img src="images/gallery/anh-1.jpg" alt="Không gian quán">
+                    <div class="gallery-placeholder">
+                        <i class="fas fa-camera"></i>
+                        <b>Không gian quán</b>
+                        <span>images/gallery/anh-1.jpg</span>
+                    </div>
                     <div class="gallery-overlay">
-                        <i class="fas fa-expand"></i>
+                        <span class="gallery-label">✨ Không gian quán</span>
+                        <i class="fas fa-expand-alt"></i>
                     </div>
                 </div>
-                <div class="gallery-item">
-                    <img src="https://images.unsplash.com/photo-1511920170033-f8396924c348?w=400" alt="Coffee Cup">
+
+                <!-- Ảnh 2: vuông trên giữa — đặt images/gallery/anh-2.jpg -->
+                <div class="gallery-item" id="g2">
+                    <img src="images/gallery/anh-2.jpg" alt="Cà phê đặc trưng">
+                    <div class="gallery-placeholder">
+                        <i class="fas fa-camera"></i>
+                        <b>Cà phê đặc trưng</b>
+                        <span>images/gallery/anh-2.jpg</span>
+                    </div>
                     <div class="gallery-overlay">
-                        <i class="fas fa-expand"></i>
+                        <span class="gallery-label">☕ Cà phê đặc trưng</span>
+                        <i class="fas fa-expand-alt"></i>
                     </div>
                 </div>
-                <div class="gallery-item">
-                    <img src="https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=400" alt="Latte Art">
+
+                <!-- Ảnh 3: vuông trên phải — đặt images/gallery/anh-3.jpg -->
+                <div class="gallery-item" id="g3">
+                    <img src="images/gallery/anh-3.jpg" alt="Quầy pha chế">
+                    <div class="gallery-placeholder">
+                        <i class="fas fa-camera"></i>
+                        <b>Quầy pha chế</b>
+                        <span>images/gallery/anh-3.jpg</span>
+                    </div>
                     <div class="gallery-overlay">
-                        <i class="fas fa-expand"></i>
+                        <span class="gallery-label">🌟 Quầy pha chế</span>
+                        <i class="fas fa-expand-alt"></i>
                     </div>
                 </div>
-                <div class="gallery-item">
-                    <img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400" alt="Pastries">
+
+                <!-- Ảnh 4: vuông dưới giữa — đặt images/gallery/anh-4.jpg -->
+                <div class="gallery-item" id="g4">
+                    <img src="images/gallery/anh-4.jpg" alt="Bánh ngọt">
+                    <div class="gallery-placeholder">
+                        <i class="fas fa-camera"></i>
+                        <b>Bánh ngọt</b>
+                        <span>images/gallery/anh-4.jpg</span>
+                    </div>
                     <div class="gallery-overlay">
-                        <i class="fas fa-expand"></i>
+                        <span class="gallery-label">🍰 Bánh ngọt</span>
+                        <i class="fas fa-expand-alt"></i>
                     </div>
                 </div>
-                <div class="gallery-item">
-                    <img src="https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=400" alt="Cafe Atmosphere">
+
+                <!-- Ảnh 5: vuông dưới phải — đặt images/gallery/anh-5.jpg -->
+                <div class="gallery-item" id="g5">
+                    <img src="images/gallery/anh-5.jpg" alt="Thức uống">
+                    <div class="gallery-placeholder">
+                        <i class="fas fa-camera"></i>
+                        <b>Thức uống</b>
+                        <span>images/gallery/anh-5.jpg</span>
+                    </div>
                     <div class="gallery-overlay">
-                        <i class="fas fa-expand"></i>
+                        <span class="gallery-label">🥤 Thức uống</span>
+                        <i class="fas fa-expand-alt"></i>
                     </div>
                 </div>
-                <div class="gallery-item large">
-                    <img src="https://images.unsplash.com/photo-1445116572660-236099ec97a0?w=600" alt="Cozy Corner">
+
+                <!-- Ảnh 6: ngang toàn bộ (panorama) — đặt images/gallery/anh-6.jpg -->
+                <div class="gallery-item g-wide" id="g6">
+                    <img src="images/gallery/anh-6.jpg" alt="Ngoại thất quán">
+                    <div class="gallery-placeholder">
+                        <i class="fas fa-camera"></i>
+                        <b>Ngoại thất / Toàn cảnh quán</b>
+                        <span>images/gallery/anh-6.jpg</span>
+                    </div>
                     <div class="gallery-overlay">
-                        <i class="fas fa-expand"></i>
+                        <span class="gallery-label">🏛️ Moonlight Cafe — Cần Thơ</span>
+                        <i class="fas fa-expand-alt"></i>
                     </div>
                 </div>
+
             </div>
         </div>
     </section>
@@ -340,8 +344,8 @@
                     <a href="menu.html" class="btn btn-primary btn-lg">
                         <i class="fas fa-shopping-bag"></i> Đặt hàng ngay
                     </a>
-                    <a href="tel:0123456789" class="btn btn-outline btn-lg">
-                        <i class="fas fa-phone"></i> 0123 456 789
+                    <a href="tel:0110766204" class="btn btn-outline btn-lg">
+                        <i class="fas fa-phone"></i> 0110 766 204
                     </a>
                 </div>
             </div>
@@ -354,18 +358,18 @@
             <div class="footer-grid">
                 <div class="footer-col">
                     <div class="footer-brand">
-                        <span class="nav-brand-icon">🌙</span>
+                        <div class="nav-logo-wrapper"><img src="images/logo.png?v=4" alt="Moonlight Cafe" class="nav-logo"></div>
                         <span class="nav-brand-text">Moonlight Cafe</span>
                     </div>
-                    <p>
+                    <p id="footer-slogan">
                         Nơi thưởng thức cà phê và bánh ngọt thượng hạng
                         trong không gian ấm cúng dưới ánh trăng.
                     </p>
                     <div class="footer-social">
-                        <a href="#"><i class="fab fa-facebook-f"></i></a>
-                        <a href="#"><i class="fab fa-instagram"></i></a>
-                        <a href="#"><i class="fab fa-tiktok"></i></a>
-                        <a href="#"><i class="fab fa-youtube"></i></a>
+                        <a href="#" id="footer-fb"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" id="footer-ig"><i class="fab fa-instagram"></i></a>
+                        <a href="#" id="footer-tt"><i class="fab fa-tiktok"></i></a>
+                        <a href="#" id="footer-yt"><i class="fab fa-youtube"></i></a>
                     </div>
                 </div>
 
@@ -394,26 +398,26 @@
                     <ul class="footer-contact">
                         <li>
                             <i class="fas fa-map-marker-alt"></i>
-                            <span>123 Đường ABC, Quận 1, TP.HCM</span>
+                            <span id="footer-address">66 Nguyễn Đệ, Cái Khế, Cần Thơ</span>
                         </li>
                         <li>
                             <i class="fas fa-phone"></i>
-                            <span>0123 456 789</span>
+                            <span id="footer-phone">0110 766 204</span>
                         </li>
                         <li>
                             <i class="fas fa-envelope"></i>
-                            <span>hello@moonlightcafe.vn</span>
+                            <span id="footer-email">moonlightcafe@gmail.com</span>
                         </li>
                         <li>
                             <i class="fas fa-clock"></i>
-                            <span>7:00 - 22:00 hàng ngày</span>
+                            <span id="footer-hours">7:00 - 22:00 hàng ngày</span>
                         </li>
                     </ul>
                 </div>
             </div>
 
             <div class="footer-bottom">
-                <p>&copy; 2024 Moonlight Cafe. All rights reserved.</p>
+                <p id="footer-copyright">&copy; 2026 Moonlight Cafe. All rights reserved.</p>
             </div>
         </div>
     </footer>
@@ -444,6 +448,8 @@
     <script type="module">
         import { auth, db, onAuthStateChanged, ref, get, onValue } from './js/firebase-config.js';
         import { saveUserSession, getCurrentUser, isAdmin, getUserDropdownHTML } from './js/auth-helper.js';
+        import { updateMsgBadge, loadStoreInfo } from './js/nav-helper.js';
+        loadStoreInfo();
 
         // DOM Elements
         const header = document.getElementById('header');
@@ -564,6 +570,8 @@
 
                 // Gắn sự kiện logout
                 document.getElementById('logoutBtn')?.addEventListener('click', handleLogout);
+                // Cập nhật badge tin nhắn
+                updateMsgBadge(user.uid);
             } else {
                 localStorage.removeItem('moonlight_user');
 
@@ -581,6 +589,8 @@
                 document.querySelectorAll('.admin-nav-item').forEach(item => {
                     item.classList.add('hidden');
                 });
+                // Ẩn badge tin nhắn
+                updateMsgBadge(null);
             }
         });
 
@@ -607,7 +617,9 @@
 
         // Update cart count
         function updateCartCount() {
-            const cart = JSON.parse(localStorage.getItem('moonlight_cart')) || [];
+            const user = auth.currentUser;
+            if (!user) { cartCount.textContent = 0; return; }
+            const cart = JSON.parse(localStorage.getItem(`moonlight_cart_${user.uid}`)) || [];
             const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
             cartCount.textContent = totalItems;
         }
@@ -616,7 +628,8 @@
 
         // Listen for cart changes
         window.addEventListener('storage', (e) => {
-            if (e.key === 'moonlight_cart') {
+            const user = auth.currentUser;
+            if (user && e.key === `moonlight_cart_${user.uid}`) {
                 updateCartCount();
             }
         });
@@ -641,77 +654,54 @@
                     const featured = products.slice(0, 4);
                     renderFeaturedProducts(featured);
                 } else {
-                    // Show sample products if no data
-                    renderSampleProducts();
+                    featuredProducts.innerHTML = '<div style="grid-column: 1 / -1; text-align: center; color: var(--text-muted); padding: 40px;">Chưa có sản phẩm nổi bật</div>';
                 }
             } catch (error) {
                 console.error('Error loading products:', error);
-                renderSampleProducts();
+                featuredProducts.innerHTML = '<div style="grid-column: 1 / -1; text-align: center; color: var(--text-muted); padding: 40px;">Có lỗi xảy ra khi tải sản phẩm</div>';
             }
         }
 
         function renderFeaturedProducts(products) {
-            featuredProducts.innerHTML = products.map(product => `
+            if (!products || products.length === 0) {
+                featuredProducts.innerHTML = '<div style="grid-column: 1 / -1; text-align: center; color: var(--text-muted); padding: 40px;">Chưa có sản phẩm nổi bật</div>';
+                return;
+            }
+
+            const favorites = JSON.parse(localStorage.getItem('moonlight_wishlist')) || [];
+
+            featuredProducts.innerHTML = products.map(product => {
+                const isFavorite = favorites.some(item => String(item.id) === String(product.id));
+                const heartClass = isFavorite ? 'fas fa-heart active' : 'far fa-heart';
+
+                return `
                 <div class="product-card">
                     <div class="product-img-wrapper">
                         <img src="${product.imageUrl || 'https://via.placeholder.com/300x220'}" 
-                             alt="${product.name}" class="product-img">
+                             alt="${product.name}" class="product-img" onclick="viewProduct('${product.id}')" style="cursor: pointer;">
                         ${product.badge ? `<span class="product-badge">${product.badge}</span>` : ''}
                         <div class="product-actions">
-                            <button class="product-action-btn" onclick="addToCart('${product.id}')">
+                            <button class="product-action-btn" onclick="addToCart('${product.id}', '${product.name.replace(/'/g, "\\'")}', ${product.price}, '${product.imageUrl || ''}')" title="Thêm vào giỏ hàng">
                                 <i class="fas fa-shopping-bag"></i>
                             </button>
-                            <button class="product-action-btn">
-                                <i class="fas fa-heart"></i>
+                            <button class="product-action-btn" onclick="toggleFavorite('${product.id}', '${product.name.replace(/'/g, "\\'")}', ${product.price}, '${product.imageUrl || ''}', '${product.category || 'coffee'}')" title="Yêu thích">
+                                <i class="${heartClass}" id="heart-icon-index-${product.id}"></i>
+                            </button>
+                            <button class="product-action-btn" onclick="viewProduct('${product.id}')" title="Xem chi tiết">
+                                <i class="fas fa-eye"></i>
                             </button>
                         </div>
                     </div>
                     <div class="product-info">
                         <span class="product-category">${product.category || 'Cà phê'}</span>
-                        <h4 class="product-name">${product.name}</h4>
+                        <h4 class="product-name" onclick="viewProduct('${product.id}')" style="cursor: pointer;">${product.name}</h4>
                         <div class="product-price">
                             ${formatPrice(product.price)}
                             ${product.oldPrice ? `<span class="product-price-old">${formatPrice(product.oldPrice)}</span>` : ''}
                         </div>
                     </div>
                 </div>
-            `).join('');
-        }
-
-        function renderSampleProducts() {
-            const sampleProducts = [
-                {
-                    id: '1',
-                    name: 'Cappuccino',
-                    category: 'Cà phê',
-                    price: 45000,
-                    imageUrl: 'https://images.unsplash.com/photo-1572442388796-11668a67e53d?w=400',
-                    badge: 'Hot'
-                },
-                {
-                    id: '2',
-                    name: 'Tiramisu',
-                    category: 'Bánh ngọt',
-                    price: 55000,
-                    imageUrl: 'https://images.unsplash.com/photo-1571877227200-a0d98ea607e9?w=400',
-                    badge: 'Best Seller'
-                },
-                {
-                    id: '3',
-                    name: 'Matcha Latte',
-                    category: 'Trà',
-                    price: 50000,
-                    imageUrl: 'https://images.unsplash.com/photo-1515823064-d6e0c04616a7?w=400'
-                },
-                {
-                    id: '4',
-                    name: 'Croissant',
-                    category: 'Bánh ngọt',
-                    price: 35000,
-                    imageUrl: 'https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=400'
-                }
-            ];
-            renderFeaturedProducts(sampleProducts);
+            `}).join('');
         }
 
         function formatPrice(price) {
@@ -722,22 +712,33 @@
         }
 
         // Add to cart function
-        window.addToCart = function (productId) {
-            // Get product info and add to cart
-            const cart = JSON.parse(localStorage.getItem('moonlight_cart')) || [];
-            const existingItem = cart.find(item => item.id === productId);
+        window.addToCart = function (id, name, price, imageUrl) {
+            const user = auth.currentUser;
+            if (!user) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Chưa đăng nhập',
+                    text: 'Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng!',
+                    showCancelButton: true,
+                    confirmButtonText: 'Đăng nhập',
+                    cancelButtonText: 'Hủy',
+                    confirmButtonColor: '#d4a574'
+                }).then((result) => {
+                    if (result.isConfirmed) window.location.href = 'login.html';
+                });
+                return;
+            }
+            const cartKey = `moonlight_cart_${user.uid}`;
+            const cart = JSON.parse(localStorage.getItem(cartKey)) || [];
+            const existingItem = cart.find(item => item.id === id);
 
             if (existingItem) {
                 existingItem.quantity += 1;
             } else {
-                // For demo, we'll add basic info - in real app, fetch from Firebase
-                cart.push({
-                    id: productId,
-                    quantity: 1
-                });
+                cart.push({ id, name, price, imageUrl, quantity: 1 });
             }
 
-            localStorage.setItem('moonlight_cart', JSON.stringify(cart));
+            localStorage.setItem(cartKey, JSON.stringify(cart));
             updateCartCount();
 
             Swal.fire({
@@ -750,9 +751,62 @@
             });
         };
 
-        // Gallery lightbox
+        window.viewProduct = function (id) {
+            window.location.href = `product-detail.html?id=${id}`;
+        };
+
+        window.toggleFavorite = function (id, name, price, imageUrl, category) {
+            let wishlist = JSON.parse(localStorage.getItem('moonlight_wishlist')) || [];
+            const index = wishlist.findIndex(item => String(item.id) === String(id));
+            const icon = document.getElementById(`heart-icon-index-${id}`);
+
+            if (index > -1) {
+                wishlist.splice(index, 1);
+                if (icon) {
+                    icon.className = 'far fa-heart';
+                }
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Đã bỏ yêu thích',
+                    text: 'Sản phẩm đã được xóa khỏi danh sách yêu thích.',
+                    toast: true,
+                    position: 'bottom-end',
+                    showConfirmButton: false,
+                    timer: 2000
+                });
+            } else {
+                wishlist.push({ id, name, price: parseInt(price), image: imageUrl, category });
+                if (icon) {
+                    icon.className = 'fas fa-heart active';
+                }
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Đã thêm yêu thích',
+                    text: 'Sản phẩm đã ghim vào mục Yêu thích.',
+                    toast: true,
+                    position: 'bottom-end',
+                    showConfirmButton: false,
+                    timer: 2000
+                });
+            }
+
+            localStorage.setItem('moonlight_wishlist', JSON.stringify(wishlist));
+        };
+
+        // Gallery: hiện khung placeholder mặc định, ẩn khi ảnh load xong
+        document.querySelectorAll('.gallery-item img').forEach(img => {
+            const item = img.closest('.gallery-item');
+            item.classList.add('no-img'); // mặc định hiện placeholder
+            img.addEventListener('load',  () => { if (img.naturalWidth > 0) item.classList.remove('no-img'); });
+            img.addEventListener('error', () => item.classList.add('no-img'));
+            // Nếu ảnh đã cached và load thành công
+            if (img.complete && img.naturalWidth > 0) item.classList.remove('no-img');
+        });
+
+        // Gallery lightbox (chỉ mở khi có ảnh thật)
         document.querySelectorAll('.gallery-item').forEach(item => {
             item.addEventListener('click', () => {
+                if (item.classList.contains('no-img')) return;
                 const img = item.querySelector('img');
                 Swal.fire({
                     imageUrl: img.src,
@@ -765,8 +819,60 @@
             });
         });
 
+        // Load approved reviews/testimonials from Firebase
+        async function loadTestimonials() {
+            const container = document.getElementById('testimonials');
+            try {
+                const snap = await get(ref(db, 'reviews'));
+                const approved = [];
+                if (snap.exists()) {
+                    snap.forEach(c => {
+                        const r = c.val();
+                        if (r.status === 'approved') approved.push(r);
+                    });
+                }
+                approved.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+
+                if (approved.length === 0) {
+                    container.innerHTML = `
+                        <div style="text-align:center;padding:40px;color:var(--text-secondary)">
+                            <i class="fas fa-star" style="font-size:2rem;opacity:.4"></i>
+                            <p style="margin-top:12px">Chưa có đánh giá nào. Hãy là người đầu tiên!</p>
+                        </div>`;
+                    return;
+                }
+
+                function starsHTML(n) {
+                    let s = '';
+                    for (let i = 1; i <= 5; i++)
+                        s += `<i class="${i <= n ? 'fas' : 'far'} fa-star"></i>`;
+                    return s;
+                }
+
+                // Show up to 6 most recent approved reviews
+                container.innerHTML = approved.slice(0, 6).map(r => `
+                    <div class="testimonial-card">
+                        <div class="testimonial-rating">${starsHTML(r.rating || 5)}</div>
+                        <p class="testimonial-text">"${r.content}"</p>
+                        <div class="testimonial-author">
+                            <div class="testimonial-avatar" style="width:48px;height:48px;border-radius:50%;background:var(--primary);display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;font-size:1.1rem;flex-shrink:0">
+                                ${(r.userName || '?')[0].toUpperCase()}
+                            </div>
+                            <div class="testimonial-author-info">
+                                <h5>${r.userName || 'Khách hàng'}</h5>
+                                <span>${new Date(r.createdAt || Date.now()).toLocaleDateString('vi-VN')}</span>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (e) {
+                container.innerHTML = `<div style="text-align:center;padding:30px;color:var(--text-secondary)">Không thể tải đánh giá.</div>`;
+            }
+        }
+
         // Initialize
         loadFeaturedProducts();
+        loadTestimonials();
     </script>
 
     <style>
@@ -952,58 +1058,105 @@
             color: var(--text-muted);
         }
 
-        /* Gallery */
+        /* Gallery — bento layout chuyên nghiệp
+           [ 1-dọc  ][ 2-vuông ][ 3-vuông ]
+           [ 1-dọc  ][ 4-vuông ][ 5-vuông ]
+           [ 6-ngang toàn bộ 3 cột       ]
+        */
         .gallery-grid {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            grid-template-rows: repeat(2, 200px);
-            gap: 15px;
+            grid-template-columns: 1.1fr 1fr 1fr;
+            grid-template-rows: 320px 280px 360px;
+            gap: 12px;
         }
+
+        /* Ảnh 1: dọc (span 2 hàng) */
+        .gallery-item.g-tall  { grid-row: span 2; }
+
+        /* Ảnh 6: ngang toàn bộ */
+        .gallery-item.g-wide  { grid-column: span 3; }
 
         .gallery-item {
             position: relative;
-            border-radius: var(--radius-sm);
+            border-radius: 10px;
             overflow: hidden;
             cursor: pointer;
-        }
-
-        .gallery-item.large {
-            grid-column: span 2;
-            grid-row: span 2;
+            background: rgba(255,255,255,0.03);
         }
 
         .gallery-item img {
             width: 100%;
             height: 100%;
             object-fit: cover;
-            transition: var(--transition-slow);
+            object-position: center;
+            display: block;
+            transition: transform 0.5s ease;
         }
 
-        .gallery-item:hover img {
-            transform: scale(1.1);
-        }
+        .gallery-item:hover img { transform: scale(1.05); }
 
-        .gallery-overlay {
+        /* --- Placeholder khi chưa có ảnh --- */
+        .gallery-item .gallery-placeholder {
+            display: none;
             position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: var(--bg-overlay);
-            display: flex;
+            inset: 0;
+            border: 2px dashed rgba(245,158,11,0.45);
+            border-radius: 10px;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
+            gap: 10px;
+            color: rgba(245,158,11,0.65);
+            font-family: 'Poppins', sans-serif;
+            text-align: center;
+            padding: 10px;
+            pointer-events: none;
+        }
+        .gallery-item.no-img .gallery-placeholder { display: flex; }
+        .gallery-item.no-img img { visibility: hidden; }
+        .gallery-placeholder i   { font-size: 1.8rem; }
+        .gallery-placeholder b   { font-size: 0.82rem; font-weight: 600; display: block; }
+        .gallery-placeholder span { font-size: 0.7rem; opacity: 0.7; }
+
+        /* --- Overlay hover --- */
+        .gallery-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.6) 0%, transparent 50%);
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            justify-content: flex-end;
+            padding: 14px 16px;
             opacity: 0;
-            transition: var(--transition-normal);
+            transition: opacity 0.3s ease;
         }
-
-        .gallery-overlay i {
-            font-size: 2rem;
-            color: var(--accent);
+        .gallery-item:not(.no-img):hover .gallery-overlay { opacity: 1; }
+        .gallery-label {
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 5px;
+            display: block;
         }
+        .gallery-overlay > i { font-size: 1rem; color: var(--accent); }
 
-        .gallery-item:hover .gallery-overlay {
-            opacity: 1;
+        /* --- Responsive --- */
+        @media (max-width: 900px) {
+            .gallery-grid {
+                grid-template-columns: 1fr 1fr;
+                grid-template-rows: 200px 200px 180px 160px;
+            }
+            .gallery-item.g-tall { grid-row: span 2; }
+            .gallery-item.g-wide { grid-column: span 2; }
+        }
+        @media (max-width: 500px) {
+            .gallery-grid {
+                grid-template-columns: 1fr 1fr;
+                grid-template-rows: 150px 150px 130px 120px;
+                gap: 8px;
+            }
         }
 
         /* CTA Section */
@@ -1256,16 +1409,6 @@
         }
 
         @media (max-width: 768px) {
-            .gallery-grid {
-                grid-template-columns: repeat(2, 1fr);
-                grid-template-rows: repeat(4, 150px);
-            }
-
-            .gallery-item.large {
-                grid-column: span 2;
-                grid-row: span 1;
-            }
-
             .about-features {
                 flex-wrap: wrap;
             }
@@ -1285,8 +1428,10 @@
     <!-- TuDongChat AI Chatbot -->
     <script src="https://app.tudongchat.com/js/chatbox.js"></script>
     <script>
-        const tudong_chatbox = new TuDongChat('XUitpr3VDU2e5vJgSRYO9')
-        tudong_chatbox.initial()
+        try {
+            const tudong_chatbox = new TuDongChat('XUitpr3VDU2e5vJgSRYO9');
+            tudong_chatbox.initial();
+        } catch(e) {}
     </script>
 </body>
 

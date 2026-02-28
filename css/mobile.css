@@ -10,12 +10,27 @@
         padding: 10px 0;
     }
 
-    .nav-brand img {
-        height: 35px;
+    body {
+        padding-top: 110px;
+    }
+
+    .hero {
+        margin-top: -110px;
+        padding-top: 110px;
+    }
+
+    .nav-logo {
+        height: 62px !important;
+        width: 62px !important;
+    }
+
+    .nav-logo-wrapper {
+        width: 76px !important;
+        height: 76px !important;
     }
 
     .nav-brand-text {
-        font-size: 1.2rem;
+        font-size: 0.85rem;
     }
 
     /* Cart page */
@@ -74,20 +89,20 @@
 
     /* Admin sidebar */
     .admin-sidebar {
-        position: fixed;
-        left: -280px;
-        top: 0;
-        height: 100vh;
-        z-index: 1050;
-        transition: left 0.3s ease;
+        transform: translateX(-100%);
     }
 
-    .admin-sidebar.active {
-        left: 0;
+    .admin-sidebar.active,
+    .admin-sidebar.open {
+        transform: translateX(0);
+    }
+
+    .admin-main {
+        margin-left: 0;
+        width: 100%;
     }
 
     .admin-content {
-        margin-left: 0;
         padding: 15px;
     }
 

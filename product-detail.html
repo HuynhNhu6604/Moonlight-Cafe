@@ -1,47 +1,50 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="vi">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chi tiết sản phẩm - Moonlight Cafe</title>
-    
+
     <!-- Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+
     <!-- Custom CSS -->
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/mobile.css">
-    
+
     <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    
+
     <style>
         .product-detail {
             padding: 120px 0 80px;
             min-height: 100vh;
         }
-        
+
         .product-detail-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 60px;
             align-items: start;
         }
-        
+
         .product-detail-image {
             position: sticky;
             top: 100px;
         }
-        
+
         .product-detail-image img {
             width: 100%;
             border-radius: var(--radius-lg);
             box-shadow: var(--shadow-lg);
         }
-        
+
         .product-detail-info .product-category {
             color: var(--accent);
             font-size: 0.9rem;
@@ -50,47 +53,47 @@
             letter-spacing: 1px;
             margin-bottom: 0.5rem;
         }
-        
+
         .product-detail-info h1 {
             font-size: 2.5rem;
             margin-bottom: 1rem;
         }
-        
+
         .product-rating {
             display: flex;
             align-items: center;
             gap: 10px;
             margin-bottom: 1.5rem;
         }
-        
+
         .product-rating .stars {
             color: #fbbf24;
         }
-        
+
         .product-rating .rating-count {
             color: var(--text-muted);
             font-size: 0.9rem;
         }
-        
+
         .product-price-detail {
             font-size: 2rem;
             font-weight: 700;
             color: var(--accent);
             margin-bottom: 1.5rem;
         }
-        
+
         .product-description {
             color: var(--text-secondary);
             line-height: 1.8;
             margin-bottom: 2rem;
         }
-        
+
         .product-actions-detail {
             display: flex;
             gap: 15px;
             margin-bottom: 2rem;
         }
-        
+
         .quantity-selector {
             display: flex;
             align-items: center;
@@ -99,7 +102,7 @@
             padding: 12px 20px;
             border-radius: var(--radius-full);
         }
-        
+
         .quantity-selector button {
             width: 32px;
             height: 32px;
@@ -110,18 +113,18 @@
             font-weight: 600;
             transition: var(--transition-fast);
         }
-        
+
         .quantity-selector button:hover {
             transform: scale(1.1);
         }
-        
+
         .quantity-selector span {
             font-size: 1.2rem;
             font-weight: 600;
             min-width: 40px;
             text-align: center;
         }
-        
+
         .product-meta {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -130,46 +133,46 @@
             border-top: 1px solid var(--secondary);
             border-bottom: 1px solid var(--secondary);
         }
-        
+
         .meta-item {
             display: flex;
             align-items: center;
             gap: 12px;
             color: var(--text-secondary);
         }
-        
+
         .meta-item i {
             color: var(--accent);
             font-size: 1.2rem;
         }
-        
+
         @media (max-width: 992px) {
             .product-detail-grid {
                 grid-template-columns: 1fr;
                 gap: 30px;
             }
-            
+
             .product-detail-image {
                 position: relative;
                 top: 0;
             }
-            
+
             .product-detail-info h1 {
                 font-size: 2rem;
             }
-            
+
             .product-actions-detail {
                 flex-direction: column;
             }
         }
-        
+
         /* Reviews Section */
         .reviews-section {
             margin-top: 80px;
             padding-top: 60px;
             border-top: 1px solid var(--secondary);
         }
-        
+
         .reviews-header {
             display: flex;
             justify-content: space-between;
@@ -178,7 +181,7 @@
             flex-wrap: wrap;
             gap: 20px;
         }
-        
+
         .reviews-header h2 {
             font-size: 1.8rem;
             color: var(--text-primary);
@@ -186,11 +189,11 @@
             align-items: center;
             gap: 12px;
         }
-        
+
         .reviews-header h2 i {
             color: var(--accent);
         }
-        
+
         .write-review-btn {
             padding: 12px 25px;
             background: var(--accent);
@@ -204,12 +207,12 @@
             gap: 8px;
             transition: all 0.2s;
         }
-        
+
         .write-review-btn:hover {
             background: var(--accent-dark);
             transform: translateY(-2px);
         }
-        
+
         /* Rating Summary */
         .rating-summary {
             display: grid;
@@ -220,49 +223,49 @@
             border-radius: var(--radius-lg);
             margin-bottom: 40px;
         }
-        
+
         .rating-average {
             text-align: center;
             padding: 20px;
         }
-        
+
         .rating-number {
             font-size: 4rem;
             font-weight: 700;
             color: var(--text-primary);
             line-height: 1;
         }
-        
+
         .rating-stars {
             color: #fbbf24;
             font-size: 1.5rem;
             margin: 15px 0;
         }
-        
+
         .rating-total {
             color: var(--text-muted);
             font-size: 0.9rem;
         }
-        
+
         .rating-bars {
             display: flex;
             flex-direction: column;
             justify-content: center;
             gap: 10px;
         }
-        
+
         .rating-bar-row {
             display: flex;
             align-items: center;
             gap: 12px;
         }
-        
+
         .rating-bar-label {
             width: 50px;
             font-size: 0.9rem;
             color: var(--text-secondary);
         }
-        
+
         .rating-bar-container {
             flex: 1;
             height: 8px;
@@ -270,21 +273,21 @@
             border-radius: 4px;
             overflow: hidden;
         }
-        
+
         .rating-bar-fill {
             height: 100%;
             background: #fbbf24;
             border-radius: 4px;
             transition: width 0.5s ease;
         }
-        
+
         .rating-bar-count {
             width: 40px;
             text-align: right;
             font-size: 0.85rem;
             color: var(--text-muted);
         }
-        
+
         /* Review Form */
         .review-form-card {
             background: var(--bg-card);
@@ -293,58 +296,59 @@
             margin-bottom: 40px;
             display: none;
         }
-        
+
         .review-form-card.show {
             display: block;
             animation: slideDown 0.3s ease;
         }
-        
+
         @keyframes slideDown {
             from {
                 opacity: 0;
                 transform: translateY(-20px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
             }
         }
-        
+
         .review-form-card h3 {
             margin-bottom: 20px;
             color: var(--text-primary);
         }
-        
+
         .star-rating-input {
             display: flex;
             gap: 10px;
             margin-bottom: 20px;
         }
-        
+
         .star-rating-input .star {
             font-size: 2rem;
             color: var(--secondary);
             cursor: pointer;
             transition: all 0.2s;
         }
-        
+
         .star-rating-input .star:hover,
         .star-rating-input .star.active {
             color: #fbbf24;
             transform: scale(1.1);
         }
-        
+
         .form-group {
             margin-bottom: 20px;
         }
-        
+
         .form-group label {
             display: block;
             margin-bottom: 8px;
             font-weight: 500;
             color: var(--text-primary);
         }
-        
+
         .form-control {
             width: 100%;
             padding: 14px 18px;
@@ -355,55 +359,55 @@
             color: var(--text-primary);
             transition: all 0.2s;
         }
-        
+
         .form-control:focus {
             outline: none;
             border-color: var(--accent);
         }
-        
+
         textarea.form-control {
             resize: vertical;
             min-height: 120px;
         }
-        
+
         .review-form-actions {
             display: flex;
             gap: 15px;
             justify-content: flex-end;
         }
-        
+
         /* Review Cards */
         .reviews-list {
             display: flex;
             flex-direction: column;
             gap: 25px;
         }
-        
+
         .review-card {
             background: var(--bg-card);
             padding: 25px;
             border-radius: var(--radius-lg);
             transition: transform 0.2s, box-shadow 0.2s;
         }
-        
+
         .review-card:hover {
             transform: translateY(-3px);
             box-shadow: var(--shadow-md);
         }
-        
+
         .review-header {
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
             margin-bottom: 15px;
         }
-        
+
         .reviewer-info {
             display: flex;
             align-items: center;
             gap: 15px;
         }
-        
+
         .reviewer-avatar {
             width: 50px;
             height: 50px;
@@ -416,34 +420,34 @@
             font-weight: 600;
             font-size: 1.2rem;
         }
-        
+
         .reviewer-details h4 {
             color: var(--text-primary);
             margin-bottom: 3px;
         }
-        
+
         .review-date {
             font-size: 0.85rem;
             color: var(--text-muted);
         }
-        
+
         .review-stars {
             color: #fbbf24;
             font-size: 0.9rem;
         }
-        
+
         .review-content {
             color: var(--text-secondary);
             line-height: 1.8;
             margin-bottom: 15px;
         }
-        
+
         .review-images {
             display: flex;
             gap: 10px;
             margin-bottom: 15px;
         }
-        
+
         .review-image {
             width: 80px;
             height: 80px;
@@ -452,11 +456,11 @@
             cursor: pointer;
             transition: transform 0.2s;
         }
-        
+
         .review-image:hover {
             transform: scale(1.05);
         }
-        
+
         .review-helpful {
             display: flex;
             align-items: center;
@@ -464,7 +468,7 @@
             padding-top: 15px;
             border-top: 1px solid var(--secondary);
         }
-        
+
         .helpful-btn {
             display: flex;
             align-items: center;
@@ -477,16 +481,16 @@
             border-radius: var(--radius-sm);
             transition: all 0.2s;
         }
-        
+
         .helpful-btn:hover {
             background: var(--primary-light);
             color: var(--accent);
         }
-        
+
         .helpful-btn.active {
             color: var(--accent);
         }
-        
+
         .verified-badge {
             display: inline-flex;
             align-items: center;
@@ -497,17 +501,17 @@
             border-radius: 20px;
             font-size: 0.8rem;
         }
-        
+
         .verified-badge i {
             font-size: 0.7rem;
         }
-        
+
         /* Load More */
         .load-more-reviews {
             text-align: center;
             margin-top: 40px;
         }
-        
+
         .load-more-btn {
             padding: 15px 40px;
             background: transparent;
@@ -518,12 +522,12 @@
             cursor: pointer;
             transition: all 0.2s;
         }
-        
+
         .load-more-btn:hover {
             background: var(--accent);
             color: white;
         }
-        
+
         /* Empty Reviews */
         .no-reviews {
             text-align: center;
@@ -531,32 +535,32 @@
             background: var(--bg-card);
             border-radius: var(--radius-lg);
         }
-        
+
         .no-reviews i {
             font-size: 4rem;
             color: var(--secondary);
             margin-bottom: 20px;
         }
-        
+
         .no-reviews h3 {
             color: var(--text-primary);
             margin-bottom: 10px;
         }
-        
+
         .no-reviews p {
             color: var(--text-muted);
         }
-        
+
         @media (max-width: 768px) {
             .rating-summary {
                 grid-template-columns: 1fr;
                 gap: 30px;
             }
-            
+
             .rating-bars {
                 margin-top: 20px;
             }
-            
+
             .reviews-header {
                 flex-direction: column;
                 align-items: flex-start;
@@ -564,6 +568,7 @@
         }
     </style>
 </head>
+
 <body>
     <!-- Loading Overlay -->
     <div class="loading-overlay">
@@ -578,18 +583,25 @@
         <div class="container">
             <nav class="nav">
                 <a href="index.html" class="nav-brand">
-                    <span class="nav-brand-icon">🌙</span>
+                    <div class="nav-logo-wrapper"><img src="images/logo.png?v=4" alt="Moonlight Cafe" class="nav-logo"></div>
                     <span class="nav-brand-text">Moonlight Cafe</span>
                 </a>
-                
+
                 <ul class="nav-menu" id="navMenu">
                     <li><a href="index.html" class="nav-link">Trang chủ</a></li>
                     <li><a href="menu.html" class="nav-link active">Menu</a></li>
+                    <li><a href="promotions.html" class="nav-link">Khuyến mãi</a></li>
                     <li><a href="news.html" class="nav-link">Tin tức</a></li>
                     <li><a href="about.html" class="nav-link">Về chúng tôi</a></li>
+                    <li><a href="contact.html" class="nav-link">Liên hệ</a></li>
+                    <li><a href="reservation.html" class="nav-link">Đặt bàn</a></li>
                 </ul>
-                
+
                 <div class="nav-actions">
+                    <a href="contact.html" class="nav-icon hidden" id="msgIcon" title="Tin nhắn từ tiệm">
+                        <i class="fas fa-envelope"></i>
+                        <span class="badge" id="msgCount" style="display:none">0</span>
+                    </a>
                     <a href="cart.html" class="nav-icon" id="cartIcon">
                         <i class="fas fa-shopping-bag"></i>
                         <span class="badge" id="cartCount">0</span>
@@ -598,9 +610,9 @@
                         <i class="fas fa-user"></i>
                     </a>
                     <div class="nav-toggle" id="navToggle">
-                        <span></span>
-                        <span></span>
-                        <span></span>
+                        <div class="nav-logo-wrapper"><img src="images/logo.png?v=4" alt="Moonlight Cafe" class="nav-logo"></div>
+                        <div class="nav-logo-wrapper"><img src="images/logo.png?v=4" alt="Moonlight Cafe" class="nav-logo"></div>
+                        <div class="nav-logo-wrapper"><img src="images/logo.png?v=4" alt="Moonlight Cafe" class="nav-logo"></div>
                     </div>
                 </div>
             </nav>
@@ -616,7 +628,7 @@
                     <div class="loader" style="margin: 50px auto;"></div>
                 </div>
             </div>
-            
+
             <!-- Reviews Section -->
             <div class="reviews-section" id="reviewsSection">
                 <div class="reviews-header">
@@ -625,7 +637,7 @@
                         <i class="fas fa-pen"></i> Viết đánh giá
                     </button>
                 </div>
-                
+
                 <!-- Rating Summary -->
                 <div class="rating-summary" id="ratingSummary">
                     <div class="rating-average">
@@ -643,7 +655,7 @@
                         <!-- Rating bars will be loaded here -->
                     </div>
                 </div>
-                
+
                 <!-- Review Form -->
                 <div class="review-form-card" id="reviewFormCard">
                     <h3>Viết đánh giá của bạn</h3>
@@ -664,12 +676,14 @@
                         </div>
                         <div class="form-group">
                             <label>Email</label>
-                            <input type="email" class="form-control" id="reviewerEmail" placeholder="Nhập email của bạn">
+                            <input type="email" class="form-control" id="reviewerEmail"
+                                placeholder="Nhập email của bạn">
                         </div>
                     </div>
                     <div class="form-group">
                         <label>Đánh giá của bạn</label>
-                        <textarea class="form-control" id="reviewContent" rows="4" placeholder="Chia sẻ trải nghiệm của bạn về sản phẩm này..."></textarea>
+                        <textarea class="form-control" id="reviewContent" rows="4"
+                            placeholder="Chia sẻ trải nghiệm của bạn về sản phẩm này..."></textarea>
                     </div>
                     <div class="review-form-actions">
                         <button class="btn btn-outline" onclick="toggleReviewForm()">Hủy</button>
@@ -678,12 +692,12 @@
                         </button>
                     </div>
                 </div>
-                
+
                 <!-- Reviews List -->
                 <div class="reviews-list" id="reviewsList">
                     <!-- Reviews will be loaded here -->
                 </div>
-                
+
                 <!-- Load More -->
                 <div class="load-more-reviews" id="loadMoreReviews" style="display: none;">
                     <button class="load-more-btn" onclick="loadMoreReviews()">
@@ -700,18 +714,18 @@
             <div class="footer-grid">
                 <div class="footer-col">
                     <div class="footer-brand">
-                        <span class="nav-brand-icon">🌙</span>
+                        <div class="nav-logo-wrapper"><img src="images/logo.png?v=4" alt="Moonlight Cafe" class="nav-logo"></div>
                         <span class="nav-brand-text">Moonlight Cafe</span>
                     </div>
-                    <p>Nơi thưởng thức cà phê và bánh ngọt thượng hạng trong không gian ấm cúng dưới ánh trăng.</p>
+                    <p id="footer-slogan">Nơi thưởng thức cà phê và bánh ngọt thượng hạng trong không gian ấm cúng dưới ánh trăng.</p>
                     <div class="footer-social">
-                        <a href="#"><i class="fab fa-facebook-f"></i></a>
-                        <a href="#"><i class="fab fa-instagram"></i></a>
-                        <a href="#"><i class="fab fa-tiktok"></i></a>
-                        <a href="#"><i class="fab fa-youtube"></i></a>
+                        <a href="#" id="footer-fb"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" id="footer-ig"><i class="fab fa-instagram"></i></a>
+                        <a href="#" id="footer-tt"><i class="fab fa-tiktok"></i></a>
+                        <a href="#" id="footer-yt"><i class="fab fa-youtube"></i></a>
                     </div>
                 </div>
-                
+
                 <div class="footer-col">
                     <h4 class="footer-title">Liên kết nhanh</h4>
                     <ul class="footer-links">
@@ -721,7 +735,7 @@
                         <li><a href="about.html">Về chúng tôi</a></li>
                     </ul>
                 </div>
-                
+
                 <div class="footer-col">
                     <h4 class="footer-title">Hỗ trợ</h4>
                     <ul class="footer-links">
@@ -731,32 +745,32 @@
                         <li><a href="#">Liên hệ</a></li>
                     </ul>
                 </div>
-                
+
                 <div class="footer-col">
                     <h4 class="footer-title">Liên hệ</h4>
                     <ul class="footer-contact">
                         <li>
                             <i class="fas fa-map-marker-alt"></i>
-                            <span>123 Đường ABC, Quận 1, TP.HCM</span>
+                            <span id="footer-address">66 Nguyễn Đệ, Cái Khế, Cần Thơ</span>
                         </li>
                         <li>
                             <i class="fas fa-phone"></i>
-                            <span>0123 456 789</span>
+                            <span id="footer-phone">0110 766 204</span>
                         </li>
                         <li>
                             <i class="fas fa-envelope"></i>
-                            <span>hello@moonlightcafe.vn</span>
+                            <span id="footer-email">moonlightcafe@gmail.com</span>
                         </li>
                         <li>
                             <i class="fas fa-clock"></i>
-                            <span>7:00 - 22:00 hàng ngày</span>
+                            <span id="footer-hours">7:00 - 22:00 hàng ngày</span>
                         </li>
                     </ul>
                 </div>
             </div>
-            
+
             <div class="footer-bottom">
-                <p>&copy; 2024 Moonlight Cafe. All rights reserved.</p>
+                <p id="footer-copyright">&copy; 2026 Moonlight Cafe. All rights reserved.</p>
             </div>
         </div>
     </footer>
@@ -785,36 +799,29 @@
 
     <script type="module">
         import { auth, db, ref, get, onAuthStateChanged } from './js/firebase-config.js';
-        
+
         // Loading
         window.addEventListener('load', () => {
             setTimeout(() => {
                 document.querySelector('.loading-overlay').classList.add('hidden');
             }, 500);
         });
-        
+
         // Get product ID from URL
         const urlParams = new URLSearchParams(window.location.search);
         const productId = urlParams.get('id');
-        
+
         if (!productId) {
             window.location.href = 'menu.html';
         }
-        
-        // ========== REVIEWS SECTION ==========
-        
-        // Sample reviews data
-        let reviews = [
-            {
-                id: 1,
-                productId: productId,
+
         function formatPrice(price) {
-            return new Intl.NumberFormat('vi-VN', { 
-                style: 'currency', 
-                currency: 'VND' 
+            return new Intl.NumberFormat('vi-VN', {
+                style: 'currency',
+                currency: 'VND'
             }).format(price);
         }
-        
+
         // Get category name
         function getCategoryName(category) {
             const map = {
@@ -826,13 +833,13 @@
             };
             return map[category] || category;
         }
-        
+
         // Load product details
         async function loadProduct() {
             try {
                 const productRef = ref(db, `products/${productId}`);
                 const snapshot = await get(productRef);
-                
+
                 if (snapshot.exists()) {
                     const product = snapshot.val();
                     renderProduct(product);
@@ -854,10 +861,13 @@
                 });
             }
         }
-        
-        // Render product
+
         function renderProduct(product) {
             const container = document.getElementById('productDetail');
+            const favorites = JSON.parse(localStorage.getItem('moonlight_wishlist')) || [];
+            const isFavorite = favorites.some(item => String(item.id) === String(productId));
+            const heartClass = isFavorite ? 'fas fa-heart active' : 'far fa-heart';
+
             container.innerHTML = `
                 <div class="product-detail-image">
                     <img src="${product.imageUrl || 'https://via.placeholder.com/600x600'}" alt="${product.name}">
@@ -893,6 +903,9 @@
                         <button class="btn btn-primary" style="flex: 1;" onclick="addToCart()">
                             <i class="fas fa-shopping-bag"></i> Thêm vào giỏ
                         </button>
+                        <button class="btn btn-outline" onclick="toggleFavoriteDetail()" title="Yêu thích" style="width: 50px; display: flex; align-items: center; justify-content: center;">
+                            <i class="${heartClass}" id="heart-icon-detail" style="font-size: 1.2rem; ${isFavorite ? 'color: #ef4444;' : ''}"></i>
+                        </button>
                     </div>
                     
                     <div class="product-meta">
@@ -915,23 +928,39 @@
                     </div>
                 </div>
             `;
-            
+
             // Store product info globally
             window.currentProduct = { id: productId, ...product };
         }
-        
+
         // Quantity controls
         let quantity = 1;
-        window.changeQuantity = function(delta) {
+        window.changeQuantity = function (delta) {
             quantity = Math.max(1, quantity + delta);
             document.getElementById('quantity').textContent = quantity;
         };
-        
+
         // Add to cart
-        window.addToCart = function() {
-            const cart = JSON.parse(localStorage.getItem('moonlight_cart')) || [];
+        window.addToCart = function () {
+            const user = auth.currentUser;
+            if (!user) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Chưa đăng nhập',
+                    text: 'Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng!',
+                    showCancelButton: true,
+                    confirmButtonText: 'Đăng nhập',
+                    cancelButtonText: 'Hủy',
+                    confirmButtonColor: '#d4a574'
+                }).then((result) => {
+                    if (result.isConfirmed) window.location.href = 'login.html';
+                });
+                return;
+            }
+            const cartKey = `moonlight_cart_${user.uid}`;
+            const cart = JSON.parse(localStorage.getItem(cartKey)) || [];
             const existingItem = cart.find(item => item.id === productId);
-            
+
             if (existingItem) {
                 existingItem.quantity += quantity;
             } else {
@@ -943,13 +972,13 @@
                     quantity: quantity
                 });
             }
-            
-            localStorage.setItem('moonlight_cart', JSON.stringify(cart));
-            
+
+            localStorage.setItem(cartKey, JSON.stringify(cart));
+
             // Update cart count
             const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
             document.getElementById('cartCount').textContent = totalItems;
-            
+
             Swal.fire({
                 icon: 'success',
                 title: 'Đã thêm vào giỏ!',
@@ -962,59 +991,113 @@
                     window.location.href = 'cart.html';
                 }
             });
-            
+
             // Reset quantity
             quantity = 1;
             document.getElementById('quantity').textContent = 1;
         };
-        
+
+        // Toggle Favorite from Detail
+        window.toggleFavoriteDetail = function () {
+            if (!window.currentProduct) return;
+
+            let wishlist = JSON.parse(localStorage.getItem('moonlight_wishlist')) || [];
+            const index = wishlist.findIndex(item => String(item.id) === String(productId));
+            const icon = document.getElementById('heart-icon-detail');
+
+            if (index > -1) {
+                wishlist.splice(index, 1);
+                if (icon) {
+                    icon.className = 'far fa-heart';
+                    icon.style.color = '';
+                }
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Đã bỏ yêu thích',
+                    text: 'Sản phẩm đã được xóa khỏi danh sách.',
+                    toast: true,
+                    position: 'bottom-end',
+                    showConfirmButton: false,
+                    timer: 2000
+                });
+            } else {
+                wishlist.push({
+                    id: productId,
+                    name: window.currentProduct.name,
+                    price: window.currentProduct.price,
+                    image: window.currentProduct.imageUrl,
+                    category: window.currentProduct.category || 'coffee'
+                });
+                if (icon) {
+                    icon.className = 'fas fa-heart active';
+                    icon.style.color = '#ef4444';
+                }
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Đã thêm yêu thích',
+                    text: 'Sản phẩm đã ghim vào mục Yêu thích.',
+                    toast: true,
+                    position: 'bottom-end',
+                    showConfirmButton: false,
+                    timer: 2000
+                });
+            }
+
+            localStorage.setItem('moonlight_wishlist', JSON.stringify(wishlist));
+        };
+
         // Update cart count on load
         function updateCartCount() {
-            const cart = JSON.parse(localStorage.getItem('moonlight_cart')) || [];
+            const user = auth.currentUser;
+            if (!user) {
+                document.getElementById('cartCount').textContent = 0;
+                return;
+            }
+            const cart = JSON.parse(localStorage.getItem(`moonlight_cart_${user.uid}`)) || [];
             const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
             document.getElementById('cartCount').textContent = totalItems;
         }
-        
+
         updateCartCount();
         loadProduct();
-        
+
         // Mobile menu toggle
         const navToggle = document.getElementById('navToggle');
         const navMenu = document.getElementById('navMenu');
         const navOverlay = document.getElementById('navOverlay');
-        
+
         navToggle.addEventListener('click', () => {
             navMenu.classList.toggle('active');
             navOverlay.classList.toggle('active');
         });
-        
+
         navOverlay.addEventListener('click', () => {
             navMenu.classList.remove('active');
             navOverlay.classList.remove('active');
         });
-        
+
         // User dropdown
         const userIcon = document.getElementById('userIcon');
         const userDropdown = document.getElementById('userDropdown');
-        
+
         userIcon.addEventListener('click', (e) => {
             e.preventDefault();
             userDropdown.classList.toggle('active');
         });
-        
+
         document.addEventListener('click', (e) => {
             if (!userIcon.contains(e.target) && !userDropdown.contains(e.target)) {
                 userDropdown.classList.remove('active');
             }
         });
-        
+
         // Auth state
         onAuthStateChanged(auth, (user) => {
             const userInfo = document.getElementById('userInfo');
             const loginBtn = document.getElementById('loginBtn');
             const registerBtn = document.getElementById('registerBtn');
             const loggedInItems = document.querySelectorAll('.logged-in-only');
-            
+
             if (user) {
                 userInfo.innerHTML = `
                     <i class="fas fa-user-circle"></i>
@@ -1033,7 +1116,7 @@
                 loggedInItems.forEach(item => item.classList.add('hidden'));
             }
         });
-        
+
         // Logout
         document.getElementById('logoutBtn')?.addEventListener('click', async (e) => {
             e.preventDefault();
@@ -1045,9 +1128,9 @@
                 showConfirmButton: false
             });
         });
-        
+
         // ========== REVIEWS SECTION ==========
-        
+
         // Sample reviews data
         let reviews = [
             {
@@ -1106,17 +1189,17 @@
                 verified: true
             }
         ];
-        
+
         let currentRating = 0;
         let reviewsPerPage = 5;
         let displayedReviews = 5;
-        
+
         // Render rating bars
         function renderRatingBars() {
             const ratingCounts = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
             reviews.forEach(r => ratingCounts[r.rating]++);
             const total = reviews.length;
-            
+
             const barsHtml = [5, 4, 3, 2, 1].map(star => `
                 <div class="rating-bar-row">
                     <span class="rating-bar-label">${star} sao</span>
@@ -1126,10 +1209,10 @@
                     <span class="rating-bar-count">${ratingCounts[star]}</span>
                 </div>
             `).join('');
-            
+
             document.getElementById('ratingBars').innerHTML = barsHtml;
         }
-        
+
         // Calculate average rating
         function calculateAverageRating() {
             if (reviews.length === 0) return { average: 0, total: 0 };
@@ -1139,7 +1222,7 @@
                 total: reviews.length
             };
         }
-        
+
         // Render stars
         function renderStars(rating, isInput = false) {
             let stars = '';
@@ -1156,31 +1239,31 @@
             }
             return stars;
         }
-        
+
         // Format date
         function formatReviewDate(dateString) {
             const date = new Date(dateString);
-            return date.toLocaleDateString('vi-VN', { 
-                day: '2-digit', 
-                month: '2-digit', 
+            return date.toLocaleDateString('vi-VN', {
+                day: '2-digit',
+                month: '2-digit',
                 year: 'numeric',
                 hour: '2-digit',
                 minute: '2-digit'
             });
         }
-        
+
         // Render reviews
         function renderReviews() {
             const container = document.getElementById('reviewsList');
             const { average, total } = calculateAverageRating();
-            
+
             // Update rating summary
             document.getElementById('ratingNumber').textContent = average;
             document.getElementById('ratingStars').innerHTML = renderStars(parseFloat(average));
             document.getElementById('ratingTotal').textContent = `${total} đánh giá`;
-            
+
             renderRatingBars();
-            
+
             if (reviews.length === 0) {
                 container.innerHTML = `
                     <div class="no-reviews">
@@ -1191,7 +1274,7 @@
                 `;
                 return;
             }
-            
+
             const displayed = reviews.slice(0, displayedReviews);
             container.innerHTML = displayed.map(review => `
                 <div class="review-card">
@@ -1214,7 +1297,7 @@
                     </div>
                 </div>
             `).join('');
-            
+
             // Show/hide load more button
             const loadMoreBtn = document.getElementById('loadMoreReviews');
             if (displayedReviews < reviews.length) {
@@ -1223,12 +1306,12 @@
                 loadMoreBtn.style.display = 'none';
             }
         }
-        
+
         // Toggle review form
-        window.toggleReviewForm = function() {
+        window.toggleReviewForm = function () {
             const form = document.getElementById('reviewFormCard');
             form.classList.toggle('show');
-            
+
             // Auto-fill user info if logged in
             onAuthStateChanged(auth, (user) => {
                 if (user) {
@@ -1237,12 +1320,12 @@
                 }
             });
         };
-        
+
         // Star rating input
         document.getElementById('starRating').addEventListener('click', (e) => {
             if (e.target.classList.contains('star')) {
                 currentRating = parseInt(e.target.dataset.rating);
-                
+
                 // Update visual
                 document.querySelectorAll('#starRating .star').forEach((star, index) => {
                     if (index < currentRating) {
@@ -1255,13 +1338,13 @@
                 });
             }
         });
-        
+
         // Submit review
-        window.submitReview = function() {
+        window.submitReview = function () {
             const name = document.getElementById('reviewerName').value.trim();
             const email = document.getElementById('reviewerEmail').value.trim();
             const content = document.getElementById('reviewContent').value.trim();
-            
+
             if (!name || !email || !content) {
                 Swal.fire({
                     icon: 'warning',
@@ -1270,7 +1353,7 @@
                 });
                 return;
             }
-            
+
             if (currentRating === 0) {
                 Swal.fire({
                     icon: 'warning',
@@ -1279,7 +1362,7 @@
                 });
                 return;
             }
-            
+
             // Validate email
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             if (!emailRegex.test(email)) {
@@ -1290,7 +1373,7 @@
                 });
                 return;
             }
-            
+
             // Add new review
             const newReview = {
                 id: Date.now(),
@@ -1303,9 +1386,9 @@
                 helpful: 0,
                 verified: false
             };
-            
+
             reviews.unshift(newReview);
-            
+
             // Reset form
             document.getElementById('reviewerName').value = '';
             document.getElementById('reviewerEmail').value = '';
@@ -1315,11 +1398,11 @@
                 star.classList.remove('active');
                 star.classList.add('far');
             });
-            
+
             // Hide form and re-render
             toggleReviewForm();
             renderReviews();
-            
+
             Swal.fire({
                 icon: 'success',
                 title: 'Cảm ơn bạn!',
@@ -1327,24 +1410,31 @@
                 confirmButtonColor: '#d4a574'
             });
         };
-        
+
         // Mark helpful
-        window.markHelpful = function(reviewId) {
+        window.markHelpful = function (reviewId) {
             const review = reviews.find(r => r.id === reviewId);
             if (review) {
                 review.helpful++;
                 renderReviews();
             }
         };
-        
+
         // Load more reviews
-        window.loadMoreReviews = function() {
+        window.loadMoreReviews = function () {
             displayedReviews += reviewsPerPage;
             renderReviews();
         };
-        
+
         // Initialize reviews
         renderReviews();
     </script>
+    <script type="module">
+        import { updateMsgBadge, loadStoreInfo } from './js/nav-helper.js';
+        loadStoreInfo();
+        import { auth, onAuthStateChanged } from './js/firebase-config.js';
+        onAuthStateChanged(auth, user => updateMsgBadge(user ? user.uid : null));
+    </script>
 </body>
+
 </html>

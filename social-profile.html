@@ -455,7 +455,7 @@
         .wishlist-overlay {
             position: absolute;
             inset: 0;
-            background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 50%);
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.7) 0%, transparent 50%);
             display: flex;
             flex-direction: column;
             justify-content: flex-end;
@@ -560,11 +560,11 @@
             transition: 0.3s;
         }
 
-        .toggle-switch input:checked + .toggle-slider {
+        .toggle-switch input:checked+.toggle-slider {
             background-color: var(--social-accent);
         }
 
-        .toggle-switch input:checked + .toggle-slider::before {
+        .toggle-switch input:checked+.toggle-slider::before {
             transform: translateX(22px);
         }
 
@@ -676,7 +676,15 @@
         }
 
         @keyframes spin {
-            to { transform: rotate(360deg); }
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Ẩn icon native của Chrome/Edge trong input password */
+        input[type="password"]::-ms-reveal,
+        input[type="password"]::-ms-clear {
+            display: none !important;
         }
     </style>
 </head>
@@ -692,18 +700,25 @@
         <div class="container">
             <nav class="nav">
                 <a href="index.html" class="nav-brand">
-                    <span>🌙</span>
+                    <div class="nav-logo-wrapper"><img src="images/logo.png?v=4" alt="Moonlight Cafe" class="nav-logo"></div>
                     <span class="nav-brand-text">Moonlight Cafe</span>
                 </a>
 
                 <ul class="nav-menu" id="navMenu">
                     <li><a href="index.html" class="nav-link">Trang chủ</a></li>
                     <li><a href="menu.html" class="nav-link">Menu</a></li>
+                    <li><a href="promotions.html" class="nav-link">Khuyến mãi</a></li>
                     <li><a href="news.html" class="nav-link">Tin tức</a></li>
                     <li><a href="about.html" class="nav-link">Về chúng tôi</a></li>
+                    <li><a href="contact.html" class="nav-link">Liên hệ</a></li>
+                    <li><a href="reservation.html" class="nav-link">Đặt bàn</a></li>
                 </ul>
 
                 <div class="nav-actions">
+                    <a href="contact.html" class="nav-icon hidden" id="msgIcon" title="Tin nhắn từ tiệm">
+                        <i class="fas fa-envelope"></i>
+                        <span class="badge" id="msgCount" style="display:none">0</span>
+                    </a>
                     <a href="cart.html" class="nav-icon">
                         <i class="fas fa-shopping-bag"></i>
                         <span class="badge" id="cartCount">0</span>
@@ -718,14 +733,14 @@
 
     <!-- Social Profile Section -->
     <section class="social-profile">
-        
+
         <!-- Profile Header -->
         <div class="profile-header-social">
             <div class="cover-photo"></div>
-            
+
             <div class="profile-info-section">
                 <div class="profile-avatar-social" id="profileAvatar">U</div>
-                
+
                 <div class="profile-details">
                     <div class="profile-user-info">
                         <h1>
@@ -738,7 +753,7 @@
                             🌙 Khách hàng thân thiết của Moonlight Cafe<br>
                             📍 TP. Hồ Chí Minh
                         </p>
-                        
+
                         <div class="profile-stats-social">
                             <div class="stat-item-social" onclick="switchTab('posts')">
                                 <div class="stat-number" id="orderCount">12</div>
@@ -754,7 +769,7 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <div class="profile-actions">
                         <button class="btn-follow" onclick="editProfile()">
                             <i class="fas fa-edit"></i> Chỉnh sửa
@@ -798,8 +813,10 @@
                     <div class="post-content">
                         <p class="post-text">Cảm ơn bạn đã đặt hàng! ☕✨</p>
                         <div class="post-order-items">
-                            <img src="https://images.unsplash.com/photo-1572442388796-11668a67e53d?w=200" alt="Cappuccino" class="order-item-thumb">
-                            <img src="https://images.unsplash.com/photo-1515823664-b6e16561678e?w=200" alt="Matcha Latte" class="order-item-thumb">
+                            <img src="https://images.unsplash.com/photo-1572442388796-11668a67e53d?w=200"
+                                alt="Cappuccino" class="order-item-thumb">
+                            <img src="https://images.unsplash.com/photo-1515823664-b6e16561678e?w=200"
+                                alt="Matcha Latte" class="order-item-thumb">
                         </div>
                     </div>
                     <div class="post-stats">
@@ -829,7 +846,8 @@
                     <div class="post-content">
                         <p class="post-text">Đơn hàng của bạn đang trên đường! 🚗</p>
                         <div class="post-order-items">
-                            <img src="https://images.unsplash.com/photo-1558857563-b371033873b8?w=200" alt="Trà sữa" class="order-item-thumb">
+                            <img src="https://images.unsplash.com/photo-1558857563-b371033873b8?w=200" alt="Trà sữa"
+                                class="order-item-thumb">
                         </div>
                     </div>
                     <div class="post-stats">
@@ -998,11 +1016,51 @@
     <!-- Footer -->
     <footer class="footer">
         <div class="container">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <div class="footer-brand">
+                        <div class="nav-logo-wrapper"><img src="images/logo.png?v=4" alt="Moonlight Cafe" class="nav-logo"></div>
+                        <span class="nav-brand-text">Moonlight Cafe</span>
+                    </div>
+                    <p id="footer-slogan">Nơi thưởng thức cà phê và bánh ngọt thượng hạng trong không gian ấm cúng dưới ánh trăng.</p>
+                    <div class="footer-social">
+                        <a href="#" id="footer-fb"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" id="footer-ig"><i class="fab fa-instagram"></i></a>
+                        <a href="#" id="footer-tt"><i class="fab fa-tiktok"></i></a>
+                        <a href="#" id="footer-yt"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+                <div class="footer-col">
+                    <h4 class="footer-title">Liên kết nhanh</h4>
+                    <ul class="footer-links">
+                        <li><a href="index.html">Trang chủ</a></li>
+                        <li><a href="menu.html">Menu</a></li>
+                        <li><a href="promotions.html">Khuyến mãi</a></li>
+                        <li><a href="news.html">Tin tức</a></li>
+                        <li><a href="about.html">Về chúng tôi</a></li>
+                        <li><a href="contact.html">Liên hệ</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4 class="footer-title">Liên hệ</h4>
+                    <ul class="footer-contact">
+                        <li><i class="fas fa-map-marker-alt"></i> <span id="footer-address">66 Nguyễn Đệ, Cái Khế, Cần Thơ</span></li>
+                        <li><i class="fas fa-phone"></i> <span id="footer-phone">0110 766 204</span></li>
+                        <li><i class="fas fa-envelope"></i> <span id="footer-email">moonlightcafe@gmail.com</span></li>
+                        <li><i class="fas fa-clock"></i> <span id="footer-hours">7:00 - 22:00 hàng ngày</span></li>
+                    </ul>
+                </div>
+            </div>
             <div class="footer-bottom">
-                <p>&copy; 2024 Moonlight Cafe. All rights reserved.</p>
+                <p id="footer-copyright">&copy; 2026 Moonlight Cafe. All rights reserved.</p>
             </div>
         </div>
     </footer>
+
+    <script type="module">
+        import { loadStoreInfo } from './js/nav-helper.js';
+        loadStoreInfo();
+    </script>
 
     <script type="module">
         // Firebase imports
@@ -1027,26 +1085,26 @@
         }
 
         // Switch tabs
-        window.switchTab = function(tabName) {
+        window.switchTab = function (tabName) {
             // Hide all tabs
             document.getElementById('postsTab').style.display = 'none';
             document.getElementById('wishlistTab').style.display = 'none';
             document.getElementById('settingsTab').style.display = 'none';
-            
+
             // Remove active class from all tabs
             document.querySelectorAll('.profile-tab').forEach(tab => {
                 tab.classList.remove('active');
             });
-            
+
             // Show selected tab
             document.getElementById(tabName + 'Tab').style.display = tabName === 'posts' ? 'block' : (tabName === 'wishlist' ? 'grid' : 'block');
-            
+
             // Add active class to selected tab
             document.querySelector(`.profile-tab[data-tab="${tabName}"]`).classList.add('active');
         };
 
         // Edit profile
-        window.editProfile = function() {
+        window.editProfile = function () {
             Swal.fire({
                 title: 'Chỉnh sửa hồ sơ',
                 html: `
@@ -1071,7 +1129,7 @@
         };
 
         // Change password
-        window.changePassword = function() {
+        window.changePassword = function () {
             Swal.fire({
                 title: 'Đổi mật khẩu',
                 html: `
@@ -1096,9 +1154,9 @@
         };
 
         // Share profile
-        window.shareProfile = function() {
+        window.shareProfile = function () {
             const url = window.location.href;
-            
+
             if (navigator.share) {
                 navigator.share({
                     title: 'Hồ sơ của tôi - Moonlight Cafe',
@@ -1117,7 +1175,7 @@
         };
 
         // Logout
-        window.logout = function() {
+        window.logout = function () {
             Swal.fire({
                 icon: 'question',
                 title: 'Đăng xuất?',
@@ -1135,7 +1193,8 @@
 
         // Update cart count
         function updateCartCount() {
-            const cart = JSON.parse(localStorage.getItem('moonlight_cart')) || [];
+            if (!currentUser) { document.getElementById('cartCount').textContent = 0; return; }
+            const cart = JSON.parse(localStorage.getItem(`moonlight_cart_${currentUser.uid}`)) || [];
             document.getElementById('cartCount').textContent = cart.reduce((sum, item) => sum + item.quantity, 0);
         }
 
@@ -1162,6 +1221,11 @@
             const header = document.getElementById('header');
             header.classList.toggle('scrolled', window.scrollY > 50);
         });
+    </script>
+    <script type="module">
+        import { updateMsgBadge } from './js/nav-helper.js';
+        import { auth, onAuthStateChanged } from './js/firebase-config.js';
+        onAuthStateChanged(auth, user => updateMsgBadge(user ? user.uid : null));
     </script>
 </body>
 

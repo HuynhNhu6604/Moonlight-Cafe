@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="vi">
 
 <head>
@@ -21,7 +21,7 @@
     <style>
         .page-header {
             background: linear-gradient(135deg, var(--bg-dark), var(--primary));
-            padding: 120px 0 60px;
+            padding: 50px 0 50px;
             text-align: center;
         }
 
@@ -145,25 +145,32 @@
         <div class="container">
             <nav class="nav">
                 <a href="index.html" class="nav-brand">
-                    <span>🌙</span>
+                    <div class="nav-logo-wrapper"><img src="images/logo.png?v=4" alt="Moonlight Cafe" class="nav-logo"></div>
                     <span class="nav-brand-text">Moonlight Cafe</span>
                 </a>
 
                 <ul class="nav-menu" id="navMenu">
                     <li><a href="index.html" class="nav-link">Trang chủ</a></li>
                     <li><a href="menu.html" class="nav-link">Menu</a></li>
+                    <li><a href="promotions.html" class="nav-link">Khuyến mãi</a></li>
                     <li><a href="news.html" class="nav-link active">Tin tức</a></li>
                     <li><a href="about.html" class="nav-link">Về chúng tôi</a></li>
+                    <li><a href="contact.html" class="nav-link">Liên hệ</a></li>
+                    <li><a href="reservation.html" class="nav-link">Đặt bàn</a></li>
                 </ul>
 
                 <div class="nav-actions">
+                    <a href="contact.html" class="nav-icon hidden" id="msgIcon" title="Tin nhắn từ tiệm">
+                        <i class="fas fa-envelope"></i>
+                        <span class="badge" id="msgCount" style="display:none">0</span>
+                    </a>
                     <a href="cart.html" class="nav-icon">
                         <i class="fas fa-shopping-bag"></i>
                         <span class="badge" id="cartCount">0</span>
                     </a>
-                    <a href="login.html" class="nav-icon">
+                    <div class="nav-icon" id="userIcon" style="cursor:pointer;">
                         <i class="fas fa-user"></i>
-                    </a>
+                    </div>
                 </div>
             </nav>
         </div>
@@ -185,20 +192,20 @@
             <div class="news-grid" id="newsGrid">
                 <!-- News articles -->
                 <article class="news-card">
-                    <img src="https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=600"
-                        alt="Khai trương chi nhánh mới" class="news-img">
+                    <img src="https://images.unsplash.com/photo-1559925393-8be0ec4767c8?w=600"
+                        alt="Khai trương cơ sở mới" class="news-img">
                     <div class="news-content">
                         <span class="news-category">Tin mới</span>
                         <h3 class="news-title">
-                            <a href="news-detail.html?id=1">Moonlight Cafe khai trương chi nhánh mới tại Quận 7</a>
+                            <a href="news-detail.html?id=1">Moonlight Cafe khai trương cơ sở mới tại Ninh Kiều, Cần Thơ</a>
                         </h3>
                         <div class="news-meta">
-                            <span><i class="fas fa-calendar"></i> 15/01/2024</span>
+                            <span><i class="fas fa-calendar"></i> 10/01/2026</span>
                             <span><i class="fas fa-user"></i> Admin</span>
                         </div>
                         <p class="news-excerpt">
-                            Moonlight Cafe chính thức khai trương chi nhánh thứ 3 tại Quận 7, mang đến không gian
-                            thưởng thức cà phê đẳng cấp cho cư dân khu Nam Sài Gòn...
+                            Moonlight Cafe chính thức khai trương cơ sở mới ngay trung tâm quận Ninh Kiều,
+                            mang đến không gian thưởng thức cà phê ấm cúng giữa lòng TP. Cần Thơ...
                         </p>
                         <a href="news-detail.html?id=1" class="news-link">
                             Đọc thêm <i class="fas fa-arrow-right"></i>
@@ -207,110 +214,110 @@
                 </article>
 
                 <article class="news-card">
-                    <img src="https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=600"
-                        alt="Công thức pha cà phê" class="news-img">
+                    <img src="https://images.unsplash.com/photo-1519082274554-1ca37b2df78d?w=600"
+                        alt="Công thức pha cà phê phin Việt Nam" class="news-img">
                     <div class="news-content">
                         <span class="news-category">Tips & Tricks</span>
                         <h3 class="news-title">
-                            <a href="#">Bí quyết pha cà phê ngon tại nhà như barista chuyên nghiệp</a>
+                            <a href="news-detail.html?id=2">Bí quyết pha cà phê phin Việt Nam thơm ngon đúng điệu</a>
                         </h3>
                         <div class="news-meta">
-                            <span><i class="fas fa-calendar"></i> 10/01/2024</span>
+                            <span><i class="fas fa-calendar"></i> 05/01/2026</span>
                             <span><i class="fas fa-user"></i> Barista Team</span>
                         </div>
                         <p class="news-excerpt">
-                            Với những mẹo nhỏ từ đội ngũ barista của Moonlight, bạn hoàn toàn có thể pha được
-                            những ly cà phê thơm ngon không thua gì quán...
+                            Với những mẹo nhỏ từ đội ngũ barista của Moonlight, bạn có thể pha được
+                            những ly cà phê phin đậm đà thơm ngon ngay tại nhà...
                         </p>
-                        <a href="news-detail.html?id=1" class="news-link">
+                        <a href="news-detail.html?id=2" class="news-link">
                             Đọc thêm <i class="fas fa-arrow-right"></i>
                         </a>
                     </div>
                 </article>
 
                 <article class="news-card">
-                    <img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600" alt="Menu mới"
+                    <img src="https://images.unsplash.com/photo-1551024601-bec78aea704b?w=600" alt="Bánh ngọt mới"
                         class="news-img">
                     <div class="news-content">
                         <span class="news-category">Menu mới</span>
                         <h3 class="news-title">
-                            <a href="#">Ra mắt bộ sưu tập bánh ngọt mùa xuân 2024</a>
+                            <a href="news-detail.html?id=3">Ra mắt bộ sưu tập bánh ngọt Tết Bính Ngọ 2026</a>
                         </h3>
                         <div class="news-meta">
-                            <span><i class="fas fa-calendar"></i> 05/01/2024</span>
+                            <span><i class="fas fa-calendar"></i> 25/12/2025</span>
                             <span><i class="fas fa-user"></i> Chef Team</span>
                         </div>
                         <p class="news-excerpt">
-                            Moonlight Cafe giới thiệu bộ sưu tập bánh ngọt mùa xuân với những hương vị mới lạ,
-                            kết hợp nguyên liệu tươi theo mùa...
+                            Moonlight Cafe giới thiệu bộ sưu tập bánh ngọt Tết với những hương vị đậm đà,
+                            kết hợp nguyên liệu tươi theo mùa, mang hương xuân đến từng góc quán...
                         </p>
-                        <a href="news-detail.html?id=1" class="news-link">
+                        <a href="news-detail.html?id=3" class="news-link">
                             Đọc thêm <i class="fas fa-arrow-right"></i>
                         </a>
                     </div>
                 </article>
 
                 <article class="news-card">
-                    <img src="https://images.unsplash.com/photo-1445116572660-236099ec97a0?w=600" alt="Khuyến mãi"
+                    <img src="https://images.unsplash.com/photo-1461023058943-07fcbe16d735?w=600" alt="Khuyến mãi"
                         class="news-img">
                     <div class="news-content">
                         <span class="news-category">Khuyến mãi</span>
                         <h3 class="news-title">
-                            <a href="#">Ưu đãi 20% cho đơn hàng online trong tháng 1</a>
+                            <a href="news-detail.html?id=4">Ưu đãi 20% cho đơn hàng online mừng năm mới 2026</a>
                         </h3>
                         <div class="news-meta">
-                            <span><i class="fas fa-calendar"></i> 01/01/2024</span>
+                            <span><i class="fas fa-calendar"></i> 01/01/2026</span>
                             <span><i class="fas fa-user"></i> Marketing</span>
                         </div>
                         <p class="news-excerpt">
-                            Chào năm mới 2024, Moonlight Cafe tri ân khách hàng với ưu đãi giảm giá 20%
-                            cho tất cả đơn hàng đặt online trong suốt tháng 1...
+                            Chào năm mới 2026, Moonlight Cafe tri ân khách hàng với ưu đãi giảm giá 20%
+                            cho tất cả đơn hàng đặt online tại Cần Thơ trong suốt tháng 1...
                         </p>
-                        <a href="news-detail.html?id=1" class="news-link">
+                        <a href="news-detail.html?id=4" class="news-link">
                             Đọc thêm <i class="fas fa-arrow-right"></i>
                         </a>
                     </div>
                 </article>
 
                 <article class="news-card">
-                    <img src="https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=600" alt="Workshop"
+                    <img src="https://images.unsplash.com/photo-1447933601403-0c6688de566e?w=600" alt="Workshop Latte Art"
                         class="news-img">
                     <div class="news-content">
                         <span class="news-category">Sự kiện</span>
                         <h3 class="news-title">
-                            <a href="#">Workshop Latte Art - Học làm barista chuyên nghiệp</a>
+                            <a href="news-detail.html?id=5">Workshop Latte Art tại Moonlight Cafe Cần Thơ</a>
                         </h3>
                         <div class="news-meta">
-                            <span><i class="fas fa-calendar"></i> 20/12/2023</span>
+                            <span><i class="fas fa-calendar"></i> 15/12/2025</span>
                             <span><i class="fas fa-user"></i> Admin</span>
                         </div>
                         <p class="news-excerpt">
-                            Đăng ký tham gia workshop Latte Art cùng các barista hàng đầu.
-                            Học cách tạo những hình vẽ đẹp mắt trên ly cà phê...
+                            Đăng ký tham gia workshop Latte Art cùng các barista của Moonlight Cafe.
+                            Học cách tạo những hình vẽ đẹp mắt trên ly cà phê ngay tại Cần Thơ...
                         </p>
-                        <a href="news-detail.html?id=1" class="news-link">
+                        <a href="news-detail.html?id=5" class="news-link">
                             Đọc thêm <i class="fas fa-arrow-right"></i>
                         </a>
                     </div>
                 </article>
 
                 <article class="news-card">
-                    <img src="https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=600" alt="Sustainable Coffee"
+                    <img src="https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=600" alt="Cà phê bền vững"
                         class="news-img">
                     <div class="news-content">
                         <span class="news-category">Bền vững</span>
                         <h3 class="news-title">
-                            <a href="#">Cam kết sử dụng nguồn cà phê bền vững 100%</a>
+                            <a href="news-detail.html?id=6">Cam kết sử dụng nguồn cà phê Tây Nguyên sạch 100%</a>
                         </h3>
                         <div class="news-meta">
-                            <span><i class="fas fa-calendar"></i> 15/12/2023</span>
+                            <span><i class="fas fa-calendar"></i> 10/12/2025</span>
                             <span><i class="fas fa-user"></i> Admin</span>
                         </div>
                         <p class="news-excerpt">
-                            Moonlight Cafe cam kết sử dụng 100% cà phê từ nguồn bền vững, hỗ trợ nông dân
-                            và bảo vệ môi trường...
+                            Moonlight Cafe cam kết sử dụng 100% cà phê Arabica từ vùng trồng Tây Nguyên,
+                            hỗ trợ nông dân Việt Nam và bảo vệ môi trường...
                         </p>
-                        <a href="news-detail.html?id=1" class="news-link">
+                        <a href="news-detail.html?id=6" class="news-link">
                             Đọc thêm <i class="fas fa-arrow-right"></i>
                         </a>
                     </div>
@@ -322,13 +329,60 @@
     <!-- Footer -->
     <footer class="footer">
         <div class="container">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <div class="footer-brand">
+                        <div class="nav-logo-wrapper"><img src="images/logo.png?v=4" alt="Moonlight Cafe" class="nav-logo"></div>
+                        <span class="nav-brand-text">Moonlight Cafe</span>
+                    </div>
+                    <p id="footer-slogan">Nơi thưởng thức cà phê và bánh ngọt thượng hạng trong không gian ấm cúng dưới ánh trăng.</p>
+                    <div class="footer-social">
+                        <a href="#" id="footer-fb"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" id="footer-ig"><i class="fab fa-instagram"></i></a>
+                        <a href="#" id="footer-tt"><i class="fab fa-tiktok"></i></a>
+                        <a href="#" id="footer-yt"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+                <div class="footer-col">
+                    <h4 class="footer-title">Liên kết nhanh</h4>
+                    <ul class="footer-links">
+                        <li><a href="index.html">Trang chủ</a></li>
+                        <li><a href="menu.html">Menu</a></li>
+                        <li><a href="promotions.html">Khuyến mãi</a></li>
+                        <li><a href="news.html">Tin tức</a></li>
+                        <li><a href="about.html">Về chúng tôi</a></li>
+                        <li><a href="contact.html">Liên hệ</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4 class="footer-title">Liên hệ</h4>
+                    <ul class="footer-contact">
+                        <li><i class="fas fa-map-marker-alt"></i> <span id="footer-address">66 Nguyễn Đệ, Cái Khế, Cần Thơ</span></li>
+                        <li><i class="fas fa-phone"></i> <span id="footer-phone">0110 766 204</span></li>
+                        <li><i class="fas fa-envelope"></i> <span id="footer-email">moonlightcafe@gmail.com</span></li>
+                        <li><i class="fas fa-clock"></i> <span id="footer-hours">7:00 - 22:00 hàng ngày</span></li>
+                    </ul>
+                </div>
+            </div>
             <div class="footer-bottom">
-                <p>&copy; 2024 Moonlight Cafe. All rights reserved.</p>
+                <p id="footer-copyright">&copy; 2026 Moonlight Cafe. All rights reserved.</p>
             </div>
         </div>
     </footer>
 
-    <script>
+    <!-- User Dropdown -->
+    <div class="user-dropdown" id="userDropdown">
+        <div class="user-dropdown-header" id="userInfo">
+            <i class="fas fa-user-circle"></i>
+            <span>Tài khoản</span>
+        </div>
+        <div class="user-dropdown-menu"></div>
+    </div>
+
+    <script type="module">
+        import { initUserDropdown } from './js/nav-helper.js';
+        initUserDropdown();
+
         // Loading
         window.addEventListener('load', () => {
             setTimeout(() => {
@@ -342,17 +396,18 @@
             header.classList.toggle('scrolled', window.scrollY > 50);
         });
 
-        // Update cart count
-        const cart = JSON.parse(localStorage.getItem('moonlight_cart')) || [];
-        document.getElementById('cartCount').textContent = cart.reduce((sum, item) => sum + item.quantity, 0);
+        // Update cart count — sẽ được cập nhật đúng sau khi nav-helper giải quyết auth
+        document.getElementById('cartCount').textContent = 0;
     </script>
 
 
     <!-- TuDongChat AI Chatbot -->
     <script src="https://app.tudongchat.com/js/chatbox.js"></script>
     <script>
-        const tudong_chatbox = new TuDongChat('XUitpr3VDU2e5vJgSRYO9')
-        tudong_chatbox.initial()
+        try {
+            const tudong_chatbox = new TuDongChat('XUitpr3VDU2e5vJgSRYO9');
+            tudong_chatbox.initial();
+        } catch(e) {}
     </script>
 </body>
 
