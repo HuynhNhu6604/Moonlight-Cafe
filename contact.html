@@ -258,6 +258,93 @@
             color: #f59e0b;
         }
 
+        /* ========================
+           TABS: Review / Contact
+        ======================== */
+        .form-tabs {
+            display: flex;
+            gap: 0;
+            margin-bottom: 0;
+            border-bottom: 2px solid var(--secondary);
+        }
+        .form-tab {
+            flex: 1;
+            padding: 12px 16px;
+            background: none;
+            border: none;
+            font-size: .95rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all .2s;
+            border-bottom: 3px solid transparent;
+            margin-bottom: -2px;
+            font-family: inherit;
+        }
+        .form-tab:hover { color: var(--text-primary); }
+        .form-tab.active {
+            color: var(--accent);
+            border-bottom-color: var(--accent);
+        }
+        .form-tab i { margin-right: 6px; }
+        .tab-panel { display: none; }
+        .tab-panel.active { display: block; }
+
+        /* Contact form */
+        .contact-form-card {
+            background: var(--bg-card);
+            border-radius: 0 0 var(--radius-md) var(--radius-md);
+            padding: 35px;
+        }
+        .contact-form-card h3 {
+            font-size: 1.4rem;
+            margin-bottom: 8px;
+        }
+        .contact-form-card .subtitle {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-bottom: 25px;
+        }
+        .form-group select {
+            width: 100%;
+            background: var(--bg-dark);
+            border: 1px solid var(--secondary);
+            border-radius: var(--radius-sm);
+            padding: 10px 14px;
+            color: var(--text-primary);
+            font-size: .95rem;
+            transition: border-color .2s;
+            font-family: inherit;
+            cursor: pointer;
+        }
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        /* Contact history section */
+        .contact-history-section { padding: 0 0 60px; }
+        .contact-card {
+            background: var(--bg-card);
+            border-radius: var(--radius-md);
+            padding: 22px 25px;
+            margin-bottom: 16px;
+            border-left: 4px solid var(--accent);
+        }
+        .contact-card.contact-replied { border-left-color: #10b981; }
+        .contact-card.contact-unread-reply { border-left-color: #3b82f6; }
+        .contact-type-badge {
+            font-size: .75rem;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+        .contact-type-badge.type-gopy { background: rgba(59,130,246,.15); color: #3b82f6; }
+        .contact-type-badge.type-khieunai { background: rgba(239,68,68,.15); color: #ef4444; }
+        .contact-type-badge.type-hoidap { background: rgba(16,185,129,.15); color: #10b981; }
+        .contact-type-badge.type-hoptac { background: rgba(139,92,246,.15); color: #8b5cf6; }
+        .contact-type-badge.type-khac { background: rgba(107,114,128,.15); color: #6b7280; }
+
         @media (max-width: 900px) {
             .contact-grid { grid-template-columns: 1fr; }
         }
@@ -341,11 +428,23 @@
         <div class="container">
             <div class="contact-grid">
 
-                <!-- LEFT: Review form / login prompt -->
+                <!-- LEFT: Review form / Contact form / login prompt -->
                 <div>
                     <!-- Shown when logged in -->
                     <div id="reviewFormWrap" style="display:none">
-                        <div class="review-form-card">
+                        <!-- Tabs -->
+                        <div class="form-tabs">
+                            <button class="form-tab active" onclick="switchFormTab('review')" id="tabBtnReview">
+                                <i class="fas fa-star"></i> Đánh giá
+                            </button>
+                            <button class="form-tab" onclick="switchFormTab('contact')" id="tabBtnContact">
+                                <i class="fas fa-envelope"></i> Gửi liên hệ
+                            </button>
+                        </div>
+
+                        <!-- Tab: Đánh giá -->
+                        <div class="tab-panel active" id="tabReview">
+                        <div class="review-form-card" style="border-radius:0 0 var(--radius-md) var(--radius-md)">
                             <h3><i class="fas fa-star" style="color:var(--accent)"></i> Viết đánh giá</h3>
                             <p class="subtitle">Chia sẻ trải nghiệm của bạn với Moonlight Cafe</p>
 
@@ -400,6 +499,50 @@
                                 <i class="fas fa-check-circle"></i> Đánh giá của bạn đã được hiển thị công khai. Cảm ơn bạn!
                             </div>
                         </div>
+                        </div><!-- end tabReview -->
+
+                        <!-- Tab: Gửi liên hệ -->
+                        <div class="tab-panel" id="tabContact">
+                        <div class="contact-form-card">
+                            <h3><i class="fas fa-envelope" style="color:var(--accent)"></i> Gửi liên hệ / Góp ý</h3>
+                            <p class="subtitle">Gửi ý kiến, câu hỏi hoặc góp ý đến Moonlight Cafe</p>
+
+                            <form id="contactForm">
+                                <div class="form-group">
+                                    <label>Loại liên hệ *</label>
+                                    <select id="contactType" required>
+                                        <option value="">-- Chọn loại --</option>
+                                        <option value="gopy">💡 Góp ý</option>
+                                        <option value="khieunai">⚠️ Khiếu nại</option>
+                                        <option value="hoidap">❓ Hỏi đáp</option>
+                                        <option value="hoptac">🤝 Hợp tác</option>
+                                        <option value="khac">📝 Khác</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Tiêu đề *</label>
+                                    <input type="text" id="contactSubject" placeholder="Nhập tiêu đề liên hệ..." required maxlength="200">
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Nội dung chi tiết *</label>
+                                    <textarea id="contactContent" placeholder="Mô tả chi tiết nội dung bạn muốn gửi đến Moonlight Cafe..." rows="6" required></textarea>
+                                </div>
+
+                                <button type="submit" class="btn btn-primary" style="width:100%">
+                                    <i class="fas fa-paper-plane"></i> Gửi liên hệ
+                                </button>
+                            </form>
+
+                            <!-- Contact history -->
+                            <div id="contactHistoryInline" style="display:none;margin-top:24px">
+                                <hr style="border-color:var(--secondary);margin-bottom:18px">
+                                <h4 style="margin-bottom:14px;font-size:.95rem"><i class="fas fa-history" style="color:var(--accent);margin-right:6px"></i>Lịch sử liên hệ của bạn</h4>
+                                <div id="contactHistoryList"></div>
+                            </div>
+                        </div>
+                        </div><!-- end tabContact -->
                     </div>
 
                     <!-- Shown when NOT logged in -->
@@ -530,7 +673,7 @@
     </div>
 
     <script type="module">
-        import { auth, db, onAuthStateChanged, ref, push, set, get, update } from './js/firebase-config.js';
+        import { auth, db, onAuthStateChanged, ref, push, set, get, update, onValue } from './js/firebase-config.js';
         import { initUserDropdown, updateMsgBadge } from './js/nav-helper.js';
         initUserDropdown();
 
@@ -693,6 +836,169 @@
             return found;
         }
 
+        // ---- Tab switching ----
+        window.switchFormTab = function(tab) {
+            document.querySelectorAll('.form-tab').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+            document.getElementById(tab === 'review' ? 'tabBtnReview' : 'tabBtnContact').classList.add('active');
+            document.getElementById(tab === 'review' ? 'tabReview' : 'tabContact').classList.add('active');
+        };
+
+        // ---- Contact type labels ----
+        const CONTACT_TYPES = {
+            gopy: { label: 'Góp ý', icon: '💡' },
+            khieunai: { label: 'Khiếu nại', icon: '⚠️' },
+            hoidap: { label: 'Hỏi đáp', icon: '❓' },
+            hoptac: { label: 'Hợp tác', icon: '🤝' },
+            khac: { label: 'Khác', icon: '📝' }
+        };
+
+        // ---- Submit contact ----
+        document.getElementById('contactForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (!currentUser) return;
+
+            const type = document.getElementById('contactType').value;
+            const subject = document.getElementById('contactSubject').value.trim();
+            const content = document.getElementById('contactContent').value.trim();
+
+            if (!type) {
+                Swal.fire({ icon: 'warning', title: 'Chưa chọn loại liên hệ!', confirmButtonColor: '#d4a574' });
+                return;
+            }
+            if (subject.length < 5) {
+                Swal.fire({ icon: 'warning', title: 'Tiêu đề quá ngắn!', text: 'Vui lòng nhập ít nhất 5 ký tự.', confirmButtonColor: '#d4a574' });
+                return;
+            }
+            if (content.length < 10) {
+                Swal.fire({ icon: 'warning', title: 'Nội dung quá ngắn!', text: 'Vui lòng viết ít nhất 10 ký tự.', confirmButtonColor: '#d4a574' });
+                return;
+            }
+
+            const btn = e.submitter;
+            btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang gửi...';
+
+            try {
+                const userSnap = await get(ref(db, `users/${currentUser.uid}`));
+                const userData = userSnap.val();
+                const displayName = userData && (userData.firstName || userData.lastName)
+                    ? `${userData.lastName || ''} ${userData.firstName || ''}`.trim()
+                    : currentUser.email.split('@')[0];
+                const phone = userData?.phone || '';
+
+                const newRef = push(ref(db, 'contacts'));
+                await set(newRef, {
+                    uid: currentUser.uid,
+                    userName: displayName,
+                    userEmail: currentUser.email,
+                    userPhone: phone,
+                    type,
+                    subject,
+                    content,
+                    createdAt: Date.now(),
+                    status: 'pending',
+                    adminRead: false,
+                    adminReply: null,
+                    replyAt: null,
+                    userReadReply: false
+                });
+
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Gửi thành công!',
+                    text: 'Liên hệ của bạn đã được gửi đến Moonlight Cafe. Chúng tôi sẽ phản hồi sớm nhất!',
+                    confirmButtonColor: '#d4a574'
+                });
+
+                // Reset form
+                document.getElementById('contactForm').reset();
+                // Reload history
+                loadContactHistory(currentUser.uid);
+
+            } catch (err) {
+                console.error(err);
+                Swal.fire({ icon: 'error', title: 'Lỗi!', text: 'Không thể gửi liên hệ. Vui lòng thử lại.' });
+            }
+            btn.disabled = false; btn.innerHTML = '<i class="fas fa-paper-plane"></i> Gửi liên hệ';
+        });
+
+        // ---- Load contact history ----
+        async function loadContactHistory(uid) {
+            const wrap = document.getElementById('contactHistoryInline');
+            const list = document.getElementById('contactHistoryList');
+            try {
+                const snap = await get(ref(db, 'contacts'));
+                if (!snap.exists()) { wrap.style.display = 'none'; return; }
+
+                const myContacts = [];
+                snap.forEach(c => {
+                    const d = c.val();
+                    if (d.uid === uid) myContacts.push({ id: c.key, ...d });
+                });
+
+                if (myContacts.length === 0) { wrap.style.display = 'none'; return; }
+
+                myContacts.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+                wrap.style.display = 'block';
+
+                list.innerHTML = myContacts.map(c => {
+                    const t = CONTACT_TYPES[c.type] || CONTACT_TYPES.khac;
+                    const statusText = c.adminReply ? (c.userReadReply ? 'Đã phản hồi' : 'Có phản hồi mới!')
+                        : (c.status === 'read' ? 'Đã xem' : 'Đang chờ xử lý');
+                    const statusColor = c.adminReply ? (c.userReadReply ? '#10b981' : '#3b82f6') : '#f59e0b';
+                    const cardClass = c.adminReply ? (c.userReadReply ? 'contact-replied' : 'contact-unread-reply') : '';
+                    return `
+                    <div class="contact-card ${cardClass}">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:8px">
+                            <div style="display:flex;align-items:center;gap:8px">
+                                <span class="contact-type-badge type-${c.type}">${t.icon} ${t.label}</span>
+                                <strong style="font-size:.95rem">${c.subject}</strong>
+                            </div>
+                            <div style="display:flex;align-items:center;gap:10px">
+                                <span style="font-size:.75rem;padding:3px 10px;border-radius:20px;background:rgba(${statusColor === '#f59e0b' ? '245,158,11' : statusColor === '#10b981' ? '16,185,129' : '59,130,246'},.12);color:${statusColor};font-weight:600">${statusText}</span>
+                                <span class="msg-date">${fmtDate(c.createdAt)}</span>
+                            </div>
+                        </div>
+                        <div class="msg-my-review">
+                            <p style="margin:0;white-space:pre-wrap">${c.content}</p>
+                        </div>
+                        ${c.adminReply ? `
+                        <div class="msg-reply" style="margin-top:10px">
+                            <div class="msg-reply-header">
+                                <i class="fas fa-store"></i> Moonlight Cafe phản hồi:${!c.userReadReply ? '<span class="new-badge">Mới</span>' : ''}
+                            </div>
+                            <p>${c.adminReply}</p>
+                            <small style="color:var(--text-muted);font-size:.78rem">${fmtDate(c.replyAt)}</small>
+                        </div>
+                        ${!c.userReadReply ? `<button class="btn btn-outline btn-sm" style="margin-top:10px" onclick="markContactRead('${c.id}', this)"><i class="fas fa-check"></i> Đã đọc</button>` : ''}
+                        ` : ''}
+                    </div>`;
+                }).join('');
+
+            } catch (e) {
+                console.error('[Contacts] Lỗi tải lịch sử:', e);
+                wrap.style.display = 'none';
+            }
+        }
+
+        // Mark contact reply as read
+        window.markContactRead = async function(contactId, btn) {
+            try {
+                await update(ref(db, `contacts/${contactId}`), { userReadReply: true });
+                if (btn) {
+                    const card = btn.closest('.contact-card');
+                    card.classList.remove('contact-unread-reply');
+                    card.classList.add('contact-replied');
+                    btn.remove();
+                    const badge = card.querySelector('.new-badge');
+                    if (badge) badge.remove();
+                    // Update status badge
+                    const statusBadge = card.querySelector('[style*="border-radius:20px"]');
+                    if (statusBadge) { statusBadge.textContent = 'Đã phản hồi'; statusBadge.style.color = '#10b981'; }
+                }
+            } catch (e) { console.error(e); }
+        };
+
         // ---- Auth state ----
         onAuthStateChanged(auth, async (user) => {
             currentUser = user;
@@ -704,6 +1010,9 @@
 
                 // Load messages / replies
                 await loadMessages(user.uid);
+
+                // Load contact history
+                await loadContactHistory(user.uid);
 
                 // Check existing review
                 const existing = await loadUserReview(user.uid);

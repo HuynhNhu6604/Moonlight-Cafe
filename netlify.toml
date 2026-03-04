@@ -1,0 +1,18 @@
+[build]
+  publish = "."
+  functions = "netlify/functions"
+
+[[redirects]]
+  from = "/api/vnpay/create-payment-url"
+  to = "/.netlify/functions/vnpay-create-payment-url"
+  status = 200
+
+[[redirects]]
+  from = "/api/vnpay/verify-return"
+  to = "/.netlify/functions/vnpay-verify-return"
+  status = 200
+
+[[redirects]]
+  from = "/api/vnpay/ipn"
+  to = "/.netlify/functions/vnpay-ipn"
+  status = 200

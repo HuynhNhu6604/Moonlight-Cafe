@@ -57,6 +57,7 @@
             font-family: var(--font-body);
             background: var(--admin-bg);
             overflow-x: hidden;
+            padding-top: 0;
         }
 
         /* Admin Layout */
@@ -251,7 +252,7 @@
         /* Header */
         .admin-header {
             background: white;
-            padding: 15px 30px;
+            padding: 10px 30px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -396,6 +397,7 @@
         .notif-tag-review { background: #f59e0b; }
         .notif-tag-stock  { background: #ef4444; }
         .notif-tag-promo  { background: #8b5cf6; }
+        .notif-tag-reservation { background: #10b981; }
 
         .notif-empty { padding: 36px 20px; text-align: center; color: var(--text-secondary, #888); }
         .notif-empty i { font-size: 2rem; margin-bottom: 8px; display: block; }
@@ -450,7 +452,7 @@
 
         /* Dashboard Content */
         .admin-content {
-            padding: 30px;
+            padding: 8px 30px 30px;
             max-width: 100%;
             overflow-x: auto;
             box-sizing: border-box;
@@ -923,7 +925,7 @@
             }
 
             .admin-content {
-                padding: 15px;
+                padding: 8px 15px 15px;
             }
 
             .admin-header {
@@ -950,7 +952,7 @@
 
         @media (max-width: 480px) {
             .admin-content {
-                padding: 10px;
+                padding: 6px 10px 10px;
             }
 
             .admin-header {
@@ -1228,6 +1230,7 @@
         body {
             background: var(--admin-bg);
             color: var(--admin-text);
+            padding-top: 0;
         }
 
         /* Sidebar */
@@ -1251,10 +1254,11 @@
 
         /* Header */
         .admin-header {
-            background: rgba(13, 13, 13, 0.95);
+            background: rgba(20, 20, 20, 0.98);
             backdrop-filter: blur(10px);
-            border-bottom: 1px solid var(--admin-border);
-            box-shadow: none;
+            border-bottom: 1px solid rgba(212,165,116,0.15);
+            box-shadow: 0 1px 8px rgba(0,0,0,0.3);
+            padding: 8px 30px;
         }
 
         .search-box {
@@ -2059,7 +2063,7 @@
             }
 
             .admin-content {
-                padding: 16px;
+                padding: 8px 16px 16px;
             }
 
             .data-table th,
@@ -2193,6 +2197,10 @@
                         <span class="menu-icon"><i class="fas fa-tags"></i></span>
                         <span>Khuyến mãi</span>
                     </a>
+                    <a class="menu-item" data-section="news">
+                        <span class="menu-icon"><i class="fas fa-newspaper"></i></span>
+                        <span>Tin tức</span>
+                    </a>
                     <a class="menu-item" data-section="reservations" style="position:relative">
                         <span class="menu-icon"><i class="fas fa-calendar-check"></i></span>
                         <span>Đặt bàn</span>
@@ -2237,13 +2245,9 @@
                 </div>
 
                 <div class="header-right">
-                    <div class="header-icon">
-                        <i class="fas fa-bell"></i>
-                        <span class="badge">5</span>
-                    </div>
-                    <!-- Notification Panel -->
+                    <!-- Bell: Thông báo hệ thống (đánh giá, kho, khuyến mãi) -->
                     <div class="header-icon notif-bell" id="notifBellWrap" onclick="toggleNotifPanel()" title="Thông báo hệ thống">
-                        <i class="fas fa-envelope"></i>
+                        <i class="fas fa-bell"></i>
                         <span class="badge" id="notifCountBadge" style="display:none">0</span>
 
                         <div class="notif-panel" id="notifPanel" onclick="event.stopPropagation()">
@@ -2262,6 +2266,30 @@
                             <div class="notif-footer">
                                 <button onclick="loadNotifications()"><i class="fas fa-redo" style="margin-right:4px"></i>Tải lại</button>
                                 <button onclick="closeNotifPanel()"><i class="fas fa-times" style="margin-right:4px"></i>Đóng</button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Mailbox: Yêu cầu đặt bàn -->
+                    <div class="header-icon notif-bell" id="resMailWrap" onclick="toggleResMailPanel()" title="Yêu cầu đặt bàn" style="margin-left:2px">
+                        <i class="fas fa-envelope"></i>
+                        <span class="badge" id="resMailBadge" style="display:none">0</span>
+
+                        <div class="notif-panel" id="resMailPanel" onclick="event.stopPropagation()">
+                            <div class="notif-panel-header">
+                                <span><i class="fas fa-envelope" style="margin-right:6px;color:#10b981"></i>Đặt bàn</span>
+                                <button class="notif-refresh-btn" onclick="loadResMailNotifications()">
+                                    <i class="fas fa-sync-alt" id="resMailSpinIcon"></i> Làm mới
+                                </button>
+                            </div>
+                            <div class="notif-list" id="resMailList">
+                                <div class="notif-empty">
+                                    <i class="fas fa-spinner fa-spin" style="color:#10b981"></i>
+                                    <p>Đang tải...</p>
+                                </div>
+                            </div>
+                            <div class="notif-footer">
+                                <button onclick="loadResMailNotifications()"><i class="fas fa-redo" style="margin-right:4px"></i>Tải lại</button>
+                                <button onclick="closeResMailPanel()"><i class="fas fa-times" style="margin-right:4px"></i>Đóng</button>
                             </div>
                         </div>
                     </div>
@@ -2347,6 +2375,45 @@
                             <div class="stat-change" id="usersChange">
                                 <i class="fas fa-minus"></i><span>Đang tải...</span>
                             </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Reservation Summary Widget -->
+                <div class="table-card" id="dashReservationWidget" style="margin-bottom:20px;border:1px solid rgba(212,165,116,.3)">
+                    <div class="table-header" style="background:rgba(212,165,116,.06);border-bottom:1px solid rgba(212,165,116,.2)">
+                        <h3 style="display:flex;align-items:center;gap:8px;margin:0;color:var(--admin-accent)">
+                            <i class="fas fa-calendar-check"></i> Đặt bàn hôm nay
+                        </h3>
+                        <button class="btn btn-sm" style="background:var(--admin-accent);color:#fff" onclick="showSection('reservations')">
+                            <i class="fas fa-eye"></i> Xem tất cả
+                        </button>
+                    </div>
+                    <div id="dashResContent" style="padding:16px">
+                        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(145px,1fr));gap:12px;margin-bottom:16px">
+                            <div style="text-align:center;padding:12px;border-radius:10px;background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.2)">
+                                <div style="font-size:1.6rem;font-weight:700;color:#f59e0b" id="dashResPending">0</div>
+                                <div style="font-size:.75rem;color:var(--admin-text-muted)"><i class="fas fa-clock"></i> Chờ xác nhận</div>
+                            </div>
+                            <div style="text-align:center;padding:12px;border-radius:10px;background:rgba(76,175,80,.08);border:1px solid rgba(76,175,80,.2)">
+                                <div style="font-size:1.6rem;font-weight:700;color:#4caf50" id="dashResDeposited">0</div>
+                                <div style="font-size:.75rem;color:var(--admin-text-muted)"><i class="fas fa-coins"></i> Đã cọc</div>
+                            </div>
+                            <div style="text-align:center;padding:12px;border-radius:10px;background:rgba(229,62,62,.08);border:1px solid rgba(229,62,62,.2)">
+                                <div style="font-size:1.6rem;font-weight:700;color:#e53e3e" id="dashResServing">0</div>
+                                <div style="font-size:.75rem;color:var(--admin-text-muted)"><i class="fas fa-fire"></i> Đang phục vụ</div>
+                            </div>
+                            <div style="text-align:center;padding:12px;border-radius:10px;background:rgba(96,165,250,.08);border:1px solid rgba(96,165,250,.2)">
+                                <div style="font-size:1.6rem;font-weight:700;color:#60a5fa" id="dashResTotalToday">0</div>
+                                <div style="font-size:.75rem;color:var(--admin-text-muted)"><i class="fas fa-calendar-day"></i> Tổng hôm nay</div>
+                            </div>
+                        </div>
+                        <div id="dashResPendingList" style="display:none">
+                            <div style="font-size:.82rem;font-weight:600;color:var(--admin-text);margin-bottom:8px"><i class="fas fa-bell" style="color:#f59e0b;margin-right:6px"></i>Đơn chờ xác nhận:</div>
+                            <div id="dashResPendingRows"></div>
+                        </div>
+                        <div id="dashResEmpty" style="text-align:center;padding:10px;font-size:.82rem;color:var(--admin-text-muted)">
+                            <i class="fas fa-info-circle" style="margin-right:4px"></i> Chưa có đơn đặt bàn nào hôm nay
                         </div>
                     </div>
                 </div>
@@ -2523,11 +2590,39 @@
                     Quản lý khách hàng
                 </h2>
 
+                <!-- Summary cards -->
+                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:20px" id="userSummaryCards">
+                    <div style="background:var(--admin-card);border-radius:12px;padding:18px 20px;border:1px solid var(--admin-border);cursor:pointer" onclick="filterUsersByTab('all')">
+                        <div style="font-size:.82rem;color:var(--admin-text-muted);margin-bottom:4px"><i class="fas fa-users" style="margin-right:6px;color:var(--admin-accent)"></i>Tổng khách hàng</div>
+                        <div style="font-size:1.6rem;font-weight:800;color:var(--admin-text)" id="userStatTotal">0</div>
+                    </div>
+                    <div style="background:var(--admin-card);border-radius:12px;padding:18px 20px;border:1px solid var(--admin-border);cursor:pointer" onclick="filterUsersByTab('active')">
+                        <div style="font-size:.82rem;color:var(--admin-text-muted);margin-bottom:4px"><i class="fas fa-circle" style="margin-right:6px;color:#059669;font-size:.6rem;vertical-align:middle"></i>Đang hoạt động</div>
+                        <div style="font-size:1.6rem;font-weight:800;color:#059669" id="userStatActive">0</div>
+                    </div>
+                    <div style="background:var(--admin-card);border-radius:12px;padding:18px 20px;border:1px solid var(--admin-border);cursor:pointer" onclick="filterUsersByTab('inactive')">
+                        <div style="font-size:.82rem;color:var(--admin-text-muted);margin-bottom:4px"><i class="fas fa-circle" style="margin-right:6px;color:#dc2626;font-size:.6rem;vertical-align:middle"></i>Không hoạt động</div>
+                        <div style="font-size:1.6rem;font-weight:800;color:#dc2626" id="userStatInactive">0</div>
+                    </div>
+                    <div style="background:var(--admin-card);border-radius:12px;padding:18px 20px;border:1px solid var(--admin-border);cursor:pointer" onclick="filterUsersByTab('admin')">
+                        <div style="font-size:.82rem;color:var(--admin-text-muted);margin-bottom:4px"><i class="fas fa-user-shield" style="margin-right:6px;color:#d97706"></i>Quản trị viên</div>
+                        <div style="font-size:1.6rem;font-weight:800;color:#d97706" id="userStatAdmin">0</div>
+                    </div>
+                </div>
+
+                <!-- Filter tabs -->
+                <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
+                    <button class="btn btn-primary btn-sm" id="utab-all" onclick="filterUsersByTab('all')">Tất cả</button>
+                    <button class="btn btn-outline btn-sm" id="utab-active" onclick="filterUsersByTab('active')">Hoạt động</button>
+                    <button class="btn btn-outline btn-sm" id="utab-inactive" onclick="filterUsersByTab('inactive')">Không HĐ</button>
+                    <button class="btn btn-outline btn-sm" id="utab-admin" onclick="filterUsersByTab('admin')">Admin</button>
+                </div>
+
                 <div class="table-card">
                     <div class="table-header">
                         <h3>Danh sách khách hàng</h3>
                         <div class="table-actions">
-                            <input type="text" placeholder="Tìm kiếm..." class="form-control" style="width: 250px;">
+                            <input type="text" id="userSearchInput" placeholder="Tìm tên, email, SĐT..." class="form-control" style="width: 280px;" oninput="onUserSearch()">
                             <button class="btn btn-outline btn-sm" onclick="exportUsersExcel()">
                                 <i class="fas fa-file-excel" style="color:#1d6f42"></i> Xuất Excel
                             </button>
@@ -2551,13 +2646,9 @@
                             <!-- Data will be loaded here -->
                         </tbody>
                     </table>
-                    <div class="pagination">
-                        <div class="pagination-info">Hiển thị 1-10/0 khách hàng</div>
-                        <div class="pagination-btns">
-                            <button class="pagination-btn"><i class="fas fa-chevron-left"></i></button>
-                            <button class="pagination-btn active">1</button>
-                            <button class="pagination-btn"><i class="fas fa-chevron-right"></i></button>
-                        </div>
+                    <div class="pagination" id="usersPagination">
+                        <div class="pagination-info" id="usersPaginationInfo">Hiển thị 0/0 khách hàng</div>
+                        <div class="pagination-btns" id="usersPaginationBtns"></div>
                     </div>
                 </div>
             </section>
@@ -2599,7 +2690,7 @@
                 </div>
             </section>
 
-            <!-- Reply Modal -->
+            <!-- Reply Modal (Reviews) -->
             <div class="modal-overlay" id="replyModal">
                 <div class="modal">
                     <div class="modal-header">
@@ -2623,6 +2714,58 @@
                         <button class="btn btn-primary" onclick="submitAdminReply()">
                             <i class="fas fa-paper-plane"></i> Gửi phản hồi
                         </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reply Modal (Contacts) -->
+            <div class="modal-overlay" id="contactReplyModal">
+                <div class="modal">
+                    <div class="modal-header">
+                        <h3><i class="fas fa-reply"></i> Phản hồi liên hệ</h3>
+                        <button class="modal-close" onclick="document.getElementById('contactReplyModal').classList.remove('show')">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div style="background:rgba(0,0,0,.1);border-radius:8px;padding:14px;margin-bottom:16px">
+                            <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+                                <span id="contactReplyTypeBadge"></span>
+                                <strong id="contactReplySubject"></strong>
+                            </div>
+                            <p style="font-size:.85rem;color:#888;margin-bottom:4px">Nội dung liên hệ:</p>
+                            <p id="contactReplyOriginal" style="font-style:italic;margin:0;white-space:pre-wrap"></p>
+                            <div style="margin-top:8px;font-size:.8rem;color:#888">
+                                <i class="fas fa-user"></i> <span id="contactReplyUser"></span>
+                                &nbsp;•&nbsp;
+                                <i class="fas fa-envelope"></i> <span id="contactReplyEmail"></span>
+                                <span id="contactReplyPhoneWrap" style="display:none">&nbsp;•&nbsp;<i class="fas fa-phone"></i> <span id="contactReplyPhone"></span></span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Tin nhắn phản hồi *</label>
+                            <textarea id="contactReplyContent" rows="5" placeholder="Nhập phản hồi cho khách hàng..."
+                                style="width:100%;padding:10px;border-radius:8px;border:1px solid #ccc;font-size:.95rem;margin-top:6px"></textarea>
+                        </div>
+                        <input type="hidden" id="contactReplyId">
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-outline" onclick="document.getElementById('contactReplyModal').classList.remove('show')">Hủy</button>
+                        <button class="btn btn-primary" onclick="submitContactReply()">
+                            <i class="fas fa-paper-plane"></i> Gửi phản hồi
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contact Detail Modal -->
+            <div class="modal-overlay" id="contactDetailModal">
+                <div class="modal">
+                    <div class="modal-header">
+                        <h3><i class="fas fa-envelope-open-text"></i> Chi tiết liên hệ</h3>
+                        <button class="modal-close" onclick="document.getElementById('contactDetailModal').classList.remove('show')">&times;</button>
+                    </div>
+                    <div class="modal-body" id="contactDetailBody"></div>
+                    <div class="modal-footer">
+                        <button class="btn btn-outline" onclick="document.getElementById('contactDetailModal').classList.remove('show')">Đóng</button>
                     </div>
                 </div>
             </div>
@@ -2743,6 +2886,106 @@
                 </div>
             </section>
 
+            <!-- News Management Section -->
+            <section class="admin-content admin-section" id="newsSection">
+                <h2 class="page-title">
+                    <i class="fas fa-newspaper"></i>
+                    Quản lý Tin tức
+                </h2>
+
+                <!-- Create/Edit News Form -->
+                <div class="table-card" style="margin-bottom:30px">
+                    <div class="table-header" style="cursor:pointer" onclick="toggleNewsForm()">
+                        <h3><i class="fas fa-plus-circle" style="color:var(--admin-accent);margin-right:8px"></i><span id="newsFormTitle">Đăng bài viết mới</span></h3>
+                        <button class="btn btn-primary btn-sm"><i class="fas fa-chevron-down" id="newsFormChevron"></i></button>
+                    </div>
+                    <div id="newsFormBody" style="padding:24px">
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px">
+                            <div class="form-group" style="grid-column:1/-1">
+                                <label class="form-label">Tiêu đề bài viết <span style="color:#ef4444">*</span></label>
+                                <input type="text" class="form-control" id="newsTitle" placeholder="VD: Khai trương cơ sở mới tại Cần Thơ">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Danh mục <span style="color:#ef4444">*</span></label>
+                                <select class="form-control" id="newsCategory">
+                                    <option value="Tin mới">Tin mới</option>
+                                    <option value="Menu mới">Menu mới</option>
+                                    <option value="Khuyến mãi">Khuyến mãi</option>
+                                    <option value="Sự kiện">Sự kiện</option>
+                                    <option value="Tips & Tricks">Tips & Tricks</option>
+                                    <option value="Bền vững">Bền vững</option>
+                                    <option value="Khác">Khác</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Tác giả</label>
+                                <input type="text" class="form-control" id="newsAuthor" placeholder="VD: Admin" value="Admin">
+                            </div>
+                            <div class="form-group" style="grid-column:1/-1">
+                                <label class="form-label">URL ảnh đại diện</label>
+                                <input type="url" class="form-control" id="newsImage" placeholder="https://images.unsplash.com/photo-...">
+                            </div>
+                            <div class="form-group" style="grid-column:1/-1">
+                                <label class="form-label">Mô tả ngắn (hiển trong danh sách) <span style="color:#ef4444">*</span></label>
+                                <textarea class="form-control" id="newsExcerpt" rows="2" placeholder="Tóm tắt ngắn về nội dung bài viết..."></textarea>
+                            </div>
+                            <div class="form-group" style="grid-column:1/-1">
+                                <label class="form-label">Nội dung chi tiết (hỗ trợ HTML) <span style="color:#ef4444">*</span></label>
+                                <textarea class="form-control" id="newsContent" rows="12" placeholder="Nhập nội dung bài viết... Hỗ trợ thẻ HTML như <h2>, <p>, <ul>, <blockquote>..."></textarea>
+                                <small style="color:var(--admin-text-muted);margin-top:4px;display:block">Hỗ trợ HTML: &lt;h2&gt;, &lt;p&gt;, &lt;ul&gt;, &lt;ol&gt;, &lt;blockquote&gt;, &lt;strong&gt;, &lt;em&gt;, &lt;img&gt;</small>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Trạng thái</label>
+                                <select class="form-control" id="newsStatus">
+                                    <option value="published">Đăng ngay</option>
+                                    <option value="draft">Bản nháp</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div style="display:flex;gap:10px;margin-top:20px">
+                            <button class="btn btn-primary" onclick="saveNews()">
+                                <i class="fas fa-save"></i> Lưu bài viết
+                            </button>
+                            <button class="btn btn-outline" onclick="clearNewsForm()">
+                                <i class="fas fa-times"></i> Hủy
+                            </button>
+                            <button class="btn btn-outline" id="btnSeedNews" onclick="seedDefaultNews()" style="margin-left:auto" title="Nhập 6 bài viết mẫu có sẵn">
+                                <i class="fas fa-database"></i> Nhập tin mẫu
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- News List -->
+                <div class="table-card">
+                    <div class="table-header">
+                        <h3>Danh sách bài viết</h3>
+                        <div style="display:flex;gap:10px;align-items:center">
+                            <span id="newsCount" style="color:var(--admin-text-muted);font-size:.9rem"></span>
+                            <button class="btn btn-outline btn-sm" onclick="loadAdminNews()"><i class="fas fa-sync-alt"></i> Làm mới</button>
+                        </div>
+                    </div>
+                    <div style="overflow-x:auto">
+                        <table class="data-table" style="width:100%">
+                            <thead>
+                                <tr>
+                                    <th>Ảnh</th>
+                                    <th>Tiêu đề</th>
+                                    <th>Danh mục</th>
+                                    <th>Tác giả</th>
+                                    <th>Ngày đăng</th>
+                                    <th>Trạng thái</th>
+                                    <th>Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody id="newsTbody">
+                                <tr><td colspan="7" style="text-align:center;padding:30px"><i class="fas fa-spinner fa-spin"></i> Đang tải...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
             <!-- Reservations Section -->
             <section class="admin-content admin-section" id="reservationsSection">
                 <h2 class="page-title"><i class="fas fa-calendar-check"></i> Quản lý Đặt bàn</h2>
@@ -2752,15 +2995,13 @@
                     <div class="table-header" style="flex-wrap:wrap;gap:10px">
                         <h3 style="margin:0"><i class="fas fa-filter" style="margin-right:8px;color:var(--admin-accent)"></i>Lọc theo trạng thái</h3>
                         <button class="btn btn-sm" style="margin-left:auto;background:var(--admin-accent);color:#fff" onclick="loadAdminReservations()"><i class="fas fa-sync-alt"></i> Làm mới</button>
+                        <button class="btn btn-sm" style="background:var(--admin-danger);color:#fff" onclick="adminDeleteAllReservations()"><i class="fas fa-trash-alt"></i> Xóa tất cả</button>
                     </div>
                     <div style="padding:10px 16px;border-top:1px solid var(--admin-border);display:flex;gap:8px;flex-wrap:wrap;align-items:center">
                         <button class="btn btn-sm res-filter-btn active" data-filter="all"         onclick="filterReservations('all')">Tất cả</button>
                         <button class="btn btn-sm res-filter-btn" data-filter="pending"            onclick="filterReservations('pending')">Chờ xác nhận</button>
-                        <button class="btn btn-sm res-filter-btn" data-filter="confirmed"          onclick="filterReservations('confirmed')">Xác nhận</button>
-                        <button class="btn btn-sm res-filter-btn" data-filter="negotiating"        onclick="filterReservations('negotiating')" style="background:rgba(245,158,11,.15);color:#f59e0b">Thương lượng</button>
-                        <button class="btn btn-sm res-filter-btn" data-filter="agreed"             onclick="filterReservations('agreed')">Sửa ổn</button>
+                        <button class="btn btn-sm res-filter-btn" data-filter="deposited"          onclick="filterReservations('deposited')" style="color:#4caf50">Đã cọc</button>
                         <button class="btn btn-sm res-filter-btn" data-filter="rejected"           onclick="filterReservations('rejected')">Từ chối</button>
-                        <button class="btn btn-sm res-filter-btn" data-filter="completed"          onclick="filterReservations('completed')">Hoàn thành</button>
                         <button class="btn btn-sm res-filter-btn" data-filter="cancelled"          onclick="filterReservations('cancelled')" style="color:#aaa">Đã hủy</button>
                         <button class="btn btn-sm res-filter-btn" data-filter="no-show"            onclick="filterReservations('no-show')" style="color:#aaa">Không đến</button>
                         <span style="margin-left:8px;font-size:.78rem;color:var(--admin-text-muted)">| Lọc ngày:</span>
@@ -2780,6 +3021,8 @@
                         <table class="data-table" id="resTable">
                             <thead>
                                 <tr>
+                                    <th>#</th>
+                                    <th>Thời gian gửi</th>
                                     <th>Ngày</th>
                                     <th>Giờ</th>
                                     <th>Tên / SĐT</th>
@@ -2792,7 +3035,7 @@
                                 </tr>
                             </thead>
                             <tbody id="resTbody">
-                                <tr><td colspan="9" style="text-align:center;padding:30px"><i class="fas fa-spinner fa-spin"></i> Đang tải...</td></tr>
+                                <tr><td colspan="11" style="text-align:center;padding:30px"><i class="fas fa-spinner fa-spin"></i> Đang tải...</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -2847,12 +3090,36 @@
                                 <span style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:6px;background:rgba(229,62,62,.18);color:#e53e3e;font-size:.7rem"><i class="fas fa-fire"></i></span>
                                 <span>Đang phục vụ</span>
                             </span>
-                            <span style="font-size:.73rem;color:var(--admin-text-muted);border-left:1px solid rgba(255,255,255,.1);padding-left:14px"><i class="fas fa-hand-pointer" style="margin-right:4px"></i>Click bàn để chuyển trạng thái</span>
+                            <span style="font-size:.73rem;color:var(--admin-text-muted);border-left:1px solid rgba(255,255,255,.1);padding-left:14px"><i class="fas fa-hand-pointer" style="margin-right:4px"></i>Click bàn để xem chi tiết</span>
                         </div>
                         <div style="display:flex;gap:8px;align-items:center">
                             <span style="font-size:.73rem;color:var(--admin-text-muted)" id="floorLastUpdate"></span>
                             <button class="btn btn-sm" style="background:var(--admin-accent);color:#fff" onclick="loadFloorMap()"><i class="fas fa-sync-alt"></i> Làm mới</button>
                         </div>
+                    </div>
+                    <!-- ── Bộ lọc Ngày & Giờ ────────────────────── -->
+                    <div id="floorFilterBar" style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px;padding:12px 16px;border-radius:10px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08)">
+                        <span style="font-size:.82rem;font-weight:600;color:var(--admin-accent);white-space:nowrap"><i class="fas fa-filter" style="margin-right:5px"></i>Xem theo:</span>
+                        <label style="font-size:.78rem;color:var(--admin-text-muted);display:flex;align-items:center;gap:5px;cursor:pointer">
+                            <input type="radio" name="floorTimeMode" value="now" checked onchange="onFloorFilterChange()" style="accent-color:var(--admin-accent)"> Hiện tại
+                        </label>
+                        <label style="font-size:.78rem;color:var(--admin-text-muted);display:flex;align-items:center;gap:5px;cursor:pointer">
+                            <input type="radio" name="floorTimeMode" value="custom" onchange="onFloorFilterChange()" style="accent-color:var(--admin-accent)"> Chọn mốc thời gian
+                        </label>
+                        <div id="floorCustomPicker" style="display:none;align-items:center;gap:8px;flex-wrap:wrap">
+                            <input type="date" id="floorFilterDate" style="background:rgba(255,255,255,.08);color:var(--admin-text);border:1px solid rgba(255,255,255,.15);border-radius:6px;padding:5px 10px;font-size:.82rem" onchange="applyFloorFilter()">
+                            <select id="floorFilterSlot" style="background:rgba(255,255,255,.08);color:var(--admin-text);border:1px solid rgba(255,255,255,.15);border-radius:6px;padding:5px 10px;font-size:.82rem" onchange="applyFloorFilter()">
+                                <option value="07:00">07:00 – 08:00</option><option value="08:00">08:00 – 09:00</option>
+                                <option value="09:00">09:00 – 10:00</option><option value="10:00">10:00 – 11:00</option>
+                                <option value="11:00">11:00 – 12:00</option><option value="12:00">12:00 – 13:00</option>
+                                <option value="13:00">13:00 – 14:00</option><option value="14:00">14:00 – 15:00</option>
+                                <option value="15:00">15:00 – 16:00</option><option value="16:00">16:00 – 17:00</option>
+                                <option value="17:00">17:00 – 18:00</option><option value="18:00">18:00 – 19:00</option>
+                                <option value="19:00">19:00 – 20:00</option><option value="20:00">20:00 – 21:00</option>
+                                <option value="21:00">21:00 – 22:00</option><option value="22:00">22:00 – 23:00</option>
+                            </select>
+                        </div>
+                        <span id="floorFilterLabel" style="font-size:.76rem;font-weight:600;color:#60a5fa;display:none"></span>
                     </div>
                     <div id="floorMapAreas"></div>
                 </div>
@@ -3125,9 +3392,9 @@
     </script>
     <script type="module">
         // Firebase imports
-        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-        import { getDatabase, ref, onValue, update, get, push, set, remove } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
-        import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+        import { getDatabase, ref, onValue, update, get, push, set, remove, query, orderByChild, equalTo } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
+        import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 
         // Firebase config - embedded directly
         const firebaseConfig = {
@@ -3309,7 +3576,7 @@
             tbody.innerHTML = productsData.map((product, index) => `
                 <tr>
                     <td style="color:var(--admin-text-muted);font-size:0.85rem;font-weight:600">${String(index + 1).padStart(2, '0')}</td>
-                    <td><img src="${product.imageUrl || 'https://via.placeholder.com/100'}" alt="${product.name}" class="product-img-table"></td>
+                    <td><img src="${product.imageUrl || 'data:image/svg+xml;charset=UTF-8,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%22 height=%22100%22%3E%3Crect fill=%22%23555%22 width=%22100%22 height=%22100%22/%3E%3Ctext fill=%22%23aaa%22 font-family=%22sans-serif%22 font-size=%2212%22 x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22%3ENo img%3C/text%3E%3C/svg%3E'}" alt="${product.name}" class="product-img-table"></td>
                     <td>
                         <div style="font-weight:600;color:var(--admin-text)">${product.name}</div>
                         <div class="items-summary" style="max-width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${product.description || ''}">${product.description || 'Không có mô tả'}</div>
@@ -3540,8 +3807,77 @@
             }
         };
 
-        // Load users từ Firebase
+        // Load users từ Firebase — hiển thị TẤT CẢ khách hàng đã đăng ký
+        let _usersListenerActive = false;
+
+        function _sortUsers() {
+            sampleUsers.sort((a, b) => {
+                const ta = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+                const tb2 = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+                return tb2 - ta;
+            });
+        }
+
+        // Phương án dự phòng: đọc từng user riêng lẻ từ danh sách UID thu thập được
+        async function _fallbackLoadUsers() {
+            console.log('[Users] ⚠️ Fallback: đọc từng user riêng lẻ...');
+            const tbody = document.getElementById('usersTable');
+            if (tbody) tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:30px"><div style="display:inline-block;width:28px;height:28px;border:3px solid var(--admin-border);border-top-color:var(--admin-accent);border-radius:50%;animation:spin .8s linear infinite"></div><div style="color:var(--admin-text-muted);margin-top:8px;font-size:.9rem">Đang tải dữ liệu khách hàng (dự phòng)...</div></td></tr>';
+
+            // Thu thập UID từ orders + UID của chính mình
+            const uidSet = new Set();
+            if (auth.currentUser) uidSet.add(auth.currentUser.uid);
+            sampleOrders.forEach(o => { if (o.userId) uidSet.add(o.userId); });
+
+            // Cũng thử lấy toàn bộ keys từ /users bằng REST với shallow=true
+            try {
+                const resp = await fetch(firebaseConfig.databaseURL + '/users.json?shallow=true&auth=' + await auth.currentUser.getIdToken());
+                if (resp.ok) {
+                    const keys = await resp.json();
+                    if (keys) Object.keys(keys).forEach(k => uidSet.add(k));
+                }
+            } catch(e) { console.warn('[Users] Không lấy được danh sách keys:', e.message); }
+
+            console.log('[Users] Tìm thấy ' + uidSet.size + ' UID để đọc...');
+            sampleUsers = [];
+            const promises = [...uidSet].map(async uid => {
+                try {
+                    const snap = await get(ref(db, 'users/' + uid));
+                    if (snap.exists()) {
+                        const u = snap.val();
+                        u.uid = uid;
+                        sampleUsers.push(u);
+                    }
+                } catch(e) { /* Bỏ qua user không đọc được */ }
+            });
+            await Promise.all(promises);
+            _sortUsers();
+            console.log('[Users] ✅ Fallback đã tải ' + sampleUsers.length + ' khách hàng');
+            renderUsers();
+            updateStats();
+
+            // Thiết lập listener theo dõi thay đổi từng user đã load
+            sampleUsers.forEach(u => {
+                onValue(ref(db, 'users/' + u.uid), (snap) => {
+                    if (!snap.exists()) return;
+                    const updated = snap.val();
+                    updated.uid = u.uid;
+                    const idx = sampleUsers.findIndex(x => x.uid === u.uid);
+                    if (idx >= 0) sampleUsers[idx] = updated;
+                    renderUsers();
+                });
+            });
+        }
+
         function loadUsers() {
+            if (_usersListenerActive) return;
+            _usersListenerActive = true;
+            console.log('[Users] Đang tải danh sách khách hàng...');
+
+            // Hiển thị loading
+            const tbody = document.getElementById('usersTable');
+            if (tbody) tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:30px"><div style="display:inline-block;width:28px;height:28px;border:3px solid var(--admin-border);border-top-color:var(--admin-accent);border-radius:50%;animation:spin .8s linear infinite"></div><div style="color:var(--admin-text-muted);margin-top:8px;font-size:.9rem">Đang tải danh sách khách hàng...</div></td></tr>';
+
             onValue(ref(db, 'users'), (snapshot) => {
                 sampleUsers = [];
                 if (snapshot.exists()) {
@@ -3551,55 +3887,171 @@
                         sampleUsers.push(u);
                     });
                 }
+                _sortUsers();
+                console.log('[Users] ✅ Đã tải ' + sampleUsers.length + ' khách hàng');
                 renderUsers();
                 updateStats();
+            }, (error) => {
+                console.error('[Users] ❌ Lỗi tải danh sách khách hàng:', error);
+                _usersListenerActive = false;
+
+                if (error.code === 'PERMISSION_DENIED' || error.message?.includes('permission')) {
+                    console.warn('[Users] ⚠️ Lỗi quyền — chuyển sang phương án dự phòng');
+                    // Thử fallback đọc từng user
+                    _fallbackLoadUsers().catch(e2 => {
+                        console.error('[Users] ❌ Fallback cũng thất bại:', e2);
+                        _showUsersPermError();
+                    });
+                } else {
+                    const tb = document.getElementById('usersTable');
+                    if (tb) tb.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:30px;color:var(--admin-danger)"><i class="fas fa-exclamation-circle" style="margin-right:6px"></i>Lỗi tải dữ liệu: ' + (error.message || 'Không xác định') + '</td></tr>';
+                }
             });
         }
+
+        function _showUsersPermError() {
+            const tbody = document.getElementById('usersTable');
+            if (!tbody) return;
+            tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:40px">' +
+                '<div style="display:flex;flex-direction:column;align-items:center;gap:14px">' +
+                '<div style="width:56px;height:56px;border-radius:50%;background:rgba(220,38,38,.1);display:flex;align-items:center;justify-content:center">' +
+                '<i class="fas fa-shield-alt" style="font-size:1.5rem;color:#dc2626"></i></div>' +
+                '<div style="font-weight:700;color:var(--admin-text);font-size:1.05rem">Không thể tải danh sách khách hàng</div>' +
+                '<div style="color:var(--admin-text-muted);font-size:.88rem;max-width:480px;line-height:1.6;text-align:center">' +
+                'Lỗi <strong style="color:#dc2626">permission_denied</strong> từ Firebase.<br>' +
+                'Cần cập nhật <strong>Database Rules</strong> để cho phép Admin đọc dữ liệu khách hàng.</div>' +
+                '<div style="background:var(--admin-bg);border:1px solid var(--admin-border);border-radius:10px;padding:14px 18px;text-align:left;font-size:.84rem;line-height:1.7;max-width:480px;width:100%">' +
+                '📝 <strong>Hướng dẫn:</strong><br>' +
+                '1. Vào <a href="https://console.firebase.google.com/project/moonlight-cafe-57e5d/database/moonlight-cafe-57e5d-default-rtdb/rules" target="_blank" style="color:var(--admin-accent);text-decoration:underline">Firebase Console → Realtime Database → Rules</a><br>' +
+                '2. Thay toàn bộ nội dung bằng rules trong file <strong>database.rules.json</strong><br>' +
+                '3. Nhấn <strong>Publish</strong> rồi tải lại trang này</div>' +
+                '<button class="btn btn-primary btn-sm" onclick="_usersListenerActive=false;loadUsers()" style="margin-top:4px"><i class="fas fa-redo" style="margin-right:6px"></i>Thử lại</button>' +
+                '</div></td></tr>';
+        }
+
+        // ---- User management state ----
+        let userCurrentPage = 1;
+        const USERS_PER_PAGE = 10;
+        let userFilterTab = 'all';
+        let userSearchQuery = '';
+
+        const THREE_MONTHS_MS = 90 * 24 * 60 * 60 * 1000;
+
+        function getUserActivityInfo(user) {
+            const userOrders = sampleOrders.filter(o => o.customer && o.customer.email === user.email);
+            const totalSpent = userOrders.filter(o => ['delivered','shipping'].includes(o.status)).reduce((s,o) => s+(o.total||0), 0);
+            let lastActive = user.lastLoginAt || null;
+            if (!lastActive && userOrders.length) {
+                const times = userOrders.map(o => new Date(o.createdAt).getTime()).filter(t => !isNaN(t));
+                if (times.length) lastActive = Math.max(...times);
+            }
+            if (!lastActive && user.createdAt) lastActive = new Date(user.createdAt).getTime();
+            const isInactive = lastActive ? (Date.now() - lastActive > THREE_MONTHS_MS) : false;
+            return { userOrders, totalSpent, lastActive, isInactive };
+        }
+
+        function getFilteredUsers() {
+            const q = userSearchQuery.toLowerCase().trim();
+            return sampleUsers.filter(user => {
+                // Filter by tab
+                const info = getUserActivityInfo(user);
+                if (userFilterTab === 'active' && info.isInactive) return false;
+                if (userFilterTab === 'inactive' && !info.isInactive) return false;
+                if (userFilterTab === 'admin' && user.role !== 'admin') return false;
+                // Filter by search
+                if (q) {
+                    const displayName = ((user.firstName || '') + ' ' + (user.lastName || '')).trim() || user.fullName || '';
+                    const haystack = (displayName + ' ' + (user.email || '') + ' ' + (user.phone || '')).toLowerCase();
+                    if (!haystack.includes(q)) return false;
+                }
+                return true;
+            });
+        }
+
+        window.filterUsersByTab = function(tab) {
+            userFilterTab = tab;
+            userCurrentPage = 1;
+            // Update tab active state
+            ['all','active','inactive','admin'].forEach(t => {
+                const btn = document.getElementById('utab-' + t);
+                if (btn) {
+                    btn.className = t === tab ? 'btn btn-primary btn-sm' : 'btn btn-outline btn-sm';
+                }
+            });
+            renderUsers();
+        };
+
+        window.onUserSearch = function() {
+            const input = document.getElementById('userSearchInput');
+            userSearchQuery = input ? input.value : '';
+            userCurrentPage = 1;
+            renderUsers();
+        };
+
+        window.goToUserPage = function(page) {
+            userCurrentPage = page;
+            renderUsers();
+        };
 
         // Render users (dữ liệu thực từ Firebase)
         function renderUsers() {
             const tbody = document.getElementById('usersTable');
             if (!tbody) return;
-            if (!sampleUsers.length) {
-                tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:24px;color:var(--admin-text-muted)">Chưa có khách hàng nào</td></tr>';
+
+            // Update summary cards
+            const now = Date.now();
+            let totalCount = sampleUsers.length;
+            let activeCount = 0, inactiveCount = 0, adminCount = 0;
+            sampleUsers.forEach(user => {
+                const info = getUserActivityInfo(user);
+                if (info.isInactive) inactiveCount++; else activeCount++;
+                if (user.role === 'admin') adminCount++;
+            });
+            const el = id => document.getElementById(id);
+            if (el('userStatTotal')) el('userStatTotal').textContent = totalCount;
+            if (el('userStatActive')) el('userStatActive').textContent = activeCount;
+            if (el('userStatInactive')) el('userStatInactive').textContent = inactiveCount;
+            if (el('userStatAdmin')) el('userStatAdmin').textContent = adminCount;
+
+            const filtered = getFilteredUsers();
+
+            if (!filtered.length) {
+                tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:24px;color:var(--admin-text-muted)">' +
+                    (sampleUsers.length ? 'Không tìm thấy khách hàng phù hợp' : 'Chưa có khách hàng nào') + '</td></tr>';
+                if (el('usersPaginationInfo')) el('usersPaginationInfo').textContent = 'Hiển thị 0/0 khách hàng';
+                if (el('usersPaginationBtns')) el('usersPaginationBtns').innerHTML = '';
                 return;
             }
-            const THREE_MONTHS = 90 * 24 * 60 * 60 * 1000;
-            const now = Date.now();
-            const rows = sampleUsers.map((user, index) => {
+
+            const totalPages = Math.ceil(filtered.length / USERS_PER_PAGE);
+            if (userCurrentPage > totalPages) userCurrentPage = totalPages;
+            const start = (userCurrentPage - 1) * USERS_PER_PAGE;
+            const pageUsers = filtered.slice(start, start + USERS_PER_PAGE);
+
+            const rows = pageUsers.map((user, idx) => {
+                const globalIdx = start + idx;
                 const displayName = ((user.firstName || '') + ' ' + (user.lastName || '')).trim() || user.fullName || user.email || 'N/A';
                 const avatar = displayName.charAt(0).toUpperCase();
                 const joinDate = user.createdAt ? formatDate(user.createdAt) : 'N/A';
                 const phone = user.phone || '—';
                 const role = user.role === 'admin' ? '<span style="background:#fef3c7;color:#d97706;padding:2px 8px;border-radius:12px;font-size:.78rem;font-weight:600">Admin</span>'
                                                    : '<span style="background:#d1fae5;color:#059669;padding:2px 8px;border-radius:12px;font-size:.78rem;font-weight:600">Khách hàng</span>';
-                // Đếm số đơn của người dùng này
-                const userOrders  = sampleOrders.filter(o => o.customer && (o.customer.email === user.email));
-                const totalSpent  = userOrders.filter(o => ['delivered','shipping'].includes(o.status)).reduce((s,o) => s+(o.total||0), 0);
-
-                // Activity status: use lastLoginAt, else most recent order, else createdAt
-                let lastActive = user.lastLoginAt || null;
-                if (!lastActive && userOrders.length) {
-                    const times = userOrders.map(o => new Date(o.createdAt).getTime()).filter(t => !isNaN(t));
-                    if (times.length) lastActive = Math.max(...times);
-                }
-                if (!lastActive && user.createdAt) lastActive = new Date(user.createdAt).getTime();
-                const isInactive = lastActive ? (now - lastActive > THREE_MONTHS) : false;
-                const activityBadge = isInactive
+                const info = getUserActivityInfo(user);
+                const activityBadge = info.isInactive
                     ? '<span style="background:#fee2e2;color:#dc2626;padding:2px 10px;border-radius:12px;font-size:.78rem;font-weight:600"><i class="fas fa-circle" style="font-size:.5rem;vertical-align:middle;margin-right:3px"></i>Không HĐ</span>'
                     : '<span style="background:#d1fae5;color:#059669;padding:2px 10px;border-radius:12px;font-size:.78rem;font-weight:600"><i class="fas fa-circle" style="font-size:.5rem;vertical-align:middle;margin-right:3px"></i>Hoạt động</span>';
 
                 let row = '<tr>';
-                row += '<td style="color:var(--admin-text-muted);font-size:0.85rem;font-weight:600">' + String(index + 1).padStart(2, '0') + '</td>';
+                row += '<td style="color:var(--admin-text-muted);font-size:0.85rem;font-weight:600">' + String(globalIdx + 1).padStart(2, '0') + '</td>';
                 row += '<td><div class="customer-cell">';
                 row += '<div class="customer-avatar">' + avatar + '</div>';
                 row += '<div><div class="customer-name">' + displayName + '</div>';
                 row += '<div class="customer-sub">📅 ' + joinDate + '</div></div></div></td>';
                 row += '<td style="font-size:0.88rem;color:var(--admin-text-muted)">' + (user.email || '') + '</td>';
                 row += '<td style="font-size:0.88rem">📞 ' + phone + '</td>';
-                row += '<td><div style="font-weight:700;font-size:1.05rem;text-align:center;color:var(--admin-text)">' + userOrders.length + '</div>';
+                row += '<td><div style="font-weight:700;font-size:1.05rem;text-align:center;color:var(--admin-text)">' + info.userOrders.length + '</div>';
                 row += '<div class="items-summary" style="text-align:center">đơn hàng</div></td>';
-                row += '<td class="price-cell">' + formatCurrency(totalSpent) + '</td>';
+                row += '<td class="price-cell">' + formatCurrency(info.totalSpent) + '</td>';
                 row += '<td>' + role + '</td>';
                 row += '<td>' + activityBadge + '</td>';
                 row += '<td><div class="action-btns"><button class="action-btn view" onclick="viewUser(\'' + user.uid + '\')" title="Xem thông tin"><i class="fas fa-eye"></i></button><button class="action-btn delete" onclick="deleteUser(\'' + user.uid + '\')" title="Xóa tài khoản"><i class="fas fa-trash"></i></button></div></td>';
@@ -3607,6 +4059,25 @@
                 return row;
             }).join('');
             tbody.innerHTML = rows;
+
+            // Pagination info
+            const endIdx = Math.min(start + USERS_PER_PAGE, filtered.length);
+            if (el('usersPaginationInfo')) el('usersPaginationInfo').textContent = 'Hiển thị ' + (start+1) + '-' + endIdx + '/' + filtered.length + ' khách hàng';
+
+            // Pagination buttons
+            if (el('usersPaginationBtns')) {
+                let btns = '';
+                btns += '<button class="pagination-btn" ' + (userCurrentPage <= 1 ? 'disabled' : '') + ' onclick="goToUserPage(' + (userCurrentPage-1) + ')"><i class="fas fa-chevron-left"></i></button>';
+                // Show max 5 page buttons centered around current
+                let pageStart = Math.max(1, userCurrentPage - 2);
+                let pageEnd = Math.min(totalPages, pageStart + 4);
+                if (pageEnd - pageStart < 4) pageStart = Math.max(1, pageEnd - 4);
+                for (let p = pageStart; p <= pageEnd; p++) {
+                    btns += '<button class="pagination-btn' + (p === userCurrentPage ? ' active' : '') + '" onclick="goToUserPage(' + p + ')">' + p + '</button>';
+                }
+                btns += '<button class="pagination-btn" ' + (userCurrentPage >= totalPages ? 'disabled' : '') + ' onclick="goToUserPage(' + (userCurrentPage+1) + ')"><i class="fas fa-chevron-right"></i></button>';
+                el('usersPaginationBtns').innerHTML = btns;
+            }
         }
 
         // View order detail
@@ -3664,10 +4135,26 @@
                 confirmBtn.onclick = async () => {
                     try {
                         await update(ref(db, 'orders/' + orderId), { status: 'shipping' });
+
+                        // Trừ tồn kho khi xác nhận đơn (nếu chưa trừ)
+                        if (!order.stockDeducted && order.items && order.items.length) {
+                            const deductPromises = order.items.map(async (item) => {
+                                if (!item.id) return;
+                                try {
+                                    const snapStock = await get(ref(db, `products/${item.id}/stock`));
+                                    const currentStock = snapStock.exists() ? Number(snapStock.val()) : 0;
+                                    const newStock = Math.max(0, currentStock - (item.quantity || 1));
+                                    await update(ref(db, `products/${item.id}`), { stock: newStock });
+                                } catch (_) {}
+                            });
+                            await Promise.all(deductPromises);
+                            await update(ref(db, 'orders/' + orderId), { stockDeducted: true });
+                        }
+
                         Swal.fire({
                             icon: 'success',
                             title: 'Thành công',
-                            text: 'Đã xác nhận và chuyển sang Đang giao!',
+                            text: 'Đã xác nhận và chuyển sang Đang giao! Tồn kho đã được cập nhật.',
                             confirmButtonColor: '#d4a574'
                         });
                         closeModal('orderModal');
@@ -3928,9 +4415,12 @@
                 switchTableTab('floormap');
             }
             if (sectionName === 'reservations') {
-                // Đảm bảo listener được khởi động (tự bắt đầu nếu chưa chạy)
-                if (!resUnsubscribe) loadAdminReservations();
-                filterReservations(resCurrentFilter);
+                // Luôn đảm bảo listener đang chạy, nếu chết hoặc chưa chạy → khởi động lại
+                if (!resUnsubscribe) {
+                    loadAdminReservations();
+                } else {
+                    filterReservations(resCurrentFilter);
+                }
             }
         };
 
@@ -4208,6 +4698,25 @@
         });
 
         // ============================================================
+        // ADMIN SUB-TAB: Reviews / Contacts
+        // ============================================================
+        window.switchAdminSubTab = function(tab) {
+            const reviews = document.getElementById('adminPanelReviews');
+            const contacts = document.getElementById('adminPanelContacts');
+            const btnR = document.getElementById('mainTab-reviews');
+            const btnC = document.getElementById('mainTab-contacts');
+            if (tab === 'reviews') {
+                reviews.style.display = 'block'; contacts.style.display = 'none';
+                btnR.style.borderBottomColor = 'var(--admin-accent)'; btnR.style.color = 'var(--admin-accent)'; btnR.style.background = 'var(--admin-card)'; btnR.style.borderLeft = '1px solid var(--admin-border)'; btnR.style.borderTop = '1px solid var(--admin-border)'; btnR.style.borderRight = '1px solid var(--admin-border)';
+                btnC.style.borderBottomColor = 'transparent'; btnC.style.color = 'var(--admin-text-muted)'; btnC.style.background = 'none'; btnC.style.border = 'none';
+            } else {
+                reviews.style.display = 'none'; contacts.style.display = 'block';
+                btnC.style.borderBottomColor = 'var(--admin-accent)'; btnC.style.color = 'var(--admin-accent)'; btnC.style.background = 'var(--admin-card)'; btnC.style.borderLeft = '1px solid var(--admin-border)'; btnC.style.borderTop = '1px solid var(--admin-border)'; btnC.style.borderRight = '1px solid var(--admin-border)';
+                btnR.style.borderBottomColor = 'transparent'; btnR.style.color = 'var(--admin-text-muted)'; btnR.style.background = 'none'; btnR.style.border = 'none';
+            }
+        };
+
+        // ============================================================
         // REVIEWS MANAGEMENT
         // ============================================================
         let allReviews = [];
@@ -4241,7 +4750,7 @@
                 const snap = await get(ref(db, 'reviews'));
                 allReviews = [];
                 if (snap.exists()) {
-                    snap.forEach(c => allReviews.push({ id: c.key, ...c.val() }));
+                    snap.forEach(c => { allReviews.push({ id: c.key, ...c.val() }); });
                     allReviews.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
                 }
                 // Update pending badge
@@ -4394,6 +4903,445 @@
                 document.getElementById('replyModal').classList.remove('show');
                 filterAdminReviews(currentReviewFilter);
                 Swal.fire({ icon: 'success', title: 'Đã gửi phản hồi!', text: 'Khách hàng sẽ nhận được thông báo.', timer: 1500, showConfirmButton: false });
+            } catch (e) {
+                Swal.fire({ icon: 'error', title: 'Lỗi!', text: e.message });
+            }
+        };
+
+        // ============================================================
+        // CONTACTS MANAGEMENT
+        // ============================================================
+        let allContacts = [];
+        let currentContactFilter = 'all';
+
+        const CONTACT_TYPE_MAP = {
+            gopy: { label: 'Góp ý', icon: '💡', color: '#3b82f6', bg: 'rgba(59,130,246,.15)' },
+            khieunai: { label: 'Khiếu nại', icon: '⚠️', color: '#ef4444', bg: 'rgba(239,68,68,.15)' },
+            hoidap: { label: 'Hỏi đáp', icon: '❓', color: '#10b981', bg: 'rgba(16,185,129,.15)' },
+            hoptac: { label: 'Hợp tác', icon: '🤝', color: '#8b5cf6', bg: 'rgba(139,92,246,.15)' },
+            khac: { label: 'Khác', icon: '📝', color: '#6b7280', bg: 'rgba(107,114,128,.15)' }
+        };
+
+        function contactTypeBadge(type) {
+            const t = CONTACT_TYPE_MAP[type] || CONTACT_TYPE_MAP.khac;
+            return `<span style="padding:3px 10px;border-radius:20px;background:${t.bg};color:${t.color};font-size:.78rem;font-weight:600">${t.icon} ${t.label}</span>`;
+        }
+
+        function contactStatusBadge(c) {
+            if (c.adminReply) return `<span style="padding:3px 10px;border-radius:20px;background:rgba(16,185,129,.15);color:#10b981;font-size:.78rem">Đã phản hồi</span>`;
+            if (c.adminRead || c.status === 'read') return `<span style="padding:3px 10px;border-radius:20px;background:rgba(107,114,128,.15);color:#6b7280;font-size:.78rem">Đã đọc</span>`;
+            return `<span style="padding:3px 10px;border-radius:20px;background:rgba(59,130,246,.15);color:#3b82f6;font-size:.78rem">✉ Chưa đọc</span>`;
+        }
+
+        window.loadAdminContacts = async function () {
+            const tbody = document.getElementById('contactsTbody');
+            if (!tbody) return;
+            tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:30px"><i class="fas fa-spinner fa-spin"></i> Đang tải...</td></tr>';
+            try {
+                const snap = await get(ref(db, 'contacts'));
+                allContacts = [];
+                if (snap.exists()) {
+                    snap.forEach(c => { allContacts.push({ id: c.key, ...c.val() }); });
+                    allContacts.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+                }
+                const unreadCount = allContacts.filter(c => !c.adminRead && c.status !== 'read' && !c.adminReply).length;
+                const badge1 = document.getElementById('contactPendingBadge');
+                if (badge1) badge1.textContent = unreadCount;
+                const badge2 = document.getElementById('adminContactBadge');
+                if (badge2) { badge2.textContent = unreadCount; badge2.style.display = unreadCount > 0 ? 'inline-flex' : 'none'; }
+                filterAdminContacts(currentContactFilter);
+            } catch (e) {
+                tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:30px;color:red">Lỗi tải dữ liệu: ${e.message}</td></tr>`;
+            }
+        };
+
+        window.filterAdminContacts = function (filter) {
+            currentContactFilter = filter;
+            document.querySelectorAll('[id^="ctab-"]').forEach(btn => {
+                btn.className = btn.id === `ctab-${filter}` ? 'btn btn-primary btn-sm' : 'btn btn-outline btn-sm';
+            });
+            let filtered;
+            if (filter === 'all') filtered = allContacts;
+            else if (filter === 'pending') filtered = allContacts.filter(c => !c.adminRead && c.status !== 'read' && !c.adminReply);
+            else if (filter === 'read') filtered = allContacts.filter(c => (c.adminRead || c.status === 'read') && !c.adminReply);
+            else if (filter === 'replied') filtered = allContacts.filter(c => !!c.adminReply);
+            else filtered = allContacts.filter(c => c.type === filter); // filter by type
+
+            const countEl = document.getElementById('contactsCount');
+            if (countEl) countEl.textContent = `${filtered.length} liên hệ`;
+            const tbody = document.getElementById('contactsTbody');
+            if (!tbody) return;
+            if (filtered.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:30px;color:#888">Không có liên hệ nào</td></tr>';
+                return;
+            }
+            tbody.innerHTML = filtered.map(c => `
+                <tr style="${!c.adminRead && !c.adminReply ? 'background:rgba(59,130,246,.05)' : ''}">
+                    <td>${contactTypeBadge(c.type)}</td>
+                    <td>
+                        <strong>${c.userName || '—'}</strong><br>
+                        <small style="color:#888">${c.userEmail || ''}</small>
+                        ${c.userPhone ? `<br><small style="color:#888"><i class="fas fa-phone" style="font-size:.7rem"></i> ${c.userPhone}</small>` : ''}
+                    </td>
+                    <td style="max-width:160px">
+                        <strong style="font-size:.88rem">${c.subject}</strong>
+                    </td>
+                    <td style="max-width:200px">
+                        <p style="margin:0;font-size:.85rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${(c.content||'').replace(/"/g,'&quot;')}">${c.content}</p>
+                        ${c.adminReply ? '<small style="color:#10b981"><i class="fas fa-reply"></i> Đã phản hồi</small>' : ''}
+                    </td>
+                    <td style="white-space:nowrap">${fmtDateAdmin(c.createdAt)}</td>
+                    <td>${contactStatusBadge(c)}</td>
+                    <td style="white-space:nowrap">
+                        <button class="btn btn-outline btn-sm" title="Xem chi tiết" onclick="viewContactDetail('${c.id}')" style="margin-right:4px">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="btn btn-primary btn-sm" title="Phản hồi" onclick="openContactReplyModal('${c.id}')" style="margin-right:4px">
+                            <i class="fas fa-reply"></i>
+                        </button>
+                        <button class="btn btn-sm" title="Xóa" onclick="deleteContact('${c.id}')" style="background:#6b7280;color:#fff;border:none;padding:6px 10px;border-radius:6px;cursor:pointer">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        };
+
+        window.viewContactDetail = async function (id) {
+            const c = allContacts.find(x => x.id === id);
+            if (!c) return;
+            // Mark as read
+            if (!c.adminRead) {
+                try {
+                    await update(ref(db, `contacts/${id}`), { adminRead: true, status: 'read' });
+                    c.adminRead = true; c.status = 'read';
+                    filterAdminContacts(currentContactFilter);
+                    // Update badges
+                    const unread = allContacts.filter(x => !x.adminRead && !x.adminReply).length;
+                    const b1 = document.getElementById('contactPendingBadge'); if (b1) b1.textContent = unread;
+                    const b2 = document.getElementById('adminContactBadge'); if (b2) { b2.textContent = unread; b2.style.display = unread > 0 ? 'inline-flex' : 'none'; }
+                } catch(e) {}
+            }
+            const t = CONTACT_TYPE_MAP[c.type] || CONTACT_TYPE_MAP.khac;
+            const body = document.getElementById('contactDetailBody');
+            body.innerHTML = `
+                <div style="margin-bottom:16px">
+                    ${contactTypeBadge(c.type)}
+                    ${contactStatusBadge(c)}
+                    <span style="float:right;font-size:.85rem;color:#888">${fmtDateAdmin(c.createdAt)}</span>
+                </div>
+                <h3 style="margin-bottom:12px">${c.subject}</h3>
+                <div style="background:rgba(0,0,0,.1);border-radius:8px;padding:16px;margin-bottom:16px;white-space:pre-wrap;font-size:.95rem;line-height:1.7">${c.content}</div>
+                <div style="display:flex;gap:16px;flex-wrap:wrap;font-size:.88rem;color:#888;margin-bottom:16px">
+                    <span><i class="fas fa-user"></i> ${c.userName}</span>
+                    <span><i class="fas fa-envelope"></i> ${c.userEmail}</span>
+                    ${c.userPhone ? `<span><i class="fas fa-phone"></i> ${c.userPhone}</span>` : ''}
+                </div>
+                ${c.adminReply ? `
+                <div style="border-top:1px solid var(--admin-border);padding-top:16px">
+                    <h4 style="color:var(--admin-accent);margin-bottom:8px"><i class="fas fa-reply"></i> Phản hồi của Admin</h4>
+                    <div style="background:rgba(212,165,116,.1);border:1px solid var(--admin-accent);border-radius:8px;padding:14px;font-size:.95rem;line-height:1.6">${c.adminReply}</div>
+                    <small style="color:#888">${fmtDateAdmin(c.replyAt)}</small>
+                </div>` : ''}
+            `;
+            document.getElementById('contactDetailModal').classList.add('show');
+        };
+
+        window.openContactReplyModal = async function (id) {
+            const c = allContacts.find(x => x.id === id);
+            if (!c) return;
+            // Mark as read
+            if (!c.adminRead) {
+                try {
+                    await update(ref(db, `contacts/${id}`), { adminRead: true, status: 'read' });
+                    c.adminRead = true; c.status = 'read';
+                    filterAdminContacts(currentContactFilter);
+                } catch(e) {}
+            }
+            const t = CONTACT_TYPE_MAP[c.type] || CONTACT_TYPE_MAP.khac;
+            document.getElementById('contactReplyId').value = id;
+            document.getElementById('contactReplyTypeBadge').innerHTML = contactTypeBadge(c.type);
+            document.getElementById('contactReplySubject').textContent = c.subject;
+            document.getElementById('contactReplyOriginal').textContent = c.content;
+            document.getElementById('contactReplyUser').textContent = c.userName;
+            document.getElementById('contactReplyEmail').textContent = c.userEmail;
+            if (c.userPhone) {
+                document.getElementById('contactReplyPhoneWrap').style.display = 'inline';
+                document.getElementById('contactReplyPhone').textContent = c.userPhone;
+            } else {
+                document.getElementById('contactReplyPhoneWrap').style.display = 'none';
+            }
+            document.getElementById('contactReplyContent').value = c.adminReply || '';
+            document.getElementById('contactReplyModal').classList.add('show');
+        };
+
+        window.submitContactReply = async function () {
+            const id = document.getElementById('contactReplyId').value;
+            const reply = document.getElementById('contactReplyContent').value.trim();
+            if (!reply) {
+                Swal.fire({ icon: 'warning', title: 'Vui lòng nhập nội dung phản hồi!' });
+                return;
+            }
+            try {
+                await update(ref(db, `contacts/${id}`), {
+                    adminReply: reply,
+                    replyAt: Date.now(),
+                    adminRead: true,
+                    status: 'replied',
+                    userReadReply: false
+                });
+                const c = allContacts.find(x => x.id === id);
+                if (c) { c.adminReply = reply; c.replyAt = Date.now(); c.adminRead = true; c.status = 'replied'; c.userReadReply = false; }
+                document.getElementById('contactReplyModal').classList.remove('show');
+                filterAdminContacts(currentContactFilter);
+                Swal.fire({ icon: 'success', title: 'Đã gửi phản hồi!', text: 'Khách hàng sẽ nhận được phản hồi khi vào trang liên hệ.', timer: 2000, showConfirmButton: false });
+            } catch (e) {
+                Swal.fire({ icon: 'error', title: 'Lỗi!', text: e.message });
+            }
+        };
+
+        window.deleteContact = async function (id) {
+            const result = await Swal.fire({
+                icon: 'warning', title: 'Xóa liên hệ này?',
+                showCancelButton: true, confirmButtonText: 'Xóa', cancelButtonText: 'Hủy', confirmButtonColor: '#ef4444'
+            });
+            if (!result.isConfirmed) return;
+            try {
+                await remove(ref(db, `contacts/${id}`));
+                allContacts = allContacts.filter(x => x.id !== id);
+                filterAdminContacts(currentContactFilter);
+                Swal.fire({ icon: 'success', title: 'Đã xóa!', timer: 1000, showConfirmButton: false });
+            } catch (e) { alert('Lỗi: ' + e.message); }
+        };
+
+        // ============================================================
+        // NEWS MANAGEMENT
+        // ============================================================
+        let adminNews = [];
+        let editingNewsId = null;
+
+        window.toggleNewsForm = function () {
+            const body = document.getElementById('newsFormBody');
+            const chevron = document.getElementById('newsFormChevron');
+            const hidden = body.style.display === 'none';
+            body.style.display = hidden ? 'block' : 'none';
+            chevron.className = hidden ? 'fas fa-chevron-up' : 'fas fa-chevron-down';
+        };
+
+        window.clearNewsForm = function () {
+            editingNewsId = null;
+            document.getElementById('newsTitle').value = '';
+            document.getElementById('newsCategory').value = 'Tin mới';
+            document.getElementById('newsAuthor').value = 'Admin';
+            document.getElementById('newsImage').value = '';
+            document.getElementById('newsExcerpt').value = '';
+            document.getElementById('newsContent').value = '';
+            document.getElementById('newsStatus').value = 'published';
+            document.getElementById('newsFormTitle').textContent = 'Đăng bài viết mới';
+        };
+
+        window.loadAdminNews = async function () {
+            const tbody = document.getElementById('newsTbody');
+            if (!tbody) return;
+            tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:30px"><i class="fas fa-spinner fa-spin"></i> Đang tải...</td></tr>';
+            try {
+                const snap = await get(ref(db, 'news'));
+                adminNews = [];
+                if (snap.exists()) {
+                    snap.forEach(c => { adminNews.push({ id: c.key, ...c.val() }); });
+                    adminNews.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+                }
+                const countEl = document.getElementById('newsCount');
+                if (countEl) countEl.textContent = `${adminNews.length} bài viết`;
+                renderAdminNews();
+            } catch (e) {
+                tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:30px;color:red">Lỗi: ${e.message}</td></tr>`;
+            }
+        };
+
+        function renderAdminNews() {
+            const tbody = document.getElementById('newsTbody');
+            if (!tbody) return;
+            if (adminNews.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:30px;color:var(--admin-text-muted)">Chưa có bài viết nào. Nhấn "Nhập tin mẫu" để thêm 6 bài mẫu hoặc tạo bài mới.</td></tr>';
+                return;
+            }
+            const noImg = 'data:image/svg+xml;charset=UTF-8,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2280%22 height=%2250%22%3E%3Crect fill=%22%23444%22 width=%2280%22 height=%2250%22/%3E%3Ctext fill=%22%23999%22 font-family=%22sans-serif%22 font-size=%2210%22 x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22%3ENo img%3C/text%3E%3C/svg%3E';
+            tbody.innerHTML = adminNews.map(n => `
+                <tr>
+                    <td><img src="${n.image || noImg}" alt="" style="width:80px;height:50px;object-fit:cover;border-radius:6px" onerror="this.src='${noImg}'"></td>
+                    <td style="max-width:220px">
+                        <strong style="font-size:.9rem">${n.title}</strong>
+                    </td>
+                    <td><span style="padding:3px 10px;border-radius:20px;background:rgba(212,165,116,.15);color:var(--admin-accent);font-size:.78rem">${n.category || '—'}</span></td>
+                    <td>${n.author || '—'}</td>
+                    <td style="white-space:nowrap">${n.date || fmtDateAdmin(n.createdAt)}</td>
+                    <td>${n.status === 'draft'
+                        ? '<span style="padding:3px 10px;border-radius:20px;background:rgba(107,114,128,.15);color:#6b7280;font-size:.78rem">Bản nháp</span>'
+                        : '<span style="padding:3px 10px;border-radius:20px;background:rgba(16,185,129,.15);color:#10b981;font-size:.78rem">Đã đăng</span>'
+                    }</td>
+                    <td style="white-space:nowrap">
+                        <button class="btn btn-outline btn-sm" title="Sửa" onclick="editNews('${n.id}')" style="margin-right:4px">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-sm" title="${n.status === 'draft' ? 'Đăng' : 'Ẩn'}" onclick="toggleNewsStatus('${n.id}')" style="background:${n.status === 'draft' ? '#10b981' : '#f59e0b'};color:#fff;border:none;padding:6px 10px;border-radius:6px;margin-right:4px;cursor:pointer">
+                            <i class="fas fa-${n.status === 'draft' ? 'eye' : 'eye-slash'}"></i>
+                        </button>
+                        <button class="btn btn-sm" title="Xóa" onclick="deleteNews('${n.id}')" style="background:#ef4444;color:#fff;border:none;padding:6px 10px;border-radius:6px;cursor:pointer">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        window.saveNews = async function () {
+            const title = document.getElementById('newsTitle').value.trim();
+            const category = document.getElementById('newsCategory').value;
+            const author = document.getElementById('newsAuthor').value.trim() || 'Admin';
+            const image = document.getElementById('newsImage').value.trim();
+            const excerpt = document.getElementById('newsExcerpt').value.trim();
+            const content = document.getElementById('newsContent').value.trim();
+            const status = document.getElementById('newsStatus').value;
+
+            if (!title || !excerpt || !content) {
+                Swal.fire({ icon: 'warning', title: 'Thiếu thông tin!', text: 'Vui lòng nhập tiêu đề, mô tả ngắn và nội dung.', confirmButtonColor: '#d4a574' });
+                return;
+            }
+
+            const now = new Date();
+            const dateStr = now.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' });
+            const data = { title, category, author, image, excerpt, content, status, date: dateStr, updatedAt: Date.now() };
+
+            try {
+                if (editingNewsId) {
+                    await update(ref(db, `news/${editingNewsId}`), data);
+                    Swal.fire({ icon: 'success', title: 'Đã cập nhật!', timer: 1200, showConfirmButton: false });
+                } else {
+                    data.createdAt = Date.now();
+                    const newRef = push(ref(db, 'news'));
+                    await set(newRef, data);
+                    Swal.fire({ icon: 'success', title: 'Đã đăng bài!', timer: 1200, showConfirmButton: false });
+                }
+                clearNewsForm();
+                loadAdminNews();
+            } catch (e) {
+                Swal.fire({ icon: 'error', title: 'Lỗi!', text: e.message });
+            }
+        };
+
+        window.editNews = function (id) {
+            const n = adminNews.find(x => x.id === id);
+            if (!n) return;
+            editingNewsId = id;
+            document.getElementById('newsTitle').value = n.title || '';
+            document.getElementById('newsCategory').value = n.category || 'Tin mới';
+            document.getElementById('newsAuthor').value = n.author || 'Admin';
+            document.getElementById('newsImage').value = n.image || '';
+            document.getElementById('newsExcerpt').value = n.excerpt || '';
+            document.getElementById('newsContent').value = n.content || '';
+            document.getElementById('newsStatus').value = n.status || 'published';
+            document.getElementById('newsFormTitle').textContent = '✏️ Chỉnh sửa bài viết';
+            document.getElementById('newsFormBody').style.display = 'block';
+            document.getElementById('newsFormChevron').className = 'fas fa-chevron-up';
+            // Scroll to form
+            document.getElementById('newsSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        };
+
+        window.toggleNewsStatus = async function (id) {
+            const n = adminNews.find(x => x.id === id);
+            if (!n) return;
+            const newStatus = n.status === 'draft' ? 'published' : 'draft';
+            try {
+                await update(ref(db, `news/${id}`), { status: newStatus });
+                n.status = newStatus;
+                renderAdminNews();
+                Swal.fire({ icon: 'success', title: newStatus === 'published' ? 'Đã đăng!' : 'Đã ẩn!', timer: 1000, showConfirmButton: false });
+            } catch (e) { alert('Lỗi: ' + e.message); }
+        };
+
+        window.deleteNews = async function (id) {
+            const result = await Swal.fire({
+                icon: 'warning', title: 'Xóa bài viết?', text: 'Bài viết sẽ bị xóa vĩnh viễn.',
+                showCancelButton: true, confirmButtonText: 'Xóa', cancelButtonText: 'Hủy', confirmButtonColor: '#ef4444'
+            });
+            if (!result.isConfirmed) return;
+            try {
+                await remove(ref(db, `news/${id}`));
+                adminNews = adminNews.filter(x => x.id !== id);
+                renderAdminNews();
+                const countEl = document.getElementById('newsCount');
+                if (countEl) countEl.textContent = `${adminNews.length} bài viết`;
+                Swal.fire({ icon: 'success', title: 'Đã xóa!', timer: 1000, showConfirmButton: false });
+            } catch (e) { alert('Lỗi: ' + e.message); }
+        };
+
+        // Seed 6 default news articles
+        window.seedDefaultNews = async function () {
+            const result = await Swal.fire({
+                icon: 'question', title: 'Nhập 6 bài viết mẫu?',
+                text: 'Sẽ thêm 6 bài viết mẫu có sẵn vào hệ thống.',
+                showCancelButton: true, confirmButtonText: 'Nhập', cancelButtonText: 'Hủy', confirmButtonColor: '#d4a574'
+            });
+            if (!result.isConfirmed) return;
+
+            const seedData = [
+                {
+                    title: 'Moonlight Cafe khai trương cơ sở mới tại Ninh Kiều, Cần Thơ',
+                    category: 'Tin mới', author: 'Admin', date: '10/01/2026',
+                    image: 'https://images.unsplash.com/photo-1559925393-8be0ec4767c8?w=600',
+                    excerpt: 'Moonlight Cafe chính thức khai trương cơ sở mới ngay trung tâm quận Ninh Kiều, mang đến không gian thưởng thức cà phê ấm cúng giữa lòng TP. Cần Thơ...',
+                    content: `<p>Moonlight Cafe chính thức khai trương cơ sở mới ngay trung tâm quận Ninh Kiều, mang đến không gian thưởng thức cà phê ấm cúng giữa lòng TP. Cần Thơ.</p><h2>🌟 Không gian mới, trải nghiệm mới</h2><p>Với diện tích hơn 200m², cơ sở mới tại Ninh Kiều được thiết kế theo phong cách hiện đại kết hợp với không gian xanh mát.</p><ul><li>Thưởng thức những ly cà phê thủ công</li><li>Gặp gỡ bạn bè trong không gian ấm cúng</li><li>Làm việc với Wi-Fi miễn phí tốc độ cao</li></ul><blockquote>"Chúng tôi tin rằng mỗi ly cà phê đều kể một câu chuyện."<br>— <strong>Nguyễn Thị Huỳnh Như, Founder</strong></blockquote><h2>📍 Địa chỉ</h2><p><strong>Moonlight Cafe</strong><br>66 Nguyễn Đệ, Cái Khế, Ninh Kiều, TP. Cần Thơ<br>Giờ mở cửa: 7:00 - 22:00 hàng ngày</p>`,
+                    status: 'published', createdAt: new Date('2026-01-10').getTime()
+                },
+                {
+                    title: 'Bí quyết pha cà phê phin Việt Nam thơm ngon đúng điệu',
+                    category: 'Tips & Tricks', author: 'Barista Team', date: '05/01/2026',
+                    image: 'https://images.unsplash.com/photo-1519082274554-1ca37b2df78d?w=600',
+                    excerpt: 'Với những mẹo nhỏ từ đội ngũ barista của Moonlight, bạn có thể pha được những ly cà phê phin đậm đà thơm ngon ngay tại nhà...',
+                    content: `<p>Với những mẹo nhỏ từ đội ngũ barista của Moonlight, bạn hoàn toàn có thể pha được những ly cà phê thơm ngon không thua gì quán.</p><h2>☕ Chọn cà phê đúng cách</h2><ul><li>Chọn hạt nguyên chất 100% Arabica hoặc blend Arabica-Robusta</li><li>Ưu tiên hạt rang vừa (medium roast)</li><li>Mua vừa đủ dùng trong 2-3 tuần</li></ul><h2>📝 Công thức pha Latte</h2><ol><li>Pha 1 shot espresso (18g cà phê, 36ml nước)</li><li>Đun sữa đến 60-65°C, tạo bọt sữa mịn</li><li>Đổ espresso vào ly, thêm sữa và tạo hình latte art</li></ol><blockquote>"Pha cà phê là một nghệ thuật."<br>— <strong>Đội ngũ Barista Moonlight</strong></blockquote>`,
+                    status: 'published', createdAt: new Date('2026-01-05').getTime()
+                },
+                {
+                    title: 'Ra mắt bộ sưu tập bánh ngọt Tết Bính Ngọ 2026',
+                    category: 'Menu mới', author: 'Chef Team', date: '25/12/2025',
+                    image: 'https://images.unsplash.com/photo-1551024601-bec78aea704b?w=600',
+                    excerpt: 'Moonlight Cafe giới thiệu bộ sưu tập bánh ngọt Tết với những hương vị đậm đà, kết hợp nguyên liệu tươi theo mùa...',
+                    content: `<p>Moonlight Cafe giới thiệu bộ sưu tập bánh ngọt mùa xuân với những hương vị mới lạ.</p><h2>🌸 Bánh Ngọt Tết 2026</h2><p>Bộ sưu tập Tết 2026 mang đến 5 loại bánh đặc sản.</p><h2>🍰 Strawberry Cheesecake</h2><p>Bánh phô mai kem mịn màng phủ trên lớp bánh quy giòn.</p><h2>🥭 Mango Mousse</h2><p>Bánh mousse xoài mát lạnh, nhẹ nhàng tan trên đầu lưỡi.</p>`,
+                    status: 'published', createdAt: new Date('2025-12-25').getTime()
+                },
+                {
+                    title: 'Ưu đãi 20% cho đơn hàng online mừng năm mới 2026',
+                    category: 'Khuyến mãi', author: 'Marketing', date: '01/01/2026',
+                    image: 'https://images.unsplash.com/photo-1461023058943-07fcbe16d735?w=600',
+                    excerpt: 'Chào năm mới 2026, Moonlight Cafe tri ân khách hàng với ưu đãi giảm giá 20% cho tất cả đơn hàng đặt online tại Cần Thơ...',
+                    content: `<p>Chào năm mới 2026, Moonlight Cafe tri ân khách hàng với ưu đãi giảm giá 20% cho tất cả đơn hàng đặt online.</p><h2>🎉 Chi tiết chương trình</h2><ul><li>Giảm 20% cho đơn hàng từ 200.000đ</li><li>Áp dụng cho tất cả sản phẩm trên menu</li><li>Miễn phí ship cho đơn từ 300.000đ</li></ul>`,
+                    status: 'published', createdAt: new Date('2026-01-01').getTime()
+                },
+                {
+                    title: 'Workshop Latte Art tại Moonlight Cafe Cần Thơ',
+                    category: 'Sự kiện', author: 'Admin', date: '15/12/2025',
+                    image: 'https://images.unsplash.com/photo-1447933601403-0c6688de566e?w=600',
+                    excerpt: 'Đăng ký tham gia workshop Latte Art cùng các barista của Moonlight Cafe. Học cách tạo những hình vẽ đẹp mắt trên ly cà phê...',
+                    content: `<p>Đăng ký tham gia workshop Latte Art cùng các barista hàng đầu.</p><h2>📅 Thông tin Workshop</h2><ul><li><strong>Ngày:</strong> 15/01/2026</li><li><strong>Thời gian:</strong> 14:00 - 16:00</li><li><strong>Địa điểm:</strong> Moonlight Cafe - 66 Nguyễn Đệ, Cần Thơ</li><li><strong>Học phí:</strong> 350.000đ/người</li></ul><h2>🎓 Nội dung workshop</h2><ol><li>Giới thiệu về cà phê và nguồn gốc</li><li>Kỹ thuật pha espresso chuẩn</li><li>Hướng dẫn vẽ các hình: heart, tulip, rosetta</li><li>Thực hành và nhận xét</li></ol>`,
+                    status: 'published', createdAt: new Date('2025-12-15').getTime()
+                },
+                {
+                    title: 'Cam kết sử dụng nguồn cà phê Tây Nguyên sạch 100%',
+                    category: 'Bền vững', author: 'Admin', date: '10/12/2025',
+                    image: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=600',
+                    excerpt: 'Moonlight Cafe cam kết sử dụng 100% cà phê Arabica từ vùng trồng Tây Nguyên, hỗ trợ nông dân Việt Nam và bảo vệ môi trường...',
+                    content: `<p>Moonlight Cafe cam kết sử dụng 100% cà phê từ nguồn bền vững.</p><h2>🌱 Cam kết của chúng tôi</h2><ul><li>100% cà phê Arabica từ vùng trồng bền vững</li><li>Hỗ trợ thu mua với giá công bằng cho nông dân</li><li>Không sử dụng bao bì nhựa một lần</li><li>Tái chế 100% phế phẩm cà phê làm phân bón</li></ul><blockquote>"Mỗi ly cà phê bạn uống có thể thay đổi cuộc sống của một nông dân."<br>— <strong>Moonlight Cafe</strong></blockquote>`,
+                    status: 'published', createdAt: new Date('2025-12-10').getTime()
+                }
+            ];
+
+            try {
+                for (const item of seedData) {
+                    await set(push(ref(db, 'news')), item);
+                }
+                Swal.fire({ icon: 'success', title: 'Đã nhập 6 bài mẫu!', timer: 1500, showConfirmButton: false });
+                loadAdminNews();
             } catch (e) {
                 Swal.fire({ icon: 'error', title: 'Lỗi!', text: e.message });
             }
@@ -4829,6 +5777,17 @@
         // ============================================================
         const LOW_STOCK_THRESHOLD = 5; // cảnh báo khi tồn kho <= 5
 
+        // ─── Helper: tính khung giờ multi-slot ──────────────────
+        function _getResTimeRange(r) {
+            const slots = r.timeSlots || (r.time ? [r.time] : []);
+            if (!slots.length) return { first:'', last:'', endTime:'', label:'–', slots:[] };
+            const first = slots[0], last = slots[slots.length-1];
+            const [h,m] = last.split(':');
+            const endTime = String(+h+1).padStart(2,'0')+':'+m;
+            const label = first+' – '+endTime+(slots.length>1?' ('+slots.length+'h)':'');
+            return { first, last, endTime, label, slots };
+        }
+
         window.loadNotifications = async function () {
             const spinIcon = document.getElementById('notifSpinIcon');
             if (spinIcon) spinIcon.classList.add('fa-spin');
@@ -4910,6 +5869,72 @@
             if (spinIcon) spinIcon.classList.remove('fa-spin');
         };
 
+        // ─── Mailbox: Yêu cầu đặt bàn ──────────────────────
+        window.loadResMailNotifications = async function () {
+            const spinIcon = document.getElementById('resMailSpinIcon');
+            if (spinIcon) spinIcon.classList.add('fa-spin');
+            const notifs = [];
+            try {
+                const snapRes = await get(ref(db, 'reservations'));
+                if (snapRes.exists()) {
+                    snapRes.forEach(c => {
+                        const r = c.val();
+                        if (r.status === 'pending') {
+                            const tr = _getResTimeRange(r);
+                            notifs.push({
+                                type: 'reservation',
+                                icon: 'fa-calendar-plus',
+                                color: '#10b981',
+                                title: `Đặt bàn mới từ <strong>${r.name || 'Khách hàng'}</strong>`,
+                                body: `📅 ${r.date || '–'} · ⏰ ${tr.label} · 🪑 Bàn ${r.tableType||'?'} người × ${r.tableCount||1}`,
+                                time: r.createdAt,
+                                action: `showSection('reservations')`
+                            });
+                        }
+                    });
+                }
+            } catch (e) { console.warn('notif reservations:', e); }
+            notifs.sort((a, b) => (a.time || 0) - (b.time || 0));
+            _renderResMailNotifications(notifs);
+            if (spinIcon) spinIcon.classList.remove('fa-spin');
+        };
+
+        function _renderResMailNotifications(notifs) {
+            const badge = document.getElementById('resMailBadge');
+            const list  = document.getElementById('resMailList');
+            if (!list) return;
+            const count = notifs.length;
+            if (badge) {
+                badge.textContent = count > 99 ? '99+' : count;
+                badge.style.display = count > 0 ? '' : 'none';
+            }
+            if (count === 0) {
+                list.innerHTML = `<div class="notif-empty"><i class="fas fa-check-circle" style="color:#10b981"></i><p>Không có yêu cầu đặt bàn mới.</p></div>`;
+                return;
+            }
+            list.innerHTML = notifs.map((n, nIdx) => {
+                let sentLabel = 'Vừa gửi';
+                if (n.time) {
+                    const sd = new Date(n.time);
+                    sentLabel = sd.toLocaleDateString('vi-VN',{day:'2-digit',month:'2-digit',year:'numeric'}) + ' ' + sd.toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+                }
+                return `
+                <div class="notif-item notif-reservation" onclick="${n.action}; closeResMailPanel()">
+                    <div class="notif-icon-wrap" style="background:${n.color}22;color:${n.color}">
+                        <i class="fas ${n.icon}"></i>
+                    </div>
+                    <div class="notif-body">
+                        <div class="notif-title"><span style="color:#f59e0b;font-size:.72rem;font-weight:700;margin-right:4px">#${nIdx+1}</span>${n.title}</div>
+                        ${n.body ? `<div class="notif-desc">${n.body}</div>` : ''}
+                        <div class="notif-meta">
+                            <span class="notif-tag notif-tag-reservation">Đặt bàn</span>
+                            <span style="color:#60a5fa;font-weight:600"><i class="fas fa-paper-plane" style="font-size:.6rem;margin-right:2px"></i>${sentLabel}</span>
+                        </div>
+                    </div>
+                </div>
+            `}).join('');
+        }
+
         function _renderNotifications(notifs) {
             const badge = document.getElementById('notifCountBadge');
             const list  = document.getElementById('notifList');
@@ -4929,7 +5954,7 @@
                 return;
             }
 
-            const typeLabel = { review: 'Đánh giá', stock: 'Kho hàng', promo: 'Khuyến mãi' };
+            const typeLabel = { review: 'Đánh giá', stock: 'Kho hàng', promo: 'Khuyến mãi', reservation: 'Đặt bàn' };
             list.innerHTML = notifs.map(n => `
                 <div class="notif-item notif-${n.type}" onclick="${n.action}; closeNotifPanel()">
                     <div class="notif-icon-wrap" style="background:${n.color}22;color:${n.color}">
@@ -4950,6 +5975,7 @@
         window.toggleNotifPanel = function () {
             const panel = document.getElementById('notifPanel');
             if (!panel) return;
+            closeResMailPanel(); // Đóng panel kia
             const isOpen = panel.classList.toggle('open');
             if (isOpen) loadNotifications();
         };
@@ -4959,9 +5985,23 @@
             if (panel) panel.classList.remove('open');
         };
 
+        window.toggleResMailPanel = function () {
+            const panel = document.getElementById('resMailPanel');
+            if (!panel) return;
+            closeNotifPanel(); // Đóng panel kia
+            const isOpen = panel.classList.toggle('open');
+            if (isOpen) loadResMailNotifications();
+        };
+
+        window.closeResMailPanel = function () {
+            const panel = document.getElementById('resMailPanel');
+            if (panel) panel.classList.remove('open');
+        };
+
         // Đóng panel khi click ra ngoài
         document.addEventListener('click', function (e) {
             if (!e.target.closest('#notifBellWrap')) closeNotifPanel();
+            if (!e.target.closest('#resMailWrap')) closeResMailPanel();
         });
 
         // ============================================================
@@ -4971,6 +6011,7 @@
         let resCurrentFilter  = 'all';
         let adminAllTables    = [];
         let resUnsubscribe    = null;
+        const SLOT_DURATION_MS = 1 * 60 * 60 * 1000; // Khung giờ 1 tiếng
 
         // Gọi 1 lần sau khi admin đã xác thực Firebase Auth
         function startReservationsListener() {
@@ -4978,7 +6019,7 @@
 
             // Hiển trạng thái đang tải
             const tbody = document.getElementById('resTbody');
-            if (tbody) tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:30px"><i class="fas fa-spinner fa-spin" style="color:var(--admin-accent)"></i> Đang kết nối cơ sở dữ liệu...</td></tr>';
+            if (tbody) tbody.innerHTML = '<tr><td colspan="11" style="text-align:center;padding:30px"><i class="fas fa-spinner fa-spin" style="color:var(--admin-accent)"></i> Đang kết nối cơ sở dữ liệu...</td></tr>';
 
             const resRef = ref(db, 'reservations');
             resUnsubscribe = onValue(
@@ -4986,45 +6027,122 @@
                 (snap) => {
                     allReservations = [];
                     if (snap.exists()) {
-                        snap.forEach(c => allReservations.push({ id: c.key, ...c.val() }));
+                        snap.forEach(c => { allReservations.push({ id: c.key, ...c.val() }); });
                     }
-                    allReservations.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+                    allReservations.sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
+                    console.log('[Reservations] Listener nhận ' + allReservations.length + ' đơn đặt bàn:', allReservations.map(r => r.id + ' | ' + r.date + ' ' + r.time + ' | ' + r.status).join(' ; '));
                     updateResBadge();
                     filterReservations(resCurrentFilter);
+                    updateDashboardReservations();
                 },
                 (err) => {
                     console.error('Reservations listener error:', err);
+                    resUnsubscribe = null;
                     const tb = document.getElementById('resTbody');
-                    if (tb) tb.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:30px;color:#e57373"><i class="fas fa-exclamation-triangle"></i> Không thể tải dữ liệu. Lỗi: ' + err.code + '</td></tr>';
+                    if (tb) tb.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:30px;color:#e57373"><i class="fas fa-exclamation-triangle"></i> Không thể tải dữ liệu. Lỗi: ' + (err.code || err.message) + '</td></tr>';
+                    // Fallback: thử đọc trực tiếp bằng get()
+                    verifyReservationsWithGet();
                 }
             );
+
+            // Xác minh dữ liệu bằng get() — phòng trường hợp listener bị thiếu
+            setTimeout(verifyReservationsWithGet, 2500);
         }
 
-        // Hàm gọi từ nơi khác (DOMContentLoaded, showSection)
+        async function verifyReservationsWithGet() {
+            try {
+                const snap = await get(ref(db, 'reservations'));
+                const getCount = snap.exists() ? Object.keys(snap.val()).length : 0;
+                console.log('[Reservations] get() verification: ' + getCount + ' records (listener has ' + allReservations.length + ')');
+                if (getCount > allReservations.length) {
+                    console.warn('[Reservations] get() found MORE records than listener — merging...');
+                    allReservations = [];
+                    snap.forEach(c => { allReservations.push({ id: c.key, ...c.val() }); });
+                    allReservations.sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
+                    console.log('[Reservations] Merged: ' + allReservations.length + ' đơn đặt bàn:', allReservations.map(r => r.id + ' | ' + r.date + ' ' + r.time + ' | ' + r.status).join(' ; '));
+                    updateResBadge();
+                    filterReservations(resCurrentFilter);
+                    updateDashboardReservations();
+                }
+            } catch(e) { console.warn('[Reservations] get() verification failed:', e.message); }
+        }
+
+        // Hàm gọi từ nơi khác (nút Làm mới, showSection)
         function loadAdminReservations() {
-            // Kiểm tra nếu đã có user (auth được lưu trong state), chạy ngay
             const user = auth.currentUser;
             if (user) {
+                // Đã đăng nhập: khởi động/restart listener ngay
                 startReservationsListener();
             } else {
-                // Chờ auth state rồi gọi 1 lần
-                const unsub = onAuthStateChanged(auth, (u) => {
-                    unsub(); // hủy ngay sau lần đầu
-                    if (u) startReservationsListener();
-                    else {
-                        const tb = document.getElementById('resTbody');
-                        if (tb) tb.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:30px;color:#f59e0b"><i class="fas fa-lock"></i> Cần đăng nhập để xem dữ liệu.</td></tr>';
-                    }
-                });
+                // Chưa xác thực: hiện thông báo chờ
+                const tb = document.getElementById('resTbody');
+                if (tb) tb.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:30px;color:#f59e0b"><i class="fas fa-lock"></i> Cần đăng nhập để xem dữ liệu đặt bàn.</td></tr>';
             }
         }
 
         function updateResBadge() {
-            const cnt = allReservations.filter(r => r.status === 'pending' || r.status === 'negotiating').length;
+            const cnt = allReservations.filter(r => r.status === 'pending').length;
             const badge = document.getElementById('resBadge');
             if (!badge) return;
             badge.textContent = cnt;
             badge.style.display = cnt > 0 ? 'flex' : 'none';
+        }
+
+        // ─── Cập nhật widget đặt bàn trên Dashboard ────────────────────
+        function updateDashboardReservations() {
+            const todayStr = new Date().toISOString().slice(0,10);
+            const now = Date.now();
+            const todayRes = allReservations.filter(r => r.date === todayStr);
+            const pending   = todayRes.filter(r => r.status === 'pending');
+            const deposited = todayRes.filter(r => r.status === 'deposited');
+            const checkedIn = todayRes.filter(r => r.status === 'checked-in');
+
+            // Tính số bàn đang phục vụ (deposited/checked-in xuyên suốt multi-slot)
+            let servingCnt = 0;
+            [...deposited, ...checkedIn].forEach(r => {
+                try {
+                    const rSlots = r.timeSlots || (r.time ? [r.time] : []);
+                    if (!rSlots.length) return;
+                    const firstTs = new Date(r.date + 'T' + rSlots[0] + ':00').getTime();
+                    const lastEnd = new Date(r.date + 'T' + rSlots[rSlots.length-1] + ':00').getTime() + SLOT_DURATION_MS;
+                    if (now >= firstTs && now < lastEnd) servingCnt++;
+                } catch(e) {}
+            });
+
+            const upd = (id, v) => { const e = document.getElementById(id); if(e) e.textContent = v; };
+            upd('dashResPending',    pending.length);
+            upd('dashResDeposited',  deposited.length);
+            upd('dashResServing',    servingCnt);
+            upd('dashResTotalToday', todayRes.length);
+
+            const emptyEl = document.getElementById('dashResEmpty');
+            const listWrap = document.getElementById('dashResPendingList');
+            const listRows = document.getElementById('dashResPendingRows');
+
+            if (pending.length > 0 && listWrap && listRows) {
+                listWrap.style.display = 'block';
+                if (emptyEl) emptyEl.style.display = 'none';
+                listRows.innerHTML = pending.slice(0,5).map((r, pIdx) => {
+                    const tr = _getResTimeRange(r);
+                    let sentAt = '';
+                    if (r.createdAt) { const cd = new Date(r.createdAt); sentAt = cd.toLocaleDateString('vi-VN',{day:'2-digit',month:'2-digit',year:'numeric'}) + ' ' + cd.toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit',second:'2-digit'}); }
+                    return `<div style="display:flex;align-items:center;gap:10px;padding:8px 12px;margin-bottom:6px;border-radius:8px;background:rgba(245,158,11,.06);border:1px solid rgba(245,158,11,.15)">
+                        <div style="min-width:22px;text-align:center;font-size:.78rem;font-weight:700;color:#f59e0b">${pIdx+1}</div>
+                        <div style="flex:1;font-size:.82rem">
+                            <strong>${r.name||'?'}</strong> — <span style="color:var(--admin-text-muted)">${r.phone||''}</span>
+                            <div style="font-size:.73rem;color:var(--admin-text-muted);margin-top:2px"><i class="fas fa-clock" style="color:#f59e0b;width:14px"></i> ${tr.label} · ${r.tableType ? 'Bàn '+r.tableType+' người × '+(r.tableCount||1) : (r.totalSeats ? r.totalSeats+' chỗ' : '?')}</div>
+                            ${sentAt ? `<div style="font-size:.7rem;color:#60a5fa;margin-top:2px"><i class="fas fa-paper-plane" style="width:14px;font-size:.6rem"></i> Gửi lúc: ${sentAt}</div>` : ''}
+                        </div>
+                        <button class="btn btn-sm" style="background:var(--admin-success);color:#fff;white-space:nowrap" onclick="showSection('reservations');setTimeout(()=>adminMarkDeposited('${r.id}'),300)">
+                            <i class="fas fa-coins"></i> Xác nhận
+                        </button>
+                    </div>`;
+                }).join('');
+                if (pending.length > 5) listRows.innerHTML += `<div style="font-size:.75rem;color:var(--admin-text-muted);text-align:center;padding:4px">... +${pending.length-5} đơn nữa</div>`;
+            } else {
+                if (listWrap) listWrap.style.display = 'none';
+                if (emptyEl) emptyEl.style.display = todayRes.length > 0 ? 'none' : 'block';
+            }
         }
 
         window.filterReservations = function (filter) {
@@ -5040,16 +6158,20 @@
 
         function resStatusBadge(status) {
             const map = {
+                // ── Trạng thái hiện tại ──
                 pending:     { cls:'status-pending',   label:'Chờ xác nhận' },
-                confirmed:   { cls:'status-confirmed', label:'Đã xác nhận' },
+                deposited:   { cls:'status-confirmed', label:'Đã cọc',       extra:'background:rgba(76,175,80,.15);color:#4caf50;border-color:rgba(76,175,80,.4)' },
+                'checked-in':{ cls:'status-confirmed', label:'Đã nhận khách', extra:'background:rgba(229,62,62,.15);color:#e53e3e;border-color:rgba(229,62,62,.4)' },
                 rejected:    { cls:'status-cancelled', label:'Từ chối' },
-                negotiating: { cls:'status-pending',   label:'Thương lượng' },
-                agreed:      { cls:'status-confirmed', label:'Đã đồng ý' },
-                serving:     { cls:'', label:'Đang phục vụ', extra:'background:rgba(229,62,62,.2);color:#e53e3e' },
-                completed:   { cls:'status-delivered', label:'Hoàn thành' },
-                'no-show':   { cls:'status-cancelled', label:'Vắng mặt' },
                 cancelled:   { cls:'status-cancelled', label:'Đã hủy' },
-                cancelled_no_payment: { cls:'status-cancelled', label:'Hủy (quá hạn cọc)' },
+                'no-show':   { cls:'status-cancelled', label:'Không đến',    extra:'background:rgba(158,158,158,.15);color:#9e9e9e' },
+                // ── Legacy (đơn cũ trong DB) ──
+                confirmed:            { cls:'status-confirmed', label:'Đã xác nhận (cũ)' },
+                agreed:               { cls:'status-confirmed', label:'Đã đồng ý (cũ)' },
+                negotiating:          { cls:'status-pending',   label:'Thương lượng (cũ)' },
+                serving:              { cls:'status-confirmed', label:'Đang phục vụ (cũ)', extra:'background:rgba(229,62,62,.2);color:#e53e3e' },
+                completed:            { cls:'status-delivered', label:'Hoàn thành' },
+                cancelled_no_payment: { cls:'status-cancelled', label:'Hủy (hết hạn cọc)' },
                 cancelled_absent:     { cls:'status-cancelled', label:'Hủy (vắng mặt)' },
             };
             const s = map[status] || { cls:'', label:status };
@@ -5060,37 +6182,47 @@
             const tbody = document.getElementById('resTbody');
             if (!tbody) return;
             if (!rows.length) {
-                tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:40px;color:var(--admin-text-muted)"><i class="fas fa-calendar-times" style="font-size:2rem;display:block;margin-bottom:10px;opacity:.4"></i>Không có đặt bàn nào.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="11" style="text-align:center;padding:40px;color:var(--admin-text-muted)"><i class="fas fa-calendar-times" style="font-size:2rem;display:block;margin-bottom:10px;opacity:.4"></i>Không có đặt bàn nào.</td></tr>';
                 return;
             }
-            tbody.innerHTML = rows.map(r => {
+            tbody.innerHTML = rows.map((r, idx) => {
                 const dep = r.depositAmount ? r.depositAmount.toLocaleString('vi-VN')+'đ' : '–';
                 const depLabel = {unpaid:'Chưa TT',pending_payment:`<span style="color:#f59e0b">Chờ xác nhận CK</span>`,paid:'<span style="color:#4caf50">Đã TT</span>',refunded:'Đã hoàn'}[r.depositStatus]||'–';
                 const tables = (r.assignedTableIds||[]).join(', ')||'–';
+                const tr = _getResTimeRange(r);
+                // Format createdAt thành DD/MM/YYYY HH:mm:ss
+                let createdAtStr = '–';
+                if (r.createdAt) {
+                    const cd = new Date(r.createdAt);
+                    createdAtStr = cd.toLocaleDateString('vi-VN',{day:'2-digit',month:'2-digit',year:'numeric'}) + ' ' + cd.toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+                }
                 let actionBtns = '';
                 if (r.status === 'pending') {
-                    actionBtns = `<button class="btn btn-sm" style="background:var(--admin-success);color:#fff;margin-bottom:4px" onclick="adminConfirmReservation('${r.id}')"><i class="fas fa-check"></i> Xác nhận</button>
-                                  <button class="btn btn-sm" style="background:var(--admin-danger);color:#fff" onclick="adminRejectReservation('${r.id}')"><i class="fas fa-exchange-alt"></i> Từ chối/Gợi bàn</button>`;
-                } else if (r.status === 'confirmed' || r.status === 'agreed') {
-                    actionBtns = `<button class="btn btn-sm" style="background:#e53e3e;color:#fff;margin-bottom:4px" onclick="adminCheckIn('${r.id}')"><i class="fas fa-user-check"></i> Nhận khách</button>
-                                  <button class="btn btn-sm" style="background:#64b5f6;color:#fff;margin-bottom:4px" onclick="adminUpdateStatus('${r.id}','completed')"><i class="fas fa-flag-checkered"></i> Hoàn thành</button>
-                                  <button class="btn btn-sm" style="background:#999;color:#fff;margin-bottom:4px" onclick="adminUpdateStatus('${r.id}','no-show')"><i class="fas fa-user-slash"></i> Không đến</button>
-                                  ${r.depositStatus !== 'paid' ? `<button class="btn btn-sm" style="background:var(--admin-accent);color:var(--bg-dark)" onclick="adminMarkDepositPaid('${r.id}')"><i class="fas fa-coins"></i> Đã nhận cọc</button>` : ''}`;
-                } else if (r.status === 'serving') {
-                    actionBtns = `<button class="btn btn-sm" style="background:#4caf50;color:#fff;margin-bottom:4px" onclick="adminUpdateStatus('${r.id}','completed')"><i class="fas fa-flag-checkered"></i> Hoàn thành</button>`;
-                } else if ((r.status === 'rejected' || r.status === 'cancelled' || r.status === 'cancelled_no_payment' || r.status === 'cancelled_absent' || r.status === 'no-show') && r.depositStatus === 'paid') {
-                    actionBtns = `<button class="btn btn-sm" style="background:#64b5f6;color:#fff" onclick="adminRefundDeposit('${r.id}')"><i class="fas fa-undo"></i> Hoàn cọc</button>`;
-                } else if ((r.status === 'rejected' || r.status === 'cancelled' || r.status === 'cancelled_no_payment' || r.status === 'cancelled_absent' || r.status === 'no-show') && r.depositStatus === 'refund_requested') {
-                    actionBtns = `<button class="btn btn-sm" style="background:#4caf50;color:#fff" onclick="adminRefundDeposit('${r.id}')"><i class="fas fa-undo"></i> Xác nhận đã hoàn</button>`;
+                    actionBtns = `<button class="btn btn-sm" style="background:var(--admin-success);color:#fff;margin-bottom:4px" onclick="adminMarkDeposited('${r.id}')"><i class="fas fa-coins"></i> Xác nhận cọc & Gán bàn</button>
+                                  <button class="btn btn-sm" style="background:var(--admin-danger);color:#fff" onclick="adminRejectReservation('${r.id}')"><i class="fas fa-times"></i> Từ chối</button>`;
+                } else if (r.status === 'deposited') {
+                    actionBtns = `<button class="btn btn-sm" style="background:#e53e3e;color:#fff;margin-bottom:4px" onclick="adminCheckIn('${r.id}')"><i class="fas fa-sign-in-alt"></i> Đã nhận khách</button>
+                                  <button class="btn btn-sm" style="background:#999;color:#fff;margin-bottom:4px" onclick="adminMarkNoShow('${r.id}')"><i class="fas fa-user-slash"></i> Không đến</button>
+                                  <button class="btn btn-sm" style="background:rgba(229,62,62,.7);color:#fff" onclick="adminCancelReservation('${r.id}')"><i class="fas fa-ban"></i> Hủy đơn</button>`;
+                } else if (r.status === 'checked-in') {
+                    actionBtns = `<button class="btn btn-sm" style="background:#4caf50;color:#fff;margin-bottom:4px" onclick="adminReleaseTable('${r.id}')"><i class="fas fa-flag-checkered"></i> Trả bàn (hoàn thành)</button>`;
+                } else if (['rejected','cancelled','no-show','cancelled_no_payment','cancelled_absent'].includes(r.status) &&
+                           (r.depositStatus === 'paid' || r.depositStatus === 'refund_requested')) {
+                    const refundLabel = r.depositStatus === 'refund_requested' ? 'Xác nhận đã hoàn' : 'Hoàn cọc';
+                    actionBtns = `<button class="btn btn-sm" style="background:#64b5f6;color:#fff" onclick="adminRefundDeposit('${r.id}')"><i class="fas fa-undo"></i> ${refundLabel}</button>`;
                 } else {
                     actionBtns = `<span style="color:var(--admin-text-muted);font-size:.82rem">–</span>`;
                 }
+                // Nút xóa luôn hiển thị
+                actionBtns += `<button class="btn btn-sm" style="background:transparent;border:1px solid rgba(229,62,62,.4);color:#e57373;margin-top:4px;font-size:.75rem" onclick="adminDeleteReservation('${r.id}','${(r.name||'').replace(/'/g,"\\'")}')"><i class="fas fa-trash-alt"></i> Xóa</button>`;
                 return `<tr>
+                    <td style="text-align:center;font-size:.78rem;color:var(--admin-text-muted)">${idx+1}</td>
+                    <td style="white-space:nowrap;font-size:.78rem"><i class="fas fa-paper-plane" style="color:#60a5fa;margin-right:4px;font-size:.65rem"></i><strong style="color:#60a5fa">${createdAtStr}</strong></td>
                     <td>${r.date||'–'}</td>
-                    <td>${r.time||'–'}</td>
+                    <td>${tr.label}</td>
                     <td><strong>${r.name||'–'}</strong><br><a href="tel:${r.phone}" style="font-size:.78rem;color:var(--admin-accent)">${r.phone||'–'}</a></td>
-                    <td>Bàn ${r.tableType||'–'} người × ${r.tableCount||1}</td>
-                    <td style="text-align:center">${(r.tableCount||1) * (r.tableType||0)} chỗ</td>
+                    <td>${r.tableType ? 'Bàn '+r.tableType+' người × '+(r.tableCount||1) : '–'}</td>
+                    <td style="text-align:center">${r.tableType ? (r.tableCount||1)*r.tableType+' chỗ' : (r.totalSeats ? r.totalSeats+' chỗ' : '–')}</td>
                     <td>${dep}<br><span style="font-size:.75rem">${depLabel}</span></td>
                     <td style="font-size:.82rem;color:var(--admin-accent)">${tables}</td>
                     <td>${resStatusBadge(r.status)}</td>
@@ -5099,177 +6231,293 @@
             }).join('');
         }
 
-        // ─── Xác nhận đặt bàn: phân công bàn + bắt đầu đếm 15 phút cọc ──
-        window.adminConfirmReservation = async function(resId) {
+        // ─── Tìm bàn trống xuyên suốt TẤT CẢ khung giờ (multi-slot) ──
+        function getFreeTables(date, timeSlots, tableType, excludeResId) {
+            const tablesOfType = adminAllTables.filter(t => t.type === tableType && t.isActive !== false);
+            const slotsArr = Array.isArray(timeSlots) ? timeSlots : (timeSlots ? [timeSlots] : []);
+            // Tìm bàn ĐÃ được gán cho đơn khác tại cùng date, CÓ CHUNG bất kỳ khung giờ nào
+            const assignedIds = new Set();
+            allReservations.forEach(r => {
+                if (r.id === excludeResId) return;
+                if (r.date !== date) return;
+                if (!['pending','deposited','checked-in'].includes(r.status)) return;
+                const rSlots = r.timeSlots || (r.time ? [r.time] : []);
+                const hasOverlap = slotsArr.some(s => rSlots.includes(s));
+                if (!hasOverlap) return;
+                (r.assignedTableIds || []).forEach(tid => { assignedIds.add(tid); });
+            });
+            return tablesOfType.filter(t => !assignedIds.has(t.id));
+        }
+
+        // ─── Xác nhận đã nhận cọc + Gán bàn ─────────────────────────
+        window.adminMarkDeposited = async function(resId) {
             const r = allReservations.find(x => x.id === resId);
             if (!r) return;
+            const needCount = r.tableCount || 1;
+            const tr = _getResTimeRange(r);
+            const freeTables = getFreeTables(r.date, tr.slots, r.tableType, resId);
 
-            // Tìm bàn phù hợp từ danh sách đang trống
-            const freeTables = adminAllTables.filter(t => t.isActive!==false && (!t.currentStatus||t.currentStatus==='free') && t.type===r.tableType);
-            const freeSuggest = freeTables.slice(0, r.tableCount||1).map(t=>t.id).join(', ');
+            // ── Kiểm tra ưu tiên: có đơn pending nào GỬI TRƯỚC cùng ngày/giờ/loại bàn không? ──
+            let priorityWarningHTML = '';
+            const earlierPending = allReservations.filter(other => {
+                if (other.id === resId) return false;
+                if (other.status !== 'pending') return false;
+                if (other.date !== r.date) return false;
+                if (other.tableType !== r.tableType) return false;
+                const otherSlots = other.timeSlots || (other.time ? [other.time] : []);
+                const thisSlots = tr.slots;
+                const hasOverlap = thisSlots.some(s => otherSlots.includes(s));
+                if (!hasOverlap) return false;
+                return (other.createdAt || 0) < (r.createdAt || 0);
+            });
+            if (earlierPending.length > 0) {
+                const epList = earlierPending.map(ep => {
+                    const epTr = _getResTimeRange(ep);
+                    const epDate = ep.createdAt ? new Date(ep.createdAt) : null;
+                    const epSent = epDate ? epDate.toLocaleDateString('vi-VN',{day:'2-digit',month:'2-digit',year:'numeric'}) + ' ' + epDate.toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit',second:'2-digit'}) : '?';
+                    return `<div style="font-size:.82rem;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.06)"><strong>${ep.name||'?'}</strong> — ${epTr.label} — Gửi lúc: <strong>${epSent}</strong></div>`;
+                }).join('');
+                priorityWarningHTML = `<div style="background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.35);border-radius:8px;padding:10px 14px;margin-bottom:12px;text-align:left">
+                    <div style="font-size:.82rem;font-weight:700;color:#f59e0b;margin-bottom:6px"><i class="fas fa-exclamation-triangle"></i> Lưu ý ưu tiên!</div>
+                    <div style="font-size:.78rem;color:var(--admin-text-muted);margin-bottom:6px">Có <strong style="color:#f59e0b">${earlierPending.length}</strong> đơn pending <u>gửi trước</u> cùng ngày & trùng khung giờ & cùng loại bàn:</div>
+                    ${epList}
+                    <div style="font-size:.75rem;color:#f59e0b;margin-top:6px"><i class="fas fa-info-circle"></i> Nên xếp bàn cho đơn gửi trước để đảm bảo công bằng.</div>
+                </div>`;
+            }
 
-            const { value: tableInput, isConfirmed } = await Swal.fire({
-                title: 'Xác nhận đặt bàn',
-                html: `<p style="text-align:left;margin-bottom:8px">Khách: <strong>${r.name||'?'}</strong> — ${r.phone||''}<br>Loại bàn: <strong>Bàn ${r.tableType} người × ${r.tableCount}</strong><br>Lịch hẹn: <strong>${r.date} ${r.time}</strong></p>
-                       ${freeSuggest ? `<p style="font-size:.82rem;color:#f59e0b;text-align:left;margin-bottom:6px"><i class="fas fa-lightbulb"></i> Gợi ý bàn trống: <strong>${freeSuggest}</strong></p>` : ''}
-                       <label style="font-size:.85rem;text-align:left;display:block;margin-bottom:4px">Nhập mã bàn phân công (cách nhau bằng dấu phẩy)</label>`,
-                input: 'text',
-                inputValue: freeSuggest,
-                inputPlaceholder: 'B1, B2...',
+            // Build bảng chọn bàn
+            let tablePickerHTML = '';
+            if (freeTables.length === 0) {
+                tablePickerHTML = '<div style="color:#e57373;padding:10px;text-align:center"><i class="fas fa-exclamation-triangle"></i> Không còn bàn '+r.tableType+' người trống xuyên suốt '+tr.slots.length+' khung giờ!</div>';
+            } else {
+                tablePickerHTML = '<div style="margin:12px 0 6px;font-size:.82rem;color:#aaa;text-align:left"><i class="fas fa-chair" style="color:#60a5fa"></i> Chọn '+needCount+' bàn để gán ('+freeTables.length+' bàn trống xuyên suốt):</div>'
+                    + '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:8px;margin-bottom:8px">';
+                freeTables.forEach((t, idx) => {
+                    const checked = idx < needCount ? 'checked' : '';
+                    tablePickerHTML += `<label style="display:flex;align-items:center;gap:6px;padding:8px 12px;border-radius:8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);cursor:pointer;font-size:.85rem;transition:.2s" onmouseover="this.style.borderColor='#60a5fa'" onmouseout="this.style.borderColor='rgba(255,255,255,.1)'">
+                        <input type="checkbox" class="swal-table-pick" value="${t.id}" ${checked} style="accent-color:#4caf50;width:16px;height:16px">
+                        <strong style="color:#60a5fa">${t.code}</strong>
+                    </label>`;
+                });
+                tablePickerHTML += '</div>';
+            }
+
+            // Format thời gian gửi yêu cầu
+            let rSentAt = '–';
+            if (r.createdAt) { const cd2 = new Date(r.createdAt); rSentAt = cd2.toLocaleDateString('vi-VN',{day:'2-digit',month:'2-digit',year:'numeric'}) + ' ' + cd2.toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit',second:'2-digit'}); }
+
+            const result = await Swal.fire({
+                title: '<i class="fas fa-coins" style="color:#4caf50"></i> Xác nhận cọc & Gán bàn',
+                html: `${priorityWarningHTML}
+                       <div style="text-align:left;font-size:.88rem;line-height:1.8">
+                         <p><strong>${r.name||'?'}</strong> &nbsp;&nbsp; ${r.phone||''}</p>
+                         <p><i class="fas fa-paper-plane" style="color:#60a5fa;width:16px"></i> Gửi lúc: <strong style="color:#60a5fa">${rSentAt}</strong></p>
+                         <p><i class="fas fa-calendar" style="color:#60a5fa;width:16px"></i> <strong>${r.date}</strong> &nbsp;|&nbsp; Khung giờ: <strong>${tr.label}</strong></p>
+                         <p><i class="fas fa-chair" style="color:#60a5fa;width:16px"></i> Bàn <strong>${r.tableType} người</strong> &times; ${needCount} bàn</p>
+                         <p><i class="fas fa-coins" style="color:#f59e0b;width:16px"></i> Phí cọc: <strong style="color:#4caf50">${(r.depositAmount||0).toLocaleString('vi-VN')}đ</strong></p>
+                         <p><i class="fas fa-tag" style="color:#60a5fa;width:16px"></i> Mã CK: <strong>${r.depositRef||'–'}</strong></p>
+                       </div>
+                       ${tablePickerHTML}`,
+                icon: 'question',
                 showCancelButton: true,
-                confirmButtonText: '<i class="fas fa-check"></i> Xác nhận & Gửi thông báo',
+                confirmButtonText: '<i class="fas fa-check"></i> Xác nhận cọc & Gán bàn',
                 cancelButtonText: 'Hủy',
-                confirmButtonColor: '#4caf50'
+                confirmButtonColor: '#4caf50',
+                width: 520,
+                preConfirm: () => {
+                    const checked = document.querySelectorAll('.swal-table-pick:checked');
+                    const ids = Array.from(checked).map(cb => cb.value);
+                    if (ids.length === 0) {
+                        Swal.showValidationMessage('Vui lòng chọn ít nhất 1 bàn');
+                        return false;
+                    }
+                    if (ids.length !== needCount) {
+                        Swal.showValidationMessage('Cần chọn đúng '+needCount+' bàn (đang chọn '+ids.length+')');
+                        return false;
+                    }
+                    return ids;
+                }
             });
-            if (!isConfirmed) return;
+            if (!result.isConfirmed) return;
 
-            const tables = tableInput ? tableInput.split(',').map(s=>s.trim()).filter(Boolean) : [];
-            // 15 phút tính từ lúc admin xác nhận
-            const paymentDeadline = Date.now() + 15 * 60 * 1000;
-            const confirmedAt = Date.now();
-
+            const selectedTableIds = result.value;
+            const now = Date.now();
             try {
-                // Lưu đơn có thêm paymentDeadline để background job kiểm tra
                 await update(ref(db, 'reservations/'+resId), {
-                    status: 'confirmed', adminNote: null,
-                    assignedTableIds: tables,
-                    paymentDeadline,
+                    status: 'deposited',
+                    depositStatus: 'paid',
+                    assignedTableIds: selectedTableIds,
+                    confirmedAt: now,
                     notificationRead: false,
-                    confirmedAt,
-                    updatedAt: confirmedAt
+                    updatedAt: now
                 });
-
-                // Đánh dấu các bàn được phân công là "Đã cọc" trên sơ đồ
-                if (tables.length) {
-                    await Promise.all(tables.map(tid =>
-                        update(ref(db,'tables/'+tid), {
-                            currentStatus: 'deposited',
-                            currentReservationId: resId,
-                            updatedAt: Date.now()
-                        })
-                    ));
-                    // Cập nhật bộ nhớ cục bộ
-                    tables.forEach(tid => {
-                        const lt = adminAllTables.find(x => x.id===tid);
-                        if (lt) { lt.currentStatus='deposited'; lt.currentReservationId=resId; }
-                    });
-                    if (document.getElementById('tblTabFloormap').style.display!=='none') loadFloorMap();
+                // Gửi thông báo vào hộp thư khách hàng
+                if (r.uid) {
+                    const notifData = {
+                        type: 'reservation-deposited',
+                        title: 'Đặt bàn thành công!',
+                        body: `✅ Mã bàn: <strong>${selectedTableIds.join(', ')}</strong><br>📅 Ngày nhận bàn: <strong>${r.date}</strong><br>⏰ Giờ: <strong>${tr.label}</strong><br>💰 Đã xác nhận cọc: <strong>${(r.depositAmount||0).toLocaleString('vi-VN')}đ</strong><br>Vui lòng đến đúng giờ!`,
+                        reservationId: resId,
+                        read: false,
+                        createdAt: now
+                    };
+                    try { await push(ref(db, 'users/'+r.uid+'/notifications'), notifData); } catch(e) { console.warn('Gửi thông báo thất bại:', e); }
                 }
-
-                const deadline = new Date(paymentDeadline).toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit'});
-                Swal.fire({
-                    icon:'success', title:'Đã xác nhận!',
-                    html:`Thông báo đã gửi cho khách.<br><small style="color:#f59e0b"><i class="fas fa-clock"></i> Khách có đến <strong>${deadline}</strong> để cọc tiền.</small>`,
-                    timer:3000, showConfirmButton:false
-                });
+                // Cập nhật sơ đồ nếu đang hiển thị
+                if (document.getElementById('tblTabFloormap') &&
+                    document.getElementById('tblTabFloormap').style.display !== 'none') loadFloorMap();
+                Swal.fire({ icon:'success', title:'Đã xác nhận cọc!', html:'Bàn <strong>'+selectedTableIds.join(', ')+'</strong> đã được gán.<br>Thông báo đã gửi cho khách.', timer:2500, showConfirmButton:false });
             } catch(e) { Swal.fire({ icon:'error', title:'Lỗi', text:e.message }); }
         };
 
-        // ─── Nhận khách từ trang đặt bàn (thay vì từ sơ đồ) ───────────
-        window.adminCheckIn = async function(resId) {
-            const r = allReservations.find(x => x.id===resId);
-            if (!r) return;
-            const depInfo = r.depositAmount
-                ? `<br><small style="color:#f59e0b">Tiền cọc ${r.depositAmount.toLocaleString('vi-VN')}đ sẽ được trừ vào hoá đơn.</small>`
-                : '';
-            const { isConfirmed } = await Swal.fire({
-                title:'Xác nhận nhận khách?',
-                html:`<p>Khách <strong>${r.name||'?'}</strong> đã đến — Bàn <strong>${(r.assignedTableIds||[]).join(', ')||'?'}</strong>?</p>${depInfo}`,
-                icon:'question', showCancelButton:true,
-                confirmButtonText:'<i class="fas fa-user-check"></i> Đã nhận khách',
-                cancelButtonText:'Chưa, đóng',
-                confirmButtonColor:'#e53e3e'
-            });
-            if (!isConfirmed) return;
-            try {
-                // Cập nhật đơn đặt bàn
-                await update(ref(db,'reservations/'+resId), {
-                    status:'serving', checkedInAt:Date.now(),
-                    notificationRead:false, updatedAt:Date.now()
-                });
-                // Đổi bàn sang "Đang phục vụ"
-                const tables = r.assignedTableIds||[];
-                if (tables.length) {
-                    await Promise.all(tables.map(tid =>
-                        update(ref(db,'tables/'+tid), { currentStatus:'serving', updatedAt:Date.now() })
-                    ));
-                    tables.forEach(tid => {
-                        const lt = adminAllTables.find(x => x.id===tid);
-                        if (lt) lt.currentStatus='serving';
-                    });
-                    if (document.getElementById('tblTabFloormap').style.display!=='none') loadFloorMap();
-                }
-                Swal.fire({ icon:'success', title:'Đã nhận khách!', timer:1500, showConfirmButton:false });
-            } catch(e) { Swal.fire({ icon:'error', title:'Lỗi', text:e.message }); }
-        };
-
-        // Reject + suggest alternative
+        // ─── Từ chối đặt bàn ────────────────────────────────────────────
         window.adminRejectReservation = async function(resId) {
             const r = allReservations.find(x => x.id === resId);
             if (!r) return;
-            const { value: formValues, isConfirmed } = await Swal.fire({
-                title: 'Từ chối / Gợi bàn thay thế',
-                html: `<p style="text-align:left;font-size:.88rem;margin-bottom:12px">Bạn có thể từ chối hoàn toàn hoặc gợi ý bàn thay thế cho khách.</p>
-                       <div style="text-align:left">
-                         <label style="font-size:.82rem;color:#aaa;display:block;margin-bottom:4px">Bàn thay thế đề xuất (để trống nếu từ chối hoàn toàn)</label>
-                         <input id="swal-alt-tables" class="swal2-input" placeholder="B03, B04...">
-                         <label style="font-size:.82rem;color:#aaa;display:block;margin-bottom:4px;margin-top:8px">Nội dung thông báo cho khách</label>
-                         <textarea id="swal-alt-note" class="swal2-textarea" placeholder="Ví dụ: Bàn 4 người đã hết, chúng tôi có thể sắp xếp 2 bàn 2 người kề nhau..."></textarea>
-                       </div>`,
-                focusConfirm: false,
+            const tr = _getResTimeRange(r);
+            const hasPaidDeposit = r.depositStatus === 'paid';
+            const { value: note, isConfirmed } = await Swal.fire({
+                title: 'Từ chối đặt bàn',
+                html: `<p style="text-align:left;font-size:.88rem;margin-bottom:10px">Khách: <strong>${r.name||'?'}</strong> — ${r.date} ${tr.label}</p>
+                       ${hasPaidDeposit ? '<p style="font-size:.85rem;color:#64b5f6;text-align:left"><i class="fas fa-coins" style="color:#f59e0b"></i> Đơn đã cọc <strong>'+(r.depositAmount||0).toLocaleString('vi-VN')+'đ</strong> — sẽ chuyển trạng thái hoàn cọc.</p>' : ''}
+                       <label style="font-size:.82rem;color:#aaa;display:block;margin-bottom:4px;text-align:left">Lý do từ chối (gửi cho khách)</label>`,
+                input: 'textarea',
+                inputPlaceholder: 'Rất tiếc, không còn bàn phù hợp...',
                 showCancelButton: true,
-                confirmButtonText: 'Gửi thông báo',
+                confirmButtonText: '<i class="fas fa-times"></i> Từ chối',
                 cancelButtonText: 'Hủy',
-                confirmButtonColor: '#f59e0b',
-                preConfirm: () => ({
-                    altTables: document.getElementById('swal-alt-tables').value,
-                    altNote:   document.getElementById('swal-alt-note').value
-                })
+                confirmButtonColor: '#e53e3e'
             });
             if (!isConfirmed) return;
-            const altTables = formValues.altTables ? formValues.altTables.split(',').map(s=>s.trim()).filter(Boolean) : [];
             try {
-                if (altTables.length > 0) {
-                    // Suggest alternative → status = negotiating
-                    await update(ref(db, 'reservations/'+resId), {
-                        status: 'negotiating', alternativeTables: altTables,
-                        alternativeNote: formValues.altNote || null,
-                        notificationRead: false, updatedAt: Date.now()
-                    });
-                    Swal.fire({ icon:'success', title:'Đã gửi bàn thay thế', text:'Khách sẽ nhận thông báo trong trang Tài khoản.', timer:2000, showConfirmButton:false });
-                } else {
-                    // Outright reject
-                    await update(ref(db, 'reservations/'+resId), {
-                        status: 'rejected', adminNote: formValues.altNote || 'Rất tiếc, không còn bàn phù hợp.',
-                        notificationRead: false, updatedAt: Date.now()
-                    });
-                    Swal.fire({ icon:'info', title:'Đã từ chối đặt bàn', timer:1800, showConfirmButton:false });
+                const updObj = {
+                    status: 'rejected',
+                    adminNote: note || 'Rất tiếc, quán không thể đáp ứng yêu cầu của bạn.',
+                    notificationRead: false,
+                    updatedAt: Date.now()
+                };
+                if (hasPaidDeposit) updObj.depositStatus = 'refund_requested';
+                await update(ref(db, 'reservations/'+resId), updObj);
+                // Gửi thông báo từ chối cho khách
+                if (r.uid) {
+                    const notifData = {
+                        type: 'reservation-rejected',
+                        title: 'Đặt bàn bị từ chối',
+                        body: `❌ Đơn đặt bàn ngày <strong>${r.date}</strong> · <strong>${tr.label}</strong> đã bị từ chối.<br>📝 Lý do: ${note || 'Quán không thể đáp ứng yêu cầu.'}${hasPaidDeposit ? '<br>💰 Cọc <strong>'+(r.depositAmount||0).toLocaleString('vi-VN')+'đ</strong> sẽ được hoàn lại.' : ''}`,
+                        reservationId: resId,
+                        read: false,
+                        createdAt: Date.now()
+                    };
+                    try { await push(ref(db, 'users/'+r.uid+'/notifications'), notifData); } catch(e) { console.warn('Gửi thông báo thất bại:', e); }
                 }
+                Swal.fire({ icon:'info', title:'Đã từ chối đặt bàn', html: hasPaidDeposit ? 'Trạng thái cọc: <strong>Yêu cầu hoàn</strong>' : '', timer:2200, showConfirmButton:false });
             } catch(e) { Swal.fire({ icon:'error', title:'Lỗi', text:e.message }); }
         };
 
-        window.adminUpdateStatus = async function(resId, newStatus) {
-            const labels = { completed:'Hoàn thành', 'no-show':'Không đến' };
+        // ─── Không đến ──────────────────────────────────────────────────
+        window.adminMarkNoShow = async function(resId) {
+            const r = allReservations.find(x => x.id===resId);
+            if (!r) return;
+            const tr = _getResTimeRange(r);
             const { isConfirmed } = await Swal.fire({
-                title: labels[newStatus]+'?', showCancelButton:true,
-                confirmButtonText:labels[newStatus], cancelButtonText:'Hủy'
+                title:'Đánh dấu Không đến?',
+                html:`<p>Khách <strong>${r.name||'?'}</strong> — ${r.date} ${tr.label}</p><p style="font-size:.85rem;color:#f59e0b">Tiền cọc sẽ không được hoàn.</p>`,
+                icon:'question', showCancelButton:true,
+                confirmButtonText:'<i class="fas fa-user-slash"></i> Không đến',
+                cancelButtonText:'Hủy', confirmButtonColor:'#999'
             });
             if (!isConfirmed) return;
             try {
-                await update(ref(db,'reservations/'+resId), { status:newStatus, updatedAt:Date.now() });
+                await update(ref(db,'reservations/'+resId), { status:'no-show', updatedAt:Date.now(), notificationRead:false });
                 Swal.fire({ icon:'success', timer:1200, showConfirmButton:false });
             } catch(e) { Swal.fire({ icon:'error', title:'Lỗi', text:e.message }); }
         };
 
-        window.adminMarkDepositPaid = async function(resId) {
+        // ─── Đã nhận khách (Check-in) ───────────────────────────────────
+        window.adminCheckIn = async function(resId) {
+            const r = allReservations.find(x => x.id===resId);
+            if (!r) return;
+            const tables = (r.assignedTableIds||[]).join(', ') || '–';
+            const tr = _getResTimeRange(r);
             const { isConfirmed } = await Swal.fire({
-                title:'Xác nhận đã nhận cọc?', icon:'question', showCancelButton:true,
-                confirmButtonText:'Đã nhận', cancelButtonText:'Hủy', confirmButtonColor:'#d4a574'
+                title:'<i class="fas fa-sign-in-alt" style="color:#e53e3e"></i> Xác nhận nhận khách',
+                html:`<p>Khách <strong>${r.name||'?'}</strong> — ${r.date} ${tr.label}</p>
+                      <p>Bàn: <strong style="color:#60a5fa">${tables}</strong></p>
+                      <p style="font-size:.85rem;color:var(--admin-text-muted)">Trạng thái bàn sẽ chuyển sang <strong style="color:#e53e3e">Đã nhận khách</strong>.</p>`,
+                icon:'question', showCancelButton:true,
+                confirmButtonText:'<i class="fas fa-check"></i> Đã nhận khách',
+                cancelButtonText:'Hủy', confirmButtonColor:'#e53e3e'
             });
             if (!isConfirmed) return;
             try {
-                await update(ref(db,'reservations/'+resId), { depositStatus:'paid', updatedAt:Date.now() });
-                Swal.fire({ icon:'success', title:'Đã cập nhật!', timer:1200, showConfirmButton:false });
+                await update(ref(db,'reservations/'+resId), {
+                    status:'checked-in',
+                    checkedInAt: Date.now(),
+                    updatedAt: Date.now(),
+                    notificationRead: false
+                });
+                // Gửi thông báo vào hộp thư khách hàng
+                if (r.uid) {
+                    const notifData = {
+                        type: 'reservation-checkedin',
+                        title: 'Đã nhận khách!',
+                        body: `🔥 Bàn <strong>${tables}</strong> đang phục vụ<br>📅 ${r.date} · ⏰ ${tr.label}<br>Chúc bạn có trải nghiệm tuyệt vời tại Moonlight Cafe!`,
+                        reservationId: resId,
+                        read: false,
+                        createdAt: Date.now()
+                    };
+                    try { await push(ref(db, 'users/'+r.uid+'/notifications'), notifData); } catch(e) { console.warn('Gửi thông báo thất bại:', e); }
+                }
+                if (document.getElementById('tblTabFloormap') &&
+                    document.getElementById('tblTabFloormap').style.display !== 'none') loadFloorMap();
+                Swal.fire({ icon:'success', title:'Đã nhận khách!', html:'Bàn <strong>'+tables+'</strong> đang phục vụ.', timer:2000, showConfirmButton:false });
+            } catch(e) { Swal.fire({ icon:'error', title:'Lỗi', text:e.message }); }
+        };
+
+        // ─── Trả bàn / Hoàn thành sớm ──────────────────────────────────
+        window.adminReleaseTable = async function(resId) {
+            const r = allReservations.find(x => x.id===resId);
+            if (!r) return;
+            const tables = (r.assignedTableIds||[]).join(', ') || '–';
+            const { isConfirmed } = await Swal.fire({
+                title:'<i class="fas fa-flag-checkered" style="color:#4caf50"></i> Trả bàn & Hoàn thành',
+                html:`<p>Khách <strong>${r.name||'?'}</strong> rời bàn <strong style="color:#60a5fa">${tables}</strong></p>
+                      <p style="font-size:.85rem;color:var(--admin-text-muted)">Bàn sẽ chuyển về <strong style="color:#4caf50">Trống</strong>.</p>`,
+                icon:'question', showCancelButton:true,
+                confirmButtonText:'<i class="fas fa-check"></i> Hoàn thành',
+                cancelButtonText:'Hủy', confirmButtonColor:'#4caf50'
+            });
+            if (!isConfirmed) return;
+            try {
+                await update(ref(db,'reservations/'+resId), {
+                    status:'completed',
+                    completedAt: Date.now(),
+                    updatedAt: Date.now(),
+                    notificationRead: false
+                });
+                if (document.getElementById('tblTabFloormap') &&
+                    document.getElementById('tblTabFloormap').style.display !== 'none') loadFloorMap();
+                Swal.fire({ icon:'success', title:'Bàn đã trống!', html:'Đơn đã hoàn thành. Bàn <strong>'+tables+'</strong> trả về trống.', timer:2000, showConfirmButton:false });
+            } catch(e) { Swal.fire({ icon:'error', title:'Lỗi', text:e.message }); }
+        };
+
+        // ─── Admin hủy đơn đã cọc ───────────────────────────────────────
+        window.adminCancelReservation = async function(resId) {
+            const r = allReservations.find(x => x.id===resId);
+            if (!r) return;
+            const { isConfirmed } = await Swal.fire({
+                title:'Hủy đơn đặt bàn?',
+                html:`<p>Khách <strong>${r.name||'?'}</strong> — ${r.date} ${_getResTimeRange(r).label}</p>${r.depositStatus==='paid'?'<p style="font-size:.85rem;color:#64b5f6">Đơn đã cọc — bạn sẽ cần hoàn tiền cho khách.</p>':''}`,
+                icon:'warning', showCancelButton:true,
+                confirmButtonText:'<i class="fas fa-ban"></i> Hủy đơn',
+                cancelButtonText:'Giữ nguyên', confirmButtonColor:'#e53e3e'
+            });
+            if (!isConfirmed) return;
+            try {
+                const updates = { status:'cancelled', cancelReason:'Admin hủy đơn', updatedAt:Date.now(), notificationRead:false };
+                if (r.depositStatus==='paid') updates.depositStatus = 'refund_requested';
+                await update(ref(db,'reservations/'+resId), updates);
+                Swal.fire({ icon:'success', timer:1200, showConfirmButton:false });
             } catch(e) { Swal.fire({ icon:'error', title:'Lỗi', text:e.message }); }
         };
 
@@ -5294,6 +6542,37 @@
                     notificationRead: false
                 });
                 Swal.fire({ icon:'success', title:'Đã xác nhận hoàn tiền!', text:'Khách sẽ nhận thông báo tại trang Tài khoản.', timer:2000, showConfirmButton:false });
+            } catch(e) { Swal.fire({ icon:'error', title:'Lỗi', text:e.message }); }
+        };
+
+        // ─── Xóa đơn đặt bàn ────────────────────────────────
+        window.adminDeleteReservation = async function(resId, name) {
+            const { isConfirmed } = await Swal.fire({
+                icon:'warning', title:'Xóa đơn đặt bàn?',
+                html:`<p>Xóa vĩnh viễn đơn của <strong>${name||resId}</strong>?</p><p style="font-size:.82rem;color:#e57373">Hành động này không thể hoàn tác.</p>`,
+                showCancelButton:true, confirmButtonText:'<i class="fas fa-trash-alt"></i> Xóa',
+                cancelButtonText:'Hủy', confirmButtonColor:'#e53e3e'
+            });
+            if (!isConfirmed) return;
+            try {
+                await remove(ref(db,'reservations/'+resId));
+                Swal.fire({ icon:'success', title:'Đã xóa!', timer:1200, showConfirmButton:false });
+            } catch(e) { Swal.fire({ icon:'error', title:'Lỗi', text:e.message }); }
+        };
+
+        window.adminDeleteAllReservations = async function() {
+            const count = allReservations.length;
+            if (!count) return Swal.fire({ icon:'info', title:'Không có đơn nào để xóa' });
+            const { isConfirmed } = await Swal.fire({
+                icon:'warning', title:'Xóa TẤT CẢ đơn đặt bàn?',
+                html:`<p>Sẽ xóa vĩnh viễn <strong style="color:#e53e3e">${count} đơn</strong> đặt bàn.</p><p style="font-size:.82rem;color:#e57373">Hành động này KHÔNG THỂ hoàn tác!</p>`,
+                showCancelButton:true, confirmButtonText:'<i class="fas fa-trash-alt"></i> Xóa tất cả ' + count + ' đơn',
+                cancelButtonText:'Hủy', confirmButtonColor:'#e53e3e'
+            });
+            if (!isConfirmed) return;
+            try {
+                await remove(ref(db,'reservations'));
+                Swal.fire({ icon:'success', title:'Đã xóa tất cả!', text:count+' đơn đã được xóa.', timer:2000, showConfirmButton:false });
             } catch(e) { Swal.fire({ icon:'error', title:'Lỗi', text:e.message }); }
         };
 
@@ -5350,78 +6629,81 @@
             'Khu D': { color:'#d4a574', bg:'rgba(212,165,116,.08)',border:'rgba(212,165,116,.3)', icon:'fa-crown',       cap:'10 người', desc:'Phòng VIP — Tầng D', deposit:'100.000đ' },
         };
 
-        // ─── Tính trạng thái bàn THỜI GIAN THỰC từ reservations ────────
-        // Trả về: { status, reservation, label, ... }
-        function getTableRealtimeStatus(tableId) {
-            const now = Date.now();
-            // Tìm đơn đang phục vụ (serving) — ưu tiên cao nhất
-            const serving = allReservations.find(r =>
-                r.status === 'serving' &&
-                (r.assignedTableIds || []).includes(tableId)
-            );
-            if (serving) return { status:'serving', res:serving };
+        // ─── Tính trạng thái bàn tại 1 thời điểm cụ thể (multi-slot) ─────
+        // atTime = timestamp (mặc định Date.now()) — chỉ xét khung giờ chứa atTime
+        // Trả về: { status, res }   (status: 'free' | 'deposited' | 'serving')
+        function getTableRealtimeStatus(tableId, atTime) {
+            const t = atTime || Date.now();
 
-            // Tìm đơn đã xác nhận / đã cọc và đang trong khung giờ (±30 phút)
-            const activeStatuses = ['confirmed','agreed'];
-            const deposited = allReservations.find(r => {
-                if (!activeStatuses.includes(r.status)) return false;
-                if (!(r.assignedTableIds || []).includes(tableId)) return false;
-                if (!r.date || !r.time) return false;
+            let servingRes = null;   // checked-in đang trong khung giờ
+            let depositedRes = null; // deposited  đang trong khung giờ
+
+            allReservations.forEach(r => {
+                if (!['deposited','checked-in'].includes(r.status)) return;
+                if (!r.date) return;
+                const assigned = r.assignedTableIds || [];
+                if (!assigned.includes(tableId)) return;
+
+                const rSlots = r.timeSlots || (r.time ? [r.time] : []);
+                if (!rSlots.length) return;
+
                 try {
-                    const [yr,mn,dy] = r.date.split('-').map(Number);
-                    const [hh,mi]   = r.time.split(':').map(Number);
-                    const resTs = new Date(yr, mn-1, dy, hh, mi).getTime();
-                    // Bàn "đã cọc" = từ lúc xác nhận đến giờ hẹn + 2 giờ
-                    return now >= (r.confirmedAt || r.updatedAt || resTs - 3600000) && now <= resTs + 2*3600000;
-                } catch(e) { return false; }
+                    const firstTs = new Date(r.date + 'T' + rSlots[0] + ':00').getTime();
+                    const lastEnd = new Date(r.date + 'T' + rSlots[rSlots.length - 1] + ':00').getTime() + SLOT_DURATION_MS;
+
+                    // Chỉ quan tâm nếu atTime NẰM TRONG khoảng [firstTs, lastEnd)
+                    if (t < firstTs || t >= lastEnd) return;
+
+                    if (r.status === 'checked-in') {
+                        servingRes = r;
+                    } else if (r.status === 'deposited') {
+                        depositedRes = r;
+                    }
+                } catch(e) {}
             });
-            if (deposited) return { status:'deposited', res:deposited };
 
-            return { status:'free', res:null };
+            if (servingRes) return { status: 'serving', res: servingRes };
+            if (depositedRes) return { status: 'deposited', res: depositedRes };
+            return { status: 'free', res: null };
         }
 
-        // Lấy đơn đặt gần nhất trong tương lai cho 1 bàn
-        function getNextReservation(tableId) {
-            const now = Date.now();
-            let nearest = null, nearestTs = Infinity;
-            for (const r of allReservations) {
-                if (!['pending','confirmed','agreed'].includes(r.status)) continue;
-                if (!(r.assignedTableIds || []).includes(tableId)) continue;
-                if (!r.date || !r.time) continue;
-                try {
-                    const [yr,mn,dy] = r.date.split('-').map(Number);
-                    const [hh,mi]   = r.time.split(':').map(Number);
-                    const resTs = new Date(yr, mn-1, dy, hh, mi).getTime();
-                    if (resTs > now && resTs < nearestTs) { nearest = r; nearestTs = resTs; }
-                } catch(e){}
-            }
-            return nearest;
+        // Lấy đơn đặt gần nhất SAU thời điểm cho trước cho 1 bàn
+        function getNextReservation(tableId, afterTime) {
+            return getUpcomingReservations(tableId, afterTime)[0] || null;
         }
 
-        // Đếm tất cả lịch đặt tương lai
-        function getUpcomingReservations(tableId) {
-            const now = Date.now();
-            return allReservations.filter(r => {
-                if (!['pending','confirmed','agreed'].includes(r.status)) return false;
-                if (!(r.assignedTableIds || []).includes(tableId)) return false;
-                if (!r.date || !r.time) return false;
+        // Tất cả lịch đặt sắp tới được phân công cho bàn này (multi-slot)
+        function getUpcomingReservations(tableId, afterTime) {
+            const threshold = afterTime || Date.now();
+            const result = [];
+            allReservations.forEach(r => {
+                if (!['pending','deposited','checked-in'].includes(r.status)) return;
+                if (!r.date) return;
+                const assigned = r.assignedTableIds || [];
+                if (!assigned.includes(tableId)) return;
+                const rSlots = r.timeSlots || (r.time ? [r.time] : []);
+                if (!rSlots.length) return;
                 try {
-                    const [yr,mn,dy] = r.date.split('-').map(Number);
-                    const [hh,mi]   = r.time.split(':').map(Number);
-                    return new Date(yr, mn-1, dy, hh, mi).getTime() > now;
-                } catch(e) { return false; }
-            }).sort((a,b) => {
-                const ta = new Date(a.date+'T'+a.time).getTime();
-                const tb = new Date(b.date+'T'+b.time).getTime();
-                return ta - tb;
+                    // Lấy đơn bắt đầu SAU threshold
+                    if (new Date(r.date + 'T' + rSlots[0] + ':00').getTime() <= threshold) return;
+                } catch(e) { return; }
+                result.push(r);
             });
+            result.sort((a,b) => {
+                try {
+                    const aSlots = a.timeSlots || (a.time ? [a.time] : []);
+                    const bSlots = b.timeSlots || (b.time ? [b.time] : []);
+                    return new Date(a.date+'T'+(aSlots[0]||'23:59')+':00').getTime() - new Date(b.date+'T'+(bSlots[0]||'23:59')+':00').getTime();
+                } catch(e) { return 0; }
+            });
+            return result;
         }
 
-        // ─── Stats bar ──────────────────────────────────────────────────
-        function updateTableStats() {
+        // ─── Stats bar (hỗ trợ filter time) ─────────────────────────────
+        function updateTableStats(atTime) {
             let free=0, deposited=0, serving=0;
             adminAllTables.forEach(t => {
-                const { status } = getTableRealtimeStatus(t.id);
+                const { status } = getTableRealtimeStatus(t.id, atTime);
                 if (status==='serving') serving++;
                 else if (status==='deposited') deposited++;
                 else free++;
@@ -5478,7 +6760,7 @@
 
                 if (snap.exists()) {
                     const fbTables = [];
-                    snap.forEach(c => fbTables.push({ id:c.key, ...c.val() }));
+                    snap.forEach(c => { fbTables.push({ id:c.key, ...c.val() }); });
 
                     // Kiểm tra đủ 20 bàn cố định chưa — nếu thiếu thì bổ sung
                     const existingCodes = new Set(fbTables.map(t => t.code || t.id));
@@ -5540,10 +6822,10 @@
                 let statusHtml = '';
                 if (status === 'serving') {
                     statusHtml = '<span style="color:#e53e3e;font-weight:600"><i class="fas fa-fire"></i> Đang phục vụ</span>';
-                    if (res) statusHtml += '<br><span style="font-size:.75rem;color:var(--admin-text-muted)">' + (res.name||'') + ' · ' + res.time + '</span>';
+                    if (res) statusHtml += '<br><span style="font-size:.75rem;color:var(--admin-text-muted)">' + (res.name||'') + ' · ' + _getResTimeRange(res).label + '</span>';
                 } else if (status === 'deposited') {
                     statusHtml = '<span style="color:#f59e0b;font-weight:600"><i class="fas fa-coins"></i> Đã cọc</span>';
-                    if (res) statusHtml += '<br><span style="font-size:.75rem;color:var(--admin-text-muted)">' + (res.name||'') + ' · ' + res.date + ' ' + res.time + '</span>';
+                    if (res) statusHtml += '<br><span style="font-size:.75rem;color:var(--admin-text-muted)">' + (res.name||'') + ' · ' + res.date + ' ' + _getResTimeRange(res).label + '</span>';
                 } else {
                     statusHtml = '<span style="color:#4caf50"><i class="fas fa-check-circle"></i> Trống</span>';
                 }
@@ -5552,7 +6834,7 @@
                 let scheduleHtml = '';
                 if (upcoming.length > 0) {
                     scheduleHtml = upcoming.slice(0,3).map(r =>
-                        '<div style="font-size:.73rem;color:var(--admin-text-muted);margin-top:2px"><i class="fas fa-calendar-alt" style="width:14px;color:var(--admin-accent)"></i> ' + r.date + ' ' + r.time + ' — ' + (r.name||'?') + '</div>'
+                        '<div style="font-size:.73rem;color:var(--admin-text-muted);margin-top:2px"><i class="fas fa-calendar-alt" style="width:14px;color:var(--admin-accent)"></i> ' + r.date + ' ' + _getResTimeRange(r).label + ' — ' + (r.name||'?') + '</div>'
                     ).join('');
                     if (upcoming.length > 3) scheduleHtml += '<div style="font-size:.7rem;color:var(--admin-text-muted);margin-top:2px">... +' + (upcoming.length-3) + ' đơn nữa</div>';
                 } else {
@@ -5684,7 +6966,51 @@
             if (title) title.innerHTML = '<i class="fas fa-plus-circle" style="color:var(--admin-accent);margin-right:6px"></i>Thêm bàn mới';
         };
 
-        // ─── Floor Map — trạng thái tính từ reservation thời gian thực ──
+        // ─── Floor Map — trạng thái theo khung giờ (hỗ trợ filter) ────────
+        // _floorFilterTs: null = hiện tại (Date.now), hoặc timestamp cụ thể
+        let _floorFilterTs = null;
+
+        // Bộ lọc: chuyển radio now / custom
+        window.onFloorFilterChange = function() {
+            const mode = document.querySelector('input[name="floorTimeMode"]:checked')?.value || 'now';
+            const picker = document.getElementById('floorCustomPicker');
+            const label  = document.getElementById('floorFilterLabel');
+            if (mode === 'custom') {
+                picker.style.display = 'flex';
+                // Đặt mặc định = hôm nay + giờ hiện tại
+                const dateEl = document.getElementById('floorFilterDate');
+                const slotEl = document.getElementById('floorFilterSlot');
+                if (!dateEl.value) {
+                    dateEl.value = new Date().toISOString().slice(0,10);
+                    const hh = String(new Date().getHours()).padStart(2,'0') + ':00';
+                    const opts = [...slotEl.options].map(o => o.value);
+                    slotEl.value = opts.includes(hh) ? hh : opts[0];
+                }
+                applyFloorFilter();
+            } else {
+                picker.style.display = 'none';
+                if (label) { label.style.display = 'none'; label.textContent = ''; }
+                _floorFilterTs = null;
+                loadFloorMap();
+            }
+        };
+
+        window.applyFloorFilter = function() {
+            const dateVal = document.getElementById('floorFilterDate')?.value;
+            const slotVal = document.getElementById('floorFilterSlot')?.value;
+            const label   = document.getElementById('floorFilterLabel');
+            if (!dateVal || !slotVal) return;
+            // Timestamp ở giữa khung giờ (+ 30 phút)
+            _floorFilterTs = new Date(dateVal + 'T' + slotVal + ':00').getTime() + 30 * 60 * 1000;
+            if (label) {
+                const [sh] = slotVal.split(':');
+                const eh = String(+sh + 1).padStart(2,'0') + ':' + slotVal.split(':')[1];
+                label.style.display = 'inline';
+                label.textContent = '📅 ' + dateVal + '  ⏰ ' + slotVal + ' – ' + eh;
+            }
+            loadFloorMap();
+        };
+
         window.loadFloorMap = async function() {
             const areasEl = document.getElementById('floorMapAreas');
             if (!areasEl) return;
@@ -5696,6 +7022,10 @@
                 areasEl.innerHTML = '<div style="text-align:center;padding:50px;color:var(--admin-text-muted)">Chưa có bàn. Nhấn "Reset bàn mặc định".</div>';
                 return;
             }
+
+            // -------- Thời điểm hiển thị: filter hoặc now --------
+            const viewTs = _floorFilterTs || Date.now();
+            const isFiltered = !!_floorFilterTs;
 
             const ST = {
                 free:      { bg:'rgba(76,175,80,.12)',  border:'rgba(76,175,80,.5)',   glow:'rgba(76,175,80,.25)',  dot:'#4caf50', label:'Trống',        icon:'fa-chair' },
@@ -5720,9 +7050,9 @@
                 const zone  = ZONE_CONFIG[loc] || { color:'#aaa', bg:'rgba(170,170,170,.08)', border:'rgba(170,170,170,.3)', icon:'fa-chair', cap:'?', desc:loc };
                 const group = grouped[loc];
 
-                // Tính status real-time cho từng bàn trong group
+                // Tính status tại viewTs cho từng bàn
                 const groupStatuses = group.map(t => {
-                    const { status, res } = getTableRealtimeStatus(t.id);
+                    const { status, res } = getTableRealtimeStatus(t.id, viewTs);
                     return { ...t, _rtStatus: status, _rtRes: res };
                 });
                 groupStatuses.forEach(t => {
@@ -5754,12 +7084,14 @@
 
                 groupStatuses.forEach(t => {
                     const s = ST[t._rtStatus] || ST.free;
-                    const nextRes = getNextReservation(t.id);
+                    // Sub-info: nếu đang có đơn → hiện tên + giờ;
+                    // nếu trống → hiện đơn kế tiếp (nếu có) dựa trên viewTs
+                    const nextRes = getNextReservation(t.id, viewTs);
                     let subInfo = '';
                     if (t._rtRes) {
-                        subInfo = `<div style="margin-top:4px;font-size:.63rem;color:var(--admin-text-muted);line-height:1.3">${t._rtRes.name||'Khách'}<br>${t._rtRes.time||''}</div>`;
+                        subInfo = `<div style="margin-top:4px;font-size:.63rem;color:var(--admin-text-muted);line-height:1.3">${t._rtRes.name||'Khách'}<br>${_getResTimeRange(t._rtRes).label}</div>`;
                     } else if (nextRes) {
-                        subInfo = `<div style="margin-top:4px;font-size:.63rem;color:var(--admin-text-muted);line-height:1.3;opacity:.7"><i class="fas fa-clock"></i> ${nextRes.date} ${nextRes.time}</div>`;
+                        subInfo = `<div style="margin-top:4px;font-size:.63rem;color:var(--admin-text-muted);line-height:1.3;opacity:.7"><i class="fas fa-clock"></i> ${nextRes.date} ${_getResTimeRange(nextRes).label}</div>`;
                     }
 
                     html += `
@@ -5785,16 +7117,26 @@
             areasEl.innerHTML = html;
 
             const upd = document.getElementById('floorLastUpdate');
-            if (upd) upd.textContent = 'Cập nhật: ' + now.toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
-            updateTableStats();
-
-            // Auto-refresh mỗi 30 giây khi đang ở tab sơ đồ
-            if (floorMapTimer) clearTimeout(floorMapTimer);
-            floorMapTimer = setTimeout(() => {
-                if (document.getElementById('tblTabFloormap') && document.getElementById('tblTabFloormap').style.display !== 'none') {
-                    loadFloorMap();
+            if (upd) {
+                if (isFiltered) {
+                    const fDate = document.getElementById('floorFilterDate')?.value || '';
+                    const fSlot = document.getElementById('floorFilterSlot')?.value || '';
+                    upd.textContent = 'Đang xem: ' + fDate + ' ' + fSlot;
+                } else {
+                    upd.textContent = 'Cập nhật: ' + now.toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
                 }
-            }, 30000);
+            }
+            updateTableStats(viewTs);
+
+            // Auto-refresh mỗi 30 giây chỉ khi ở chế độ "Hiện tại"
+            if (floorMapTimer) clearTimeout(floorMapTimer);
+            if (!isFiltered) {
+                floorMapTimer = setTimeout(() => {
+                    if (document.getElementById('tblTabFloormap') && document.getElementById('tblTabFloormap').style.display !== 'none') {
+                        loadFloorMap();
+                    }
+                }, 30000);
+            }
         };
 
         // ─── Ghi trạng thái bàn xuống Firebase ─────────────────────────
@@ -5809,93 +7151,161 @@
         window.adminToggleFloorTable = async function(tableId) {
             const t = adminAllTables.find(x => x.id===tableId);
             if (!t) return;
-            const { status: cur, res: activeRes } = getTableRealtimeStatus(tableId);
-            const dep = t.depositAmount ? t.depositAmount.toLocaleString('vi-VN')+'đ' : '–';
-            const upcoming = getUpcomingReservations(tableId);
+            const viewTs = _floorFilterTs || undefined;
+            const { status: cur, res: activeRes } = getTableRealtimeStatus(tableId, viewTs);
+            const upcoming = getUpcomingReservations(tableId, viewTs);
 
-            // Danh sách lịch đặt sắp tới
+            // Lịch đặt sắp tới
             let scheduleHtml = '';
             if (upcoming.length) {
                 scheduleHtml = '<div style="text-align:left;margin-top:12px;background:rgba(255,255,255,.04);border-radius:8px;padding:10px 14px"><div style="font-size:.78rem;font-weight:600;color:var(--admin-accent);margin-bottom:6px"><i class="fas fa-calendar-alt"></i> Lịch đặt sắp tới:</div>';
                 upcoming.slice(0,5).forEach(r => {
-                    const stLabel = r.status==='confirmed' ? '<span style="color:#4caf50">Xác nhận</span>' : '<span style="color:#f59e0b">Chờ</span>';
-                    scheduleHtml += `<div style="font-size:.8rem;margin-bottom:4px;color:var(--admin-text-muted)">• ${r.date} ${r.time} — <strong>${r.name||'?'}</strong> (${stLabel})</div>`;
+                    const stLabel = r.status==='deposited' ? '<span style="color:#4caf50">Đã cọc</span>' : (r.status==='checked-in' ? '<span style="color:#e53e3e">Đã nhận khách</span>' : '<span style="color:#f59e0b">Chờ</span>');
+                    const rtr = _getResTimeRange(r);
+                    scheduleHtml += `<div style="font-size:.8rem;margin-bottom:4px;color:var(--admin-text-muted)">• ${r.date} ${rtr.label} — <strong>${r.name||'?'}</strong> (${stLabel})</div>`;
                 });
                 if (upcoming.length > 5) scheduleHtml += `<div style="font-size:.75rem;color:#888">... +${upcoming.length-5} đơn nữa</div>`;
                 scheduleHtml += '</div>';
             }
 
             if (cur === 'free') {
-                const { isConfirmed } = await Swal.fire({
+                Swal.fire({
                     title: t.code + ' — Đang trống',
-                    html: `<p style="font-size:.9rem">Bàn <strong>${t.name}</strong> (${t.type} người) — Cọc: <strong style="color:var(--admin-accent)">${dep}</strong></p>
-                           <p style="font-size:.85rem;color:#aaa">Đánh dấu thủ công?</p>${scheduleHtml}`,
-                    icon: 'question', showCancelButton: true,
-                    confirmButtonText: '<i class="fas fa-coins"></i> Đánh dấu Đã cọc',
-                    cancelButtonText: 'Đóng', confirmButtonColor: '#f59e0b'
+                    html: `<p style="font-size:.9rem">Bàn <strong>${t.name}</strong> (${t.type} người)</p>${scheduleHtml}`,
+                    icon: 'info', confirmButtonText: 'Đóng', confirmButtonColor: '#4caf50'
                 });
-                if (isConfirmed) await setTableStatus(tableId, 'deposited');
-
-            } else if (cur === 'deposited') {
-                let infoHtml = '';
-                if (activeRes) {
-                    const paid = activeRes.depositStatus==='paid' ? '<span style="color:#4caf50"><i class="fas fa-check-circle"></i> Đã chuyển khoản</span>' : '<span style="color:#f59e0b"><i class="fas fa-hourglass-half"></i> Chờ cọc</span>';
-                    infoHtml = `<div style="text-align:left;font-size:.88rem;background:rgba(255,255,255,.05);border-radius:10px;padding:12px 16px;margin:10px 0">
-                        <div style="margin-bottom:6px"><i class="fas fa-user" style="color:#60a5fa;width:18px"></i> <strong>${activeRes.name||'?'}</strong> — ${activeRes.phone||''}</div>
-                        <div style="margin-bottom:6px"><i class="fas fa-calendar" style="color:#60a5fa;width:18px"></i> ${activeRes.date||'?'} lúc <strong>${activeRes.time||'?'}</strong></div>
-                        <div><i class="fas fa-coins" style="color:#f59e0b;width:18px"></i> ${paid}</div>
-                    </div>`;
-                } else {
-                    infoHtml = '<p style="color:#aaa;font-size:.85rem">Đặt thủ công, không có đơn liên kết.</p>';
-                }
-                const { value: action } = await Swal.fire({
-                    title: t.code + ' — Đã cọc',
-                    html: infoHtml + scheduleHtml,
-                    icon: 'info', showDenyButton: true, showCancelButton: true,
-                    confirmButtonText: '<i class="fas fa-user-check"></i> Nhận khách',
-                    denyButtonText: '<i class="fas fa-times-circle"></i> Nhả bàn',
-                    cancelButtonText: 'Đóng',
-                    confirmButtonColor: '#e53e3e', denyButtonColor: '#888'
-                });
-                if (action === true) {
-                    await setTableStatus(tableId, 'serving');
-                    if (activeRes) {
-                        try { await update(ref(db,'reservations/'+activeRes.id), { status:'serving', checkedInAt:Date.now(), notificationRead:false, updatedAt:Date.now() }); } catch(e){}
-                    }
-                    Swal.fire({ icon:'success', title:'Đã nhận khách!', timer:1200, showConfirmButton:false });
-                } else if (action === false) {
-                    const { isConfirmed:ok } = await Swal.fire({
-                        title:'Nhả bàn '+t.code+'?',
-                        html: activeRes ? '<p>Đơn của <strong>'+activeRes.name+'</strong> sẽ bị hủy.</p>' : '<p>Bàn trở về trạng thái Trống.</p>',
-                        icon:'warning', showCancelButton:true, confirmButtonText:'Nhả bàn', cancelButtonText:'Hủy', confirmButtonColor:'#e53e3e'
-                    });
-                    if (ok) {
-                        await setTableStatus(tableId, 'free');
-                        if (activeRes) { try { await update(ref(db,'reservations/'+activeRes.id), { status:'cancelled', cancelReason:'Admin nhả bàn', notificationRead:false, updatedAt:Date.now() }); } catch(e){} }
-                    }
-                }
 
             } else if (cur === 'serving') {
+                // Đang phục vụ: khách đã đến hoặc đang trong khung giờ
                 let infoHtml = '';
+                const isCheckedIn = activeRes && activeRes.status === 'checked-in';
                 if (activeRes) {
+                    const atr = _getResTimeRange(activeRes);
+                    const statusBadge = isCheckedIn
+                        ? '<span style="color:#e53e3e;font-weight:700"><i class="fas fa-fire"></i> Đã nhận khách</span>'
+                        : '<span style="color:#4caf50;font-weight:700"><i class="fas fa-coins"></i> Đã cọc (chưa check-in)</span>';
                     infoHtml = `<div style="text-align:left;font-size:.88rem;background:rgba(255,255,255,.05);border-radius:10px;padding:12px 16px;margin:10px 0">
-                        <div style="margin-bottom:6px"><i class="fas fa-user" style="color:#60a5fa;width:18px"></i> <strong>${activeRes.name||'?'}</strong></div>
-                        <div><i class="fas fa-clock" style="color:#60a5fa;width:18px"></i> Nhận khách lúc: ${activeRes.checkedInAt ? new Date(activeRes.checkedInAt).toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit'}) : '?'}</div>
+                        <div style="margin-bottom:6px"><i class="fas fa-user" style="color:#e53e3e;width:18px"></i> <strong>${activeRes.name||'?'}</strong> — ${activeRes.phone||''}</div>
+                        <div style="margin-bottom:6px"><i class="fas fa-clock" style="color:#e53e3e;width:18px"></i> Khung giờ: <strong>${atr.label}</strong></div>
+                        <div style="margin-bottom:6px"><i class="fas fa-coins" style="color:#4caf50;width:18px"></i> Đã cọc: <span style="color:#4caf50">${(activeRes.depositAmount||0).toLocaleString('vi-VN')}đ</span></div>
+                        <div>${statusBadge}</div>
                     </div>`;
                 }
-                const { isConfirmed } = await Swal.fire({
-                    title: t.code + ' — Hoàn thành?',
-                    html: '<p>Xác nhận khách đã thanh toán và rời bàn?</p>' + infoHtml + scheduleHtml,
-                    icon: 'question', showCancelButton:true,
-                    confirmButtonText: '<i class="fas fa-flag-checkered"></i> Hoàn thành',
-                    cancelButtonText: 'Chưa', confirmButtonColor: '#4caf50'
-                });
-                if (isConfirmed) {
-                    await setTableStatus(tableId, 'free');
-                    if (activeRes) {
-                        try { await update(ref(db,'reservations/'+activeRes.id), { status:'completed', completedAt:Date.now(), notificationRead:false, updatedAt:Date.now() }); } catch(e){}
+                if (isCheckedIn) {
+                    // Đã check-in → chỉ cần nút Trả bàn
+                    const { isConfirmed } = await Swal.fire({
+                        title: t.code + ' — Đang phục vụ',
+                        html: infoHtml + scheduleHtml,
+                        icon: 'question', showCancelButton: true,
+                        confirmButtonText: '<i class="fas fa-flag-checkered"></i> Trả bàn (hoàn thành)',
+                        cancelButtonText: 'Đóng', confirmButtonColor: '#4caf50'
+                    });
+                    if (isConfirmed && activeRes) {
+                        try {
+                            await update(ref(db,'reservations/'+activeRes.id), {
+                                status:'completed', completedAt:Date.now(), updatedAt:Date.now()
+                            });
+                            Swal.fire({ icon:'success', title:'Bàn đã trống!', timer:1500, showConfirmButton:false });
+                            loadFloorMap();
+                        } catch(e) { Swal.fire({ icon:'error', title:'Lỗi', text:e.message }); }
                     }
-                    Swal.fire({ icon:'success', title:'Bàn đã trống!', timer:1200, showConfirmButton:false });
+                } else {
+                    // Deposited trong khung giờ → nút Check-in hoặc Trả bàn sớm
+                    const { isConfirmed, isDenied } = await Swal.fire({
+                        title: t.code + ' — Đang chờ khách',
+                        html: infoHtml + scheduleHtml,
+                        icon: 'question', showCancelButton: true, showDenyButton: true,
+                        confirmButtonText: '<i class="fas fa-sign-in-alt"></i> Nhận khách (check-in)',
+                        denyButtonText: '<i class="fas fa-flag-checkered"></i> Trả bàn sớm',
+                        cancelButtonText: 'Đóng',
+                        confirmButtonColor: '#e53e3e', denyButtonColor: '#4caf50'
+                    });
+                    if (isConfirmed && activeRes) {
+                        try {
+                            await update(ref(db,'reservations/'+activeRes.id), {
+                                status:'checked-in', checkedInAt:Date.now(), updatedAt:Date.now(), notificationRead:false
+                            });
+                            // Gửi thông báo vào hộp thư khách
+                            if (activeRes.uid) {
+                                const atr2 = _getResTimeRange(activeRes);
+                                const tbl = (activeRes.assignedTableIds||[]).join(', ');
+                                try { await push(ref(db, 'users/'+activeRes.uid+'/notifications'), {
+                                    type:'reservation-checkedin', title:'Đã nhận khách!',
+                                    body:`🔥 Bàn <strong>${tbl}</strong> đang phục vụ<br>📅 ${activeRes.date} · ⏰ ${atr2.label}<br>Chúc bạn có trải nghiệm tuyệt vời!`,
+                                    reservationId:activeRes.id, read:false, createdAt:Date.now()
+                                }); } catch(e) {}
+                            }
+                            Swal.fire({ icon:'success', title:'Đã nhận khách!', timer:1500, showConfirmButton:false });
+                            loadFloorMap();
+                        } catch(e) { Swal.fire({ icon:'error', title:'Lỗi', text:e.message }); }
+                    } else if (isDenied && activeRes) {
+                        try {
+                            await update(ref(db,'reservations/'+activeRes.id), {
+                                status:'completed', completedAt:Date.now(), updatedAt:Date.now()
+                            });
+                            Swal.fire({ icon:'success', title:'Bàn đã trống!', timer:1500, showConfirmButton:false });
+                            loadFloorMap();
+                        } catch(e) { Swal.fire({ icon:'error', title:'Lỗi', text:e.message }); }
+                    }
+                }
+
+            } else if (cur === 'deposited') {
+                // Đang chờ đến giờ hẹn
+                let infoHtml = '';
+                if (activeRes) {
+                    const atr3 = _getResTimeRange(activeRes);
+                    const paid = activeRes.depositStatus==='paid'
+                        ? '<span style="color:#4caf50"><i class="fas fa-check-circle"></i> Đã chuyển khoản</span>'
+                        : '<span style="color:#f59e0b"><i class="fas fa-hourglass-half"></i> Chờ cọc</span>';
+                    infoHtml = `<div style="text-align:left;font-size:.88rem;background:rgba(255,255,255,.05);border-radius:10px;padding:12px 16px;margin:10px 0">
+                        <div style="margin-bottom:6px"><i class="fas fa-user" style="color:#60a5fa;width:18px"></i> <strong>${activeRes.name||'?'}</strong> — ${activeRes.phone||''}</div>
+                        <div style="margin-bottom:6px"><i class="fas fa-calendar" style="color:#60a5fa;width:18px"></i> ${activeRes.date} &nbsp; <strong>${atr3.label}</strong></div>
+                        <div><i class="fas fa-coins" style="color:#f59e0b;width:18px"></i> ${paid}</div>
+                    </div>`;
+                }
+                const { isConfirmed, isDenied } = await Swal.fire({
+                    title: t.code + ' — Đã đặt trước',
+                    html: infoHtml + scheduleHtml,
+                    icon: 'info', showCancelButton: true, showDenyButton: true,
+                    confirmButtonText: '<i class="fas fa-sign-in-alt"></i> Nhận khách (check-in)',
+                    denyButtonText: '<i class="fas fa-ban"></i> Hủy lịch này',
+                    cancelButtonText: 'Đóng',
+                    confirmButtonColor: '#e53e3e', denyButtonColor: '#718096'
+                });
+                if (isConfirmed && activeRes) {
+                    try {
+                        await update(ref(db,'reservations/'+activeRes.id), {
+                            status:'checked-in', checkedInAt:Date.now(), updatedAt:Date.now(), notificationRead:false
+                        });
+                        // Gửi thông báo vào hộp thư khách
+                        if (activeRes.uid) {
+                            const atr4 = _getResTimeRange(activeRes);
+                            const tbl2 = (activeRes.assignedTableIds||[]).join(', ');
+                            try { await push(ref(db, 'users/'+activeRes.uid+'/notifications'), {
+                                type:'reservation-checkedin', title:'Đã nhận khách!',
+                                body:`🔥 Bàn <strong>${tbl2}</strong> đang phục vụ<br>📅 ${activeRes.date} · ⏰ ${atr4.label}<br>Chúc bạn có trải nghiệm tuyệt vời!`,
+                                reservationId:activeRes.id, read:false, createdAt:Date.now()
+                            }); } catch(e) {}
+                        }
+                        Swal.fire({ icon:'success', title:'Đã nhận khách!', timer:1500, showConfirmButton:false });
+                        loadFloorMap();
+                    } catch(e) { Swal.fire({ icon:'error', title:'Lỗi', text:e.message }); }
+                } else if (isDenied && activeRes) {
+                    const { isConfirmed:ok } = await Swal.fire({
+                        title: 'Hủy lịch của ' + (activeRes.name||'?') + '?',
+                        html: activeRes.depositStatus==='paid' ? '<p style="color:#64b5f6">Đơn đã cọc — bạn sẽ cần hoàn tiền cho khách.</p>' : '',
+                        icon:'warning', showCancelButton:true,
+                        confirmButtonText:'Hủy lịch', cancelButtonText:'Giữ nguyên', confirmButtonColor:'#e53e3e'
+                    });
+                    if (ok) {
+                        const upd = { status:'cancelled', cancelReason:'Admin hủy từ sơ đồ', notificationRead:false, updatedAt:Date.now() };
+                        if (activeRes.depositStatus==='paid') upd.depositStatus = 'refund_requested';
+                        try {
+                            await update(ref(db,'reservations/'+activeRes.id), upd);
+                            Swal.fire({ icon:'success', title:'Đã hủy lịch!', timer:1500, showConfirmButton:false });
+                            loadFloorMap();
+                        } catch(e) { Swal.fire({ icon:'error', title:'Lỗi', text:e.message }); }
+                    }
                 }
             }
         };
@@ -5909,27 +7319,42 @@
             if (!adminAllTables.length) await loadAdminTables();
             const tables = adminAllTables.length ? adminAllTables : DEFAULT_TABLES.map(t => ({id:t.code,...t}));
 
-            // Lấy tất cả reservation cho ngày này
             const dayReservations = allReservations.filter(r =>
-                r.date === date && ['pending','confirmed','agreed','serving','completed'].includes(r.status)
+                r.date === date && ['pending','deposited','checked-in'].includes(r.status)
             );
 
-            // Build slot map: tableId → slotKey → reservation
-            const slotMap = {};
+            // Khung giờ 1 tiếng cố định
+            const SCHED_SLOTS = [
+                { value:'07:00', label:'07–08' }, { value:'08:00', label:'08–09' },
+                { value:'09:00', label:'09–10' }, { value:'10:00', label:'10–11' },
+                { value:'11:00', label:'11–12' }, { value:'12:00', label:'12–13' },
+                { value:'13:00', label:'13–14' }, { value:'14:00', label:'14–15' },
+                { value:'15:00', label:'15–16' }, { value:'16:00', label:'16–17' },
+                { value:'17:00', label:'17–18' }, { value:'18:00', label:'18–19' },
+                { value:'19:00', label:'19–20' }, { value:'20:00', label:'20–21' },
+                { value:'21:00', label:'21–22' }, { value:'22:00', label:'22–23' },
+            ];
+
+            // Gom reservation theo (giờ, loại bàn) → phân công theo chỉ số bàn
+            const tablesByType = {};
+            tables.forEach(t => {
+                if (!tablesByType[t.type]) tablesByType[t.type] = [];
+                tablesByType[t.type].push(t.id);
+            });
+            const slotMap = {}; // tableId → slotValue → reservation
+            // Sử dụng assignedTableIds để gán đơn vào đúng bàn
             dayReservations.forEach(r => {
-                if (!r.time || !r.assignedTableIds) return;
-                const slotKey = r.time.replace(':','');
-                (r.assignedTableIds||[]).forEach(tid => {
+                const rSlots = r.timeSlots || (r.time ? [r.time] : []);
+                if (!rSlots.length) return;
+                const assigned = r.assignedTableIds || [];
+                assigned.forEach(tid => {
                     if (!slotMap[tid]) slotMap[tid] = {};
-                    slotMap[tid][slotKey] = r;
+                    rSlots.forEach(slot => { slotMap[tid][slot] = r; });
                 });
             });
 
-            const times  = ['07:00','08:00','09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00','20:00','21:00','22:00'];
-            const slotKeys = times.map(t => t.replace(':',''));
-
             let html = '<div style="overflow-x:auto"><table style="border-collapse:collapse;font-size:.78rem;min-width:560px;width:100%">';
-            html += '<thead><tr><th style="padding:8px 14px;text-align:left;white-space:nowrap;background:rgba(255,255,255,.05);border-bottom:1px solid rgba(255,255,255,.09);position:sticky;left:0;z-index:2;min-width:70px">Giờ</th>';
+            html += '<thead><tr><th style="padding:8px 14px;text-align:left;white-space:nowrap;background:rgba(255,255,255,.05);border-bottom:1px solid rgba(255,255,255,.09);position:sticky;left:0;z-index:2;min-width:110px">Khung giờ</th>';
             tables.forEach(t => {
                 const zone = ZONE_CONFIG[t.location];
                 const clr = zone ? zone.color : '#888';
@@ -5937,17 +7362,15 @@
             });
             html += '</tr></thead><tbody>';
 
-            times.forEach((time, i) => {
-                const sk = slotKeys[i];
-                html += `<tr style="border-bottom:1px solid rgba(255,255,255,.04)"><td style="padding:7px 14px;white-space:nowrap;color:var(--admin-text-muted);background:rgba(255,255,255,.02);position:sticky;left:0;font-weight:600">${time}</td>`;
+            SCHED_SLOTS.forEach(slot => {
+                html += `<tr style="border-bottom:1px solid rgba(255,255,255,.04)"><td style="padding:7px 14px;white-space:nowrap;color:var(--admin-text-muted);background:rgba(255,255,255,.02);position:sticky;left:0;font-weight:600">${slot.label}</td>`;
                 tables.forEach(t => {
-                    const r = slotMap[t.id]?.[sk];
-                    let bg='rgba(76,175,80,.1)', color='#4caf50', label='—', title='Trống';
+                    const r = slotMap[t.id]?.[slot.value];
+                    let bg='rgba(76,175,80,.07)', color='rgba(76,175,80,.35)', label='—', title='Trống';
                     if (r) {
-                        if (r.status==='serving')        { bg='rgba(229,62,62,.18)';   color='#e53e3e'; label='<i class="fas fa-fire"></i>';         title=r.name+' (phục vụ)'; }
-                        else if (r.status==='confirmed' || r.status==='agreed') { bg='rgba(100,181,246,.18)'; color='#64b5f6'; label='<i class="fas fa-check"></i>';  title=r.name+' (xác nhận)'; }
-                        else if (r.status==='completed') { bg='rgba(76,175,80,.18)';   color='#4caf50'; label='<i class="fas fa-flag"></i>';         title=r.name+' (xong)'; }
-                        else                             { bg='rgba(245,158,11,.15)';  color='#f59e0b'; label='<i class="fas fa-clock"></i>';        title=r.name+' (chờ)'; }
+                        if (r.status==='checked-in') { bg='rgba(229,62,62,.18)'; color='#e53e3e'; label='<i class="fas fa-fire"></i>'; title=r.name+' (đã nhận khách)'; }
+                        else if (r.status==='deposited') { bg='rgba(76,175,80,.18)'; color='#4caf50'; label='<i class="fas fa-coins"></i>'; title=r.name+' (đã cọc)'; }
+                        else { bg='rgba(245,158,11,.15)'; color='#f59e0b'; label='<i class="fas fa-clock"></i>'; title=r.name+' (chờ xác nhận)'; }
                     }
                     html += `<td style="padding:4px;text-align:center" title="${title}"><span style="display:inline-block;padding:4px 8px;border-radius:5px;background:${bg};color:${color};min-width:38px;font-size:.74rem">${label}</span></td>`;
                 });
@@ -5955,97 +7378,57 @@
             });
             html += '</tbody></table></div>';
 
-            // Thống kê tóm tắt
-            const totalSlots = tables.length * times.length;
-            const bookedSlots = Object.values(slotMap).reduce((sum, m) => sum + Object.keys(m).length, 0);
-            html += `<div style="margin-top:12px;font-size:.8rem;color:var(--admin-text-muted);text-align:right"><i class="fas fa-info-circle" style="color:var(--admin-accent)"></i> ${dayReservations.length} đơn đặt · ${bookedSlots}/${totalSlots} slot đã đặt</div>`;
-
+            const bookedSlots = Object.values(slotMap).reduce((s,m) => s+Object.keys(m).length, 0);
+            html += `<div style="margin-top:12px;font-size:.8rem;color:var(--admin-text-muted);text-align:right"><i class="fas fa-info-circle" style="color:var(--admin-accent)"></i> ${dayReservations.length} đơn đặt · ${bookedSlots}/${tables.length * SCHED_SLOTS.length} khung giờ đã đặt</div>`;
             wrap.innerHTML = html;
         };
 
 
         // ============================================================
-        // BACKGROUND JOBS — Tự động huỷ đơn theo bộ đếm thời gian
+        // BACKGROUND JOBS — Tự động hoàn thành sau khi hết khung giờ
         // ============================================================
-        // Cách hoạt động:
-        //  - Cứ mỗi 60 giây hàm runAutoCancelJobs() chạy một lần
-        //  - Job 1: quét đơn "confirmed" + chưa cọc + paymentDeadline đã qua
-        //    → Tự chuyển sang "cancelled" và nhả bàn
-        //  - Job 2: quét đơn "confirmed" + đã cọc + chưa nhận sau giờ hẹn 20 phút
-        //    → Tự chuyển sang "no-show" và nhả bàn; tiền cọc giữ lại
+        // Cứ mỗi 60 giây: quét đơn deposited đã hết khung 2h → auto completed
         function startBackgroundJobs() {
             async function runAutoCancelJobs() {
                 const now = Date.now();
-                const toProcess = [];
+                const toComplete = [];
 
                 for (const r of allReservations) {
-                    // ─ Job 1: Quá 15 phút chưa cọc → hủy đơn ─────────────────
-                    // Điều kiện: trạng thái "confirmed" hoặc "agreed"
-                    //            + chưa chuyển khoản cọc (depositStatus ≠ paid)
-                    //            + đã qua thời hạn paymentDeadline
-                    if (
-                        (r.status === 'confirmed' || r.status === 'agreed') &&
-                        r.depositStatus !== 'paid' &&
-                        r.paymentDeadline && now > r.paymentDeadline
-                    ) {
-                        toProcess.push({ job:'no_payment', id:r.id, tableIds:r.assignedTableIds||[] });
-                    }
-
-                    // ─ Job 2: Khách vắng mặt sau 20 phút → hủy đơn ————
-                    // Điều kiện: đơn đã cọc (depositStatus = paid)
-                    //            + chưa có thẩm định nhận khách (checkedInAt chưa có)
-                    //            + hiện tại > giờ hẹn + 20 phút
-                    if (
-                        (r.status === 'confirmed' || r.status === 'agreed') &&
-                        r.depositStatus === 'paid' &&
-                        !r.checkedInAt &&
-                        r.date && r.time
-                    ) {
+                    if (r.status === 'deposited' && r.date) {
                         try {
-                            const [yr,mn,dy] = r.date.split('-').map(Number);
-                            const [hh,mi]   = r.time.split(':').map(Number);
-                            const resTs = new Date(yr, mn-1, dy, hh, mi).getTime();
-                            if (now > resTs + 20 * 60 * 1000) {
-                                toProcess.push({ job:'absent', id:r.id, tableIds:r.assignedTableIds||[] });
+                            const rSlots = r.timeSlots || (r.time ? [r.time] : []);
+                            if (!rSlots.length) continue;
+                            // Dùng slot CUỐI CÙNG + SLOT_DURATION để xác định end time
+                            const lastEnd = new Date(r.date + 'T' + rSlots[rSlots.length-1] + ':00').getTime() + SLOT_DURATION_MS;
+                            if (now > lastEnd) {
+                                toComplete.push(r.id);
                             }
                         } catch(e){}
                     }
                 }
 
-                // Áp dụng các lệnh hủy lên Firebase và nhả bàn
-                for (const item of toProcess) {
+                for (const id of toComplete) {
                     try {
-                        const newStatus    = item.job === 'no_payment' ? 'cancelled_no_payment' : 'cancelled_absent';
-                        const cancelReason = item.job === 'no_payment'
-                            ? 'Tự hủy: quá 15 phút không thanh toán cọc'
-                            : 'Tự hủy: khách vắng mặt sau 20 phút';
-
-                        // Cập nhật đơn đặt bàn
-                        await update(ref(db,'reservations/'+item.id), {
-                            status: newStatus,
-                            cancelReason,
-                            cancelledAt: Date.now(),
-                            notificationRead: false,
+                        await update(ref(db,'reservations/'+id), {
+                            status: 'completed',
+                            completedAt: Date.now(),
+                            autoCompletedAt: Date.now(),
                             updatedAt: Date.now()
                         });
-
-                        // Status bàn tự tính lại từ reservations (real-time)
-                        console.log(`[AutoJob] ${item.job} → đơn ${item.id} đã bị hủy tự động`);
-                    } catch(e) { console.warn('[AutoJob] lỗi xử lý đơn', item.id, e); }
+                        console.log(`[AutoJob] auto-completed → đơn ${id}`);
+                    } catch(e) { console.warn('[AutoJob] lỗi xử lý đơn', id, e); }
                 }
 
-                // Nếu có thay đổi, cập nhật lại sơ đồ bàn
-                if (toProcess.length > 0 && document.getElementById('tblTabFloormap').style.display !== 'none') {
+                if (toComplete.length > 0 && document.getElementById('tblTabFloormap') &&
+                    document.getElementById('tblTabFloormap').style.display !== 'none') {
                     loadFloorMap();
                 }
             }
 
-            // Chạy ngay lần đầu khi admin đăng nhập
             runAutoCancelJobs();
-            // Sau đó lặp lại mỗi 60 giây
             const jobTimer = setInterval(runAutoCancelJobs, 60_000);
-            console.log('[AutoJob] Bắt đầu giám sát tự động: kiểm tra mỗi 60 giây');
-            return jobTimer; // trả về để có thể clearInterval khi cần
+            console.log('[AutoJob] Bắt đầu giám sát hoàn thành tự động: kiểm tra mỗi 60 giây');
+            return jobTimer;
         }
 
         // ============================================================
@@ -6054,23 +7437,38 @@
             initCharts();
             loadOrders();
             loadAdminProducts();
-            loadUsers();
             loadSettings();
             loadAdminReviews();
+            loadAdminContacts();
             loadAdminPromotions();
+            loadAdminNews();
             loadAdminTables(); // Pre-load bàn sẵn để sơ đồ hiển thị ngay khi chuyển tab
 
-            // Đợi Firebase Auth xác nhận xong rồi mới gọn reservations
+            // Đợi Firebase Auth xác nhận xong rồi mới khởi động listener đặt bàn
             onAuthStateChanged(auth, (user) => {
-                if (user && !resUnsubscribe) {
+                console.log('[Auth] onAuthStateChanged →', user ? user.email : 'null');
+                if (user) {
+                    // Đăng nhập: load users SAU KHI auth xác nhận xong
+                    loadUsers();
+                    // Đăng nhập: luôn (re)start listener — phòng trường hợp listener cũ đã chết
                     startReservationsListener();
-                    // Khởi động background jobs kiểm tra tự động sau 3 giây
-                    // (cần chờ allReservations được tải xong trước)
-                    setTimeout(startBackgroundJobs, 3000);
+                    // Khởi động background jobs (chỉ một lần)
+                    if (!window._bgJobStarted) {
+                        window._bgJobStarted = true;
+                        setTimeout(startBackgroundJobs, 3000);
+                    }
+                } else {
+                    // Đăng xuất: dọn dẹp listener và xoá dữ liệu tạm
+                    if (resUnsubscribe) { resUnsubscribe(); resUnsubscribe = null; }
+                    allReservations = [];
+                    sampleUsers = [];
+                    _usersListenerActive = false; // Reset để cho phép re-load khi đăng nhập lại
+                    const tb = document.getElementById('resTbody');
+                    if (tb) tb.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:30px;color:#f59e0b"><i class="fas fa-lock"></i> Cần đăng nhập để xem dữ liệu đặt bàn.</td></tr>';
+                    window._bgJobStarted = false;
+                    updateDashboardReservations();
                 }
             });
-            // Gọi thẵng để hiển spinner ngay (nếu đã có token cách đó)
-            loadAdminReservations();
 
             setTimeout(loadNotifications, 2500);
 

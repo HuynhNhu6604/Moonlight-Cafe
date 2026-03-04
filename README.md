@@ -66,7 +66,7 @@
 - ⚡ **Tốc độ cao** - Load nhanh, mượt mà
 - 📱 **Responsive** - Tương thích mọi thiết bị
 - 🔐 **Bảo mật** - Xác thực người dùng với Firebase Auth
-- 💳 **Thanh toán** - Hỗ trợ COD, Banking, MoMo
+- 💳 **Thanh toán** - Hỗ trợ COD, Banking, MoMo, VNPAY (Sandbox)
 
 ---
 
@@ -237,6 +237,38 @@ npx http-server
 ```
 
 Mở trình duyệt: **http://localhost:8000**
+
+### Bước 6: Tích hợp VNPAY Sandbox
+
+Checkout đã hỗ trợ chọn **VNPAY QR (Sandbox)** và gọi **Netlify Functions** mặc định.
+
+1. Push code lên GitHub và connect project với Netlify.
+2. Trong Netlify → **Site configuration** → **Environment variables**, thêm:
+
+```text
+VNP_TMN_CODE = N7EEGOFE
+VNP_HASH_SECRET = CJDFAU6O4XOHCXT4ZT9OONIPVL6CGEVG
+VNP_URL = https://sandbox.vnpayment.vn/paymentv2/vpcpay.html
+```
+
+3. Deploy site (Netlify tự nhận `netlify.toml` + thư mục `netlify/functions`).
+
+4. Gửi cho VNPAY IPN URL:
+
+```text
+https://YOUR_NETLIFY_DOMAIN/api/vnpay/ipn
+```
+
+5. Return URL dùng trong luồng thanh toán:
+
+```text
+https://YOUR_NETLIFY_DOMAIN/vnpay-return.html
+```
+
+6. Test thanh toán tại `checkout.html` bằng phương thức **VNPAY QR (Sandbox)**.
+
+> Tùy chọn: nếu cần trỏ sang backend khác, đặt trên trình duyệt:
+> `localStorage.setItem('moonlight_vnpay_api_base', 'https://YOUR_API_BASE')`
 
 ---
 

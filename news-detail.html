@@ -392,376 +392,137 @@
     </footer>
 
     <script type="module">
-        // Article data - In production, this would come from Firebase
-        const articles = {
-            '1': {
-                title: 'Moonlight Cafe khai trương cơ sở mới tại Ninh Kiều, TP. Cần Thơ',
-                category: 'Tin mới',
-                date: '10/01/2026',
-                author: 'Admin',
-                image: 'https://images.unsplash.com/photo-1559925393-8be0ec4767c8?w=1200',
-                content: `
-                    <p>Moonlight Cafe chính thức khai trương cơ sở mới ngay trung tâm quận Ninh Kiều, mang đến không gian thưởng thức cà phê ấm cúng giữa lòng TP. Cần Thơ.</p>
-                    
-                    <h2>🌟 Không gian mới, trải nghiệm mới</h2>
-                    <p>Với diện tích hơn 200m², cơ sở mới tại Ninh Kiều được thiết kế theo phong cách hiện đại kết hợp với không gian xanh mát. Đây là nơi lý tưởng để bạn:</p>
-                    <ul>
-                        <li>Thưởng thức những ly cà phê thủ công</li>
-                        <li>Gặp gỡ bạn bè trong không gian ấm cúng</li>
-                        <li>Làm việc với Wi-Fi miễn phí tốc độ cao</li>
-                        <li>Tổ chức các buổi họp mặt nhỏ</li>
-                    </ul>
+        import { db, ref, get, auth, onAuthStateChanged } from './js/firebase-config.js';
+        import { updateMsgBadge, loadStoreInfo } from './js/nav-helper.js';
 
-                    <blockquote>
-                        "Chúng tôi tin rằng mỗi ly cà phê đều kể một câu chuyện. Tại chi nhánh mới, chúng tôi mang đến những câu chuyện mới, những hương vị mới và những trải nghiệm khó quên cho mỗi khách hàng."
-                        <br>— <strong>Nguyễn Thị Huỳnh Như, Founder</strong>
-                    </blockquote>
-
-                    <h2>🎁 Ưu đãi khai trương</h2>
-                    <p>Để chào mừng khai trương, chúng tôi dành tặng nhiều ưu đãi hấp dẫn:</p>
-
-                    <div class="promo-box">
-                        <h3><i class="fas fa-gift"></i> Ưu đãi đặc biệt</h3>
-                        <p>Giảm <strong>20%</strong> cho đơn hàng đầu tiên tại chi nhánh mới!</p>
-                        <div class="promo-code-display" id="promoCode">WELCOME20</div>
-                        <button class="copy-promo-btn" onclick="copyPromoCode()">
-                            <i class="fas fa-copy"></i> Sao chép mã
-                        </button>
-                    </div>
-
-                    <h2>📍 Địa chỉ</h2>
-                    <p><strong>Moonlight Cafe</strong><br>
-                    66 Nguyễn Đệ, Cái Khế, Ninh Kiều, TP. Cần Thơ<br>
-                    Giờ mở cửa: 7:00 - 22:00 hàng ngày<br>
-                    Hotline: 0110 766 204</p>
-
-                    <h2>☕ Đặc sản tại cơ sở mới</h2>
-                    <p>Bên cạnh các món signature quen thuộc, cơ sở mới tại Ninh Kiều còn giới thiệu:</p>
-                    <ol>
-                        <li><strong>Moonlight Special Latte</strong> - Cà phê đặc biệt của house</li>
-                        <li><strong>Trà Đào Cam Sả Premium</strong> - Trà trái cây cao cấp</li>
-                        <li><strong>New York Cheesecake</strong> - Bánh phô mai chính hãng</li>
-                    </ol>
-
-                    <p>Chúng tôi rất mong được đón tiếp bạn tại chi nhánh mới!</p>
-                `
-            },
-            '2': {
-                title: 'Bí quyết pha cà phê phin Việt Nam thơm ngon đúng điệu',
-                category: 'Tips & Tricks',
-                date: '05/01/2026',
-                author: 'Barista Team',
-                image: 'https://images.unsplash.com/photo-1519082274554-1ca37b2df78d?w=1200',
-                content: `
-                    <p>Với những mẹo nhỏ từ đội ngũ barista của Moonlight, bạn hoàn toàn có thể pha được những ly cà phê thơm ngon không thua gì quán. Hãy cùng khám phá nhé!</p>
-
-                    <h2>☕ Chọn cà phê đúng cách</h2>
-                    <p>Để pha được ly cà phê ngon, điều đầu tiên và quan trọng nhất là chọn được hạt cà phê chất lượng:</p>
-                    <ul>
-                        <li>Chọn hạt nguyên chất 100% Arabica hoặc blend Arabica-Robusta</li>
-                        <li>Ưu tiên hạt rang vừa (medium roast) để giữ hương vị tốt nhất</li>
-                        <li>Mua vừa đủ dùng trong 2-3 tuần để đảm bảo độ tươi</li>
-                        <li>Bảo quản trong hũ kín, tránh ánh sáng và ẩm</li>
-                    </ul>
-
-                    <h2>🔧 Dụng cụ cần thiết</h2>
-                    <p>Để pha cà phê ngon tại nhà, bạn cần chuẩn bị:</p>
-                    <ol>
-                        <li><strong>Máy pha cà phê espresso</strong> hoặc <strong>French Press</strong></li>
-                        <li><strong>Cân điện tử</strong> - để đo chính xác lượng cà phê</li>
-                        <li><strong>Nhiệt kế</strong> - kiểm tra nhiệt độ nước (90-96°C)</li>
-                        <li><strong>Phin pha cà phê</strong> - nếu bạn thích pha kiểu Việt Nam</li>
-                        <li><strong>Tamper</strong> - để nén cà phê (nếu dùng máy)</li>
-                    </ol>
-
-                    <div class="promo-box">
-                        <h3><i class="fas fa-coffee"></i> Combo Pha Cà Phê Tại Nhà</h3>
-                        <p>Mua <strong>Phin pha cà phê + Cà phê Arabica</strong> giảm ngay <strong>15%</strong>!</p>
-                        <div class="promo-code-display" id="promoCode">PHACAFE15</div>
-                        <button class="copy-promo-btn" onclick="copyPromoCode()">
-                            <i class="fas fa-copy"></i> Sao chép mã
-                        </button>
-                    </div>
-
-                    <h2>📝 Công thức pha Latte thơm ngon</h2>
-                    <p><strong>Nguyên liệu:</strong></p>
-                    <ul>
-                        <li>18g cà phê espresso</li>
-                        <li>200ml sữa tươi</li>
-                        <li>Đá viên (nếu uống đá)</li>
-                    </ul>
-
-                    <p><strong>Các bước thực hiện:</strong></p>
-                    <ol>
-                        <li>Pha 1 shot espresso (18g cà phê, 36ml nước)</li>
-                        <li>Đun sữa đến 60-65°C, tạo bọt sữa mịn</li>
-                        <li>Đổ espresso vào ly, thêm sữa và tạo hình latte art</li>
-                        <li>Thưởng thức ngay khi còn nóng!</li>
-                    </ol>
-
-                    <blockquote>
-                        "Pha cà phê là một nghệ thuật. Mỗi ly cà phê đều mang theo tình yêu và sự tâm huyết của người pha chế."
-                        <br>— <strong>Đội ngũ Barista Moonlight</strong>
-                    </blockquote>
-
-                    <h2>💡 Mẹo nhỏ</h2>
-                    <p>Để ly cà phê hoàn hảo, hãy nhớ:</p>
-                    <ul>
-                        <li>Cà phê phải được xay ngay trước khi pha</li>
-                        <li>Tỷ lệ cà phê : nước là 1:15 đến 1:17</li>
-                        <li>Nhiệt độ nước lý tưởng là 92-96°C</li>
-                        <li>Thời gian pha lý tưởng là 25-30 giây (espresso)</li>
-                    </ul>
-                `
-            },
-            '3': {
-                title: 'Ra mắt bộ sưu tập bánh ngọt Tết Bính Ngọ 2026',
-                category: 'Menu mới',
-                date: '25/12/2025',
-                author: 'Chef Team',
-                image: 'https://images.unsplash.com/photo-1551024601-bec78aea704b?w=1200',
-                content: `
-                    <p>Moonlight Cafe giới thiệu bộ sưu tập bánh ngọt mùa xuân với những hương vị mới lạ, kết hợp nguyên liệu tươi theo mùa.</p>
-
-                    <h2>🌸 Bánh Ngọt Tết Bính Ngọ 2026</h2>
-                    <p>Bộ sưu tập Tết 2026 mang đến 5 loại bánh đặc sản vùng miền:</p>
-
-                    <h2>🍰 Strawberry Cheesecake</h2>
-                    <p>Bánh phô mai kem mịn màng phủ trên lớp bánh quy giòn, trang trí với dâu tây tươi và kem tươi.</p>
-
-                    <h2>🥭 Mango Mousse</h2>
-                    <p>Bánh mousse xoài mát lạnh, nhẹ nhàng tan trên đầu lưỡi, với lớp gel xoài vàng ươm.</p>
-
-                    <div class="promo-box">
-                        <h3><i class="fas fa-birthday-cake"></i> Giảm 10% Bánh Ngọt</h3>
-                        <p>Nhân dịp ra mắt bộ sưu tập mới!</p>
-                        <div class="promo-code-display" id="promoCode">BANHNGOT10</div>
-                        <button class="copy-promo-btn" onclick="copyPromoCode()">
-                            <i class="fas fa-copy"></i> Sao chép mã
-                        </button>
-                    </div>
-
-                    <h2>🌷 Ưu đãi đặc biệt</h2>
-                    <p>Đặt bánh sinh nhật trước 3 ngày, tặng kèm nến và phục vụ miễn phí tại cửa hàng!</p>
-                `
-            },
-            '4': {
-                title: 'Ưu đãi 20% cho đơn hàng online mừng năm mới 2026',
-                category: 'Khuyến mãi',
-                date: '01/01/2026',
-                author: 'Marketing',
-                image: 'https://images.unsplash.com/photo-1461023058943-07fcbe16d735?w=1200',
-                content: `
-                    <p>Chào năm mới 2026, Moonlight Cafe tri ân khách hàng với ưu đãi giảm giá 20% cho tất cả đơn hàng đặt online trong suốt tháng 1.</p>
-
-                    <h2>🎉 Chi tiết chương trình</h2>
-                    <ul>
-                        <li>Giảm 20% cho đơn hàng từ 200.000đ</li>
-                        <li>Áp dụng cho tất cả sản phẩm trên menu</li>
-                        <li>Miễn phí ship cho đơn từ 300.000đ</li>
-                        <li>Thời gian áp dụng: 01/01/2026 - 31/01/2026</li>
-                    </ul>
-
-                    <div class="promo-box">
-                        <h3><i class="fas fa-percentage"></i> Mã Giảm Giá 20%</h3>
-                        <p>Áp dụng cho đơn hàng từ 200.000đ</p>
-                        <div class="promo-code-display" id="promoCode">NEWYEAR2026</div>
-                        <button class="copy-promo-btn" onclick="copyPromoCode()">
-                            <i class="fas fa-copy"></i> Sao chép mã
-                        </button>
-                    </div>
-
-                    <h2>📱 Cách đặt hàng</h2>
-                    <ol>
-                        <li>Truy cập website hoặc gọi điện <strong>0110 766 204</strong></li>
-                        <li>Chọn sản phẩm và thêm vào giỏ hàng</li>
-                        <li>Nhập mã giảm giá <strong>NEWYEAR2026</strong></li>
-                        <li>Chọn địa chỉ giao hàng và thanh toán</li>
-                        <li>Hotline hỗ trợ: 0110 766 204</li>
-                    </ol>
-
-                    <blockquote>
-                        "Chúng tôi muốn năm mới bắt đầu bằng những điều ngọt ngào. Hãy để Moonlight Cafe đồng hành cùng bạn trong năm 2026!"
-                        <br>— <strong>Ban Giám Đốc Moonlight Cafe</strong>
-                    </blockquote>
-                `
-            },
-            '5': {
-                title: 'Workshop Latte Art tại Moonlight Cafe Cần Thơ',
-                category: 'Sự kiện',
-                date: '15/12/2025',
-                author: 'Admin',
-                image: 'https://images.unsplash.com/photo-1447933601403-0c6688de566e?w=1200',
-                content: `
-                    <p>Đăng ký tham gia workshop Latte Art cùng các barista hàng đầu. Học cách tạo những hình vẽ đẹp mắt trên ly cà phê!</p>
-
-                    <h2>📅 Thông tin Workshop</h2>
-                    <ul>
-                        <li><strong>Ngày:</strong> 15/01/2026</li>
-                        <li><strong>Thời gian:</strong> 14:00 - 16:00</li>
-                        <li><strong>Địa điểm:</strong> Moonlight Cafe - 66 Nguyễn Đệ, Ninh Kiều, TP. Cần Thơ</li>
-                        <li><strong>Học phí:</strong> 350.000đ/người</li>
-                        <li><strong>Số lượng:</strong> Tối đa 15 người</li>
-                    </ul>
-
-                    <h2>🎓 Nội dung workshop</h2>
-                    <ol>
-                        <li>Giới thiệu về cà phê và nguồn gốc</li>
-                        <li>Kỹ thuật pha espresso chuẩn</li>
-                        <li>Kỹ thuật tạo bọt sữa</li>
-                        <li>Hướng dẫn vẽ các hình cơ bản: heart, tulip, rosetta</li>
-                        <li>Thực hành và nhận xét</li>
-                    </ol>
-
-                    <div class="promo-box">
-                        <h3><i class="fas fa-graduation-cap"></i> Ưu đãi Early Bird</h3>
-                        <p>Đăng ký trước 31/12/2025, giảm 50.000đ!</p>
-                        <div class="promo-code-display" id="promoCode">EARLY2025</div>
-                        <button class="copy-promo-btn" onclick="copyPromoCode()">
-                            <i class="fas fa-copy"></i> Sao chép mã
-                        </button>
-                    </div>
-
-                    <h2>📝 Đăng ký ngay</h2>
-                    <p>Liên hệ qua số điện thoại <strong>0110 766 204</strong> hoặc đăng ký trực tiếp tại quầy - 66 Nguyễn Đệ, Ninh Kiều, TP. Cần Thơ.</p>
-                `
-            },
-            '6': {
-                title: 'Cam kết sử dụng nguồn cà phê Tây Nguyên sạch 100%',
-                category: 'Bền vững',
-                date: '10/12/2025',
-                author: 'Admin',
-                image: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=1200',
-                content: `
-                    <p>Moonlight Cafe cam kết sử dụng 100% cà phê từ nguồn bền vững, hỗ trợ nông dân và bảo vệ môi trường.</p>
-
-                    <h2>🌱 Cam kết của chúng tôi</h2>
-                    <ul>
-                        <li>100% cà phê Arabica từ vùng trồng bền vững</li>
-                        <li>Hỗ trợ thu mua với giá công bằng cho nông dân</li>
-                        <li>Không sử dụng bao bì nhựa một lần</li>
-                        <li>Tái chế 100% phế phẩm cà phê làm phân bón</li>
-                        <li>Sử dụng năng lượng tái tạo trong cửa hàng</li>
-                    </ul>
-
-                    <h2>☕ Cà phê bền vững là gì?</h2>
-                    <p>Cà phê bền vững là cà phê được trồng và thu hoạch theo phương pháp thân thiện với môi trường, đảm bảo điều kiện lao động công bằng cho nông dân và bảo tồn đa dạng sinh học.</p>
-
-                    <div class="promo-box">
-                        <h3><i class="fas fa-leaf"></i> Ưu đãi "Xanh"</h3>
-                        <p>Mang theo ly/tách riêng, giảm 5.000đ mỗi ly!</p>
-                        <div class="promo-code-display" id="promoCode">XANH5K</div>
-                        <button class="copy-promo-btn" onclick="copyPromoCode()">
-                            <i class="fas fa-copy"></i> Sao chép mã
-                        </button>
-                    </div>
-
-                    <blockquote>
-                        "Mỗi ly cà phê bạn uống có thể thay đổi cuộc sống của một nông dân và bảo vệ một góc rừng."
-                        <br>— <strong>Moonlight Cafe</strong>
-                    </blockquote>
-                `
-            }
-        };
-
-        // Related articles
-        const relatedArticles = [
-            { id: '2', title: 'Bí quyết pha cà phê phin Việt Nam thơm ngon', image: 'https://images.unsplash.com/photo-1519082274554-1ca37b2df78d?w=400' },
-            { id: '3', title: 'Bộ sưu tập bánh ngọt Tết Bính Ngọ 2026', image: 'https://images.unsplash.com/photo-1551024601-bec78aea704b?w=400' },
-            { id: '4', title: 'Ưu đãi 20% mừng năm mới 2026', image: 'https://images.unsplash.com/photo-1461023058943-07fcbe16d735?w=400' }
-        ];
+        loadStoreInfo();
+        onAuthStateChanged(auth, user => updateMsgBadge(user ? user.uid : null));
 
         // Get article ID from URL
         const urlParams = new URLSearchParams(window.location.search);
-        const articleId = urlParams.get('id') || '1';
-        const article = articles[articleId];
+        const articleId = urlParams.get('id');
 
-        // Render article
-        function renderArticle() {
+        async function loadArticle() {
             const content = document.getElementById('articleContent');
 
-            if (!article) {
-                content.innerHTML = `
-                    <div style="text-align: center; padding: 60px 20px;">
-                        <i class="fas fa-exclamation-circle" style="font-size: 4rem; color: var(--text-muted); margin-bottom: 20px;"></i>
-                        <h2>Không tìm thấy bài viết</h2>
-                        <p style="color: var(--text-muted);">Bài viết không tồn tại hoặc đã bị xóa.</p>
-                        <a href="news.html" class="btn btn-primary" style="margin-top: 20px;">
-                            <i class="fas fa-arrow-left"></i> Quay lại tin tức
-                        </a>
-                    </div>
-                `;
+            if (!articleId) {
+                showNotFound(content);
                 return;
             }
 
-            content.innerHTML = `
-                <header class="article-header">
-                    <span class="article-category">${article.category}</span>
-                    <h1 class="article-title">${article.title}</h1>
-                    <div class="article-meta">
-                        <span><i class="fas fa-calendar"></i> ${article.date}</span>
-                        <span><i class="fas fa-user"></i> ${article.author}</span>
-                        <span><i class="fas fa-eye"></i> ${Math.floor(Math.random() * 1000) + 100} lượt xem</span>
-                    </div>
-                </header>
+            content.innerHTML = `<div style="text-align:center;padding:60px 0"><i class="fas fa-spinner fa-spin" style="font-size:2rem;color:var(--accent)"></i><p style="margin-top:12px;color:var(--text-muted)">Đang tải bài viết...</p></div>`;
 
-                <img src="${article.image}" alt="${article.title}" class="article-featured-image">
+            try {
+                const snap = await get(ref(db, `news/${articleId}`));
+                if (!snap.exists()) {
+                    showNotFound(content);
+                    return;
+                }
 
-                <div class="article-content">
-                    ${article.content}
-                </div>
-            `;
+                const article = snap.val();
+                document.title = `${article.title} - Moonlight Cafe`;
 
-            // Render related articles
-            renderRelatedArticles();
-        }
-
-        function renderRelatedArticles() {
-            const relatedSection = document.querySelector('.related-section') || createRelatedSection();
-
-            relatedSection.querySelector('.related-grid').innerHTML = relatedArticles
-                .filter(a => a.id !== articleId)
-                .map(a => `
-                    <div class="related-card" onclick="window.location.href='news-detail.html?id=${a.id}'">
-                        <img src="${a.image}" alt="${a.title}">
-                        <div class="related-card-content">
-                            <h4>${a.title}</h4>
-                            <p><i class="fas fa-arrow-right"></i> Đọc tiếp</p>
+                content.innerHTML = `
+                    <header class="article-header">
+                        <span class="article-category">${article.category || 'Tin tức'}</span>
+                        <h1 class="article-title">${article.title}</h1>
+                        <div class="article-meta">
+                            <span><i class="fas fa-calendar"></i> ${article.date || ''}</span>
+                            <span><i class="fas fa-user"></i> ${article.author || 'Admin'}</span>
                         </div>
+                    </header>
+                    ${article.image ? `<img src="${article.image}" alt="${article.title}" class="article-featured-image" onerror="this.style.display='none'">` : ''}
+                    <div class="article-content">
+                        ${article.content || '<p>Nội dung đang được cập nhật...</p>'}
                     </div>
-                `).join('');
+                `;
+
+                // Load related articles
+                loadRelatedArticles(articleId, article.category);
+            } catch (e) {
+                content.innerHTML = `<div style="text-align:center;padding:60px 0;color:#ef4444">
+                    <i class="fas fa-exclamation-triangle" style="font-size:2rem;margin-bottom:12px"></i>
+                    <p>Lỗi tải bài viết: ${e.message}</p>
+                    <a href="news.html" class="btn btn-primary" style="margin-top:20px"><i class="fas fa-arrow-left"></i> Quay lại tin tức</a>
+                </div>`;
+            }
         }
 
-        function createRelatedSection() {
-            const section = document.createElement('div');
-            section.className = 'related-section';
-            section.innerHTML = `
-                <h3 class="related-title"><i class="fas fa-newspaper"></i> Bài viết liên quan</h3>
-                <div class="related-grid"></div>
-            `;
-            document.querySelector('.article-container').appendChild(section);
-            return section;
+        function showNotFound(content) {
+            content.innerHTML = `
+                <div style="text-align:center;padding:60px 20px;">
+                    <i class="fas fa-exclamation-circle" style="font-size:4rem;color:var(--text-muted);margin-bottom:20px;display:block"></i>
+                    <h2>Không tìm thấy bài viết</h2>
+                    <p style="color:var(--text-muted)">Bài viết không tồn tại hoặc đã bị xóa.</p>
+                    <a href="news.html" class="btn btn-primary" style="margin-top:20px;display:inline-block;padding:12px 24px;background:var(--accent);color:var(--text-dark);border-radius:8px;text-decoration:none;font-weight:600">
+                        <i class="fas fa-arrow-left"></i> Quay lại tin tức
+                    </a>
+                </div>`;
+        }
+
+        async function loadRelatedArticles(currentId, currentCategory) {
+            try {
+                const snap = await get(ref(db, 'news'));
+                if (!snap.exists()) return;
+
+                const related = [];
+                snap.forEach(c => {
+                    if (c.key !== currentId) {
+                        const d = c.val();
+                        if (d.status === 'published') {
+                            related.push({ id: c.key, ...d });
+                        }
+                    }
+                });
+
+                // Prioritize same category, then sort by date
+                related.sort((a, b) => {
+                    if (a.category === currentCategory && b.category !== currentCategory) return -1;
+                    if (b.category === currentCategory && a.category !== currentCategory) return 1;
+                    return (b.createdAt || 0) - (a.createdAt || 0);
+                });
+
+                const top3 = related.slice(0, 3);
+                if (top3.length === 0) return;
+
+                const noImg = 'data:image/svg+xml;charset=UTF-8,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22150%22%3E%3Crect fill=%22%23333%22 width=%22400%22 height=%22150%22/%3E%3Ctext fill=%22%23888%22 font-family=%22sans-serif%22 font-size=%2214%22 x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22%3ENo Image%3C/text%3E%3C/svg%3E';
+
+                const section = document.createElement('div');
+                section.className = 'related-section';
+                section.innerHTML = `
+                    <h3 class="related-title"><i class="fas fa-newspaper"></i> Bài viết liên quan</h3>
+                    <div class="related-grid">
+                        ${top3.map(a => `
+                            <div class="related-card" onclick="window.location.href='news-detail.html?id=${a.id}'">
+                                <img src="${a.image || noImg}" alt="${a.title}" onerror="this.src='${noImg}'">
+                                <div class="related-card-content">
+                                    <h4>${a.title}</h4>
+                                    <p><i class="fas fa-arrow-right"></i> Đọc tiếp</p>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+                document.querySelector('.article-container').appendChild(section);
+            } catch (e) {
+                console.warn('Could not load related articles:', e);
+            }
         }
 
         // Copy promo code
-        window.copyPromoCode = function() {
-            const promoCode = document.getElementById('promoCode').textContent;
-            navigator.clipboard.writeText(promoCode).then(() => {
+        window.copyPromoCode = function () {
+            const promoCode = document.getElementById('promoCode');
+            if (!promoCode) return;
+            navigator.clipboard.writeText(promoCode.textContent).then(() => {
                 Swal.fire({
                     icon: 'success',
                     title: 'Đã sao chép!',
-                    text: `Mã ${promoCode} đã được sao chép`,
+                    text: `Mã ${promoCode.textContent} đã được sao chép`,
                     timer: 1500,
                     showConfirmButton: false
                 });
             });
         };
-
-        // Update cart count
-        // Update cart count — khởi tạo 0, nav-helper sẽ cập nhật sau khi auth giải quyết
-        function updateCartCount() {
-            document.getElementById('cartCount').textContent = 0;
-        }
 
         // Initialize
         window.addEventListener('load', () => {
@@ -775,14 +536,8 @@
             header.classList.toggle('scrolled', window.scrollY > 50);
         });
 
-        renderArticle();
-        updateCartCount();
-    </script>
-    <script type="module">
-        import { updateMsgBadge, loadStoreInfo } from './js/nav-helper.js';
-        loadStoreInfo();
-        import { auth, onAuthStateChanged } from './js/firebase-config.js';
-        onAuthStateChanged(auth, user => updateMsgBadge(user ? user.uid : null));
+        document.getElementById('cartCount').textContent = 0;
+        loadArticle();
     </script>
 </body>
 

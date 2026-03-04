@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kết quả thanh toán VNPAY - Moonlight Cafe</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/mobile.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        .result-wrap { min-height: 70vh; display: flex; align-items: center; justify-content: center; padding: 40px 20px; }
+        .result-card { max-width: 620px; width: 100%; background: var(--bg-card); border-radius: var(--radius-md); padding: 28px; text-align: center; }
+        .result-icon { font-size: 3rem; margin-bottom: 12px; }
+        .result-meta { margin: 18px 0; text-align: left; background: var(--primary-light); border-radius: 10px; padding: 14px; }
+        .result-meta p { margin: 8px 0; color: var(--text-secondary); }
+        .result-actions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 18px; }
+    </style>
+</head>
+
+<body>
+    <div class="result-wrap">
+        <div class="result-card" id="resultCard">
+            <div class="result-icon" style="color: var(--accent);"><i class="fas fa-spinner fa-spin"></i></div>
+            <h2>Đang xử lý kết quả thanh toán...</h2>
+            <p style="color: var(--text-muted); margin-top: 8px;">Vui lòng chờ trong giây lát.</p>
+        </div>
+    </div>
+
+    <script type="module">
+        import { auth, db, ref, update, get, set, onAuthStateChanged } from './js/firebase-config.js';
+        const isLocalHost = /^(localhost|127\.0\.0\.1)$/i.test(window.location.hostname);
+        const defaultVnpayApiBase = isLocalHost
+            ? 'http://localhost:8787'
+            : `${window.location.origin}/.netlify/functions`;
+        const VNPAY_API_BASE = localStorage.getItem('moonlight_vnpay_api_base') || defaultVnpayApiBase;
+
+        function getQuery() {
+            return new URLSearchParams(window.location.search);
+        }
+
+        function fmtMoney(amount) {
+            return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount || 0);
+        }
+
+        async function handleReturn() {
+            const card = document.getElementById('resultCard');
+            const q = getQuery();
+
+            const orderId = q.get('vnp_TxnRef');
+            const responseCode = q.get('vnp_ResponseCode');
+            const transactionNo = q.get('vnp_TransactionNo');
+            const txnAmount = Number(q.get('vnp_Amount') || 0) / 100;
+            const bankCode = q.get('vnp_BankCode') || '';
+            const payDate = q.get('vnp_PayDate') || '';
+
+            let verified = false;
+            try {
+                const verifyResp = await fetch(`${VNPAY_API_BASE}/vnpay-verify-return${window.location.search}`);
+                if (verifyResp.ok) {
+                    const verifyData = await verifyResp.json();
+                    verified = !!verifyData?.verified;
+                }
+            } catch (_) {}
+
+            if (!orderId) {
+                card.innerHTML = `
+                    <div class="result-icon" style="color:#ef4444"><i class="fas fa-times-circle"></i></div>
+                    <h2>Thiếu thông tin giao dịch</h2>
+                    <p style="color:var(--text-muted)">Không tìm thấy mã đơn hàng trong URL trả về từ VNPAY.</p>
+                    <div class="result-actions">
+                        <a href="checkout.html" class="btn btn-primary"><i class="fas fa-arrow-left"></i> Quay lại thanh toán</a>
+                    </div>
+                `;
+                return;
+            }
+
+            const isSuccess = responseCode === '00' && verified;
+            let promoIdToIncrement = null;
+            let shouldIncrementPromo = false;
+            try {
+                const orderSnap = await get(ref(db, `orders/${orderId}`));
+                if (orderSnap.exists()) {
+                    const orderData = orderSnap.val();
+                    promoIdToIncrement = orderData?.promoId || null;
+                    shouldIncrementPromo = !!promoIdToIncrement && !orderData?.promoUsageIncremented;
+                }
+            } catch (_) {}
+            const orderUpdate = isSuccess
+                ? {
+                    status: 'pending',
+                    paymentStatus: 'paid',
+                    paidAt: Date.now(),
+                    paymentGateway: 'vnpay',
+                    vnpTransactionNo: transactionNo || null,
+                    vnpResponseCode: responseCode || null,
+                    vnpBankCode: bankCode || null,
+                    vnpPayDate: payDate || null
+                }
+                : {
+                    status: 'awaiting_payment',
+                    paymentStatus: 'failed',
+                    paymentGateway: 'vnpay',
+                    vnpTransactionNo: transactionNo || null,
+                    vnpResponseCode: responseCode || null,
+                    vnpBankCode: bankCode || null,
+                    vnpPayDate: payDate || null
+                };
+
+            try {
+                await update(ref(db, `orders/${orderId}`), orderUpdate);
+            } catch (e) {
+                console.error('Update order payment status error:', e);
+            }
+
+            if (isSuccess && shouldIncrementPromo && promoIdToIncrement) {
+                try {
+                    const usageSnap = await get(ref(db, `promotions/${promoIdToIncrement}/usageCount`));
+                    const currentUsage = usageSnap.exists() ? Number(usageSnap.val() || 0) : 0;
+                    await set(ref(db, `promotions/${promoIdToIncrement}/usageCount`), currentUsage + 1);
+                    await update(ref(db, `orders/${orderId}`), { promoUsageIncremented: true });
+                } catch (e) {
+                    console.warn('Increment promo usage after VNPAY success failed:', e);
+                }
+            }
+
+            try {
+                const raw = localStorage.getItem('moonlight_last_order');
+                if (raw) {
+                    const data = JSON.parse(raw);
+                    if (data.id === orderId) {
+                        data.status = orderUpdate.status;
+                        data.paymentStatus = orderUpdate.paymentStatus;
+                        data.vnpTransactionNo = transactionNo || null;
+                        localStorage.setItem('moonlight_last_order', JSON.stringify(data));
+                    }
+                }
+            } catch (_) {}
+
+            onAuthStateChanged(auth, (user) => {
+                if (isSuccess && user?.uid) {
+                    localStorage.removeItem(`moonlight_cart_${user.uid}`);
+                }
+            });
+
+            if (isSuccess) {
+                card.innerHTML = `
+                    <div class="result-icon" style="color:#10b981"><i class="fas fa-check-circle"></i></div>
+                    <h2>Thanh toán VNPAY thành công</h2>
+                    <p style="color:var(--text-muted)">Đơn hàng đã được ghi nhận và chuyển sang trạng thái chờ xác nhận.</p>
+                    <div class="result-meta">
+                        <p><strong>Mã đơn:</strong> #${orderId.slice(-8).toUpperCase()}</p>
+                        <p><strong>Số tiền:</strong> ${fmtMoney(txnAmount)}</p>
+                        <p><strong>Mã giao dịch VNPAY:</strong> ${transactionNo || '---'}</p>
+                        <p><strong>Ngân hàng:</strong> ${bankCode || '---'}</p>
+                    </div>
+                    <div class="result-actions">
+                        <a href="order-success.html" class="btn btn-primary"><i class="fas fa-receipt"></i> Xem đơn hàng</a>
+                        <a href="orders.html" class="btn btn-outline"><i class="fas fa-list"></i> Lịch sử đơn</a>
+                    </div>
+                `;
+                return;
+            }
+
+            card.innerHTML = `
+                <div class="result-icon" style="color:#f59e0b"><i class="fas fa-exclamation-circle"></i></div>
+                <h2>Thanh toán chưa thành công</h2>
+                <p style="color:var(--text-muted)">
+                    ${!verified
+                        ? 'Không xác thực được chữ ký trả về từ VNPAY.'
+                        : `VNPAY trả về mã lỗi: <strong>${responseCode || 'N/A'}</strong>.`}
+                </p>
+                <div class="result-meta">
+                    <p><strong>Mã đơn:</strong> #${orderId.slice(-8).toUpperCase()}</p>
+                    <p><strong>Số tiền:</strong> ${fmtMoney(txnAmount)}</p>
+                    <p><strong>Mã giao dịch VNPAY:</strong> ${transactionNo || '---'}</p>
+                </div>
+                <div class="result-actions">
+                    <a href="checkout.html" class="btn btn-primary"><i class="fas fa-redo"></i> Thanh toán lại</a>
+                    <a href="order-success.html" class="btn btn-outline"><i class="fas fa-receipt"></i> Xem đơn hàng</a>
+                </div>
+            `;
+        }
+
+        handleReturn();
+    </script>
+</body>
+
+</html>

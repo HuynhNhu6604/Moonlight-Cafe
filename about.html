@@ -75,14 +75,18 @@
 
         .values-grid {
             display: grid !important;
-            grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
-            gap: 20px;
+            grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+            gap: 30px;
             margin-top: 50px;
+            max-width: 900px;
+            margin-left: auto;
+            margin-right: auto;
         }
 
         @media (max-width: 800px) {
             .values-grid {
                 grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+                max-width: 100%;
             }
         }
 

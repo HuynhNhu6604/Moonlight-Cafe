@@ -536,6 +536,17 @@
                                 </div>
                             </label>
 
+                            <label class="payment-method">
+                                <input type="radio" name="payment" value="vnpay">
+                                <div class="payment-method-icon" style="background: #005baa; color: white;">
+                                    <i class="fas fa-qrcode"></i>
+                                </div>
+                                <div class="payment-method-info">
+                                    <h4>VNPAY QR (Sandbox)</h4>
+                                    <p>Thanh toán online qua Cổng VNPAY</p>
+                                </div>
+                            </label>
+
                             <!-- MoMo Details -->
                             <div id="momoDetails" class="payment-details"
                                 style="display: none; margin-top: 15px; padding: 20px; background: var(--primary-light); border-radius: var(--radius-sm);">
@@ -547,6 +558,18 @@
                                     <p><strong>Nội dung:</strong> THANHTOAN [Mã đơn hàng]</p>
                                     <p style="color: #ae2070; font-size: 0.9rem;"><i class="fas fa-star"></i> Sau khi
                                         chuyển khoản, vui lòng gửi screenshot qua Zalo của shop để xác nhận</p>
+                                </div>
+                            </div>
+
+                            <!-- VNPAY Details -->
+                            <div id="vnpayDetails" class="payment-details"
+                                style="display: none; margin-top: 15px; padding: 20px; background: var(--primary-light); border-radius: var(--radius-sm);">
+                                <h4 style="color: #005baa; margin-bottom: 15px;"><i class="fas fa-shield-alt"></i>
+                                    Thanh toán VNPAY</h4>
+                                <div style="display: grid; gap: 10px;">
+                                    <p><strong>Môi trường:</strong> Sandbox VNPAY</p>
+                                    <p><strong>Lưu ý:</strong> Sau khi bấm "Đặt hàng", hệ thống sẽ chuyển sang cổng VNPAY để thanh toán.</p>
+                                    <p style="color: #005baa; font-size: 0.9rem;"><i class="fas fa-info-circle"></i> Đơn hàng sẽ ở trạng thái chờ thanh toán cho đến khi VNPAY trả kết quả.</p>
                                 </div>
                             </div>
                         </div>
@@ -610,6 +633,12 @@
 
         let currentUser = null;
         let isGuest = false;
+        const isLocalHost = /^(localhost|127\.0\.0\.1)$/i.test(window.location.hostname);
+        const defaultVnpayApiBase = isLocalHost
+            ? 'http://localhost:8787'
+            : `${window.location.origin}/.netlify/functions`;
+        const VNPAY_API_BASE = localStorage.getItem('moonlight_vnpay_api_base') || defaultVnpayApiBase;
+        const VNPAY_CREATE_URL_API = `${VNPAY_API_BASE}/vnpay-create-payment-url`;
 
         // Check login required
         function requireLogin() {
@@ -877,8 +906,53 @@
                 const paymentValue = method.querySelector('input').value;
                 document.getElementById('bankingDetails').style.display = paymentValue === 'banking' ? 'block' : 'none';
                 document.getElementById('momoDetails').style.display = paymentValue === 'momo' ? 'block' : 'none';
+                document.getElementById('vnpayDetails').style.display = paymentValue === 'vnpay' ? 'block' : 'none';
             });
         });
+
+        async function createVnpayPaymentUrl(orderId, totalAmount) {
+            const payload = {
+                orderId,
+                amount: totalAmount,
+                orderInfo: `Thanh toan don ${orderId}`,
+                returnUrl: `${window.location.origin}${window.location.pathname.replace('checkout.html', 'vnpay-return.html')}`,
+                locale: 'vn',
+                bankCode: ''
+            };
+
+            const resp = await fetch(VNPAY_CREATE_URL_API, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            if (!resp.ok) {
+                throw new Error('Không tạo được link thanh toán VNPAY. Vui lòng kiểm tra API server.');
+            }
+            const data = await resp.json();
+            if (!data || !data.paymentUrl) {
+                throw new Error('API VNPAY trả về không hợp lệ.');
+            }
+            return data.paymentUrl;
+        }
+
+        function saveLastOrder(orderId, orderData) {
+            const orderSummary = {
+                id: orderId,
+                customer: orderData.customer,
+                items: orderData.items,
+                subtotal: orderData.subtotal,
+                shipping: orderData.shipping,
+                discount: orderData.discount,
+                promoCode: orderData.promoCode,
+                total: orderData.total,
+                payment: orderData.payment,
+                paymentStatus: orderData.paymentStatus || 'unpaid',
+                status: orderData.status,
+                createdAt: orderData.createdAt
+            };
+            localStorage.setItem('moonlight_last_order', JSON.stringify(orderSummary));
+            return orderSummary;
+        }
 
         // Place order
         document.getElementById('placeOrderBtn').addEventListener('click', async () => {
@@ -930,10 +1004,12 @@
                 shipping,
                 discount,
                 promoCode: appliedPromo ? appliedPromo.code : null,
+                promoId: appliedPromo ? appliedPromo.id : null,
                 total,
                 payment,
                 note,
-                status: 'pending',
+                status: payment === 'vnpay' ? 'awaiting_payment' : 'pending',
+                paymentStatus: payment === 'vnpay' ? 'pending' : 'unpaid',
                 createdAt: Date.now(),
                 userId: currentUser ? currentUser.uid : null
             };
@@ -953,7 +1029,7 @@
                 await set(newOrderRef, orderData);
 
                 // Increment promo usageCount
-                if (appliedPromo) {
+                if (appliedPromo && payment !== 'vnpay') {
                     try {
                         const snap = await get(ref(db, `promotions/${appliedPromo.id}/usageCount`));
                         const current = snap.exists() ? (snap.val() || 0) : 0;
@@ -963,25 +1039,29 @@
                 }
 
                 // Save order to localStorage for order-success page
-                const orderSummary = {
-                    id: newOrderRef.key,
-                    customer: orderData.customer,
-                    items: orderData.items,
-                    subtotal: orderData.subtotal,
-                    shipping: orderData.shipping,
-                    discount: orderData.discount,
-                    promoCode: orderData.promoCode,
-                    total: orderData.total,
-                    payment: orderData.payment,
-                    status: orderData.status,
-                    createdAt: orderData.createdAt
-                };
-
-                // Lưu vào localStorage TRƯỚC KHI chuyển trang
-                localStorage.setItem('moonlight_last_order', JSON.stringify(orderSummary));
+                const orderSummary = saveLastOrder(newOrderRef.key, orderData);
 
                 // Debug: Log để kiểm tra
                 console.log('Order saved:', orderSummary);
+
+                // Với VNPAY: chuyển sang cổng thanh toán
+                if (payment === 'vnpay') {
+                    try {
+                        const paymentUrl = await createVnpayPaymentUrl(newOrderRef.key, total);
+                        Swal.close();
+                        window.location.href = paymentUrl;
+                        return;
+                    } catch (vnpErr) {
+                        console.error('VNPAY create URL error:', vnpErr);
+                        await Swal.fire({
+                            icon: 'error',
+                            title: 'Không khởi tạo được thanh toán VNPAY',
+                            text: vnpErr.message,
+                            footer: 'Nếu chạy Live Server, hãy bật local API: node scripts/vnpay-server.js'
+                        });
+                        return;
+                    }
+                }
 
                 // Clear cart theo user
                 const cartUser = auth.currentUser;

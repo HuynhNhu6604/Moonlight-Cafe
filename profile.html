@@ -785,6 +785,11 @@
                                 <i class="fas fa-calendar-check"></i>
                                 <span>Đặt bàn</span>
                             </div>
+                            <div class="profile-menu-item" data-tab="inbox">
+                                <i class="fas fa-envelope"></i>
+                                <span>Hộp thư</span>
+                                <span id="inboxBadge" style="display:none;margin-left:auto;min-width:20px;height:20px;border-radius:50%;background:#e53e3e;color:#fff;font-size:.7rem;font-weight:700;align-items:center;justify-content:center">0</span>
+                            </div>
                             <div class="profile-menu-item" data-tab="password">
                                 <i class="fas fa-lock"></i>
                                 <span>Đổi mật khẩu</span>
@@ -914,6 +919,28 @@
                                     <small>Đặt bàn để đảm bảo chỗ ngồi lý tưởng!</small>
                                 </div>
                                 <div id="profileResWrap" style="display:none;flex-direction:column;gap:14px"></div>
+                            </div>
+                        </div>
+
+                        <!-- Inbox Tab -->
+                        <div class="profile-tab" id="inboxTab">
+                            <h3 class="profile-section-title">
+                                <i class="fas fa-envelope"></i>
+                                Hộp thư thông báo
+                            </h3>
+                            <div style="padding:24px">
+                                <div style="margin-bottom:16px;display:flex;gap:8px;flex-wrap:wrap">
+                                    <button class="btn btn-sm" style="background:transparent;border:1px solid rgba(255,255,255,.15)" onclick="loadInboxNotifications()"><i class="fas fa-sync-alt"></i> Làm mới</button>
+                                    <button class="btn btn-sm" style="background:transparent;border:1px solid rgba(229,62,62,.3);color:#e53e3e" onclick="clearAllInbox()"><i class="fas fa-trash-alt"></i> Xóa tất cả</button>
+                                </div>
+                                <div id="inboxLoading" style="text-align:center;padding:40px;color:var(--text-muted)">
+                                    <i class="fas fa-spinner fa-spin" style="font-size:1.5rem;color:var(--accent)"></i>
+                                </div>
+                                <div id="inboxEmpty" style="display:none;text-align:center;padding:40px;color:var(--text-muted)">
+                                    <i class="fas fa-inbox" style="font-size:2.5rem;color:var(--accent);opacity:.4;display:block;margin-bottom:12px"></i>
+                                    <p>Không có thông báo nào.</p>
+                                </div>
+                                <div id="inboxWrap" style="display:none;flex-direction:column;gap:12px"></div>
                             </div>
                         </div>
 
@@ -1539,12 +1566,26 @@
             const map = {
                 pending:   { color: '#ffc107', label: 'Chờ xác nhận' },
                 confirmed: { color: '#4caf50', label: 'Đã xác nhận'  },
+                deposited: { color: '#4caf50', label: 'Đã cọc'       },
+                'checked-in': { color: '#e53e3e', label: 'Đã nhận khách' },
                 rejected:  { color: '#e53e3e', label: 'Từ chối'      },
                 completed: { color: '#64b5f6', label: 'Hoàn thành'   },
                 'no-show': { color: '#bbb',    label: 'Không đến'    }
             };
             const s = map[status] || { color: '#bbb', label: status };
             return `<span style="padding:4px 12px;border-radius:20px;background:${s.color}22;color:${s.color};font-size:.78rem;font-weight:600">${s.label}</span>`;
+        }
+
+        // Helper: tính time range từ đơn đặt bàn (multi-slot backward-compat)
+        function _getResTimeRange(r) {
+            const slots = r.timeSlots || (r.time ? [r.time] : []);
+            if (!slots.length) return { first:'', last:'', endTime:'', label:'–', slots:[] };
+            const first = slots[0];
+            const last  = slots[slots.length - 1];
+            const [lh,lm] = last.split(':');
+            const endTime = String(+lh + 1).padStart(2,'0') + ':' + lm;
+            const label = slots.length === 1 ? first + ' – ' + endTime : first + ' – ' + endTime + ' (' + slots.length + ' giờ)';
+            return { first, last, endTime, label, slots };
         }
 
         async function loadProfileReservations(uid) {
@@ -1566,6 +1607,8 @@
                 // Update notification banner
                 const actionNeeded = rows.filter(r =>
                     (r.status === 'confirmed' && !r.notificationRead) ||
+                    (r.status === 'deposited' && !r.notificationRead)  ||
+                    (r.status === 'checked-in' && !r.notificationRead) ||
                     (r.status === 'negotiating' && !r.userResponse)   ||
                     (r.status === 'rejected'    && !r.notificationRead)
                 );
@@ -1574,7 +1617,9 @@
                 if (banner && actionNeeded.length > 0) {
                     banner.style.display = 'block';
                     const msgs = actionNeeded.map(r => {
-                        if (r.status === 'confirmed') return '🎉 Bàn ngày <strong>'+r.date+' '+r.time+'</strong> đã được xác nhận!';
+                        if (r.status === 'confirmed') return '🎉 Bàn ngày <strong>'+r.date+' '+_getResTimeRange(r).label+'</strong> đã được xác nhận!';
+                        if (r.status === 'deposited') { const tables = (r.assignedTableIds||[]).join(', ')||'–'; return '✅ Đã xác nhận cọc — Bàn <strong>'+tables+'</strong> ngày <strong>'+r.date+' '+_getResTimeRange(r).label+'</strong>'; }
+                        if (r.status === 'checked-in') { const tables = (r.assignedTableIds||[]).join(', ')||'–'; return '🔥 Đã nhận khách — Bàn <strong>'+tables+'</strong> đang phục vụ'; }
                         if (r.status === 'negotiating') return '💬 Admin đề xuất bàn thay thế cho đặt bàn ngày <strong>'+r.date+'</strong>.';
                         if (r.status === 'rejected') return '❌ Đặt bàn ngày <strong>'+r.date+'</strong> không thể thực hiện.';
                     });
@@ -1584,6 +1629,8 @@
                 const statusMap = {
                     pending:     { cls:'#ffc107', label:'Chờ xác nhận', icon:'fa-clock' },
                     confirmed:   { cls:'#4caf50', label:'Đã xác nhận',  icon:'fa-check-circle' },
+                    deposited:   { cls:'#4caf50', label:'Đã cọc',       icon:'fa-coins' },
+                    'checked-in':{ cls:'#e53e3e', label:'Đã nhận khách',icon:'fa-fire' },
                     rejected:    { cls:'#e57373', label:'Từ chối',       icon:'fa-times-circle' },
                     negotiating: { cls:'#f59e0b', label:'Đề xuất thay', icon:'fa-exchange-alt' },
                     agreed:      { cls:'#4caf50', label:'Đã đồng ý',    icon:'fa-handshake' },
@@ -1609,8 +1656,28 @@
                         const tables = (r.assignedTableIds||[]).join(', ')||'(pending)';
                         notifHTML = `<div style="margin-top:12px;padding:12px;background:rgba(76,175,80,.1);border:1px solid rgba(76,175,80,.3);border-radius:8px;font-size:.85rem">
                             <div style="color:#4caf50;font-weight:600;margin-bottom:6px"><i class="fas fa-bell"></i> Đặt bàn đã xác nhận!</div>
-                            <p>🎉 Mã bàn: <strong>${tables}</strong> · Ngày: <strong>${r.date} ${r.time}</strong></p>
+                            <p>🎉 Mã bàn: <strong>${tables}</strong> · Ngày: <strong>${r.date} ${_getResTimeRange(r).label}</strong></p>
                             ${r.adminNote?`<p>📝 ${r.adminNote}</p>`:''}
+                            <button style="margin-top:8px;padding:6px 14px;border-radius:6px;border:1.5px solid rgba(212,165,116,.5);background:transparent;color:var(--accent);cursor:pointer;font-size:.82rem" onclick="profileMarkRead('${r.id}')">Đã xem</button>
+                        </div>`;
+                    }
+                    if (r.status==='deposited' && !r.notificationRead) {
+                        const tables = (r.assignedTableIds||[]).join(', ')||'–';
+                        const trr = _getResTimeRange(r);
+                        notifHTML = `<div style="margin-top:12px;padding:12px;background:rgba(76,175,80,.1);border:1px solid rgba(76,175,80,.3);border-radius:8px;font-size:.85rem">
+                            <div style="color:#4caf50;font-weight:600;margin-bottom:6px"><i class="fas fa-coins"></i> Đặt bàn thành công!</div>
+                            <p>✅ Mã bàn: <strong style="color:var(--accent)">${tables}</strong></p>
+                            <p>📅 Ngày nhận bàn: <strong>${r.date}</strong> · ⏰ Giờ: <strong>${trr.label}</strong></p>
+                            <p style="color:#4caf50"><i class="fas fa-check-circle"></i> Tiền cọc đã được xác nhận. Vui lòng đến đúng giờ!</p>
+                            <button style="margin-top:8px;padding:6px 14px;border-radius:6px;border:1.5px solid rgba(212,165,116,.5);background:transparent;color:var(--accent);cursor:pointer;font-size:.82rem" onclick="profileMarkRead('${r.id}')">Đã xem</button>
+                        </div>`;
+                    }
+                    if (r.status==='checked-in' && !r.notificationRead) {
+                        const tables = (r.assignedTableIds||[]).join(', ')||'–';
+                        notifHTML = `<div style="margin-top:12px;padding:12px;background:rgba(229,62,62,.08);border:1px solid rgba(229,62,62,.3);border-radius:8px;font-size:.85rem">
+                            <div style="color:#e53e3e;font-weight:600;margin-bottom:6px"><i class="fas fa-fire"></i> Đã nhận khách!</div>
+                            <p>🔥 Bàn <strong style="color:var(--accent)">${tables}</strong> đang phục vụ</p>
+                            <p style="color:#e53e3e">Chúc bạn có trải nghiệm tuyệt vời tại Moonlight Cafe!</p>
                             <button style="margin-top:8px;padding:6px 14px;border-radius:6px;border:1.5px solid rgba(212,165,116,.5);background:transparent;color:var(--accent);cursor:pointer;font-size:.82rem" onclick="profileMarkRead('${r.id}')">Đã xem</button>
                         </div>`;
                     }
@@ -1662,7 +1729,7 @@
                         </div>
                         <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px;font-size:.85rem">
                             <div><span style="color:var(--text-muted);font-size:.72rem;display:block">Ngày</span><strong>${r.date||'–'}</strong></div>
-                            <div><span style="color:var(--text-muted);font-size:.72rem;display:block">Giờ</span><strong>${r.time||'–'}</strong></div>
+                            <div><span style="color:var(--text-muted);font-size:.72rem;display:block">Giờ</span><strong>${_getResTimeRange(r).label}</strong></div>
                             <div><span style="color:var(--text-muted);font-size:.72rem;display:block">Loại bàn</span><strong>${r.tableType?'Bàn '+r.tableType+' người':'–'}</strong></div>
                             <div><span style="color:var(--text-muted);font-size:.72rem;display:block">Số bàn</span><strong>${r.tableCount||1}</strong></div>
                             <div><span style="color:var(--text-muted);font-size:.72rem;display:block">Phí cọc</span><strong style="color:var(--accent)">${dep}</strong></div>
@@ -1708,6 +1775,102 @@
             if (currentUser) loadProfileReservations(currentUser.uid);
         };
 
+        // ============================================================
+        // Inbox Notifications — đọc từ users/{uid}/notifications
+        // ============================================================
+        async function loadInboxNotifications() {
+            if (!currentUser) return;
+            const loading = document.getElementById('inboxLoading');
+            const empty   = document.getElementById('inboxEmpty');
+            const wrap    = document.getElementById('inboxWrap');
+            if (!loading) return;
+            loading.style.display = 'block';
+            empty.style.display = 'none';
+            wrap.style.display = 'none';
+
+            try {
+                const snap = await get(ref(db, 'users/' + currentUser.uid + '/notifications'));
+                loading.style.display = 'none';
+                if (!snap.exists()) { empty.style.display = 'block'; updateInboxBadge(0); return; }
+
+                const items = [];
+                snap.forEach(c => { items.push({ id: c.key, ...c.val() }); });
+                items.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+
+                const unread = items.filter(n => !n.read).length;
+                updateInboxBadge(unread);
+
+                if (items.length === 0) { empty.style.display = 'block'; return; }
+
+                const iconMap = {
+                    'reservation-deposited': { icon: 'fa-coins',       color: '#4caf50', bg: 'rgba(76,175,80,.08)' },
+                    'reservation-checkedin': { icon: 'fa-fire',        color: '#e53e3e', bg: 'rgba(229,62,62,.06)' },
+                    'reservation-completed': { icon: 'fa-flag-checkered', color: '#64b5f6', bg: 'rgba(100,181,246,.08)' },
+                    'reservation-rejected':  { icon: 'fa-times-circle', color: '#e57373', bg: 'rgba(229,62,62,.06)' },
+                    'general':               { icon: 'fa-bell',        color: '#f59e0b', bg: 'rgba(245,158,11,.06)' },
+                };
+
+                wrap.innerHTML = items.map(n => {
+                    const cfg = iconMap[n.type] || iconMap['general'];
+                    const timeStr = n.createdAt ? new Date(n.createdAt).toLocaleString('vi-VN') : '';
+                    const readStyle = n.read ? 'opacity:.6' : 'border-left:3px solid var(--accent)';
+                    return `<div style="background:${cfg.bg};border:1px solid ${cfg.color}33;border-radius:10px;padding:14px 18px;${readStyle};transition:.2s">
+                        <div style="display:flex;align-items:flex-start;gap:12px">
+                            <div style="width:36px;height:36px;border-radius:50%;background:${cfg.color}20;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                                <i class="fas ${cfg.icon}" style="color:${cfg.color};font-size:.9rem"></i>
+                            </div>
+                            <div style="flex:1;min-width:0">
+                                <div style="font-weight:600;font-size:.88rem;margin-bottom:4px;color:${cfg.color}">${n.title || 'Thông báo'}</div>
+                                <div style="font-size:.82rem;line-height:1.6;color:var(--text-secondary)">${n.body || ''}</div>
+                                <div style="font-size:.72rem;color:var(--text-muted);margin-top:6px;display:flex;align-items:center;gap:10px">
+                                    <span><i class="fas fa-clock"></i> ${timeStr}</span>
+                                    ${!n.read ? `<button style="padding:3px 10px;border-radius:4px;border:1px solid rgba(212,165,116,.4);background:transparent;color:var(--accent);cursor:pointer;font-size:.72rem" onclick="markInboxRead('${n.id}')">Đã xem</button>` : '<span style="color:#4caf50"><i class="fas fa-check"></i> Đã đọc</span>'}
+                                </div>
+                            </div>
+                        </div>
+                    </div>`;
+                }).join('');
+                wrap.style.display = 'flex';
+            } catch(err) {
+                console.error('loadInboxNotifications error:', err);
+                loading.style.display = 'none';
+                empty.style.display = 'block';
+            }
+        }
+        window.loadInboxNotifications = loadInboxNotifications;
+
+        window.markInboxRead = async function(notifId) {
+            if (!currentUser) return;
+            try {
+                await update(ref(db, 'users/' + currentUser.uid + '/notifications/' + notifId), { read: true });
+                loadInboxNotifications();
+            } catch(e) { console.error('markInboxRead:', e); }
+        };
+
+        window.clearAllInbox = async function() {
+            if (!currentUser) return;
+            const { isConfirmed } = await Swal.fire({
+                icon: 'warning', title: 'Xóa tất cả thông báo?',
+                text: 'Hành động này không thể hoàn tác.',
+                showCancelButton: true, confirmButtonText: 'Xóa hết', cancelButtonText: 'Hủy',
+                confirmButtonColor: '#e53e3e'
+            });
+            if (!isConfirmed) return;
+            try {
+                const { remove: fbRemove } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js');
+                await fbRemove(ref(db, 'users/' + currentUser.uid + '/notifications'));
+                loadInboxNotifications();
+                Swal.fire({ icon: 'success', title: 'Đã xóa!', timer: 1200, showConfirmButton: false });
+            } catch(e) { console.error('clearAllInbox:', e); Swal.fire({ icon: 'error', title: 'Lỗi', text: e.message }); }
+        };
+
+        function updateInboxBadge(count) {
+            const badge = document.getElementById('inboxBadge');
+            if (!badge) return;
+            badge.textContent = count;
+            badge.style.display = count > 0 ? 'flex' : 'none';
+        }
+
         // Initialize
         onAuthStateChanged(auth, (user) => {
             setTimeout(() => {
@@ -1749,6 +1912,9 @@
 
                 // Load reservation history
                 loadProfileReservations(user.uid);
+
+                // Load inbox notifications
+                loadInboxNotifications();
             } else {
                 // Demo mode - use sample data
                 currentUser = {

@@ -781,10 +781,22 @@
                 const paymentMethods = {
                     'cod': { name: 'Thanh toán khi nhận hàng', icon: 'fa-money-bill-wave', class: 'cod' },
                     'banking': { name: 'Chuyển khoản ngân hàng', icon: 'fa-university', class: 'bank' },
-                    'momo': { name: 'Ví MoMo', icon: 'fa-wallet', class: 'momo' }
+                    'momo': { name: 'Ví MoMo', icon: 'fa-wallet', class: 'momo' },
+                    'vnpay': { name: 'VNPAY QR', icon: 'fa-qrcode', class: 'bank' }
                 };
                 const payment = paymentMethods[currentOrder.payment] || paymentMethods.cod;
                 document.getElementById('paymentMethod').textContent = payment.name;
+
+                const statusEl = document.getElementById('orderStatus');
+                const statusMap = {
+                    pending: { text: 'Chờ xác nhận', color: 'var(--warning)' },
+                    awaiting_payment: { text: 'Chờ thanh toán', color: '#f59e0b' },
+                    confirmed: { text: 'Đã xác nhận', color: '#10b981' },
+                    cancelled: { text: 'Đã hủy', color: '#ef4444' }
+                };
+                const s = statusMap[currentOrder.status] || statusMap.pending;
+                statusEl.textContent = s.text;
+                statusEl.style.color = s.color;
 
                 // Render items
                 if (currentOrder.items && currentOrder.items.length > 0) {
@@ -914,6 +926,21 @@
                         });
                     }
                 }, 100);
+            } else if (currentOrder.payment === 'vnpay') {
+                const payStatus = currentOrder.paymentStatus || 'pending';
+                const paid = payStatus === 'paid';
+                paymentInfo.innerHTML = `
+                    <h4><i class="fas fa-qrcode"></i> Thanh toán qua VNPAY</h4>
+                    <p style="color: ${paid ? '#10b981' : '#f59e0b'}; font-weight: 600; margin-bottom: 10px;">
+                        <i class="fas ${paid ? 'fa-check-circle' : 'fa-clock'}"></i>
+                        ${paid ? 'Đã thanh toán thành công' : 'Đang chờ thanh toán / xác nhận thanh toán'}
+                    </p>
+                    <p style="color: var(--text-muted);">
+                        ${paid
+                            ? 'Hệ thống đã ghi nhận thanh toán VNPAY cho đơn hàng này.'
+                            : 'Nếu bạn vừa hoàn tất thanh toán, vui lòng chờ vài giây để hệ thống đồng bộ trạng thái.'}
+                    </p>
+                `;
             }
         }
 
