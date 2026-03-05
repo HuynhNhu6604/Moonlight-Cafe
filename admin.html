@@ -3401,6 +3401,7 @@
         import { getDatabase, ref, onValue, update, get, push, set, remove, query, orderByChild, equalTo } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
         import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
         import { uploadImageToCloudinary } from './js/cloudinary-helper.js';
+        import { buildMenuImageTarget, buildNewsImageTarget } from './js/cloudinary-paths.js';
 
         // Firebase config - embedded directly
         const firebaseConfig = {
@@ -4353,7 +4354,12 @@
 
                 // Upload image file to Cloudinary if provided
                 if (imageInput.files && imageInput.files[0]) {
-                    imageUrl = await uploadImageToCloudinary(imageInput.files[0], 'moonlight-cafe/products');
+                    const target = buildMenuImageTarget({
+                        category,
+                        name,
+                        productId: currentEditProductId || undefined
+                    });
+                    imageUrl = await uploadImageToCloudinary(imageInput.files[0], target.folder, { publicId: target.publicId });
                     uploadedToCloudinary = /res\.cloudinary\.com/i.test(imageUrl);
                 }
 
@@ -5229,7 +5235,12 @@
 
                 let image = imageInputUrl;
                 if (imageFile) {
-                    image = await uploadImageToCloudinary(imageFile, 'moonlight-cafe/news');
+                    const target = buildNewsImageTarget({
+                        category,
+                        title,
+                        newsId: editingNewsId || undefined
+                    });
+                    image = await uploadImageToCloudinary(imageFile, target.folder, { publicId: target.publicId });
                 } else if (!image && editingNewsId) {
                     const existingNews = adminNews.find(x => x.id === editingNewsId);
                     image = existingNews?.image || '';

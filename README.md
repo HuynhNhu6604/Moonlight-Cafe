@@ -259,6 +259,44 @@ VNP_URL = https://sandbox.vnpayment.vn/paymentv2/vpcpay.html
 https://YOUR_NETLIFY_DOMAIN/api/vnpay/ipn
 ```
 
+### Bước 7: Cấu hình Cloudinary để lưu ảnh tập trung
+
+Thêm các biến môi trường trên Netlify (Site configuration → Environment variables):
+
+```text
+CLOUDINARY_CLOUD_NAME = your_cloud_name
+CLOUDINARY_API_KEY = your_api_key
+CLOUDINARY_API_SECRET = your_api_secret
+```
+
+Nếu chạy local với Netlify CLI, tạo file `.env` ở thư mục gốc với 3 biến trên.
+
+---
+
+## 🗂️ QUY ƯỚC LƯU ẢNH CLOUDINARY (ỔN ĐỊNH & DỄ QUẢN LÝ)
+
+Dự án đã chuẩn hoá phân loại ảnh theo loại dữ liệu:
+
+- **Ảnh menu sản phẩm** → `moonlight-cafe/menu/{category}`
+- **Ảnh tin tức** → `moonlight-cafe/news/{category}`
+- **Ảnh avatar user** → `moonlight-cafe/avatars/users`
+
+Tên ảnh (`public_id`) cũng được chuẩn hoá dạng:
+
+- `YYYY/MM/<slug>-<stable-id>`
+
+Ví dụ:
+
+- `moonlight-cafe/menu/coffee/2026/03/ca-phe-sua-menu-abc123`
+- `moonlight-cafe/news/khuyen-mai/2026/03/flash-sale-news-xyz789`
+- `moonlight-cafe/avatars/users/2026/03/avatar-user-uid123`
+
+Lợi ích:
+
+- Dễ lọc ảnh theo nghiệp vụ (menu/news/avatar)
+- Dễ dọn dẹp ảnh theo tháng hoặc category
+- Tránh tên file lộn xộn, dễ truy vết khi cần sửa/xoá
+
 ### Bước 7: Tích hợp Cloudinary cho upload ảnh
 
 Website đã hỗ trợ upload ảnh lên Cloudinary qua Netlify Function:

@@ -1069,6 +1069,7 @@
         import { getDatabase, ref, onValue, update, get, query, orderByChild, equalTo } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
         import { getAuth, onAuthStateChanged, updatePassword, reauthenticateWithCredential, EmailAuthProvider, signOut } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
         import { uploadImageToCloudinary } from './js/cloudinary-helper.js';
+        import { buildAvatarImageTarget } from './js/cloudinary-paths.js';
 
         // Firebase config - nhúng trực tiếp
         const firebaseConfig = {
@@ -1533,7 +1534,8 @@
 
             try {
                 Swal.fire({ title: 'Đang tải ảnh...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
-                const avatarUrl = await uploadImageToCloudinary(avatarFile, 'moonlight-cafe/avatars');
+                const target = buildAvatarImageTarget({ userId: currentUser.uid });
+                const avatarUrl = await uploadImageToCloudinary(avatarFile, target.folder, { publicId: target.publicId });
                 await update(ref(db, 'users/' + currentUser.uid), {
                     avatarUrl,
                     updatedAt: Date.now()

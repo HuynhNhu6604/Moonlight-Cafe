@@ -19,11 +19,13 @@ async function getPublicCloudinaryConfig() {
   }
 }
 
-async function uploadViaUnsignedPreset(file, folder, cloudName, unsignedUploadPreset) {
+async function uploadViaUnsignedPreset(file, folder, cloudName, unsignedUploadPreset, options = {}) {
+  const publicId = typeof options.publicId === 'string' ? options.publicId.trim() : '';
   const form = new FormData();
   form.append('file', file);
   form.append('upload_preset', unsignedUploadPreset);
   if (folder) form.append('folder', folder);
+  if (publicId) form.append('public_id', publicId);
 
   const response = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
     method: 'POST',
@@ -36,7 +38,7 @@ async function uploadViaUnsignedPreset(file, folder, cloudName, unsignedUploadPr
   return result.secure_url;
 }
 
-export async function uploadImageToCloudinary(file, folder = 'moonlight-cafe/general') {
+export async function uploadImageToCloudinary(file, folder = 'moonlight-cafe/general', options = {}) {
   if (!file) throw new Error('Chưa chọn file ảnh');
   if (!file.type || !file.type.startsWith('image/')) {
     throw new Error('Vui lòng chọn đúng định dạng ảnh');
@@ -48,10 +50,12 @@ export async function uploadImageToCloudinary(file, folder = 'moonlight-cafe/gen
   }
 
   const fileData = await readFileAsDataUrl(file);
+  const publicId = typeof options.publicId === 'string' ? options.publicId.trim() : '';
   const payload = {
     file: fileData,
     folder
   };
+  if (publicId) payload.publicId = publicId;
 
   const endpoints = ['/api/cloudinary/upload', '/.netlify/functions/cloudinary-upload'];
   let lastError = 'Upload thất bại';
@@ -81,7 +85,7 @@ export async function uploadImageToCloudinary(file, folder = 'moonlight-cafe/gen
   const unsignedUploadPreset = publicCfg.CLOUDINARY_UNSIGNED_PRESET || '';
 
   if (cloudName && unsignedUploadPreset) {
-    return uploadViaUnsignedPreset(file, folder, cloudName, unsignedUploadPreset);
+    return uploadViaUnsignedPreset(file, folder, cloudName, unsignedUploadPreset, { publicId });
   }
 
   throw new Error(`${lastError}. Nếu chạy bằng Live Server, hãy cấu hình CLOUDINARY_UNSIGNED_PRESET trong js/cloudinary-public-config.js`);
