@@ -2926,6 +2926,11 @@
                                 <input type="url" class="form-control" id="newsImage" placeholder="https://images.unsplash.com/photo-...">
                             </div>
                             <div class="form-group" style="grid-column:1/-1">
+                                <label class="form-label">Hoặc tải ảnh từ máy</label>
+                                <input type="file" class="form-control" id="newsImageFile" accept="image/*">
+                                <small style="color:var(--admin-text-muted);margin-top:4px;display:block">Nếu chọn file, hệ thống sẽ tự upload lên Cloudinary.</small>
+                            </div>
+                            <div class="form-group" style="grid-column:1/-1">
                                 <label class="form-label">Mô tả ngắn (hiển trong danh sách) <span style="color:#ef4444">*</span></label>
                                 <textarea class="form-control" id="newsExcerpt" rows="2" placeholder="Tóm tắt ngắn về nội dung bài viết..."></textarea>
                             </div>
@@ -3395,6 +3400,7 @@
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
         import { getDatabase, ref, onValue, update, get, push, set, remove, query, orderByChild, equalTo } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
         import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+        import { uploadImageToCloudinary } from './js/cloudinary-helper.js';
 
         // Firebase config - embedded directly
         const firebaseConfig = {
@@ -4305,7 +4311,7 @@
             }
         });
 
-        // Save product (with Base64 Image upload)
+        // Save product (upload image to Cloudinary)
         window.saveProduct = async function () {
             const name = document.getElementById('productName').value;
             const price = document.getElementById('productPrice').value;
@@ -4343,18 +4349,9 @@
                     imageUrl = 'https://images.unsplash.com/photo-1572442388796-11668a67e53d?w=100'; // Default
                 }
 
-                // Read image file as Base64 format if exists
+                // Upload image file to Cloudinary if provided
                 if (imageInput.files && imageInput.files[0]) {
-                    const file = imageInput.files[0];
-                    const reader = new FileReader();
-
-                    const p = new Promise((resolve, reject) => {
-                        reader.onload = (e) => resolve(e.target.result);
-                        reader.onerror = (e) => reject(e);
-                    });
-
-                    reader.readAsDataURL(file);
-                    imageUrl = await p; // Wait for base64 conversion
+                    imageUrl = await uploadImageToCloudinary(imageInput.files[0], 'moonlight-cafe/products');
                 }
 
                 const productData = {
@@ -5134,6 +5131,7 @@
             document.getElementById('newsCategory').value = 'Tin mới';
             document.getElementById('newsAuthor').value = 'Admin';
             document.getElementById('newsImage').value = '';
+            document.getElementById('newsImageFile').value = '';
             document.getElementById('newsExcerpt').value = '';
             document.getElementById('newsContent').value = '';
             document.getElementById('newsStatus').value = 'published';
@@ -5199,7 +5197,8 @@
             const title = document.getElementById('newsTitle').value.trim();
             const category = document.getElementById('newsCategory').value;
             const author = document.getElementById('newsAuthor').value.trim() || 'Admin';
-            const image = document.getElementById('newsImage').value.trim();
+            const imageInputUrl = document.getElementById('newsImage').value.trim();
+            const imageFile = document.getElementById('newsImageFile').files?.[0] || null;
             const excerpt = document.getElementById('newsExcerpt').value.trim();
             const content = document.getElementById('newsContent').value.trim();
             const status = document.getElementById('newsStatus').value;
@@ -5211,9 +5210,20 @@
 
             const now = new Date();
             const dateStr = now.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' });
-            const data = { title, category, author, image, excerpt, content, status, date: dateStr, updatedAt: Date.now() };
 
             try {
+                Swal.fire({ title: 'Đang lưu...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+
+                let image = imageInputUrl;
+                if (imageFile) {
+                    image = await uploadImageToCloudinary(imageFile, 'moonlight-cafe/news');
+                } else if (!image && editingNewsId) {
+                    const existingNews = adminNews.find(x => x.id === editingNewsId);
+                    image = existingNews?.image || '';
+                }
+
+                const data = { title, category, author, image, excerpt, content, status, date: dateStr, updatedAt: Date.now() };
+
                 if (editingNewsId) {
                     await update(ref(db, `news/${editingNewsId}`), data);
                     Swal.fire({ icon: 'success', title: 'Đã cập nhật!', timer: 1200, showConfirmButton: false });
@@ -5238,6 +5248,7 @@
             document.getElementById('newsCategory').value = n.category || 'Tin mới';
             document.getElementById('newsAuthor').value = n.author || 'Admin';
             document.getElementById('newsImage').value = n.image || '';
+            document.getElementById('newsImageFile').value = '';
             document.getElementById('newsExcerpt').value = n.excerpt || '';
             document.getElementById('newsContent').value = n.content || '';
             document.getElementById('newsStatus').value = n.status || 'published';

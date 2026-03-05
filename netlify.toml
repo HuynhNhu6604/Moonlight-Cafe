@@ -16,3 +16,8 @@
   from = "/api/vnpay/ipn"
   to = "/.netlify/functions/vnpay-ipn"
   status = 200
+
+[[redirects]]
+  from = "/api/cloudinary/upload"
+  to = "/.netlify/functions/cloudinary-upload"
+  status = 200

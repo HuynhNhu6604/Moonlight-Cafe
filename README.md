@@ -259,6 +259,49 @@ VNP_URL = https://sandbox.vnpayment.vn/paymentv2/vpcpay.html
 https://YOUR_NETLIFY_DOMAIN/api/vnpay/ipn
 ```
 
+### Bước 7: Tích hợp Cloudinary cho upload ảnh
+
+Website đã hỗ trợ upload ảnh lên Cloudinary qua Netlify Function:
+
+- Ảnh món mới trong trang admin
+- Ảnh bài viết tin tức trong trang admin
+- Ảnh avatar khách hàng trong trang hồ sơ
+
+Thêm các biến môi trường trên Netlify:
+
+```text
+CLOUDINARY_CLOUD_NAME = your_cloud_name
+CLOUDINARY_API_KEY = your_api_key
+CLOUDINARY_API_SECRET = your_api_secret
+```
+
+Endpoint upload nội bộ:
+
+```text
+/api/cloudinary/upload
+```
+
+Lưu ý bảo mật: không đặt `API_SECRET` ở frontend, chỉ đặt trong Environment Variables của Netlify.
+
+### Chạy bằng Live Server (không dùng Netlify Dev)
+
+Nếu bạn muốn chạy web bằng Live Server, Netlify Function sẽ không hoạt động. Dự án đã có fallback upload trực tiếp Cloudinary qua **unsigned upload preset**.
+
+1. Vào Cloudinary → **Settings → Upload → Upload presets**
+2. Tạo preset mới và bật **Unsigned**
+3. Mở [js/cloudinary-public-config.js](js/cloudinary-public-config.js) và điền:
+
+```javascript
+export const CLOUDINARY_PUBLIC_CONFIG = {
+   CLOUDINARY_CLOUD_NAME: 'your_cloud_name',
+   CLOUDINARY_UNSIGNED_PRESET: 'your_unsigned_preset'
+};
+```
+
+4. Chạy bằng Live Server như bình thường và test upload ảnh.
+
+Khuyến nghị production: dùng Netlify Function + biến môi trường để bảo mật tốt hơn.
+
 5. Return URL dùng trong luồng thanh toán:
 
 ```text
