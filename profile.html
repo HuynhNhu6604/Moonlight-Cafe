@@ -840,6 +840,9 @@
                                         <button type="button" class="btn btn-outline" id="uploadAvatarBtn">
                                             <i class="fas fa-upload"></i> Tải ảnh lên
                                         </button>
+                                            <button type="button" class="btn btn-outline" id="removeAvatarBtn">
+                                                <i class="fas fa-user-times"></i> Xóa avatar
+                                            </button>
                                     </div>
                                     <small style="color:var(--text-muted);font-size:.8rem">Định dạng ảnh: JPG, PNG, WebP (tối đa 8MB).</small>
                                 </div>
@@ -1091,6 +1094,7 @@
         // Current user data
         let currentUser = null;
         let userData = null;
+        let avatarPreviewObjectUrl = '';
 
         // Real-time orders array
         let sampleOrders = [];
@@ -1106,6 +1110,30 @@
         function formatDate(dateString) {
             const date = new Date(dateString);
             return date.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+        }
+
+        function revokeAvatarPreviewObjectUrl() {
+            if (avatarPreviewObjectUrl) {
+                URL.revokeObjectURL(avatarPreviewObjectUrl);
+                avatarPreviewObjectUrl = '';
+            }
+        }
+
+        function resolveAvatarUrl() {
+            const hasAvatarField = !!(userData && Object.prototype.hasOwnProperty.call(userData, 'avatarUrl'));
+            if (hasAvatarField) {
+                return userData.avatarUrl || '';
+            }
+            return currentUser?.photoURL || '';
+        }
+
+        function setAvatarElement(displayName, avatarUrl) {
+            const avatarEl = document.getElementById('profileAvatar');
+            if (avatarUrl) {
+                avatarEl.innerHTML = `<img src="${avatarUrl}" alt="Avatar">`;
+                return;
+            }
+            avatarEl.textContent = displayName ? displayName.charAt(0).toUpperCase() : 'U';
         }
 
         // Get status badge
@@ -1126,14 +1154,9 @@
         function renderUserProfile() {
             if (currentUser) {
                 const displayName = userData?.fullName || currentUser.displayName || 'User Name';
-                const avatarUrl = userData?.avatarUrl || currentUser.photoURL || '';
-                const avatarEl = document.getElementById('profileAvatar');
+                const avatarUrl = resolveAvatarUrl();
 
-                if (avatarUrl) {
-                    avatarEl.innerHTML = `<img src="${avatarUrl}" alt="Avatar">`;
-                } else {
-                    avatarEl.textContent = displayName ? displayName.charAt(0).toUpperCase() : 'U';
-                }
+                setAvatarElement(displayName, avatarUrl);
 
                 document.getElementById('profileName').textContent = displayName;
                 document.getElementById('profileEmail').textContent = currentUser.email || 'user@email.com';
@@ -1540,11 +1563,64 @@
                     avatarUrl,
                     updatedAt: Date.now()
                 });
+                userData = { ...(userData || {}), avatarUrl, updatedAt: Date.now() };
+                revokeAvatarPreviewObjectUrl();
                 avatarInput.value = '';
+                renderUserProfile();
                 Swal.fire({ icon: 'success', title: 'Thành công', text: 'Ảnh đại diện đã được cập nhật.', confirmButtonColor: '#d4a574' });
             } catch (error) {
                 console.error('Avatar upload error:', error);
                 Swal.fire({ icon: 'error', title: 'Lỗi', text: error.message || 'Không thể tải ảnh đại diện.' });
+            }
+        });
+
+        document.getElementById('avatarFile').addEventListener('change', (event) => {
+            const selectedFile = event.target.files?.[0] || null;
+            const displayName = (userData?.fullName || currentUser?.displayName || 'User Name');
+
+            revokeAvatarPreviewObjectUrl();
+
+            if (!selectedFile) {
+                setAvatarElement(displayName, resolveAvatarUrl());
+                return;
+            }
+
+            avatarPreviewObjectUrl = URL.createObjectURL(selectedFile);
+            setAvatarElement(displayName, avatarPreviewObjectUrl);
+        });
+
+        document.getElementById('removeAvatarBtn').addEventListener('click', async () => {
+            if (!currentUser || currentUser.uid === 'demo-user') {
+                Swal.fire({ icon: 'warning', title: 'Chưa đăng nhập', text: 'Vui lòng đăng nhập để xóa ảnh đại diện.' });
+                return;
+            }
+
+            const result = await Swal.fire({
+                icon: 'question',
+                title: 'Xóa ảnh đại diện?',
+                text: 'Avatar hiện tại sẽ bị xóa và quay về chữ cái mặc định.',
+                showCancelButton: true,
+                confirmButtonText: 'Xóa avatar',
+                cancelButtonText: 'Hủy',
+                confirmButtonColor: '#ef4444'
+            });
+
+            if (!result.isConfirmed) return;
+
+            try {
+                Swal.fire({ title: 'Đang xóa...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+                await update(ref(db, 'users/' + currentUser.uid), {
+                    avatarUrl: '',
+                    updatedAt: Date.now()
+                });
+                userData = { ...(userData || {}), avatarUrl: '', updatedAt: Date.now() };
+                document.getElementById('avatarFile').value = '';
+                revokeAvatarPreviewObjectUrl();
+                renderUserProfile();
+                Swal.fire({ icon: 'success', title: 'Đã xóa', text: 'Đã xóa ảnh đại diện.', confirmButtonColor: '#d4a574' });
+            } catch (error) {
+                console.error('Remove avatar error:', error);
+                Swal.fire({ icon: 'error', title: 'Lỗi', text: error.message || 'Không thể xóa ảnh đại diện.' });
             }
         });
 
