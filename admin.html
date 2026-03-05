@@ -990,6 +990,10 @@
             display: flex;
         }
 
+        .swal2-container {
+            z-index: 30000 !important;
+        }
+
         .modal {
             background: white;
             border-radius: var(--radius-lg);
@@ -4384,7 +4388,7 @@
 
             // Show loading
             Swal.fire({
-                title: 'Đang lưu...',
+                title: hasSelectedImage ? 'Đang xử lý ảnh...' : 'Đang lưu...',
                 allowOutsideClick: false,
                 didOpen: () => {
                     Swal.showLoading();
@@ -4404,6 +4408,7 @@
 
                 // Upload image file to Cloudinary if provided
                 if (imageInput.files && imageInput.files[0]) {
+                    Swal.update({ title: 'Đang tải ảnh lên Cloudinary...' });
                     const target = buildMenuImageTarget({
                         category,
                         name,
@@ -4412,6 +4417,8 @@
                     imageUrl = await uploadImageToCloudinary(imageInput.files[0], target.folder, { publicId: target.publicId });
                     uploadedToCloudinary = /res\.cloudinary\.com/i.test(imageUrl);
                 }
+
+                Swal.update({ title: 'Đang lưu sản phẩm...' });
 
                 const productData = {
                     name,
