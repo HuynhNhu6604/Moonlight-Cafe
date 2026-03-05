@@ -3378,6 +3378,9 @@
                 <div class="form-group">
                     <label>Hình ảnh</label>
                     <input type="file" class="form-control" id="productImage" accept="image/*">
+                    <div id="productImagePreviewWrap" style="display:none;margin-top:10px">
+                        <img id="productImagePreview" src="" alt="Preview ảnh sản phẩm" style="width:120px;height:120px;object-fit:cover;border-radius:10px;border:1px solid var(--admin-border)">
+                    </div>
                 </div>
             </div>
             <div class="modal-footer">
@@ -4268,6 +4271,29 @@
         };
 
         let currentEditProductId = null;
+        let productImagePreviewObjectUrl = '';
+
+        function clearProductImagePreviewObjectUrl() {
+            if (productImagePreviewObjectUrl) {
+                URL.revokeObjectURL(productImagePreviewObjectUrl);
+                productImagePreviewObjectUrl = '';
+            }
+        }
+
+        function setProductImagePreview(imageUrl) {
+            const wrap = document.getElementById('productImagePreviewWrap');
+            const img = document.getElementById('productImagePreview');
+            if (!wrap || !img) return;
+
+            if (imageUrl) {
+                img.src = imageUrl;
+                wrap.style.display = 'block';
+                return;
+            }
+
+            img.src = '';
+            wrap.style.display = 'none';
+        }
 
         // Open product modal for adding new
         window.openProductModal = function () {
@@ -4280,6 +4306,8 @@
             document.getElementById('productStatus').value = 'true';
             document.getElementById('productDesc').value = '';
             document.getElementById('productImage').value = '';
+            clearProductImagePreviewObjectUrl();
+            setProductImagePreview('');
             document.getElementById('productModal').classList.add('show');
         };
 
@@ -4297,8 +4325,30 @@
             document.getElementById('productStatus').value = product.isAvailable !== false ? 'true' : 'false';
             document.getElementById('productDesc').value = product.description || '';
             document.getElementById('productImage').value = ''; // Don't require re-uploading image
+            clearProductImagePreviewObjectUrl();
+            setProductImagePreview(product.imageUrl || '');
             document.getElementById('productModal').classList.add('show');
         };
+
+        const _productImageInput = document.getElementById('productImage');
+        if (_productImageInput) _productImageInput.addEventListener('change', function () {
+            const selectedFile = this.files && this.files[0] ? this.files[0] : null;
+
+            clearProductImagePreviewObjectUrl();
+
+            if (!selectedFile) {
+                if (currentEditProductId) {
+                    const existing = sampleProducts.find(p => p.id === currentEditProductId);
+                    setProductImagePreview(existing?.imageUrl || '');
+                } else {
+                    setProductImagePreview('');
+                }
+                return;
+            }
+
+            productImagePreviewObjectUrl = URL.createObjectURL(selectedFile);
+            setProductImagePreview(productImagePreviewObjectUrl);
+        });
 
         // Auto-update status when stock changes
         const _stockEl = document.getElementById('productStock');
@@ -4387,6 +4437,8 @@
                 document.getElementById('productPrice').value = '';
                 document.getElementById('productDesc').value = '';
                 document.getElementById('productImage').value = '';
+                clearProductImagePreviewObjectUrl();
+                setProductImagePreview('');
 
                 closeModal('productModal');
                 Swal.fire({
@@ -4419,6 +4471,12 @@
         // Close modal
         window.closeModal = function (modalId) {
             document.getElementById(modalId).classList.remove('show');
+            if (modalId === 'productModal') {
+                clearProductImagePreviewObjectUrl();
+                setProductImagePreview('');
+                const imageInput = document.getElementById('productImage');
+                if (imageInput) imageInput.value = '';
+            }
         };
 
         // Show section
