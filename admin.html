@@ -4320,6 +4320,7 @@
             const status = document.getElementById('productStatus').value === 'true';
             const desc = document.getElementById('productDesc').value;
             const imageInput = document.getElementById('productImage');
+            const hasSelectedImage = !!(imageInput.files && imageInput.files[0]);
 
             if (!name || !price) {
                 Swal.fire({
@@ -4341,6 +4342,7 @@
 
             try {
                 let imageUrl = '';
+                let uploadedToCloudinary = false;
                 // If editing, preserve old image explicitly, handle defaults
                 if (currentEditProductId) {
                     const existingProduct = sampleProducts.find(p => p.id === currentEditProductId);
@@ -4352,6 +4354,7 @@
                 // Upload image file to Cloudinary if provided
                 if (imageInput.files && imageInput.files[0]) {
                     imageUrl = await uploadImageToCloudinary(imageInput.files[0], 'moonlight-cafe/products');
+                    uploadedToCloudinary = /res\.cloudinary\.com/i.test(imageUrl);
                 }
 
                 const productData = {
@@ -4383,7 +4386,17 @@
                 Swal.fire({
                     icon: 'success',
                     title: 'Thành công!',
-                    text: currentEditProductId ? 'Cập nhật sản phẩm thành công.' : 'Sản phẩm đã được lưu lên Firebase.',
+                    text: currentEditProductId
+                        ? (hasSelectedImage
+                            ? (uploadedToCloudinary
+                                ? 'Cập nhật sản phẩm thành công và ảnh đã upload Cloudinary.'
+                                : 'Cập nhật sản phẩm thành công. Ảnh chưa xác nhận là URL Cloudinary.')
+                            : 'Cập nhật sản phẩm thành công.')
+                        : (hasSelectedImage
+                            ? (uploadedToCloudinary
+                                ? 'Sản phẩm đã lưu lên Firebase và ảnh đã upload Cloudinary.'
+                                : 'Sản phẩm đã lưu lên Firebase. Ảnh chưa xác nhận là URL Cloudinary.')
+                            : 'Sản phẩm đã được lưu lên Firebase.'),
                     confirmButtonColor: '#d4a574'
                 });
 
@@ -4392,7 +4405,7 @@
                 Swal.fire({
                     icon: 'error',
                     title: 'Lỗi',
-                    text: 'Có lỗi xảy ra khi lưu sản phẩm'
+                    text: error?.message || 'Có lỗi xảy ra khi lưu sản phẩm'
                 });
             }
         };
