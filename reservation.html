@@ -101,6 +101,16 @@
         .copy-btn { background:var(--primary-light); border:none; padding:3px 10px; border-radius:4px; color:var(--text-secondary); cursor:pointer; font-size:.75rem; margin-left:8px; transition:.2s; }
         .copy-btn:hover { background:var(--accent); color:var(--bg-dark); }
         .deposit-note { font-size:.8rem; color:var(--text-muted); margin-top:10px; line-height:1.6; }
+        .payment-methods { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; margin-bottom:16px; }
+        .pm-item { position:relative; }
+        .pm-item input { display:none; }
+        .pm-item label { display:flex; align-items:center; gap:8px; border:2px solid rgba(255,255,255,.08); background:var(--primary-light); border-radius:10px; padding:11px 12px; cursor:pointer; transition:.2s; font-size:.85rem; color:var(--text-secondary); }
+        .pm-item input:checked + label { border-color:var(--accent); color:var(--accent); background:rgba(212,165,116,.1); font-weight:600; }
+        .pay-panel { display:none; }
+        .pay-panel.active { display:block; }
+        .qr-wrap { margin-top:12px; padding:12px; border-radius:10px; border:1px dashed rgba(212,165,116,.35); background:rgba(212,165,116,.04); }
+        .qr-img { width:220px; max-width:100%; aspect-ratio:1/1; object-fit:contain; border-radius:10px; background:#fff; padding:8px; display:block; margin-bottom:10px; }
+        .qr-hint { font-size:.75rem; color:var(--text-muted); line-height:1.6; margin-top:8px; }
 
         /* Summary card */
         .summary-card { background:var(--bg-card); border-radius:var(--radius-md); padding:24px; position:sticky; top:100px; }
@@ -161,7 +171,7 @@
         .deposit-qr-alert { font-size:.83rem; color:#ffc107; display:flex; align-items:center; gap:6px; margin-top:8px; }
 
         @media(max-width:900px) { .booking-grid { grid-template-columns:1fr; } .summary-card { position:static; } }
-        @media(max-width:600px) { .table-types-grid { grid-template-columns:repeat(2,1fr); } .form-row { grid-template-columns:1fr; } .avail-summary { grid-template-columns:repeat(2,1fr); } .steps-bar { flex-direction:column; border-radius:var(--radius-sm); } .step-item { border-right:none; border-bottom:1px solid rgba(255,255,255,.05); } .time-slot-grid { grid-template-columns:repeat(2,1fr) !important; } }
+        @media(max-width:600px) { .table-types-grid { grid-template-columns:repeat(2,1fr); } .form-row { grid-template-columns:1fr; } .avail-summary { grid-template-columns:repeat(2,1fr); } .steps-bar { flex-direction:column; border-radius:var(--radius-sm); } .step-item { border-right:none; border-bottom:1px solid rgba(255,255,255,.05); } .time-slot-grid { grid-template-columns:repeat(2,1fr) !important; } .payment-methods { grid-template-columns:1fr; } }
 
         /* Time slot multi-select grid */
         .time-slot-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; }
@@ -313,7 +323,7 @@
                                 <li><i class="fas fa-clock"></i><span>Bàn được giữ <strong>30 phút</strong> sau khi đặt để bạn hoàn tất chuyển khoản cọc. Nếu chưa TT, bàn sẽ tự động mở lại.</span></li>
                                 <li><i class="fas fa-user-clock"></i><span>Sau giờ nhận bàn <strong>20 phút</strong> không thấy khách, hệ thống tự mở lại bàn cho người khác.</span></li>
                                 <li><i class="fas fa-ban"></i><span>Chỉ hủy được trước giờ nhận bàn <strong>2 tiếng</strong>. Hủy muộn hơn cọc sẽ không được hoàn.</span></li>
-                                <li><i class="fas fa-coins"></i><span>Phí đặt cọc theo loại bàn: <strong>Bàn 2 ngươi: 20.000đ · Bàn 4 người: 40.000đ · Bàn 6 người: 60.000đ · Bàn 10 người: 100.000đ</strong>. Cọc qua chuyển khoản, trừ vào hoá đơn khi đến quán.</span></li>
+                                <li><i class="fas fa-coins"></i><span>Phí đặt cọc theo loại bàn: <strong>Bàn 2 ngươi: 20.000đ · Bàn 4 người: 40.000đ · Bàn 6 người: 60.000đ · Bàn 10 người: 100.000đ</strong>. Hỗ trợ cọc qua chuyển khoản, MoMo hoặc VNPay và trừ vào hoá đơn khi đến quán.</span></li>
                                 <li><i class="fas fa-calendar-check"></i><span>Cửa hàng xác nhận trong vòng <strong>30 phút</strong>. Thông báo gửi tại trang Tài khoản.</span></li>
                                 <li><i class="fas fa-history"></i><span>Nếu không có bàn phù hợp, cửa hàng có thể gợi ý bàn thay thế.</span></li>
                                 <li><i class="fas fa-phone"></i><span>Hỗ trợ: <a href="tel:0110766204" style="color:var(--accent)">0110 766 204</a></span></li>
@@ -368,23 +378,46 @@
                 <div class="booking-grid">
                     <div class="form-card">
                         <div class="form-card-title"><i class="fas fa-money-bill-wave"></i> Thanh toán cọc & Xác nhận</div>
+                        <div class="form-group">
+                            <label>Phương thức thanh toán cọc <span class="req">*</span></label>
+                            <div class="payment-methods" id="reservationPaymentMethods">
+                                <div class="pm-item">
+                                    <input type="radio" id="pm_momo" name="reservationPaymentMethod" value="momo" checked onchange="onReservationPaymentMethodChange()">
+                                    <label for="pm_momo"><i class="fas fa-mobile-alt"></i> MoMo</label>
+                                </div>
+                                <div class="pm-item">
+                                    <input type="radio" id="pm_vnpay" name="reservationPaymentMethod" value="vnpay" onchange="onReservationPaymentMethodChange()">
+                                    <label for="pm_vnpay"><i class="fas fa-qrcode"></i> VNPay</label>
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="deposit-box">
-                            <h4><i class="fas fa-university"></i> Thông tin chuyển khoản</h4>
-                            <div class="deposit-info-row"><span class="di-label">Ngân hàng</span><span class="di-val">Vietcombank</span></div>
-                            <div class="deposit-info-row">
-                                <span class="di-label">Số tài khoản</span>
-                                <span class="di-val">1234567890 <button class="copy-btn" onclick="copyText('1234567890')"><i class="fas fa-copy"></i> Copy</button></span>
+                            <div id="panel_momo" class="pay-panel active">
+                                <h4><i class="fas fa-mobile-alt"></i> Thanh toán cọc qua MoMo</h4>
+                                <div class="deposit-info-row"><span class="di-label">Ví MoMo</span><span class="di-val">MOONLIGHT CAFE</span></div>
+                                <div class="deposit-info-row"><span class="di-label">SĐT MoMo</span><span class="di-val">0345142208 <button class="copy-btn" onclick="copyText('0345142208')"><i class="fas fa-copy"></i> Copy</button></span></div>
+                                <div class="deposit-info-row"><span class="di-label">Số tiền</span><span class="di-val accent" id="depositAmountDisplayMomo">15.000đ</span></div>
+                                <div class="deposit-info-row"><span class="di-label">Nội dung</span><span class="di-val"><span id="depositRefDisplayMomo"></span> <button class="copy-btn" onclick="copyRef()"><i class="fas fa-copy"></i> Copy</button></span></div>
+                                <div class="qr-wrap">
+                                    <img id="momoQrImage" class="qr-img" alt="QR MoMo cửa hàng" src="images/momo-qr-quan.jpg?v=2">
+                                    <div class="qr-hint">Khách vui lòng quét mã QR MoMo của quán, nhập đúng số tiền và nội dung để đối soát nhanh.</div>
+                                </div>
                             </div>
-                            <div class="deposit-info-row"><span class="di-label">Tên tài khoản</span><span class="di-val">MOONLIGHT CAFE</span></div>
-                            <div class="deposit-info-row"><span class="di-label">Số tiền</span><span class="di-val accent" id="depositAmountDisplay">15.000đ</span></div>
-                            <div class="deposit-info-row">
-                                <span class="di-label">Nội dung CK</span>
-                                <span class="di-val"><span id="depositRefDisplay"></span> <button class="copy-btn" onclick="copyRef()"><i class="fas fa-copy"></i> Copy</button></span>
+
+                            <div id="panel_vnpay" class="pay-panel">
+                                <h4><i class="fas fa-qrcode"></i> Thanh toán cọc qua VNPay</h4>
+                                <div class="deposit-info-row"><span class="di-label">Số tiền cọc</span><span class="di-val accent" id="depositAmountDisplayVnpay">15.000đ</span></div>
+                                <div class="deposit-info-row"><span class="di-label">Mã tham chiếu</span><span class="di-val"><span id="depositRefDisplayVnpay"></span> <button class="copy-btn" onclick="copyRef()"><i class="fas fa-copy"></i> Copy</button></span></div>
+                                <div class="deposit-note" style="margin-top:0">
+                                    Nhấn <strong>"Gửi yêu cầu đặt bàn"</strong>, hệ thống sẽ tạo đơn và chuyển bạn đến cổng thanh toán VNPay.
+                                </div>
                             </div>
-                            <div class="deposit-note">
+
+                            <div class="deposit-note" id="depositCommonNote">
                                 <i class="fas fa-exclamation-circle" style="color:var(--accent)"></i>
-                                Vui lòng chuyển khoản đúng nội dung để hệ thống xác nhận. <span id="depositNoteText">Tiền cọc sẽ được trừ vào hoá đơn khi đến quán.</span><br>
-                                Sau khi chuyển, nhấn <strong>"Gửi yêu cầu đặt bàn"</strong>.
+                                <span id="depositNoteText">Tiền cọc sẽ được trừ vào hoá đơn khi đến quán.</span><br>
+                                Sau khi thanh toán, vui lòng quay lại website để theo dõi trạng thái xác nhận.
                             </div>
                         </div>
                         <div class="summary-card" style="position:static;margin-bottom:20px" id="step3Summary"></div>
@@ -396,7 +429,7 @@
                     <div class="info-card" style="background:var(--bg-card);border-radius:var(--radius-md);padding:24px">
                         <div class="info-card-title"><i class="fas fa-exclamation-triangle"></i> Lưu ý quan trọng</div>
                         <ul class="info-list">
-                            <li><i class="fas fa-hourglass-half"></i><span>Sau khi đặt, bàn được <strong>tạm giữ 30 phút</strong>. Vui lòng chuyển khoản trong thời gian này.</span></li>
+                            <li><i class="fas fa-hourglass-half"></i><span>Sau khi đặt, bàn được <strong>tạm giữ 30 phút</strong>. Vui lòng hoàn tất thanh toán cọc trong thời gian này.</span></li>
                             <li><i class="fas fa-check-circle"></i><span>Admin xác nhận trong 30 phút  nhận thông báo tại <a href="profile.html" style="color:var(--accent)">Tài khoản</a>.</span></li>
                             <li><i class="fas fa-exchange-alt"></i><span>Nếu bàn đầy, admin có thể gợi ý bàn thay thế. Bạn có quyền chấp nhận hoặc từ chối.</span></li>
                             <li><i class="fas fa-receipt"></i><span>Tiền cọc <strong>trừ 100%</strong> vào hoá đơn khi đến quán.</span></li>
@@ -476,6 +509,11 @@
         let tableCount  = 1;
         let currentStep = 1;
         let depositRef  = '';
+        const isLocalHost = /^(localhost|127\.0\.0\.1)$/i.test(window.location.hostname);
+        const defaultVnpayApiBase = isLocalHost ? 'http://localhost:8787' : `${window.location.origin}/.netlify/functions`;
+        const VNPAY_API_BASE = localStorage.getItem('moonlight_vnpay_api_base') || defaultVnpayApiBase;
+        const VNPAY_CREATE_URL_API = `${VNPAY_API_BASE}/vnpay-create-payment-url`;
+        const PAYMENT_METHOD_LABELS = { momo: 'MoMo', vnpay: 'VNPay' };
 
         // Phí cọc theo loại bàn (VND/bàn)
         const DEPOSIT_MAP = { 2: 20000, 4: 40000, 6: 60000, 10: 100000 };
@@ -709,8 +747,9 @@
                     if (cnt === 0 && selectedTableType === tp) { selectedTableType = null; card.classList.remove('selected'); updateSummary(); }
                 }
             });
-            const date = dateInput.value, time = document.getElementById('resTimeSelect').value;
-            if (date && time) {
+            const date = dateInput.value;
+            const slots = getSelectedTimeSlots();
+            if (date && slots.length) {
                 document.getElementById('availSummary').innerHTML = types.map(tp => {
                     const cnt = countAvail(tp);
                     return '<div class="avail-badge '+(cnt>0?'has':'none')+'"><div class="ab-type">Bàn '+tp+' người</div><div class="ab-count">'+cnt+'</div></div>';
@@ -721,7 +760,7 @@
 
         window.selectTableType = function(type) {
             if (countAvail(type) === 0) {
-                if (dateInput.value && document.getElementById('resTimeSelect').value)
+                if (dateInput.value && getSelectedTimeSlots().length)
                     Swal.fire({ icon:'warning', title:'Hết bàn', text:'Không còn bàn '+type+' người vào khung giờ này.', confirmButtonColor:'#d4a574' });
                 else
                     Swal.fire({ icon:'info', title:'Chọn ngày & giờ trước', text:'Vui lòng chọn ngày và khung giờ để xem tình trạng bàn.', confirmButtonColor:'#d4a574' });
@@ -755,6 +794,7 @@
             const timeSlots = getSelectedTimeSlots();
             if (!date || !timeSlots.length || !selectedTableType) return '<div class="sum-placeholder">Hoàn tất bước 1 để xem tóm tắt</div>';
             const dep = getDeposit(selectedTableType, tableCount);
+            const paymentMethod = getSelectedPaymentMethod();
             const lastSlot = timeSlots[timeSlots.length-1];
             const [eh,em] = lastSlot.split(':');
             const endTime = String(+eh+1).padStart(2,'0')+':'+em;
@@ -764,8 +804,47 @@
                  + '<div class="sum-row"><span class="sr-label">Loại bàn</span><span class="sr-val">Bàn '+selectedTableType+' người</span></div>'
                  + '<div class="sum-row"><span class="sr-label">Số bàn</span><span class="sr-val">'+tableCount+'</span></div>'
                  + '<div class="sum-row"><span class="sr-label">Tổng chỗ ngồi</span><span class="sr-val">'+(tableCount*selectedTableType)+' người</span></div>'
+                 + '<div class="sum-row"><span class="sr-label">Thanh toán cọc</span><span class="sr-val">'+(PAYMENT_METHOD_LABELS[paymentMethod] || paymentMethod)+'</span></div>'
                  + '<div class="sum-row" style="margin-top:8px"><span class="sr-label">Phí cọc</span><span class="sr-val" style="color:var(--accent)">'+dep.toLocaleString('vi-VN')+'đ</span></div>';
         }
+
+        function getSelectedPaymentMethod() {
+            const selected = document.querySelector('input[name="reservationPaymentMethod"]:checked');
+            return selected ? selected.value : 'momo';
+        }
+
+        function updatePaymentMethodPanels() {
+            const method = getSelectedPaymentMethod();
+            ['momo','vnpay'].forEach(key => {
+                document.getElementById('panel_' + key)?.classList.toggle('active', key === method);
+            });
+            const commonNote = document.getElementById('depositCommonNote');
+            if (commonNote) {
+                commonNote.style.display = method === 'vnpay' ? 'none' : 'block';
+            }
+            updateSummary();
+        }
+
+        async function createReservationVnpayPaymentUrl(resId, amount) {
+            const returnUrl = `${window.location.origin}${window.location.pathname}?reservationId=${encodeURIComponent(resId)}&payment=vnpay`;
+            const resp = await fetch(VNPAY_CREATE_URL_API, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ amount, orderId: resId, returnUrl, orderInfo: `Dat coc ban ${resId}` })
+            });
+            if (!resp.ok) {
+                throw new Error('Không tạo được link thanh toán VNPAY.');
+            }
+            const data = await resp.json();
+            if (!data?.paymentUrl) {
+                throw new Error('API VNPAY trả về không hợp lệ.');
+            }
+            return data.paymentUrl;
+        }
+
+        window.onReservationPaymentMethodChange = function() {
+            updatePaymentMethodPanels();
+        };
 
         function updateSummary() {
             const html = buildSummaryHTML();
@@ -804,10 +883,20 @@
             if (!/^(0|\+84)[0-9]{8,10}$/.test(phone)) { showErr('resPhone','err-phone'); ok=false; } else clearErr('resPhone','err-phone');
             if (!ok) return;
             depositRef = 'MC' + Date.now().toString(36).toUpperCase().slice(-6);
-            document.getElementById('depositRefDisplay').textContent = depositRef;
+
+            const setText = (id, text) => {
+                const el = document.getElementById(id);
+                if (el) el.textContent = text;
+            };
+
+            setText('depositRefDisplayMomo', depositRef);
+            setText('depositRefDisplayVnpay', depositRef);
             const depAmt = getDeposit(selectedTableType, tableCount);
-            document.getElementById('depositAmountDisplay').textContent = depAmt.toLocaleString('vi-VN') + 'đ';
-            document.getElementById('depositNoteText').textContent = 'Tiền cọc ' + depAmt.toLocaleString('vi-VN') + 'đ sẽ được trừ vào hoá đơn khi đến quán.';
+            const depText = depAmt.toLocaleString('vi-VN') + 'đ';
+            setText('depositAmountDisplayMomo', depText);
+            setText('depositAmountDisplayVnpay', depText);
+            setText('depositNoteText', 'Tiền cọc ' + depText + ' sẽ được trừ vào hoá đơn khi đến quán.');
+            updatePaymentMethodPanels();
             gotoStep(3);
         };
 
@@ -827,6 +916,7 @@
             const timeSlots = getSelectedTimeSlots();
             const time = timeSlots[0]; // backward compat
             const deposit = getDeposit(selectedTableType, tableCount);
+            const paymentMethod = getSelectedPaymentMethod();
             const expiresAt = Date.now() + 30*60*1000;
             const reservation = {
                 uid: currentUser.uid, email: currentUser.email,
@@ -835,6 +925,7 @@
                 date, time, timeSlots, tableType: selectedTableType, tableCount,
                 totalSeats: tableCount * selectedTableType,
                 note: document.getElementById('resNote').value.trim() || null,
+                paymentMethod,
                 status: 'pending', depositAmount: deposit, depositRef, depositStatus: 'pending_payment',
                 assignedTableIds: [], alternativeTables: [], alternativeNote: null,
                 userResponse: null, adminNote: null, notificationRead: false,
@@ -849,9 +940,34 @@
                 // Lưu index dưới user profile để hỗ trợ đọc lại
                 try { await set(ref(db, 'users/' + currentUser.uid + '/myReservations/' + resId), true); } catch(e) { console.warn('[Reservation] Không lưu được user index:', e.message); }
                 console.log('[Reservation] ✅ Đã lưu user index');
+
+                if (paymentMethod === 'vnpay') {
+                    try {
+                        const paymentUrl = await createReservationVnpayPaymentUrl(resId, deposit);
+                        await Swal.fire({
+                            icon:'success',
+                            title:'Đã tạo yêu cầu đặt bàn',
+                            text:'Đang chuyển bạn sang cổng thanh toán VNPay...',
+                            timer:1200,
+                            showConfirmButton:false
+                        });
+                        window.location.href = paymentUrl;
+                        return;
+                    } catch (vnpErr) {
+                        console.error('VNPay create URL error:', vnpErr);
+                        await Swal.fire({
+                            icon:'warning',
+                            title:'Không khởi tạo được thanh toán VNPay',
+                            text: vnpErr.message || 'Vui lòng kiểm tra API VNPay.',
+                            footer:'Nếu chạy local, hãy bật API: node scripts/vnpay-server.js',
+                            confirmButtonColor:'#d4a574'
+                        });
+                    }
+                }
+
                 await Swal.fire({
                     icon:'success', title:'Đặt bàn thành công!',
-                    html:'<div style="line-height:1.8;text-align:left"><p> Yêu cầu đặt bàn đã gửi.</p><p> Chuyển khoản <strong>'+deposit.toLocaleString('vi-VN')+'đ</strong> nội dung <strong>'+depositRef+'</strong> để giữ chỗ.</p><p> Admin xác nhận trong 30 phút  thông báo tại <a href="profile.html" style="color:#d4a574">Tài khoản</a>.</p></div>',
+                    html:'<div style="line-height:1.8;text-align:left"><p> Yêu cầu đặt bàn đã gửi.</p><p>Phương thức cọc: <strong>'+(PAYMENT_METHOD_LABELS[paymentMethod] || paymentMethod)+'</strong></p><p>Thanh toán <strong>'+deposit.toLocaleString('vi-VN')+'đ</strong> với nội dung <strong>'+depositRef+'</strong> để giữ chỗ.</p><p> Admin xác nhận trong 30 phút  thông báo tại <a href="profile.html" style="color:#d4a574">Tài khoản</a>.</p></div>',
                     confirmButtonText:'Xem lịch sử đặt bàn', confirmButtonColor:'#d4a574'
                 });
                 gotoStep(1);
@@ -927,6 +1043,7 @@
             const created = r.createdAt ? new Date(r.createdAt).toLocaleString('vi-VN') : '';
             const deposit = r.depositAmount ? r.depositAmount.toLocaleString('vi-VN')+'đ' : '–';
             const depLabel = {unpaid:'Chưa TT',pending_payment:'Chờ xác nhận CK',paid:'<span style="color:#4caf50">Đã TT</span>',refunded:'Đã hoàn',refund_requested:'<span style="color:#64b5f6">Yêu cầu hoàn</span>'}[r.depositStatus]||r.depositStatus||'';
+            const paymentLabel = PAYMENT_METHOD_LABELS[r.paymentMethod] || 'Chuyển khoản';
 
             // Multi-slot support (backward compat with old single time field)
             const tr = getResTimeRange(r);
@@ -954,9 +1071,14 @@
             }
             // ─── Pending: nhắc chuyển cọc ────────────────────
             if (r.status==='pending' && r.depositStatus==='pending_payment') {
+                const pendingHint = r.paymentMethod === 'momo'
+                    ? '<p>Chuyển <strong>'+deposit+'</strong> qua MoMo 0345142208</p>'
+                    : r.paymentMethod === 'vnpay'
+                        ? '<p>Đơn đang chờ hoàn tất trên cổng VNPay hoặc chờ admin xác nhận thanh toán.</p>'
+                        : '<p>Chuyển <strong>'+deposit+'</strong> đến VCB 1234567890 - MOONLIGHT CAFE</p>';
                 notifyHTML = '<div class="res-card-notify" style="border-color:rgba(245,158,11,.3)">'
-                    +'<div class="notify-title" style="color:#f59e0b"><i class="fas fa-hourglass-half"></i> Vui lòng chuyển khoản cọc</div>'
-                    +'<p>Chuyển <strong>'+deposit+'</strong> đến VCB 1234567890 - MOONLIGHT CAFE</p>'
+                    +'<div class="notify-title" style="color:#f59e0b"><i class="fas fa-hourglass-half"></i> Vui lòng thanh toán cọc</div>'
+                    +pendingHint
                     +'<p>Nội dung: <strong>'+(r.depositRef||'')+'</strong> <button class="copy-btn" onclick="copyText(\''+(r.depositRef||'')+'\')"><i class="fas fa-copy"></i></button></p>'
                     +'<div class="deposit-qr-alert"><i class="fas fa-exclamation-triangle"></i> Admin sẽ xác nhận khi nhận được tiền.</div></div>';
             }
@@ -981,6 +1103,7 @@
                 +'<div class="res-field"><span class="rf-label">Loại bàn</span><span class="rf-val">'+(r.tableType ? 'Bàn '+r.tableType+' người' : '–')+'</span></div>'
                 +'<div class="res-field"><span class="rf-label">Số bàn</span><span class="rf-val">'+(r.tableCount||1)+'</span></div>'
                 +'<div class="res-field"><span class="rf-label">Phí cọc</span><span class="rf-val" style="color:var(--accent)">'+deposit+'</span></div>'
+                +'<div class="res-field"><span class="rf-label">PT thanh toán</span><span class="rf-val">'+paymentLabel+'</span></div>'
                 +'<div class="res-field"><span class="rf-label">Mã CK</span><span class="rf-val">'+(r.depositRef||'–')+'</span></div>'
                 +'<div class="res-field"><span class="rf-label">Bàn được gán</span><span class="rf-val" style="color:#60a5fa">'+(assignedTables||'–')+'</span></div>'
                 +'<div class="res-field"><span class="rf-label">Trạng thái cọc</span><span class="rf-val">'+depLabel+'</span></div>'
@@ -1030,6 +1153,9 @@
         window.respondNegotiation = async function(resId, response) {
             await Swal.fire({ icon:'info', title:'Chức năng không còn hỗ trợ', text:'Vui lòng liên hệ quán để hỗ trợ.', confirmButtonColor:'#d4a574' });
         };
+
+        // Init payment UI defaults
+        updatePaymentMethodPanels();
     </script>
     <script src="https://app.tudongchat.com/js/chatbox.js"></script>
     <script>try{new TuDongChat('XUitpr3VDU2e5vJgSRYO9').initial();}catch(e){}</script>

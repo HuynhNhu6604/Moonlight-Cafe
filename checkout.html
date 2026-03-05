@@ -499,32 +499,6 @@
                                 </div>
                             </label>
 
-                            <div class="payment-method">
-                                <input type="radio" name="payment" value="banking">
-                                <div class="payment-method-icon">
-                                    <i class="fas fa-university"></i>
-                                </div>
-                                <div class="payment-method-info">
-                                    <h4>Chuyển khoản ngân hàng</h4>
-                                    <p>Chuyển khoản qua tài khoản ngân hàng</p>
-                                </div>
-                            </div>
-
-                            <!-- Banking Details -->
-                            <div id="bankingDetails" class="payment-details"
-                                style="display: none; margin-top: 15px; padding: 20px; background: var(--primary-light); border-radius: var(--radius-sm);">
-                                <h4 style="color: var(--accent); margin-bottom: 15px;"><i
-                                        class="fas fa-info-circle"></i> Thông tin chuyển khoản</h4>
-                                <div style="display: grid; gap: 10px;">
-                                    <p><strong>Ngân hàng:</strong> Vietcombank</p>
-                                    <p><strong>Số tài khoản:</strong> 1234567890123</p>
-                                    <p><strong>Chủ tài khoản:</strong> NGUYEN VAN A</p>
-                                    <p><strong>Nội dung:</strong> THANHTOAN [Mã đơn hàng]</p>
-                                    <p style="color: var(--accent); font-size: 0.9rem;"><i class="fas fa-star"></i> Vui
-                                        lòng chuyển khoản chính xác số tiền để đơn hàng được xử lý nhanh hơn</p>
-                                </div>
-                            </div>
-
                             <label class="payment-method">
                                 <input type="radio" name="payment" value="momo">
                                 <div class="payment-method-icon" style="background: #ae2070; color: white;">
@@ -542,7 +516,7 @@
                                     <i class="fas fa-qrcode"></i>
                                 </div>
                                 <div class="payment-method-info">
-                                    <h4>VNPAY QR (Sandbox)</h4>
+                                    <h4>VNPAY QR</h4>
                                     <p>Thanh toán online qua Cổng VNPAY</p>
                                 </div>
                             </label>
@@ -567,7 +541,7 @@
                                 <h4 style="color: #005baa; margin-bottom: 15px;"><i class="fas fa-shield-alt"></i>
                                     Thanh toán VNPAY</h4>
                                 <div style="display: grid; gap: 10px;">
-                                    <p><strong>Môi trường:</strong> Sandbox VNPAY</p>
+                                    <p><strong>Môi trường:</strong> VNPAY</p>
                                     <p><strong>Lưu ý:</strong> Sau khi bấm "Đặt hàng", hệ thống sẽ chuyển sang cổng VNPAY để thanh toán.</p>
                                     <p style="color: #005baa; font-size: 0.9rem;"><i class="fas fa-info-circle"></i> Đơn hàng sẽ ở trạng thái chờ thanh toán cho đến khi VNPAY trả kết quả.</p>
                                 </div>
@@ -904,7 +878,6 @@
 
                 // Show/hide payment details
                 const paymentValue = method.querySelector('input').value;
-                document.getElementById('bankingDetails').style.display = paymentValue === 'banking' ? 'block' : 'none';
                 document.getElementById('momoDetails').style.display = paymentValue === 'momo' ? 'block' : 'none';
                 document.getElementById('vnpayDetails').style.display = paymentValue === 'vnpay' ? 'block' : 'none';
             });

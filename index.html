@@ -56,9 +56,6 @@
                 </ul>
 
                 <div class="nav-actions">
-                    <button class="nav-icon" id="darkModeToggle" title="Chế độ tối/sáng">
-                        <i class="fas fa-moon"></i>
-                    </button>
                     <a href="contact.html" class="nav-icon hidden" id="msgIcon" title="Tin nhắn từ tiệm">
                         <i class="fas fa-envelope"></i>
                         <span class="badge" id="msgCount" style="display:none">0</span>
@@ -460,29 +457,6 @@
         const userDropdown = document.getElementById('userDropdown');
         const cartCount = document.getElementById('cartCount');
         const featuredProducts = document.getElementById('featuredProducts');
-        const darkModeToggle = document.getElementById('darkModeToggle');
-
-        // Dark Mode Toggle
-        darkModeToggle.addEventListener('click', () => {
-            document.body.classList.toggle('dark-mode');
-
-            const isDarkMode = document.body.classList.contains('dark-mode');
-            const icon = darkModeToggle.querySelector('i');
-
-            if (isDarkMode) {
-                icon.className = 'fas fa-sun';
-                localStorage.setItem('darkMode', 'enabled');
-            } else {
-                icon.className = 'fas fa-moon';
-                localStorage.setItem('darkMode', 'disabled');
-            }
-        });
-
-        // Check saved dark mode preference
-        if (localStorage.getItem('darkMode') === 'enabled') {
-            document.body.classList.add('dark-mode');
-            darkModeToggle.querySelector('i').className = 'fas fa-sun';
-        }
 
         // Loading
         window.addEventListener('load', () => {
@@ -1142,8 +1116,56 @@
         }
         .gallery-overlay > i { font-size: 1rem; color: var(--accent); }
 
+        /* Featured products layout tuning (homepage only) */
+        #featuredProducts {
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 22px;
+            align-items: stretch;
+        }
+
+        #featuredProducts .product-card {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            min-height: 420px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        #featuredProducts .product-img-wrapper {
+            aspect-ratio: 4 / 3;
+        }
+
+        #featuredProducts .product-img {
+            height: 100%;
+        }
+
+        #featuredProducts .product-info {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            flex: 1;
+        }
+
+        #featuredProducts .product-name {
+            line-height: 1.4;
+            min-height: 3.1em;
+            display: -webkit-box;
+            line-clamp: 2;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        #featuredProducts .product-price {
+            margin-top: auto;
+        }
+
         /* --- Responsive --- */
         @media (max-width: 900px) {
+            #featuredProducts {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
             .gallery-grid {
                 grid-template-columns: 1fr 1fr;
                 grid-template-rows: 200px 200px 180px 160px;
@@ -1152,6 +1174,15 @@
             .gallery-item.g-wide { grid-column: span 2; }
         }
         @media (max-width: 500px) {
+            #featuredProducts {
+                grid-template-columns: 1fr;
+                gap: 14px;
+            }
+
+            #featuredProducts .product-card {
+                min-height: 0;
+            }
+
             .gallery-grid {
                 grid-template-columns: 1fr 1fr;
                 grid-template-rows: 150px 150px 130px 120px;
