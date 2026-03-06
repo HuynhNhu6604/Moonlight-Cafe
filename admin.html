@@ -6972,9 +6972,22 @@
                     actionBtns = `<button class="btn btn-sm" style="background:var(--admin-success);color:#fff;margin-bottom:4px" onclick="adminMarkDeposited('${r.id}')"><i class="fas fa-coins"></i> Xác nhận cọc & Gán bàn</button>
                                   <button class="btn btn-sm" style="background:var(--admin-danger);color:#fff" onclick="adminRejectReservation('${r.id}')"><i class="fas fa-times"></i> Từ chối</button>`;
                 } else if (r.status === 'deposited') {
-                    actionBtns = `<button class="btn btn-sm" style="background:#e53e3e;color:#fff;margin-bottom:4px" onclick="adminCheckIn('${r.id}')"><i class="fas fa-sign-in-alt"></i> Đã nhận khách</button>
-                                  <button class="btn btn-sm" style="background:#999;color:#fff;margin-bottom:4px" onclick="adminMarkNoShow('${r.id}')"><i class="fas fa-user-slash"></i> Không đến</button>
-                                  <button class="btn btn-sm" style="background:rgba(229,62,62,.7);color:#fff" onclick="adminCancelReservation('${r.id}')"><i class="fas fa-ban"></i> Hủy đơn</button>`;
+                    const now = new Date();
+                    const slotTime = r.timeSlot || tr.first || '00:00';
+                    const [slotH, slotM] = slotTime.split(':').map(Number);
+                    const resDateTime = new Date(r.date);
+                    resDateTime.setHours(slotH, slotM, 0, 0);
+                    const diffMin = (resDateTime - now) / 60000;
+
+                    actionBtns = '';
+                    if (diffMin <= 15) {
+                        actionBtns += `<button class="btn btn-sm" style="background:#e53e3e;color:#fff;margin-bottom:4px" onclick="adminCheckIn('${r.id}')"><i class="fas fa-sign-in-alt"></i> Đã nhận khách</button> `;
+                    }
+                    if (diffMin > 120) {
+                        actionBtns += `<button class="btn btn-sm" style="background:rgba(229,62,62,.7);color:#fff;margin-bottom:4px" onclick="adminCancelReservation('${r.id}')"><i class="fas fa-ban"></i> Hủy đơn (Hoàn cọc)</button>`;
+                    } else {
+                        actionBtns += `<button class="btn btn-sm" style="background:#999;color:#fff;margin-bottom:4px" onclick="adminMarkNoShow('${r.id}')"><i class="fas fa-user-slash"></i> Không đến (Mất cọc)</button>`;
+                    }
                 } else if (r.status === 'checked-in') {
                     actionBtns = `<button class="btn btn-sm" style="background:#4caf50;color:#fff;margin-bottom:4px" onclick="adminReleaseTable('${r.id}')"><i class="fas fa-flag-checkered"></i> Trả bàn (hoàn thành)</button>`;
                 } else if (['rejected', 'cancelled', 'no-show', 'cancelled_no_payment', 'cancelled_absent'].includes(r.status) &&
