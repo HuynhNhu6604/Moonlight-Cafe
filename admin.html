@@ -7002,7 +7002,7 @@
                         const diffMin = Math.ceil((resDateTime - now) / 60000);
                         actionBtns = `<span style="color:#e53e3e;font-size:.8rem"><i class="fas fa-clock"></i> Khách đến sớm (chờ ${diffMin}p)</span>`;
                     }
-                } else if (['rejected', 'cancelled', 'no-show', 'cancelled_no_payment', 'cancelled_absent'].includes(r.status) &&
+                } else if (['rejected', 'cancelled'].includes(r.status) &&
                     (r.depositStatus === 'paid' || r.depositStatus === 'refund_requested')) {
                     const refundLabel = r.depositStatus === 'refund_requested' ? 'Xác nhận đã hoàn' : 'Hoàn cọc';
                     actionBtns = `<button class="btn btn-sm" style="background:#64b5f6;color:#fff" onclick="adminRefundDeposit('${r.id}')"><i class="fas fa-undo"></i> ${refundLabel}</button>`;
