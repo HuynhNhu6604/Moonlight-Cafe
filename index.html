@@ -38,7 +38,8 @@
         <div class="container">
             <nav class="nav">
                 <a href="index.html" class="nav-brand">
-                    <div class="nav-logo-wrapper"><img src="images/logo.png?v=4" alt="Moonlight Cafe" class="nav-logo"></div>
+                    <div class="nav-logo-wrapper"><img src="images/logo.png?v=4" alt="Moonlight Cafe" class="nav-logo">
+                    </div>
                     <span class="nav-brand-text">Moonlight Cafe</span>
                 </a>
 
@@ -68,9 +69,12 @@
                         <i class="fas fa-user"></i>
                     </a>
                     <div class="nav-toggle" id="navToggle">
-                        <div class="nav-logo-wrapper"><img src="images/logo.png?v=4" alt="Moonlight Cafe" class="nav-logo"></div>
-                        <div class="nav-logo-wrapper"><img src="images/logo.png?v=4" alt="Moonlight Cafe" class="nav-logo"></div>
-                        <div class="nav-logo-wrapper"><img src="images/logo.png?v=4" alt="Moonlight Cafe" class="nav-logo"></div>
+                        <div class="nav-logo-wrapper"><img src="images/logo.png?v=4" alt="Moonlight Cafe"
+                                class="nav-logo"></div>
+                        <div class="nav-logo-wrapper"><img src="images/logo.png?v=4" alt="Moonlight Cafe"
+                                class="nav-logo"></div>
+                        <div class="nav-logo-wrapper"><img src="images/logo.png?v=4" alt="Moonlight Cafe"
+                                class="nav-logo"></div>
                     </div>
                 </div>
             </nav>
@@ -355,7 +359,8 @@
             <div class="footer-grid">
                 <div class="footer-col">
                     <div class="footer-brand">
-                        <div class="nav-logo-wrapper"><img src="images/logo.png?v=4" alt="Moonlight Cafe" class="nav-logo"></div>
+                        <div class="nav-logo-wrapper"><img src="images/logo.png?v=4" alt="Moonlight Cafe"
+                                class="nav-logo"></div>
                         <span class="nav-brand-text">Moonlight Cafe</span>
                     </div>
                     <p id="footer-slogan">
@@ -384,9 +389,8 @@
                     <h4 class="footer-title">Hỗ trợ</h4>
                     <ul class="footer-links">
                         <li><a href="orders.html">Theo dõi đơn hàng</a></li>
-                        <li><a href="#">Chính sách đổi trả</a></li>
-                        <li><a href="#">FAQ</a></li>
-                        <li><a href="#">Liên hệ</a></li>
+                        <li><a href="policy.html">Chính sách đổi trả</a></li>
+                        <li><a href="contact.html">Liên hệ & Góp ý</a></li>
                     </ul>
                 </div>
 
@@ -395,7 +399,7 @@
                     <ul class="footer-contact">
                         <li>
                             <i class="fas fa-map-marker-alt"></i>
-                            <span id="footer-address">66 Nguyễn Đệ, Cái Khế, Cần Thơ</span>
+                            <span id="footer-address">Nguyễn Đệ, Cái Khế, Cần Thơ</span>
                         </li>
                         <li>
                             <i class="fas fa-phone"></i>
@@ -615,17 +619,25 @@
                 const snapshot = await get(productsRef);
 
                 if (snapshot.exists()) {
-                    const products = [];
+                    const allProducts = [];
                     snapshot.forEach((child) => {
                         const product = child.val();
                         product.id = child.key;
                         if (product.isAvailable !== false) {
-                            products.push(product);
+                            allProducts.push(product);
                         }
                     });
 
-                    // Get first 4 products as featured
-                    const featured = products.slice(0, 4);
+                    // Ưu tiên 1: sản phẩm được admin đánh dấu isFeatured=true
+                    const featuredByAdmin = allProducts.filter(p => p.isFeatured === true);
+                    // Ưu tiên 2: sản phẩm có badge (Best Seller, Mới, Hot...)
+                    const withBadge = allProducts.filter(p => !p.isFeatured && p.badge);
+                    // Ưu tiên 3: còn lại theo thứ tự
+                    const rest = allProducts.filter(p => !p.isFeatured && !p.badge);
+
+                    // Ghép lại, tối đa 8 sản phẩm
+                    const MAX_FEATURED = 8;
+                    const featured = [...featuredByAdmin, ...withBadge, ...rest].slice(0, MAX_FEATURED);
                     renderFeaturedProducts(featured);
                 } else {
                     featuredProducts.innerHTML = '<div style="grid-column: 1 / -1; text-align: center; color: var(--text-muted); padding: 40px;">Chưa có sản phẩm nổi bật</div>';
@@ -642,7 +654,10 @@
                 return;
             }
 
-            const favorites = JSON.parse(localStorage.getItem('moonlight_wishlist')) || [];
+            // Lấy wishlist theo UID (L2 fix)
+            const currentUid = auth.currentUser?.uid;
+            const wishlistKey = currentUid ? `moonlight_wishlist_${currentUid}` : 'moonlight_wishlist_guest';
+            const favorites = JSON.parse(localStorage.getItem(wishlistKey)) || [];
 
             featuredProducts.innerHTML = products.map(product => {
                 const isFavorite = favorites.some(item => String(item.id) === String(product.id));
@@ -730,7 +745,9 @@
         };
 
         window.toggleFavorite = function (id, name, price, imageUrl, category) {
-            let wishlist = JSON.parse(localStorage.getItem('moonlight_wishlist')) || [];
+            const currentUid = auth.currentUser?.uid;
+            const wishlistKey = currentUid ? `moonlight_wishlist_${currentUid}` : 'moonlight_wishlist_guest';
+            let wishlist = JSON.parse(localStorage.getItem(wishlistKey)) || [];
             const index = wishlist.findIndex(item => String(item.id) === String(id));
             const icon = document.getElementById(`heart-icon-index-${id}`);
 
@@ -764,14 +781,14 @@
                 });
             }
 
-            localStorage.setItem('moonlight_wishlist', JSON.stringify(wishlist));
+            localStorage.setItem(wishlistKey, JSON.stringify(wishlist));
         };
 
         // Gallery: hiện khung placeholder mặc định, ẩn khi ảnh load xong
         document.querySelectorAll('.gallery-item img').forEach(img => {
             const item = img.closest('.gallery-item');
             item.classList.add('no-img'); // mặc định hiện placeholder
-            img.addEventListener('load',  () => { if (img.naturalWidth > 0) item.classList.remove('no-img'); });
+            img.addEventListener('load', () => { if (img.naturalWidth > 0) item.classList.remove('no-img'); });
             img.addEventListener('error', () => item.classList.add('no-img'));
             // Nếu ảnh đã cached và load thành công
             if (img.complete && img.naturalWidth > 0) item.classList.remove('no-img');
@@ -1045,17 +1062,21 @@
         }
 
         /* Ảnh 1: dọc (span 2 hàng) */
-        .gallery-item.g-tall  { grid-row: span 2; }
+        .gallery-item.g-tall {
+            grid-row: span 2;
+        }
 
         /* Ảnh 6: ngang toàn bộ */
-        .gallery-item.g-wide  { grid-column: span 3; }
+        .gallery-item.g-wide {
+            grid-column: span 3;
+        }
 
         .gallery-item {
             position: relative;
             border-radius: 10px;
             overflow: hidden;
             cursor: pointer;
-            background: rgba(255,255,255,0.03);
+            background: rgba(255, 255, 255, 0.03);
         }
 
         .gallery-item img {
@@ -1067,36 +1088,56 @@
             transition: transform 0.5s ease;
         }
 
-        .gallery-item:hover img { transform: scale(1.05); }
+        .gallery-item:hover img {
+            transform: scale(1.05);
+        }
 
         /* --- Placeholder khi chưa có ảnh --- */
         .gallery-item .gallery-placeholder {
             display: none;
             position: absolute;
             inset: 0;
-            border: 2px dashed rgba(245,158,11,0.45);
+            border: 2px dashed rgba(245, 158, 11, 0.45);
             border-radius: 10px;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             gap: 10px;
-            color: rgba(245,158,11,0.65);
+            color: rgba(245, 158, 11, 0.65);
             font-family: 'Poppins', sans-serif;
             text-align: center;
             padding: 10px;
             pointer-events: none;
         }
-        .gallery-item.no-img .gallery-placeholder { display: flex; }
-        .gallery-item.no-img img { visibility: hidden; }
-        .gallery-placeholder i   { font-size: 1.8rem; }
-        .gallery-placeholder b   { font-size: 0.82rem; font-weight: 600; display: block; }
-        .gallery-placeholder span { font-size: 0.7rem; opacity: 0.7; }
+
+        .gallery-item.no-img .gallery-placeholder {
+            display: flex;
+        }
+
+        .gallery-item.no-img img {
+            visibility: hidden;
+        }
+
+        .gallery-placeholder i {
+            font-size: 1.8rem;
+        }
+
+        .gallery-placeholder b {
+            font-size: 0.82rem;
+            font-weight: 600;
+            display: block;
+        }
+
+        .gallery-placeholder span {
+            font-size: 0.7rem;
+            opacity: 0.7;
+        }
 
         /* --- Overlay hover --- */
         .gallery-overlay {
             position: absolute;
             inset: 0;
-            background: linear-gradient(to top, rgba(0,0,0,0.6) 0%, transparent 50%);
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.6) 0%, transparent 50%);
             display: flex;
             flex-direction: column;
             align-items: flex-start;
@@ -1105,7 +1146,11 @@
             opacity: 0;
             transition: opacity 0.3s ease;
         }
-        .gallery-item:not(.no-img):hover .gallery-overlay { opacity: 1; }
+
+        .gallery-item:not(.no-img):hover .gallery-overlay {
+            opacity: 1;
+        }
+
         .gallery-label {
             font-family: 'Poppins', sans-serif;
             font-size: 0.82rem;
@@ -1114,7 +1159,11 @@
             margin-bottom: 5px;
             display: block;
         }
-        .gallery-overlay > i { font-size: 1rem; color: var(--accent); }
+
+        .gallery-overlay>i {
+            font-size: 1rem;
+            color: var(--accent);
+        }
 
         /* Featured products layout tuning (homepage only) */
         #featuredProducts {
@@ -1170,9 +1219,16 @@
                 grid-template-columns: 1fr 1fr;
                 grid-template-rows: 200px 200px 180px 160px;
             }
-            .gallery-item.g-tall { grid-row: span 2; }
-            .gallery-item.g-wide { grid-column: span 2; }
+
+            .gallery-item.g-tall {
+                grid-row: span 2;
+            }
+
+            .gallery-item.g-wide {
+                grid-column: span 2;
+            }
         }
+
         @media (max-width: 500px) {
             #featuredProducts {
                 grid-template-columns: 1fr;
@@ -1462,7 +1518,7 @@
         try {
             const tudong_chatbox = new TuDongChat('XUitpr3VDU2e5vJgSRYO9');
             tudong_chatbox.initial();
-        } catch(e) {}
+        } catch (e) { }
     </script>
 </body>
 

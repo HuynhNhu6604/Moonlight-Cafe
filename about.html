@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="vi">
 
 <head>
@@ -152,8 +152,8 @@
             padding: 45px 55px;
             max-width: 820px;
             width: 100%;
-            box-shadow: 0 8px 40px rgba(0,0,0,.25);
-            border: 1px solid rgba(212,165,116,.15);
+            box-shadow: 0 8px 40px rgba(0, 0, 0, .25);
+            border: 1px solid rgba(212, 165, 116, .15);
             position: relative;
             overflow: hidden;
         }
@@ -161,8 +161,10 @@
         .founder-card::before {
             content: '';
             position: absolute;
-            top: 0; left: 0;
-            width: 5px; height: 100%;
+            top: 0;
+            left: 0;
+            width: 5px;
+            height: 100%;
             background: linear-gradient(180deg, var(--accent), var(--accent-dark, #b8894e));
             border-radius: 5px 0 0 5px;
         }
@@ -170,10 +172,11 @@
         .founder-card::after {
             content: '“';
             position: absolute;
-            bottom: -10px; right: 30px;
+            bottom: -10px;
+            right: 30px;
             font-size: 10rem;
             font-family: 'Playfair Display', serif;
-            color: rgba(212,165,116,.07);
+            color: rgba(212, 165, 116, .07);
             line-height: 1;
             pointer-events: none;
         }
@@ -189,19 +192,20 @@
             border-radius: 50%;
             object-fit: cover;
             border: 4px solid var(--accent);
-            box-shadow: 0 0 0 8px rgba(212,165,116,.12);
+            box-shadow: 0 0 0 8px rgba(212, 165, 116, .12);
             transition: transform .35s ease, box-shadow .35s ease;
             display: block;
         }
 
         .founder-card:hover .founder-img {
             transform: scale(1.04);
-            box-shadow: 0 0 0 10px rgba(212,165,116,.2), var(--shadow-glow, 0 0 20px rgba(212,165,116,.3));
+            box-shadow: 0 0 0 10px rgba(212, 165, 116, .2), var(--shadow-glow, 0 0 20px rgba(212, 165, 116, .3));
         }
 
         .founder-badge {
             position: absolute;
-            bottom: 8px; left: 50%;
+            bottom: 8px;
+            left: 50%;
             transform: translateX(-50%);
             background: var(--accent);
             color: var(--text-dark, #1a1a1a);
@@ -214,7 +218,9 @@
             white-space: nowrap;
         }
 
-        .founder-info { flex: 1; }
+        .founder-info {
+            flex: 1;
+        }
 
         .founder-name {
             font-family: 'Playfair Display', serif;
@@ -234,7 +240,8 @@
         }
 
         .founder-divider {
-            width: 48px; height: 3px;
+            width: 48px;
+            height: 3px;
             background: var(--accent);
             border-radius: 2px;
             margin-bottom: 18px;
@@ -256,8 +263,8 @@
 
         .founder-tag {
             padding: 4px 14px;
-            background: rgba(212,165,116,.12);
-            border: 1px solid rgba(212,165,116,.3);
+            background: rgba(212, 165, 116, .12);
+            border: 1px solid rgba(212, 165, 116, .3);
             border-radius: 20px;
             font-size: .78rem;
             color: var(--accent);
@@ -270,7 +277,8 @@
         }
 
         .founder-social a {
-            width: 38px; height: 38px;
+            width: 38px;
+            height: 38px;
             border-radius: 50%;
             background: var(--secondary, #2a2a2a);
             display: flex;
@@ -294,10 +302,26 @@
                 padding: 35px 25px;
                 gap: 28px;
             }
-            .founder-card::before { width: 100%; height: 4px; top: 0; left: 0; border-radius: 20px 20px 0 0; }
-            .founder-divider { margin: 0 auto 18px; }
-            .founder-tags { justify-content: center; }
-            .founder-social { justify-content: center; }
+
+            .founder-card::before {
+                width: 100%;
+                height: 4px;
+                top: 0;
+                left: 0;
+                border-radius: 20px 20px 0 0;
+            }
+
+            .founder-divider {
+                margin: 0 auto 18px;
+            }
+
+            .founder-tags {
+                justify-content: center;
+            }
+
+            .founder-social {
+                justify-content: center;
+            }
         }
 
         /* Contact Section */
@@ -513,7 +537,7 @@
                 <div class="founder-card">
                     <div class="founder-photo-wrap">
                         <img src="images/founder.jpg" alt="Nguyễn Thị Huỳnh Như" class="founder-img"
-                             onerror="this.src='https://i.pravatar.cc/200?img=47'">
+                            onerror="this.src='https://i.pravatar.cc/200?img=47'">
                         <span class="founder-badge">Founder</span>
                     </div>
                     <div class="founder-info">
@@ -530,9 +554,12 @@
                             <em>&ldquo;Mỗi ly cà phê là một trải nghiệm, không đơn thuần là một sản phẩm.&rdquo;</em>
                         </p>
                         <div class="founder-tags">
-                            <span class="founder-tag"><i class="fas fa-coffee" style="margin-right:5px"></i>Coffee Lover</span>
-                            <span class="founder-tag"><i class="fas fa-star" style="margin-right:5px"></i>5+ Năm Kinh Nghiệm</span>
-                            <span class="founder-tag"><i class="fas fa-leaf" style="margin-right:5px"></i>Nguyên Liệu Thượng Hạng</span>
+                            <span class="founder-tag"><i class="fas fa-coffee" style="margin-right:5px"></i>Coffee
+                                Lover</span>
+                            <span class="founder-tag"><i class="fas fa-star" style="margin-right:5px"></i>5+ Năm Kinh
+                                Nghiệm</span>
+                            <span class="founder-tag"><i class="fas fa-leaf" style="margin-right:5px"></i>Nguyên Liệu
+                                Thượng Hạng</span>
                         </div>
                         <div class="founder-social">
                             <a href="#" title="Facebook"><i class="fab fa-facebook-f"></i></a>
@@ -562,7 +589,7 @@
                         </div>
                         <div class="contact-info-content">
                             <h4>Địa chỉ</h4>
-                            <p>66 Nguyễn Đệ, Cái Khế, Cần Thơ</p>
+                            <p>Nguyễn Đệ, Cái Khế, Cần Thơ</p>
                         </div>
                     </div>
 
@@ -612,10 +639,12 @@
             <div class="footer-grid">
                 <div class="footer-col">
                     <div class="footer-brand">
-                        <span class="nav-brand-icon">🌙</span>
+                        <div class="nav-logo-wrapper"><img src="images/logo.png?v=4" alt="Moonlight Cafe"
+                                class="nav-logo"></div>
                         <span class="nav-brand-text">Moonlight Cafe</span>
                     </div>
-                    <p id="footer-slogan">Nơi thưởng thức cà phê và bánh ngọt thượng hạng trong không gian ấm cúng dưới ánh trăng.</p>
+                    <p id="footer-slogan">Nơi thưởng thức cà phê và bánh ngọt thượng hạng trong không gian ấm cúng dưới
+                        ánh trăng.</p>
                     <div class="footer-social">
                         <a href="#" id="footer-fb"><i class="fab fa-facebook-f"></i></a>
                         <a href="#" id="footer-ig"><i class="fab fa-instagram"></i></a>
@@ -637,7 +666,8 @@
                 <div class="footer-col">
                     <h4 class="footer-title">Liên hệ</h4>
                     <ul class="footer-contact">
-                        <li><i class="fas fa-map-marker-alt"></i> <span id="footer-address">66 Nguyễn Đệ, Cái Khế, Cần Thơ</span></li>
+                        <li><i class="fas fa-map-marker-alt"></i> <span id="footer-address">Nguyễn Đệ, Cái Khế, Cần
+                                Thơ</span></li>
                         <li><i class="fas fa-phone"></i> <span id="footer-phone">0110 766 204</span></li>
                         <li><i class="fas fa-envelope"></i> <span id="footer-email">moonlightcafe@gmail.com</span></li>
                         <li><i class="fas fa-clock"></i> <span id="footer-hours">7:00 - 22:00 hàng ngày</span></li>
@@ -687,7 +717,7 @@
         try {
             const tudong_chatbox = new TuDongChat('XUitpr3VDU2e5vJgSRYO9');
             tudong_chatbox.initial();
-        } catch(e) {}
+        } catch (e) { }
     </script>
 </body>
 

@@ -348,11 +348,12 @@
     </div>
 
     <!-- Header -->
-    <header class="header scrolled">
+    <header class="header scrolled" id="header">
         <div class="container">
             <nav class="nav">
                 <a href="index.html" class="nav-brand">
-                    <div class="nav-logo-wrapper"><img src="images/logo.png?v=4" alt="Moonlight Cafe" class="nav-logo"></div>
+                    <div class="nav-logo-wrapper"><img src="images/logo.png?v=4" alt="Moonlight Cafe" class="nav-logo">
+                    </div>
                     <span class="nav-brand-text">Moonlight Cafe</span>
                 </a>
 
@@ -521,19 +522,25 @@
                                 </div>
                             </label>
 
-                            <!-- MoMo Details -->
                             <div id="momoDetails" class="payment-details"
                                 style="display: none; margin-top: 15px; padding: 20px; background: var(--primary-light); border-radius: var(--radius-sm);">
                                 <h4 style="color: #ae2070; margin-bottom: 15px;"><i class="fas fa-info-circle"></i>
                                     Thông tin thanh toán MoMo</h4>
                                 <div style="display: grid; gap: 10px;">
-                                    <p><strong>Số điện thoại:</strong> 0901234567</p>
+                                    <p><strong>Số điện thoại:</strong> 0345 142 208</p>
                                     <p><strong>Tên tài khoản:</strong> Moonlight Cafe</p>
                                     <p><strong>Nội dung:</strong> THANHTOAN [Mã đơn hàng]</p>
+                                    <div style="text-align:center; margin-top:10px;">
+                                        <img src="images/momo-qr-quan.jpg" alt="QR MoMo Moonlight Cafe"
+                                            style="max-width:200px; width:100%; border-radius:10px; border:2px solid #ae2070;">
+                                        <p style="font-size:0.8rem; color:var(--text-muted); margin-top:6px;">Quét mã QR
+                                            bằng ứng dụng MoMo</p>
+                                    </div>
                                     <p style="color: #ae2070; font-size: 0.9rem;"><i class="fas fa-star"></i> Sau khi
                                         chuyển khoản, vui lòng gửi screenshot qua Zalo của shop để xác nhận</p>
                                 </div>
                             </div>
+
 
                             <!-- VNPAY Details -->
                             <div id="vnpayDetails" class="payment-details"
@@ -542,8 +549,10 @@
                                     Thanh toán VNPAY</h4>
                                 <div style="display: grid; gap: 10px;">
                                     <p><strong>Môi trường:</strong> VNPAY</p>
-                                    <p><strong>Lưu ý:</strong> Sau khi bấm "Đặt hàng", hệ thống sẽ chuyển sang cổng VNPAY để thanh toán.</p>
-                                    <p style="color: #005baa; font-size: 0.9rem;"><i class="fas fa-info-circle"></i> Đơn hàng sẽ ở trạng thái chờ thanh toán cho đến khi VNPAY trả kết quả.</p>
+                                    <p><strong>Lưu ý:</strong> Sau khi bấm "Đặt hàng", hệ thống sẽ chuyển sang cổng
+                                        VNPAY để thanh toán.</p>
+                                    <p style="color: #005baa; font-size: 0.9rem;"><i class="fas fa-info-circle"></i> Đơn
+                                        hàng sẽ ở trạng thái chờ thanh toán cho đến khi VNPAY trả kết quả.</p>
                                 </div>
                             </div>
                         </div>
@@ -595,7 +604,8 @@
 
                     <p class="terms-note">
                         Bằng việc đặt hàng, bạn đồng ý với
-                        <a href="#">Điều khoản sử dụng</a> của chúng tôi.
+                        <a href="policy.html" target="_blank">Điều khoản sử dụng
+                            &amp; Chính sách hoàn tiền</a> của chúng tôi.
                     </p>
                 </div>
             </div>
@@ -652,12 +662,12 @@
                         const p = snap.val();
                         const nameEl = document.getElementById('fullName');
                         const phoneEl = document.getElementById('phone');
-                        const addrEl  = document.getElementById('address');
-                        if (nameEl && !nameEl.value)  nameEl.value  = p.fullName || p.displayName || '';
+                        const addrEl = document.getElementById('address');
+                        if (nameEl && !nameEl.value) nameEl.value = p.fullName || p.displayName || '';
                         if (phoneEl && !phoneEl.value) phoneEl.value = p.phone || '';
-                        if (addrEl  && !addrEl.value)  addrEl.value  = p.address || '';
+                        if (addrEl && !addrEl.value) addrEl.value = p.address || '';
                     }
-                } catch (_) {}
+                } catch (_) { }
                 // Render cart (must wait for auth)
                 updateCartCount();
                 renderOrderItems();
@@ -764,16 +774,16 @@
         window.applyPromoCode = async function () {
             const code = document.getElementById('promoCodeInput').value.trim().toUpperCase();
             const msgEl = document.getElementById('promoMsg');
-            if (!code) { msgEl.style.color='#ef4444'; msgEl.textContent='Vui lòng nhập mã khuyến mãi.'; return; }
+            if (!code) { msgEl.style.color = '#ef4444'; msgEl.textContent = 'Vui lòng nhập mã khuyến mãi.'; return; }
 
-            msgEl.style.color='#888'; msgEl.textContent='Đang kiểm tra...';
+            msgEl.style.color = '#888'; msgEl.textContent = 'Đang kiểm tra...';
             try {
                 const snap = await get(ref(db, 'promotions'));
                 let found = null;
-                if (snap.exists()) snap.forEach(c => { const v=c.val(); if(v.code===code) found={id:c.key,...v}; });
+                if (snap.exists()) snap.forEach(c => { const v = c.val(); if (v.code === code) found = { id: c.key, ...v }; });
 
                 function fmtDate(ts) {
-                    return new Date(ts).toLocaleDateString('vi-VN', { day:'2-digit', month:'2-digit', year:'numeric' });
+                    return new Date(ts).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' });
                 }
                 function setErr(msg) {
                     msgEl.style.color = '#ef4444';
@@ -791,15 +801,15 @@
                 if (found.endDate < now) {
                     setErr(`⌛ Mã <strong>${found.code}</strong> đã hết hạn vào <strong>${fmtDate(found.endDate)}</strong>.`); return;
                 }
-                if (found.usageLimit > 0 && (found.usageCount||0) >= found.usageLimit) {
+                if (found.usageLimit > 0 && (found.usageCount || 0) >= found.usageLimit) {
                     setErr(`🔒 Mã <strong>${found.code}</strong> đã đạt giới hạn ${found.usageLimit} lượt sử dụng.`); return;
                 }
 
                 // Kiểm tra điều kiện giờ áp dụng
                 if (found.timeStart && found.timeEnd) {
                     const nowD = new Date();
-                    const curH = String(nowD.getHours()).padStart(2,'0');
-                    const curM = String(nowD.getMinutes()).padStart(2,'0');
+                    const curH = String(nowD.getHours()).padStart(2, '0');
+                    const curM = String(nowD.getMinutes()).padStart(2, '0');
                     const curMin = nowD.getHours() * 60 + nowD.getMinutes();
                     const [sh, sm] = found.timeStart.split(':').map(Number);
                     const [eh, em] = found.timeEnd.split(':').map(Number);
@@ -826,7 +836,7 @@
                     : formatPrice(found.discountValue);
                 msgEl.innerHTML = `✅ Áp dụng thành công! Mã <strong>${found.code}</strong> giảm ${discTxt} — bạn tiết kiệm <strong>${formatPrice(discount)}</strong>.`;
                 refreshDiscountUI();
-            } catch(e) { msgEl.style.color='#ef4444'; msgEl.textContent='Lỗi: '+e.message; }
+            } catch (e) { msgEl.style.color = '#ef4444'; msgEl.textContent = 'Lỗi: ' + e.message; }
         };
 
         function calcDiscount(promo, subtotal) {
@@ -936,8 +946,8 @@
             const district = document.getElementById('district');
             const ward = document.getElementById('ward');
             const districtText = district.options[district.selectedIndex]?.text || '';
-            const wardVal    = ward.options[ward.selectedIndex]?.value || '';
-            const wardText   = ward.options[ward.selectedIndex]?.text  || '';
+            const wardVal = ward.options[ward.selectedIndex]?.value || '';
+            const wardText = ward.options[ward.selectedIndex]?.text || '';
             const note = document.getElementById('note').value.trim();
             const payment = document.querySelector('input[name="payment"]:checked').value;
 
@@ -1007,7 +1017,7 @@
                         const snap = await get(ref(db, `promotions/${appliedPromo.id}/usageCount`));
                         const current = snap.exists() ? (snap.val() || 0) : 0;
                         await set(ref(db, `promotions/${appliedPromo.id}/usageCount`), current + 1);
-                    } catch(_) {}
+                    } catch (_) { }
                     appliedPromo = null;
                 }
 
@@ -1124,13 +1134,13 @@
             if (!el) return;
             try {
                 const snap = await get(ref(db, 'promotions'));
-                const now  = Date.now();
+                const now = Date.now();
                 const nowD = new Date();
                 const curMin = nowD.getHours() * 60 + nowD.getMinutes();
                 const subtotal = getCart().reduce((s, i) => s + i.price * i.quantity, 0);
 
                 const applicable = [];   // mã đủ điều kiện ngay bây giờ
-                const needMore   = [];   // mã cần thêm tiền
+                const needMore = [];   // mã cần thêm tiền
 
                 if (snap.exists()) {
                     snap.forEach(c => {
@@ -1182,7 +1192,7 @@
                                 ${best.title ? `<span style="font-size:.78rem;color:var(--text-muted);margin-left:6px">${best.title}</span>` : ''}
                                 <div style="font-size:.78rem;color:var(--text-secondary);margin-top:2px">
                                     Giảm ngay <strong style="color:#10b981">${formatPrice(best.discAmt)}</strong>
-                                    ${best.discountType==='percent' ? `(${best.discountValue}%${best.maxDiscount>0?' · tối đa '+formatPrice(best.maxDiscount):''})` : ''}
+                                    ${best.discountType === 'percent' ? `(${best.discountValue}%${best.maxDiscount > 0 ? ' · tối đa ' + formatPrice(best.maxDiscount) : ''})` : ''}
                                 </div>
                             </div>
                             <button type="button"
@@ -1203,7 +1213,7 @@
                         const discTxt = p.discountType === 'percent' ? `Giảm ${p.discountValue}%` : `Giảm ${formatPrice(p.discountValue)}`;
                         html += `<button type="button"
                             onclick="document.getElementById('promoCodeInput').value='${p.code}';applyPromoCode();"
-                            title="${p.title||p.code} — ${discTxt} · Tiết kiệm ${formatPrice(p.discAmt)}"
+                            title="${p.title || p.code} — ${discTxt} · Tiết kiệm ${formatPrice(p.discAmt)}"
                             style="padding:3px 10px;border:1.5px dashed var(--accent,#d4a574);background:transparent;color:var(--accent,#d4a574);border-radius:20px;cursor:pointer;font-size:.74rem;font-weight:700"
                             onmouseover="this.style.background='rgba(212,165,116,.13)'" onmouseout="this.style.background='transparent'">
                             ${p.code} <span style="font-weight:400;font-size:.68rem">— ${formatPrice(p.discAmt)}</span>
@@ -1239,7 +1249,7 @@
         try {
             const tudong_chatbox = new TuDongChat('XUitpr3VDU2e5vJgSRYO9');
             tudong_chatbox.initial();
-        } catch(e) {}
+        } catch (e) { }
     </script>
     <script type="module">
         import { updateMsgBadge } from './js/nav-helper.js';

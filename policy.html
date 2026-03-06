@@ -1,0 +1,970 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chính Sách Đổi Trả & Hoàn Tiền - Moonlight Cafe</title>
+    <meta name="description"
+        content="Chính sách đổi trả và hoàn tiền của Moonlight Cafe – minh bạch, rõ ràng để bạn yên tâm khi đặt hàng và đặt bàn.">
+
+    <!-- Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/mobile.css">
+
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <style>
+        /* Page Header */
+        .page-header {
+            background: linear-gradient(135deg, var(--bg-dark), var(--primary));
+            padding: 60px 0;
+            text-align: center;
+        }
+
+        .page-header h1 {
+            font-size: 2.8rem;
+            margin-bottom: 0.8rem;
+        }
+
+        .page-header p {
+            color: var(--text-secondary);
+            font-size: 1rem;
+        }
+
+        .breadcrumb {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            color: var(--text-muted);
+            margin-top: 12px;
+        }
+
+        .breadcrumb a {
+            color: var(--text-secondary);
+        }
+
+        .breadcrumb a:hover {
+            color: var(--accent);
+        }
+
+        /* Policy Layout */
+        .policy-section {
+            padding: 70px 0;
+        }
+
+        .policy-layout {
+            display: grid;
+            grid-template-columns: 260px 1fr;
+            gap: 40px;
+            align-items: start;
+        }
+
+        /* Sticky sidebar */
+        .policy-nav {
+            position: sticky;
+            top: 90px;
+            background: var(--bg-card);
+            border-radius: var(--radius-md);
+            padding: 20px 0;
+        }
+
+        .policy-nav-title {
+            font-size: .85rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            padding: 0 20px 12px;
+            border-bottom: 1px solid var(--secondary);
+            margin-bottom: 8px;
+        }
+
+        .policy-nav-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 20px;
+            font-size: .9rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all .2s;
+            border-left: 3px solid transparent;
+            text-decoration: none;
+        }
+
+        .policy-nav-item:hover,
+        .policy-nav-item.active {
+            color: var(--accent);
+            background: rgba(212, 165, 116, .07);
+            border-left-color: var(--accent);
+        }
+
+        .policy-nav-item i {
+            width: 18px;
+            text-align: center;
+            font-size: .85rem;
+        }
+
+        /* Policy Content */
+        .policy-content {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        .policy-card {
+            background: var(--bg-card);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            scroll-margin-top: 100px;
+        }
+
+        .policy-card-header {
+            padding: 22px 28px;
+            border-bottom: 1px solid var(--secondary);
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            background: rgba(212, 165, 116, .06);
+        }
+
+        .policy-card-header .header-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .policy-card-header .header-icon i {
+            color: #fff;
+            font-size: 1.1rem;
+        }
+
+        .policy-card-header h2 {
+            font-size: 1.25rem;
+            margin: 0;
+            color: var(--text-primary);
+        }
+
+        .policy-card-header p {
+            font-size: .85rem;
+            color: var(--text-muted);
+            margin: 3px 0 0;
+        }
+
+        .policy-card-body {
+            padding: 28px;
+        }
+
+        /* Policy Table */
+        .policy-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 16px 0;
+            font-size: .92rem;
+        }
+
+        .policy-table th {
+            background: rgba(212, 165, 116, .1);
+            color: var(--accent);
+            padding: 12px 16px;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 2px solid var(--accent);
+        }
+
+        .policy-table td {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--secondary);
+            color: var(--text-secondary);
+            vertical-align: top;
+        }
+
+        .policy-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .policy-table tr:hover td {
+            background: rgba(255, 255, 255, .02);
+        }
+
+        /* Tag badges */
+        .tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: .78rem;
+            font-weight: 600;
+        }
+
+        .tag-green {
+            background: rgba(76, 175, 80, .15);
+            color: #4caf50;
+        }
+
+        .tag-red {
+            background: rgba(239, 68, 68, .15);
+            color: #ef4444;
+        }
+
+        .tag-yellow {
+            background: rgba(245, 158, 11, .15);
+            color: #f59e0b;
+        }
+
+        .tag-blue {
+            background: rgba(59, 130, 246, .15);
+            color: #3b82f6;
+        }
+
+        /* Info blocks */
+        .policy-note {
+            display: flex;
+            gap: 14px;
+            align-items: flex-start;
+            padding: 16px 20px;
+            border-radius: var(--radius-sm);
+            margin: 16px 0;
+            font-size: .9rem;
+            line-height: 1.7;
+        }
+
+        .policy-note i {
+            font-size: 1.1rem;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .policy-note.info {
+            background: rgba(59, 130, 246, .1);
+            border: 1px solid rgba(59, 130, 246, .3);
+            color: var(--text-secondary);
+        }
+
+        .policy-note.info i {
+            color: #3b82f6;
+        }
+
+        .policy-note.warning {
+            background: rgba(245, 158, 11, .1);
+            border: 1px solid rgba(245, 158, 11, .3);
+            color: var(--text-secondary);
+        }
+
+        .policy-note.warning i {
+            color: #f59e0b;
+        }
+
+        .policy-note.success {
+            background: rgba(76, 175, 80, .1);
+            border: 1px solid rgba(76, 175, 80, .3);
+            color: var(--text-secondary);
+        }
+
+        .policy-note.success i {
+            color: #4caf50;
+        }
+
+        /* Step list */
+        .step-list {
+            list-style: none;
+            padding: 0;
+            margin: 16px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .step-list li {
+            display: flex;
+            gap: 16px;
+            align-items: flex-start;
+            padding: 14px 18px;
+            background: rgba(255, 255, 255, .03);
+            border-radius: var(--radius-sm);
+            border: 1px solid rgba(255, 255, 255, .06);
+        }
+
+        .step-num {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: var(--accent);
+            color: var(--bg-dark);
+            font-weight: 700;
+            font-size: .85rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .step-text {
+            font-size: .9rem;
+            color: var(--text-secondary);
+            line-height: 1.65;
+        }
+
+        .step-text strong {
+            color: var(--text-primary);
+        }
+
+        /* Contact CTA */
+        .contact-cta {
+            background: linear-gradient(135deg, rgba(212, 165, 116, .12), rgba(212, 165, 116, .06));
+            border: 1px solid rgba(212, 165, 116, .3);
+            border-radius: var(--radius-md);
+            padding: 30px;
+            text-align: center;
+        }
+
+        .contact-cta h3 {
+            font-size: 1.3rem;
+            margin-bottom: 10px;
+        }
+
+        .contact-cta p {
+            color: var(--text-muted);
+            margin-bottom: 20px;
+            font-size: .95rem;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 14px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        @media (max-width: 900px) {
+            .policy-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .policy-nav {
+                position: static;
+                display: flex;
+                flex-wrap: wrap;
+                padding: 10px;
+                gap: 4px;
+            }
+
+            .policy-nav-title {
+                display: none;
+            }
+
+            .policy-nav-item {
+                border-left: none;
+                border-radius: 20px;
+                font-size: .82rem;
+                padding: 7px 14px;
+                border: 1px solid var(--secondary);
+            }
+
+            .policy-nav-item.active {
+                border-color: var(--accent);
+                background: rgba(212, 165, 116, .1);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Loading Overlay -->
+    <div class="loading-overlay">
+        <div class="loader"></div>
+    </div>
+
+    <!-- Header -->
+    <header class="header" id="header">
+        <div class="container">
+            <nav class="nav">
+                <a href="index.html" class="nav-brand">
+                    <div class="nav-logo-wrapper"><img src="images/logo.png?v=4" alt="Moonlight Cafe" class="nav-logo">
+                    </div>
+                    <span class="nav-brand-text">Moonlight Cafe</span>
+                </a>
+
+                <ul class="nav-menu" id="navMenu">
+                    <li><a href="index.html" class="nav-link">Trang chủ</a></li>
+                    <li><a href="menu.html" class="nav-link">Menu</a></li>
+                    <li><a href="promotions.html" class="nav-link">Khuyến mãi</a></li>
+                    <li><a href="news.html" class="nav-link">Tin tức</a></li>
+                    <li><a href="about.html" class="nav-link">Về chúng tôi</a></li>
+                    <li><a href="contact.html" class="nav-link">Liên hệ</a></li>
+                    <li><a href="reservation.html" class="nav-link">Đặt bàn</a></li>
+                </ul>
+
+                <div class="nav-actions">
+                    <a href="contact.html" class="nav-icon hidden" id="msgIcon" title="Tin nhắn từ tiệm">
+                        <i class="fas fa-envelope"></i>
+                        <span class="badge" id="msgCount" style="display:none">0</span>
+                    </a>
+                    <a href="cart.html" class="nav-icon">
+                        <i class="fas fa-shopping-bag"></i>
+                        <span class="badge" id="cartCount">0</span>
+                    </a>
+                    <div class="nav-icon" id="userIcon" style="cursor:pointer;">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="nav-toggle" id="navToggle">
+                        <div class="nav-logo-wrapper"><img src="images/logo.png?v=4" alt="" class="nav-logo"></div>
+                        <div class="nav-logo-wrapper"><img src="images/logo.png?v=4" alt="" class="nav-logo"></div>
+                        <div class="nav-logo-wrapper"><img src="images/logo.png?v=4" alt="" class="nav-logo"></div>
+                    </div>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Page Header -->
+    <section class="page-header">
+        <div class="container">
+            <h1><i class="fas fa-shield-alt" style="color:var(--accent);margin-right:12px"></i>Chính Sách Đổi Trả & Hoàn
+                Tiền</h1>
+            <p>Cam kết minh bạch – Bảo vệ quyền lợi khách hàng</p>
+            <div class="breadcrumb">
+                <a href="index.html">Trang chủ</a>
+                <span>/</span>
+                <span style="color:var(--accent)">Chính sách</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Policy Section -->
+    <section class="policy-section">
+        <div class="container">
+            <div class="policy-layout">
+
+                <!-- Sidebar Navigation -->
+                <nav class="policy-nav">
+                    <div class="policy-nav-title">Nội dung</div>
+                    <a href="#overview" class="policy-nav-item active">
+                        <i class="fas fa-info-circle"></i> Tổng quan
+                    </a>
+                    <a href="#order-policy" class="policy-nav-item">
+                        <i class="fas fa-shopping-bag"></i> Đơn hàng online
+                    </a>
+                    <a href="#reservation-policy" class="policy-nav-item">
+                        <i class="fas fa-calendar-check"></i> Đặt bàn & Cọc
+                    </a>
+                    <a href="#refund-process" class="policy-nav-item">
+                        <i class="fas fa-undo-alt"></i> Quy trình hoàn tiền
+                    </a>
+                    <a href="#exceptions" class="policy-nav-item">
+                        <i class="fas fa-exclamation-triangle"></i> Trường hợp ngoại lệ
+                    </a>
+                    <a href="#contact-support" class="policy-nav-item">
+                        <i class="fas fa-headset"></i> Liên hệ hỗ trợ
+                    </a>
+                </nav>
+
+                <!-- Main Content -->
+                <div class="policy-content">
+
+                    <!-- Tổng quan -->
+                    <div class="policy-card" id="overview">
+                        <div class="policy-card-header">
+                            <div class="header-icon"><i class="fas fa-info-circle"></i></div>
+                            <div>
+                                <h2>Tổng quan chính sách</h2>
+                                <p>Áp dụng từ 01/01/2026</p>
+                            </div>
+                        </div>
+                        <div class="policy-card-body">
+                            <p style="color:var(--text-secondary);line-height:1.8;margin-bottom:16px">
+                                Moonlight Cafe cam kết mang lại trải nghiệm tốt nhất cho khách hàng. Chính sách này áp
+                                dụng cho
+                                <strong style="color:var(--text-primary)">đơn hàng giao về nhà</strong> và
+                                <strong style="color:var(--text-primary)">đặt bàn trực tuyến</strong> tại quán.
+                            </p>
+
+                            <div class="policy-note info">
+                                <i class="fas fa-lightbulb"></i>
+                                <span>Moonlight Cafe là quán cà phê phục vụ đồ uống và bánh ngọt tươi. Do tính chất sản
+                                    phẩm thực phẩm, chính sách đổi trả có một số điều kiện đặc thù được nêu rõ bên
+                                    dưới.</span>
+                            </div>
+
+                            <table class="policy-table">
+                                <thead>
+                                    <tr>
+                                        <th>Loại yêu cầu</th>
+                                        <th>Thời hạn xử lý</th>
+                                        <th>Trạng thái</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Đổi/trả đơn hàng có lỗi từ quán</td>
+                                        <td>Trong vòng 30 phút nhận hàng</td>
+                                        <td><span class="tag tag-green"><i class="fas fa-check"></i> Hỗ trợ</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Hoàn tiền đặt cọc đặt bàn (hủy đúng hạn)</td>
+                                        <td>1–3 ngày làm việc</td>
+                                        <td><span class="tag tag-green"><i class="fas fa-check"></i> Hỗ trợ</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Đổi trả sản phẩm theo ý thích cá nhân</td>
+                                        <td>—</td>
+                                        <td><span class="tag tag-red"><i class="fas fa-times"></i> Không hỗ trợ</span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Hoàn tiền cọc do hủy muộn / không đến</td>
+                                        <td>—</td>
+                                        <td><span class="tag tag-red"><i class="fas fa-times"></i> Không hoàn</span>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Đơn hàng Online -->
+                    <div class="policy-card" id="order-policy">
+                        <div class="policy-card-header">
+                            <div class="header-icon"><i class="fas fa-shopping-bag"></i></div>
+                            <div>
+                                <h2>Chính sách đơn hàng giao hàng</h2>
+                                <p>Áp dụng cho đặt hàng online qua website</p>
+                            </div>
+                        </div>
+                        <div class="policy-card-body">
+
+                            <h3 style="color:var(--accent);font-size:1rem;margin-bottom:12px"><i
+                                    class="fas fa-check-circle"></i> Khi nào được đổi / hoàn tiền?</h3>
+                            <table class="policy-table">
+                                <thead>
+                                    <tr>
+                                        <th>Tình huống</th>
+                                        <th>Hỗ trợ</th>
+                                        <th>Điều kiện</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Giao sai món (nhầm sản phẩm)</td>
+                                        <td><span class="tag tag-green"><i class="fas fa-check"></i> Đổi ngay</span>
+                                        </td>
+                                        <td>Báo trong 30 phút nhận hàng, còn đủ hàng</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Sản phẩm bị hư hỏng, đổ vỡ khi giao</td>
+                                        <td><span class="tag tag-green"><i class="fas fa-check"></i> Hoàn/đổi</span>
+                                        </td>
+                                        <td>Chụp ảnh bằng chứng, báo ngay khi nhận</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Thiếu món trong đơn</td>
+                                        <td><span class="tag tag-green"><i class="fas fa-check"></i> Hoàn tiền món
+                                                thiếu</span></td>
+                                        <td>Xác nhận với shipper trước khi nhận</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Chất lượng thực phẩm không đảm bảo</td>
+                                        <td><span class="tag tag-yellow"><i class="fas fa-exclamation"></i> Xem xét cụ
+                                                thể</span></td>
+                                        <td>Cần ảnh/video bằng chứng rõ ràng</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Đổi ý, không muốn dùng nữa</td>
+                                        <td><span class="tag tag-red"><i class="fas fa-times"></i> Không hỗ trợ</span>
+                                        </td>
+                                        <td>Sản phẩm thực phẩm không thể tái bán</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Hủy đơn trước khi quán xác nhận</td>
+                                        <td><span class="tag tag-blue"><i class="fas fa-phone"></i> Liên hệ ngay</span>
+                                        </td>
+                                        <td>Gọi <a href="tel:0110766204" style="color:var(--accent)">0110 766 204</a>
+                                            càng sớm càng tốt</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            <div class="policy-note warning">
+                                <i class="fas fa-clock"></i>
+                                <span><strong>Thời hạn khiếu nại:</strong> Tất cả khiếu nại về đơn hàng phải được thực
+                                    hiện <strong>trong vòng 30 phút</strong> kể từ khi nhận hàng. Quá thời gian này,
+                                    Moonlight Cafe không thể xác minh tình trạng sản phẩm.</span>
+                            </div>
+
+                            <h3 style="color:var(--accent);font-size:1rem;margin:20px 0 12px"><i
+                                    class="fas fa-truck"></i> Lưu ý về giao hàng</h3>
+                            <ul style="color:var(--text-secondary);line-height:1.9;padding-left:20px;font-size:.92rem">
+                                <li>Moonlight Cafe chỉ giao hàng trong phạm vi <strong
+                                        style="color:var(--text-primary)">Quận Ninh Kiều, Bình Thủy, Cái Răng</strong>
+                                    (TP. Cần Thơ).</li>
+                                <li>Phí giao hàng tính theo khoảng cách từ quán, tối đa <strong
+                                        style="color:var(--text-primary)">25.000đ</strong>. Khu vực dưới 1km được miễn
+                                    phí.</li>
+                                <li>Đồ uống và bánh ngọt là mặt hàng tươi, vui lòng dùng ngay sau khi nhận để đảm bảo
+                                    chất lượng.</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Đặt bàn & Cọc -->
+                    <div class="policy-card" id="reservation-policy">
+                        <div class="policy-card-header">
+                            <div class="header-icon"><i class="fas fa-calendar-check"></i></div>
+                            <div>
+                                <h2>Chính sách đặt bàn & cọc</h2>
+                                <p>Áp dụng cho đặt bàn trực tuyến tại website</p>
+                            </div>
+                        </div>
+                        <div class="policy-card-body">
+
+                            <h3 style="color:var(--accent);font-size:1rem;margin-bottom:12px"><i
+                                    class="fas fa-coins"></i> Phí đặt cọc</h3>
+                            <table class="policy-table">
+                                <thead>
+                                    <tr>
+                                        <th>Loại bàn</th>
+                                        <th>Sức chứa</th>
+                                        <th>Phí cọc / bàn</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Bàn A (Khu A)</td>
+                                        <td>2 người</td>
+                                        <td><strong style="color:var(--accent)">20.000đ</strong></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Bàn B (Khu B)</td>
+                                        <td>4 người</td>
+                                        <td><strong style="color:var(--accent)">40.000đ</strong></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Bàn C (Khu C)</td>
+                                        <td>6 người</td>
+                                        <td><strong style="color:var(--accent)">60.000đ</strong></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Bàn D – VIP (Khu D)</td>
+                                        <td>10 người</td>
+                                        <td><strong style="color:var(--accent)">100.000đ</strong></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div class="policy-note success">
+                                <i class="fas fa-receipt"></i>
+                                <span>Tiền cọc được <strong>trừ 100% vào hóa đơn</strong> khi bạn đến quán. Bạn không
+                                    mất thêm tiền nếu đến đúng giờ.</span>
+                            </div>
+
+                            <h3 style="color:var(--accent);font-size:1rem;margin:20px 0 12px"><i
+                                    class="fas fa-undo-alt"></i> Chính sách hủy & hoàn cọc</h3>
+                            <table class="policy-table">
+                                <thead>
+                                    <tr>
+                                        <th>Thời điểm hủy</th>
+                                        <th>Hoàn cọc</th>
+                                        <th>Ghi chú</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Hủy trước giờ nhận bàn <strong>≥ 2 tiếng</strong></td>
+                                        <td><span class="tag tag-green"><i class="fas fa-check"></i> Hoàn 100%</span>
+                                        </td>
+                                        <td>Hoàn trong 1–3 ngày làm việc</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Hủy trước giờ nhận bàn <strong>&lt; 2 tiếng</strong></td>
+                                        <td><span class="tag tag-red"><i class="fas fa-times"></i> Mất cọc</span></td>
+                                        <td>Quán không kịp sắp xếp lại</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Không đến và không báo (no-show)</td>
+                                        <td><span class="tag tag-red"><i class="fas fa-times"></i> Mất cọc</span></td>
+                                        <td>Bàn tự động mở sau 20 phút</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Quán từ chối / không có bàn phù hợp</td>
+                                        <td><span class="tag tag-green"><i class="fas fa-check"></i> Hoàn 100%</span>
+                                        </td>
+                                        <td>Hoàn trong 1–3 ngày làm việc</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Chưa thanh toán cọc sau 30 phút</td>
+                                        <td>—</td>
+                                        <td>Đặt bàn tự động hủy, bàn mở lại</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            <div class="policy-note info">
+                                <i class="fas fa-exchange-alt"></i>
+                                <span><strong>Đề xuất bàn thay thế:</strong> Nếu bàn bạn chọn đã đầy, admin có thể đề
+                                    xuất loại bàn thay thế (chênh giá cọc nếu có). Bạn có quyền <strong>chấp nhận hoặc
+                                        từ chối</strong> tại giao diện đặt bàn. Nếu từ chối, cọc được hoàn 100%.</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quy trình hoàn tiền -->
+                    <div class="policy-card" id="refund-process">
+                        <div class="policy-card-header">
+                            <div class="header-icon"><i class="fas fa-undo-alt"></i></div>
+                            <div>
+                                <h2>Quy trình hoàn tiền</h2>
+                                <p>Đơn giản – nhanh chóng – minh bạch</p>
+                            </div>
+                        </div>
+                        <div class="policy-card-body">
+                            <ul class="step-list">
+                                <li>
+                                    <div class="step-num">1</div>
+                                    <div class="step-text">
+                                        <strong>Liên hệ Moonlight Cafe</strong><br>
+                                        Gọi điện <a href="tel:0110766204" style="color:var(--accent)">0110 766 204</a>
+                                        hoặc
+                                        gửi liên hệ qua <a href="contact.html" style="color:var(--accent)">trang Liên
+                                            hệ</a>.
+                                        Nêu rõ: Mã đơn hàng / Mã đặt bàn + Lý do yêu cầu hoàn tiền.
+                                    </div>
+                                </li>
+                                <li>
+                                    <div class="step-num">2</div>
+                                    <div class="step-text">
+                                        <strong>Xác minh thông tin</strong><br>
+                                        Admin kiểm tra đơn hàng/đặt bàn trên hệ thống. Nếu cần, bạn gửi thêm
+                                        ảnh bằng chứng qua Zalo/Facebook của quán.
+                                    </div>
+                                </li>
+                                <li>
+                                    <div class="step-num">3</div>
+                                    <div class="step-text">
+                                        <strong>Xử lý hoàn tiền</strong><br>
+                                        Tiền hoàn trả qua <strong>cùng phương thức thanh toán ban đầu</strong>
+                                        (VNPay → VNPay, MoMo → MoMo, COD → chuyển khoản).
+                                        Thời gian xử lý: <strong>1–3 ngày làm việc</strong>.
+                                    </div>
+                                </li>
+                                <li>
+                                    <div class="step-num">4</div>
+                                    <div class="step-text">
+                                        <strong>Xác nhận hoàn tất</strong><br>
+                                        Bạn nhận thông báo hoàn tiền thành công qua hệ thống và qua phương thức
+                                        thanh toán tương ứng.
+                                    </div>
+                                </li>
+                            </ul>
+
+                            <div class="policy-note warning">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                <span>Moonlight Cafe <strong>không hỗ trợ hoàn tiền mặt</strong> với đơn hàng thanh toán
+                                    qua VNPay hoặc MoMo. Tiền được hoàn ngược về tài khoản gốc.</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Trường hợp ngoại lệ -->
+                    <div class="policy-card" id="exceptions">
+                        <div class="policy-card-header">
+                            <div class="header-icon"><i class="fas fa-exclamation-triangle"></i></div>
+                            <div>
+                                <h2>Trường hợp ngoại lệ</h2>
+                                <p>Các tình huống đặc biệt được xem xét linh hoạt</p>
+                            </div>
+                        </div>
+                        <div class="policy-card-body">
+                            <p style="color:var(--text-secondary);line-height:1.8;margin-bottom:16px">
+                                Moonlight Cafe hiểu rằng cuộc sống không phải lúc nào cũng theo kế hoạch.
+                                Dưới đây là các tình huống ngoại lệ được chúng tôi xem xét linh hoạt:
+                            </p>
+
+                            <table class="policy-table">
+                                <thead>
+                                    <tr>
+                                        <th>Tình huống đặc biệt</th>
+                                        <th>Hỗ trợ</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><i class="fas fa-heartbeat" style="color:#ef4444;margin-right:8px"></i> Sự
+                                            cố sức khỏe khẩn cấp (có bằng chứng)</td>
+                                        <td><span class="tag tag-green"><i class="fas fa-check"></i> Hoàn cọc
+                                                100%</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><i class="fas fa-cloud-rain" style="color:#3b82f6;margin-right:8px"></i>
+                                            Thiên tai, bão lũ, quán tự đóng cửa</td>
+                                        <td><span class="tag tag-green"><i class="fas fa-check"></i> Hoàn cọc
+                                                100%</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><i class="fas fa-wifi" style="color:#f59e0b;margin-right:8px"></i> Lỗi hệ
+                                            thống thanh toán của quán</td>
+                                        <td><span class="tag tag-blue"><i class="fas fa-sync"></i> Xử lý ngay</span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><i class="fas fa-motorcycle" style="color:#8b5cf6;margin-right:8px"></i>
+                                            Giao hàng trễ quá 60 phút (lỗi từ quán)</td>
+                                        <td><span class="tag tag-yellow"><i class="fas fa-gift"></i> Voucher bù
+                                                đắp</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            <div class="policy-note info">
+                                <i class="fas fa-heart"></i>
+                                <span>Chúng tôi luôn xem xét từng trường hợp cụ thể với tinh thần thiện chí. Hãy liên hệ
+                                    trực tiếp để chúng tôi hỗ trợ bạn tốt nhất.</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Liên hệ hỗ trợ -->
+                    <div id="contact-support">
+                        <div class="contact-cta">
+                            <i class="fas fa-headset"
+                                style="font-size:2.5rem;color:var(--accent);margin-bottom:16px;display:block"></i>
+                            <h3>Cần hỗ trợ thêm?</h3>
+                            <p>Đội ngũ Moonlight Cafe luôn sẵn sàng hỗ trợ bạn trong giờ mở cửa (07:00 – 22:00 hàng
+                                ngày).</p>
+                            <div class="cta-buttons">
+                                <a href="tel:0110766204" class="btn btn-primary">
+                                    <i class="fas fa-phone"></i> Gọi 0110 766 204
+                                </a>
+                                <a href="contact.html" class="btn btn-outline">
+                                    <i class="fas fa-envelope"></i> Gửi liên hệ
+                                </a>
+                                <a href="orders.html" class="btn btn-outline">
+                                    <i class="fas fa-search"></i> Tra cứu đơn
+                                </a>
+                            </div>
+                            <p style="margin-top:16px;font-size:.85rem;color:var(--text-muted)">
+                                <i class="fas fa-map-marker-alt" style="color:var(--accent)"></i>
+                                Nguyễn Đệ, Cái Khế, Ninh Kiều, TP. Cần Thơ
+                            </p>
+                        </div>
+                    </div>
+
+                </div><!-- end policy-content -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <div class="footer-brand">
+                        <div class="nav-logo-wrapper"><img src="images/logo.png?v=4" alt="Moonlight Cafe"
+                                class="nav-logo"></div>
+                        <span class="nav-brand-text">Moonlight Cafe</span>
+                    </div>
+                    <p id="footer-slogan">Nơi thưởng thức cà phê và bánh ngọt thượng hạng trong không gian ấm cúng dưới
+                        ánh trăng.</p>
+                    <div class="footer-social">
+                        <a href="#" id="footer-fb"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" id="footer-ig"><i class="fab fa-instagram"></i></a>
+                        <a href="#" id="footer-tt"><i class="fab fa-tiktok"></i></a>
+                        <a href="#" id="footer-yt"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+                <div class="footer-col">
+                    <h4 class="footer-title">Liên kết nhanh</h4>
+                    <ul class="footer-links">
+                        <li><a href="index.html">Trang chủ</a></li>
+                        <li><a href="menu.html">Menu</a></li>
+                        <li><a href="promotions.html">Khuyến mãi</a></li>
+                        <li><a href="about.html">Về chúng tôi</a></li>
+                        <li><a href="contact.html">Liên hệ</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4 class="footer-title">Hỗ trợ</h4>
+                    <ul class="footer-links">
+                        <li><a href="orders.html">Theo dõi đơn hàng</a></li>
+                        <li><a href="policy.html" style="color:var(--accent)">Chính sách đổi trả</a></li>
+                        <li><a href="contact.html">Liên hệ</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4 class="footer-title">Liên hệ</h4>
+                    <ul class="footer-contact">
+                        <li><i class="fas fa-map-marker-alt"></i> <span id="footer-address">Nguyễn Đệ, Cái Khế, Cần
+                                Thơ</span></li>
+                        <li><i class="fas fa-phone"></i> <span id="footer-phone">0110 766 204</span></li>
+                        <li><i class="fas fa-envelope"></i> <span id="footer-email">moonlightcafe@gmail.com</span></li>
+                        <li><i class="fas fa-clock"></i> <span id="footer-hours">7:00 - 22:00 hàng ngày</span></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p id="footer-copyright">&copy; 2026 Moonlight Cafe. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- User Dropdown -->
+    <div class="user-dropdown" id="userDropdown">
+        <div class="user-dropdown-header" id="userInfo">
+            <i class="fas fa-user-circle"></i>
+            <span>Tài khoản</span>
+        </div>
+        <div class="user-dropdown-menu"></div>
+    </div>
+
+    <script type="module">
+        import { initUserDropdown, loadStoreInfo } from './js/nav-helper.js';
+        initUserDropdown();
+        loadStoreInfo();
+
+        // Loading
+        window.addEventListener('load', () => {
+            setTimeout(() => document.querySelector('.loading-overlay')?.classList.add('hidden'), 500);
+        });
+
+        // Header scroll
+        window.addEventListener('scroll', () => {
+            document.getElementById('header').classList.toggle('scrolled', window.scrollY > 50);
+        });
+
+        // Mobile nav
+        document.getElementById('navToggle').addEventListener('click', () => {
+            document.getElementById('navMenu').classList.toggle('active');
+        });
+
+        // Active sidebar nav on scroll
+        const sections = document.querySelectorAll('[id]');
+        const navItems = document.querySelectorAll('.policy-nav-item');
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    navItems.forEach(item => item.classList.remove('active'));
+                    const active = document.querySelector(`.policy-nav-item[href="#${entry.target.id}"]`);
+                    if (active) active.classList.add('active');
+                }
+            });
+        }, { rootMargin: '-20% 0px -60% 0px' });
+        sections.forEach(s => observer.observe(s));
+    </script>
+</body>
+
+</html>

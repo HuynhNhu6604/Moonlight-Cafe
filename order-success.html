@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="vi">
 
 <head>
@@ -499,7 +499,8 @@
         <div class="container">
             <nav class="nav">
                 <a href="index.html" class="nav-brand">
-                    <div class="nav-logo-wrapper"><img src="images/logo.png?v=4" alt="Moonlight Cafe" class="nav-logo"></div>
+                    <div class="nav-logo-wrapper"><img src="images/logo.png?v=4" alt="Moonlight Cafe" class="nav-logo">
+                    </div>
                     <span class="nav-brand-text">Moonlight Cafe</span>
                 </a>
 
@@ -551,10 +552,11 @@
                 <div class="bill-card" id="billCard">
                     <div class="bill-header">
                         <div class="bill-logo">
-                            <div class="nav-logo-wrapper"><img src="images/logo.png?v=4" alt="Moonlight Cafe" class="nav-logo"></div>
+                            <div class="nav-logo-wrapper"><img src="images/logo.png?v=4" alt="Moonlight Cafe"
+                                    class="nav-logo"></div>
                             <span class="bill-logo-text">Moonlight Cafe</span>
                         </div>
-                        <p>66 Nguyễn Đệ, Cái Khế, Cần Thơ</p>
+                        <p>Nguyễn Đệ, Cái Khế, Cần Thơ</p>
                         <p>📞 0110 766 204 | 📧 moonlightcafe@gmail.com</p>
                     </div>
 
@@ -653,10 +655,12 @@
             <div class="footer-grid">
                 <div class="footer-col">
                     <div class="footer-brand">
-                        <div class="nav-logo-wrapper"><img src="images/logo.png?v=4" alt="Moonlight Cafe" class="nav-logo"></div>
+                        <div class="nav-logo-wrapper"><img src="images/logo.png?v=4" alt="Moonlight Cafe"
+                                class="nav-logo"></div>
                         <span class="nav-brand-text">Moonlight Cafe</span>
                     </div>
-                    <p id="footer-slogan">Nơi thưởng thức cà phê và bánh ngọt thượng hạng trong không gian ấm cúng dưới ánh trăng.</p>
+                    <p id="footer-slogan">Nơi thưởng thức cà phê và bánh ngọt thượng hạng trong không gian ấm cúng dưới
+                        ánh trăng.</p>
                     <div class="footer-social">
                         <a href="#" id="footer-fb"><i class="fab fa-facebook-f"></i></a>
                         <a href="#" id="footer-ig"><i class="fab fa-instagram"></i></a>
@@ -678,7 +682,8 @@
                 <div class="footer-col">
                     <h4 class="footer-title">Liên hệ</h4>
                     <ul class="footer-contact">
-                        <li><i class="fas fa-map-marker-alt"></i> <span id="footer-address">66 Nguyễn Đệ, Cái Khế, Cần Thơ</span></li>
+                        <li><i class="fas fa-map-marker-alt"></i> <span id="footer-address">Nguyễn Đệ, Cái Khế, Cần
+                                Thơ</span></li>
                         <li><i class="fas fa-phone"></i> <span id="footer-phone">0110 766 204</span></li>
                         <li><i class="fas fa-envelope"></i> <span id="footer-email">moonlightcafe@gmail.com</span></li>
                         <li><i class="fas fa-clock"></i> <span id="footer-hours">7:00 - 22:00 hàng ngày</span></li>
@@ -895,10 +900,12 @@
                 paymentInfo.innerHTML = `
                     <h4><i class="fas fa-wallet"></i> Thanh toán qua MoMo</h4>
                     <div class="qr-section">
-                        <div class="qr-code" id="momoQR" style="background: #ae2070;"></div>
+                        <div class="qr-code" style="background:white;padding:5px;border-radius:8px;">
+                            <img src="images/momo-qr-quan.jpg" alt="QR MoMo Moonlight Cafe" style="width:120px;height:120px;object-fit:cover;display:block;">
+                        </div>
                         <div class="qr-info">
                             <div class="bank-details">
-                                <p><strong>Số điện thoại:</strong> <span>0901234567</span></p>
+                                <p><strong>Số điện thoại:</strong> <span>0345 142 208</span></p>
                                 <p><strong>Tên tài khoản:</strong> <span>Moonlight Cafe</span></p>
                                 <p><strong>Số tiền:</strong> <span>${formatPrice(currentOrder.total)}</span></p>
                                 <p><strong>Nội dung:</strong> <span>MLC${currentOrder.id.slice(-8).toUpperCase()}</span></p>
@@ -910,22 +917,6 @@
                         </div>
                     </div>
                 `;
-
-                // Generate MoMo QR
-                setTimeout(() => {
-                    const qrContainer = document.getElementById('momoQR');
-                    if (qrContainer && qrContainer.innerHTML === '') {
-                        const qrData = `2|99|0901234567|||0|0|${currentOrder.total}|MOMO|MLC${currentOrder.id.slice(-8).toUpperCase()}`;
-                        new QRCode(qrContainer, {
-                            text: qrData,
-                            width: 120,
-                            height: 120,
-                            colorDark: "#ffffff",
-                            colorLight: "#ae2070",
-                            correctLevel: QRCode.CorrectLevel.H
-                        });
-                    }
-                }, 100);
             } else if (currentOrder.payment === 'vnpay') {
                 const payStatus = currentOrder.paymentStatus || 'pending';
                 const paid = payStatus === 'paid';
@@ -937,8 +928,8 @@
                     </p>
                     <p style="color: var(--text-muted);">
                         ${paid
-                            ? 'Hệ thống đã ghi nhận thanh toán VNPAY cho đơn hàng này.'
-                            : 'Nếu bạn vừa hoàn tất thanh toán, vui lòng chờ vài giây để hệ thống đồng bộ trạng thái.'}
+                        ? 'Hệ thống đã ghi nhận thanh toán VNPAY cho đơn hàng này.'
+                        : 'Nếu bạn vừa hoàn tất thanh toán, vui lòng chờ vài giây để hệ thống đồng bộ trạng thái.'}
                     </p>
                 `;
             }

@@ -287,7 +287,10 @@
             </div>
             <div class="auth-form-container">
                 <div class="auth-header">
-                    <div class="auth-logo"><div class="nav-logo-wrapper"><img src="images/logo.png?v=4" alt="Moonlight Cafe" class="nav-logo"></div><span class="auth-logo-text">Moonlight Cafe</span></div>
+                    <div class="auth-logo">
+                        <div class="nav-logo-wrapper"><img src="images/logo.png?v=4" alt="Moonlight Cafe"
+                                class="nav-logo"></div><span class="auth-logo-text">Moonlight Cafe</span>
+                    </div>
                     <h1 class="auth-title">Đăng nhập</h1>
                     <p class="auth-subtitle">Nhập thông tin tài khoản của bạn</p>
                 </div>
@@ -381,6 +384,15 @@
                 });
             }
 
+            // Đọc ?redirect= param (N3 fix)
+            const redirectTo = (() => {
+                const params = new URLSearchParams(window.location.search);
+                const r = params.get('redirect');
+                // Chỉ cho phép redirect đến các trang nội bộ, tránh open redirect
+                if (r && /^[\w\-./]+\.html(\?.*)?$/.test(r) && !r.startsWith('http')) return r;
+                return null;
+            })();
+
             // Check if user is already logged in
             onAuthStateChanged(auth, async (user) => {
                 if (user) {
@@ -396,7 +408,7 @@
                     }
 
                     // Track last login time for activity status
-                    try { await update(userRef, { lastLoginAt: Date.now() }); } catch(_) {}
+                    try { await update(userRef, { lastLoginAt: Date.now() }); } catch (_) { }
 
                     // Save to localStorage
                     localStorage.setItem('moonlight_user', JSON.stringify({
@@ -410,11 +422,11 @@
 
                     console.log('Is admin:', isAdminUser);
 
-                    // Redirect
+                    // Redirect: admin → admin.html, ngược lại → redirect param hoặc index.html
                     if (isAdminUser) {
                         window.location.href = 'admin.html';
                     } else {
-                        window.location.href = 'index.html';
+                        window.location.href = redirectTo || 'index.html';
                     }
                 } else {
                     console.log('No user logged in');
@@ -509,7 +521,7 @@
                             timer: 1500,
                             showConfirmButton: false
                         }).then(() => {
-                            window.location.href = isAdminUser ? 'admin.html' : 'index.html';
+                            window.location.href = isAdminUser ? 'admin.html' : (redirectTo || 'index.html');
                         });
 
                     } catch (error) {
@@ -548,7 +560,7 @@
         try {
             const tudong_chatbox = new TuDongChat('XUitpr3VDU2e5vJgSRYO9');
             tudong_chatbox.initial();
-        } catch(e) {}
+        } catch (e) { }
     </script>
 </body>
 

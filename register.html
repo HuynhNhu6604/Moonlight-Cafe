@@ -333,11 +333,6 @@
             color: #db4437;
         }
 
-        .social-btn.facebook {
-            background: #1877f2;
-            color: #fff;
-        }
-
         .social-btn:hover {
             transform: translateY(-3px);
             box-shadow: var(--shadow-md);
@@ -402,7 +397,8 @@
             <div class="auth-form-container">
                 <div class="auth-header">
                     <div class="auth-logo">
-                        <div class="nav-logo-wrapper"><img src="images/logo.png?v=4" alt="Moonlight Cafe" class="nav-logo"></div>
+                        <div class="nav-logo-wrapper"><img src="images/logo.png?v=4" alt="Moonlight Cafe"
+                                class="nav-logo"></div>
                         <span class="auth-logo-text">Moonlight Cafe</span>
                     </div>
                     <h1 class="auth-title">Tạo tài khoản</h1>
@@ -493,9 +489,6 @@
                 <div class="social-login">
                     <button class="social-btn google">
                         <i class="fab fa-google"></i>
-                    </button>
-                    <button class="social-btn facebook">
-                        <i class="fab fa-facebook-f"></i>
                     </button>
                 </div>
 
@@ -764,15 +757,7 @@
             }
         });
 
-        // Facebook Sign-In (placeholder - requires Facebook App setup)
-        const facebookBtn = document.querySelector('.social-btn.facebook');
-        facebookBtn.addEventListener('click', () => {
-            Swal.fire({
-                icon: 'info',
-                title: 'Tính năng đang phát triển',
-                text: 'Đăng nhập Facebook sẽ sớm được ra mắt!'
-            });
-        });
+
     </script>
 
 
@@ -782,7 +767,7 @@
         try {
             const tudong_chatbox = new TuDongChat('XUitpr3VDU2e5vJgSRYO9');
             tudong_chatbox.initial();
-        } catch(e) {}
+        } catch (e) { }
     </script>
 </body>
 

@@ -583,7 +583,8 @@
         <div class="container">
             <nav class="nav">
                 <a href="index.html" class="nav-brand">
-                    <div class="nav-logo-wrapper"><img src="images/logo.png?v=4" alt="Moonlight Cafe" class="nav-logo"></div>
+                    <div class="nav-logo-wrapper"><img src="images/logo.png?v=4" alt="Moonlight Cafe" class="nav-logo">
+                    </div>
                     <span class="nav-brand-text">Moonlight Cafe</span>
                 </a>
 
@@ -610,9 +611,12 @@
                         <i class="fas fa-user"></i>
                     </a>
                     <div class="nav-toggle" id="navToggle">
-                        <div class="nav-logo-wrapper"><img src="images/logo.png?v=4" alt="Moonlight Cafe" class="nav-logo"></div>
-                        <div class="nav-logo-wrapper"><img src="images/logo.png?v=4" alt="Moonlight Cafe" class="nav-logo"></div>
-                        <div class="nav-logo-wrapper"><img src="images/logo.png?v=4" alt="Moonlight Cafe" class="nav-logo"></div>
+                        <div class="nav-logo-wrapper"><img src="images/logo.png?v=4" alt="Moonlight Cafe"
+                                class="nav-logo"></div>
+                        <div class="nav-logo-wrapper"><img src="images/logo.png?v=4" alt="Moonlight Cafe"
+                                class="nav-logo"></div>
+                        <div class="nav-logo-wrapper"><img src="images/logo.png?v=4" alt="Moonlight Cafe"
+                                class="nav-logo"></div>
                     </div>
                 </div>
             </nav>
@@ -714,10 +718,12 @@
             <div class="footer-grid">
                 <div class="footer-col">
                     <div class="footer-brand">
-                        <div class="nav-logo-wrapper"><img src="images/logo.png?v=4" alt="Moonlight Cafe" class="nav-logo"></div>
+                        <div class="nav-logo-wrapper"><img src="images/logo.png?v=4" alt="Moonlight Cafe"
+                                class="nav-logo"></div>
                         <span class="nav-brand-text">Moonlight Cafe</span>
                     </div>
-                    <p id="footer-slogan">Nơi thưởng thức cà phê và bánh ngọt thượng hạng trong không gian ấm cúng dưới ánh trăng.</p>
+                    <p id="footer-slogan">Nơi thưởng thức cà phê và bánh ngọt thượng hạng trong không gian ấm cúng dưới
+                        ánh trăng.</p>
                     <div class="footer-social">
                         <a href="#" id="footer-fb"><i class="fab fa-facebook-f"></i></a>
                         <a href="#" id="footer-ig"><i class="fab fa-instagram"></i></a>
@@ -740,9 +746,8 @@
                     <h4 class="footer-title">Hỗ trợ</h4>
                     <ul class="footer-links">
                         <li><a href="orders.html">Theo dõi đơn hàng</a></li>
-                        <li><a href="#">Chính sách đổi trả</a></li>
-                        <li><a href="#">FAQ</a></li>
-                        <li><a href="#">Liên hệ</a></li>
+                        <li><a href="policy.html">Chính sách đổi trả</a></li>
+                        <li><a href="contact.html">Liên hệ & Góp ý</a></li>
                     </ul>
                 </div>
 
@@ -751,7 +756,7 @@
                     <ul class="footer-contact">
                         <li>
                             <i class="fas fa-map-marker-alt"></i>
-                            <span id="footer-address">66 Nguyễn Đệ, Cái Khế, Cần Thơ</span>
+                            <span id="footer-address">Nguyễn Đệ, Cái Khế, Cần Thơ</span>
                         </li>
                         <li>
                             <i class="fas fa-phone"></i>
@@ -864,7 +869,9 @@
 
         function renderProduct(product) {
             const container = document.getElementById('productDetail');
-            const favorites = JSON.parse(localStorage.getItem('moonlight_wishlist')) || [];
+            const currentUid = auth.currentUser?.uid;
+            const wishlistKey = currentUid ? `moonlight_wishlist_${currentUid}` : 'moonlight_wishlist_guest';
+            const favorites = JSON.parse(localStorage.getItem(wishlistKey)) || [];
             const isFavorite = favorites.some(item => String(item.id) === String(productId));
             const heartClass = isFavorite ? 'fas fa-heart active' : 'far fa-heart';
 
@@ -1001,7 +1008,9 @@
         window.toggleFavoriteDetail = function () {
             if (!window.currentProduct) return;
 
-            let wishlist = JSON.parse(localStorage.getItem('moonlight_wishlist')) || [];
+            const currentUid = auth.currentUser?.uid;
+            const wishlistKey = currentUid ? `moonlight_wishlist_${currentUid}` : 'moonlight_wishlist_guest';
+            let wishlist = JSON.parse(localStorage.getItem(wishlistKey)) || [];
             const index = wishlist.findIndex(item => String(item.id) === String(productId));
             const icon = document.getElementById('heart-icon-detail');
 
@@ -1043,7 +1052,7 @@
                 });
             }
 
-            localStorage.setItem('moonlight_wishlist', JSON.stringify(wishlist));
+            localStorage.setItem(wishlistKey, JSON.stringify(wishlist));
         };
 
         // Update cart count on load

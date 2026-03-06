@@ -237,7 +237,8 @@
         <div class="container">
             <nav class="nav">
                 <a href="index.html" class="nav-brand">
-                    <div class="nav-logo-wrapper"><img src="images/logo.png?v=4" alt="Moonlight Cafe" class="nav-logo"></div>
+                    <div class="nav-logo-wrapper"><img src="images/logo.png?v=4" alt="Moonlight Cafe" class="nav-logo">
+                    </div>
                     <span class="nav-brand-text">Moonlight Cafe</span>
                 </a>
 
@@ -290,10 +291,12 @@
             <div class="footer-grid">
                 <div class="footer-col">
                     <div class="footer-brand">
-                        <div class="nav-logo-wrapper"><img src="images/logo.png?v=4" alt="Moonlight Cafe" class="nav-logo"></div>
+                        <div class="nav-logo-wrapper"><img src="images/logo.png?v=4" alt="Moonlight Cafe"
+                                class="nav-logo"></div>
                         <span class="nav-brand-text">Moonlight Cafe</span>
                     </div>
-                    <p id="footer-slogan">Nơi thưởng thức cà phê và bánh ngọt thượng hạng trong không gian ấm cúng dưới ánh trăng.</p>
+                    <p id="footer-slogan">Nơi thưởng thức cà phê và bánh ngọt thượng hạng trong không gian ấm cúng dưới
+                        ánh trăng.</p>
                     <div class="footer-social">
                         <a href="#" id="footer-fb"><i class="fab fa-facebook-f"></i></a>
                         <a href="#" id="footer-ig"><i class="fab fa-instagram"></i></a>
@@ -315,7 +318,8 @@
                 <div class="footer-col">
                     <h4 class="footer-title">Liên hệ</h4>
                     <ul class="footer-contact">
-                        <li><i class="fas fa-map-marker-alt"></i> <span id="footer-address">66 Nguyễn Đệ, Cái Khế, Cần Thơ</span></li>
+                        <li><i class="fas fa-map-marker-alt"></i> <span id="footer-address">Nguyễn Đệ, Cái Khế, Cần
+                                Thơ</span></li>
                         <li><i class="fas fa-phone"></i> <span id="footer-phone">0110 766 204</span></li>
                         <li><i class="fas fa-envelope"></i> <span id="footer-email">moonlightcafe@gmail.com</span></li>
                         <li><i class="fas fa-clock"></i> <span id="footer-hours">7:00 - 22:00 hàng ngày</span></li>
@@ -382,7 +386,9 @@
                 'confirmed': { text: 'Đã xác nhận', class: 'status-confirmed' },
                 'shipping': { text: 'Đang giao hàng', class: 'status-shipping' },
                 'completed': { text: 'Hoàn thành', class: 'status-completed' },
-                'cancelled': { text: 'Đã hủy', class: 'status-cancelled' }
+                'cancelled': { text: 'Đã hủy', class: 'status-cancelled' },
+                'awaiting_payment': { text: 'Chờ thanh toán', class: 'status-pending' },
+                'failed': { text: 'TT thất bại', class: 'status-cancelled' }
             };
             return statusMap[status] || { text: status, class: 'status-pending' };
         }
@@ -527,14 +533,68 @@
         }
 
         // View order detail
-        window.viewOrderDetail = function (orderId) {
-            // Navigate to order detail or show modal
+        window.viewOrderDetail = async function (orderId) {
+            // Hiện loading
             Swal.fire({
-                title: 'Chi tiết đơn hàng',
-                text: `Mã đơn: #${orderId.slice(-8).toUpperCase()}`,
-                icon: 'info'
+                title: 'Đang tải chi tiết đơn...',
+                allowOutsideClick: false,
+                didOpen: () => { Swal.showLoading(); }
             });
+            try {
+                const snap = await get(ref(db, `orders/${orderId}`));
+                if (!snap.exists()) {
+                    Swal.fire({ icon: 'error', title: 'Không tìm thấy đơn hàng!' });
+                    return;
+                }
+                const o = snap.val();
+                const statusInfo = getStatusInfo(o.status);
+                const paymentLabel = { cod: 'Tiền mặt (COD)', momo: 'Ví MoMo', vnpay: 'VNPAY QR' };
+                const itemsHtml = (o.items || []).map(item => `
+                    <div style="display:flex;gap:10px;padding:8px 0;border-bottom:1px solid var(--secondary,#2a2a3e);align-items:center">
+                        <img src="${item.imageUrl || 'https://via.placeholder.com/50x40'}" style="width:50px;height:40px;object-fit:cover;border-radius:6px" alt="${item.name}">
+                        <div style="flex:1">
+                            <div style="font-weight:600;font-size:.92rem">${item.name}</div>
+                            <div style="font-size:.82rem;color:var(--text-muted)">x${item.quantity} × ${formatPrice(item.price)}</div>
+                        </div>
+                        <div style="font-weight:600;color:var(--accent)">${formatPrice(item.price * item.quantity)}</div>
+                    </div>`).join('');
+                const addr = o.customer ? `${o.customer.address || ''}, ${o.customer.ward || ''}, ${o.customer.district || ''}, ${o.customer.city || ''}`.replace(/^,\s*|,\s*$/g, '') : '---';
+                Swal.fire({
+                    title: `Chi tiết đơn hàng #${orderId.slice(-8).toUpperCase()}`,
+                    html: `
+                        <div style="text-align:left;font-size:.9rem">
+                            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+                                <span class="order-status ${statusInfo.class}" style="padding:4px 12px;border-radius:20px;font-size:.82rem">${statusInfo.text}</span>
+                                <span style="color:var(--text-muted);font-size:.82rem">${formatDate(o.createdAt)}</span>
+                            </div>
+                            <div style="background:var(--primary-light,#1a1a2e);border-radius:8px;padding:10px 14px;margin-bottom:10px">
+                                <p style="margin:4px 0"><strong>Khách hàng:</strong> ${o.customer?.fullName || '---'}</p>
+                                <p style="margin:4px 0"><strong>SĐT:</strong> ${o.customer?.phone || '---'}</p>
+                                <p style="margin:4px 0"><strong>Email:</strong> ${o.customer?.email || '---'}</p>
+                                <p style="margin:4px 0"><strong>Địa chỉ:</strong> ${addr}</p>
+                                ${o.note ? `<p style="margin:4px 0"><strong>Ghi chú:</strong> ${o.note}</p>` : ''}
+                            </div>
+                            <div style="margin-bottom:10px">${itemsHtml}</div>
+                            <div style="background:var(--primary-light,#1a1a2e);border-radius:8px;padding:10px 14px">
+                                <div style="display:flex;justify-content:space-between;margin:4px 0"><span>Tạm tính</span><span>${formatPrice(o.subtotal)}</span></div>
+                                <div style="display:flex;justify-content:space-between;margin:4px 0"><span>Phí ship</span><span>${o.shipping === 0 ? 'Miễn phí 🎉' : formatPrice(o.shipping)}</span></div>
+                                ${o.discount > 0 ? `<div style="display:flex;justify-content:space-between;margin:4px 0;color:#10b981"><span>Giảm giá${o.promoCode ? ' (' + o.promoCode + ')' : ''}</span><span>-${formatPrice(o.discount)}</span></div>` : ''}
+                                <div style="display:flex;justify-content:space-between;margin:8px 0 0;padding-top:8px;border-top:1px solid var(--secondary);font-weight:700;font-size:1rem;color:var(--accent)"><span>Tổng cộng</span><span>${formatPrice(o.total)}</span></div>
+                                <div style="margin-top:8px;font-size:.82rem;color:var(--text-muted)">
+                                    TT: <strong>${paymentLabel[o.payment] || o.payment}</strong>
+                                    ${o.paymentStatus === 'paid' ? ' · <span style="color:#10b981">✅ Đã thanh toán</span>' : o.paymentStatus === 'failed' ? ' · <span style="color:#ef4444">❌ Thất bại</span>' : ' · Chưa thanh toán'}
+                                </div>
+                            </div>
+                        </div>`,
+                    width: '600px',
+                    confirmButtonColor: '#d4a574',
+                    confirmButtonText: 'Đóng'
+                });
+            } catch (e) {
+                Swal.fire({ icon: 'error', title: 'Lỗi!', text: 'Không thể tải chi tiết đơn hàng.' });
+            }
         };
+
 
         // Cancel order
         window.cancelOrder = async function (orderId) {
@@ -596,7 +656,7 @@
         try {
             const tudong_chatbox = new TuDongChat('XUitpr3VDU2e5vJgSRYO9');
             tudong_chatbox.initial();
-        } catch(e) {}
+        } catch (e) { }
     </script>
 </body>
 
