@@ -3404,8 +3404,6 @@
                             class="fas fa-store"></i> Sơ đồ bàn</button>
                     <button class="btn btn-sm tbl-tab" id="tblTab2" onclick="switchTableTab('list')"><i
                             class="fas fa-list"></i> Danh sách</button>
-                    <button class="btn btn-sm tbl-tab" id="tblTab3" onclick="switchTableTab('schedule')"><i
-                            class="fas fa-calendar-week"></i> Lịch theo ngày</button>
                     <button class="btn btn-sm"
                         style="margin-left:auto;background:rgba(212,165,116,.15);color:var(--admin-accent);border:1px solid rgba(212,165,116,.4)"
                         onclick="seedDefaultTables()"><i class="fas fa-magic"></i> Reset bàn mặc định</button>
@@ -3574,44 +3572,7 @@
                     </div>
                 </div>
 
-                <!-- Tab: Schedule -->
-                <div id="tblTabSchedule" style="display:none">
-                    <div class="table-card" style="margin-bottom:16px">
-                        <div class="table-header" style="flex-wrap:wrap;gap:10px">
-                            <h3>Lịch bàn theo ngày</h3>
-                            <div style="display:flex;gap:8px;align-items:center">
-                                <input type="date" id="scheduleDate" class="form-control" style="max-width:180px">
-                                <button class="btn btn-sm" style="background:var(--admin-accent);color:#fff"
-                                    onclick="loadScheduleGrid()"><i class="fas fa-search"></i> Xem</button>
-                            </div>
-                        </div>
-                        <div
-                            style="padding:10px 16px;display:flex;gap:16px;font-size:.8rem;flex-wrap:wrap;align-items:center">
-                            <span><span
-                                    style="display:inline-block;width:10px;height:10px;border-radius:2px;background:rgba(76,175,80,.4);margin-right:4px"></span>Trống</span>
-                            <span><span
-                                    style="display:inline-block;width:10px;height:10px;border-radius:2px;background:rgba(245,158,11,.4);margin-right:4px"></span>Đã
-                                đặt</span>
-                            <span><span
-                                    style="display:inline-block;width:10px;height:10px;border-radius:2px;background:rgba(100,181,246,.4);margin-right:4px"></span>Xác
-                                nhận</span>
-                            <span><span
-                                    style="display:inline-block;width:10px;height:10px;border-radius:2px;background:rgba(229,62,62,.4);margin-right:4px"></span>Đang
-                                phục vụ</span>
-                            <span><span
-                                    style="display:inline-block;width:10px;height:10px;border-radius:2px;background:rgba(76,175,80,.4);margin-right:4px"></span>Hoàn
-                                thành</span>
-                            <span style="margin-left:auto;color:var(--admin-text-muted);font-size:.75rem"><i
-                                    class="fas fa-info-circle"></i> Dữ liệu từ đơn đặt bàn thực tế</span>
-                        </div>
-                    </div>
-                    <div class="table-card" style="overflow-x:auto">
-                        <div id="scheduleGridWrap" style="padding:14px">
-                            <div style="color:var(--admin-text-muted);text-align:center;padding:40px">Chọn ngày để xem
-                                lịch bàn</div>
-                        </div>
-                    </div>
-                </div>
+
             </section>
 
             <!-- Settings Section -->
@@ -6933,7 +6894,19 @@
             let rows = filter === 'all' ? allReservations : allReservations.filter(r => r.status === filter);
             // Áp dụng lọc ngày nếu có
             const dateFilter = document.getElementById('resFilterDate')?.value;
-            if (dateFilter) rows = rows.filter(r => r.date === dateFilter);
+            if (dateFilter) {
+                // dateFilter từ input date luôn là dạng YYYY-MM-DD
+                rows = rows.filter(r => {
+                    if (!r.date) return false;
+                    let rd = r.date;
+                    // Chuẩn hóa lỡ trong DB r.date bị lưu dạng DD/MM/YYYY
+                    if (rd.includes('/')) {
+                        const parts = rd.split('/');
+                        if (parts.length === 3) rd = `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
+                    }
+                    return rd === dateFilter;
+                });
+            }
             const el = document.getElementById('resCount'); if (el) el.textContent = rows.length + ' bản ghi';
             renderResTable(rows);
         };
