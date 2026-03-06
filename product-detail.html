@@ -874,6 +874,8 @@
             const favorites = JSON.parse(localStorage.getItem(wishlistKey)) || [];
             const isFavorite = favorites.some(item => String(item.id) === String(productId));
             const heartClass = isFavorite ? 'fas fa-heart active' : 'far fa-heart';
+            const stock = product.stock !== undefined ? product.stock : 50; // Default stock if not specified
+            const isDrink = ['coffee', 'tea', 'smoothie', 'drink'].includes(product.category);
 
             container.innerHTML = `
                 <div class="product-detail-image">
@@ -907,8 +909,8 @@
                             <span id="quantity">1</span>
                             <button onclick="changeQuantity(1)"><i class="fas fa-plus"></i></button>
                         </div>
-                        <button class="btn btn-primary" style="flex: 1;" onclick="addToCart()">
-                            <i class="fas fa-shopping-bag"></i> Thêm vào giỏ
+                        <button class="btn ${stock > 0 ? 'btn-primary' : 'btn-outline'}" style="flex: 1; ${stock <= 0 ? 'opacity: 0.5; cursor: not-allowed;' : ''}" onclick="addToCart()" ${stock <= 0 ? 'disabled' : ''}>
+                            <i class="fas ${stock > 0 ? 'fa-shopping-bag' : 'fa-ban'}"></i> ${stock > 0 ? 'Thêm vào giỏ' : 'Hết hàng'}
                         </button>
                         <button class="btn btn-outline" onclick="toggleFavoriteDetail()" title="Yêu thích" style="width: 50px; display: flex; align-items: center; justify-content: center;">
                             <i class="${heartClass}" id="heart-icon-detail" style="font-size: 1.2rem; ${isFavorite ? 'color: #ef4444;' : ''}"></i>
@@ -917,8 +919,8 @@
                     
                     <div class="product-meta">
                         <div class="meta-item">
-                            <i class="fas fa-check-circle"></i>
-                            <span>${product.isAvailable !== false ? 'Còn hàng' : 'Hết hàng'}</span>
+                            <i class="${stock > 0 ? 'fas fa-check-circle' : 'fas fa-times-circle'}"></i>
+                            <span style="${stock <= 0 ? 'color: #e53e3e' : ''}">${isDrink ? (stock > 0 ? 'Còn hàng' : 'Hết hàng') : (stock > 0 ? 'Còn ' + stock + ' sản phẩm' : 'Hết hàng')}</span>
                         </div>
                         <div class="meta-item">
                             <i class="fas fa-truck"></i>
@@ -949,6 +951,13 @@
 
         // Add to cart
         window.addToCart = function () {
+            if (window.currentProduct && window.currentProduct.stock <= 0) {
+                return Swal.fire({ icon: 'error', title: 'Hết hàng', text: 'Sản phẩm này hiện tại đã hết, vui lòng chọn sản phẩm khác!' });
+            }
+            if (window.currentProduct && quantity > window.currentProduct.stock) {
+                return Swal.fire({ icon: 'warning', title: 'Không đủ số lượng', text: `Chỉ còn ${window.currentProduct.stock} sản phẩm. Vui lòng giảm số lượng.` });
+            }
+
             const user = auth.currentUser;
             if (!user) {
                 Swal.fire({

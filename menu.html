@@ -991,15 +991,17 @@
             productsGrid.innerHTML = pageProducts.map(product => {
                 const isFavorite = favorites.some(item => String(item.id) === String(product.id));
                 const heartClass = isFavorite ? 'fas fa-heart active' : 'far fa-heart';
+                const stock = product.stock !== undefined ? product.stock : 50;
+                const isDrink = ['coffee', 'tea', 'smoothie', 'drink'].includes(product.category);
 
                 return `
-                <div class="product-card">
+                <div class="product-card ${stock <= 0 ? 'out-of-stock' : ''}" style="${stock <= 0 ? 'opacity: 0.7' : ''}">
                     <div class="product-img-wrapper">
                         <img src="${product.imageUrl || 'https://via.placeholder.com/300x200'}"
                              alt="${product.name}" class="product-img" onclick="viewProduct('${product.id}')" style="cursor: pointer;">
                         ${product.badge ? `<span class="product-badge">${product.badge}</span>` : ''}
-                        <div class="product-actions">
-                            <button class="product-action-btn" onclick="addToCart('${product.id}', '${product.name}', ${product.price}, '${product.imageUrl || ''}')" title="Thêm vào giỏ hàng">
+                        <div class="product-actions" ${stock <= 0 ? 'style="opacity:0.5;pointer-events:none"' : ''}>
+                            <button class="product-action-btn" onclick="addToCart('${product.id}', '${product.name.replace(/'/g, "\\'")}', ${product.price}, '${product.imageUrl || ''}')" title="Thêm vào giỏ hàng">
                                 <i class="fas fa-shopping-bag"></i>
                             </button>
                             <button class="product-action-btn" onclick="toggleFavorite('${product.id}', '${product.name.replace(/'/g, "\\'")}', ${product.price}, '${product.imageUrl || ''}', '${product.category || 'coffee'}')" title="Yêu thích">
@@ -1019,10 +1021,13 @@
                                 ${formatPrice(product.price)}
                                 ${product.oldPrice ? `<span class="product-price-old">${formatPrice(product.oldPrice)}</span>` : ''}
                             </div>
-                            <button class="btn btn-primary btn-sm add-to-cart-btn"
-                                    onclick="addToCart('${product.id}', '${product.name}', ${product.price}, '${product.imageUrl || ''}')">
-                                <i class="fas fa-plus"></i>
-                            </button>
+                            ${stock <= 0 ?
+                        `<span style="color:#e53e3e;font-size:0.85rem;font-weight:600">Hết hàng</span>` :
+                        `<button class="btn btn-primary btn-sm add-to-cart-btn" onclick="addToCart('${product.id}', '${product.name.replace(/'/g, "\\'")}', ${product.price}, '${product.imageUrl || ''}')"><i class="fas fa-plus"></i></button>`
+                    }
+                        </div>
+                        <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 5px; text-align: right;">
+                            ${stock <= 0 ? '' : (isDrink ? '<span style="color:#4caf50">Còn hàng</span>' : `Kho: ${stock}`)}
                         </div>
                     </div>
                 </div>
