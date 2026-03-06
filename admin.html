@@ -3324,10 +3324,10 @@
                         <span style="margin-left:8px;font-size:.78rem;color:var(--admin-text-muted)">| Lọc ngày:</span>
                         <input type="date" id="resFilterDate" class="form-control"
                             style="max-width:150px;padding:5px 8px;font-size:.82rem"
-                            onchange="filterReservations(resCurrentFilter)">
+                            onchange="filterReservations(window.resCurrentFilter || 'all')">
                         <button class="btn btn-sm"
                             style="background:transparent;border:1px solid var(--admin-border);color:var(--admin-text-muted);padding:5px 10px"
-                            onclick="document.getElementById('resFilterDate').value='';filterReservations(resCurrentFilter)"><i
+                            onclick="document.getElementById('resFilterDate').value='';filterReservations(window.resCurrentFilter || 'all')"><i
                                 class="fas fa-times"></i></button>
                         <span id="resLiveIndicator" style="margin-left:auto;font-size:.75rem;color:#4caf50"><i
                                 class="fas fa-circle" style="font-size:.55rem"></i> Realtime</span>
@@ -6751,7 +6751,7 @@
         // RESERVATIONS – Admin management
         // ============================================================
         let allReservations = [];
-        let resCurrentFilter = 'all';
+        window.resCurrentFilter = 'all';
         let adminAllTables = [];
         let resUnsubscribe = null;
         const SLOT_DURATION_MS = 1 * 60 * 60 * 1000; // Khung giờ 1 tiếng
@@ -6889,7 +6889,7 @@
         }
 
         window.filterReservations = function (filter) {
-            resCurrentFilter = filter;
+            window.resCurrentFilter = filter;
             document.querySelectorAll('.res-filter-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.filter === filter));
             let rows = filter === 'all' ? allReservations : allReservations.filter(r => r.status === filter);
             // Áp dụng lọc ngày nếu có
@@ -7384,12 +7384,12 @@
         // ============================================================
         // TABLES MANAGEMENT — 20 bàn cố định, trạng thái thời gian thực
         // ============================================================
-        let editingTableId = null;
+        window.editingTableId = null;
         let floorMapTimer = null; // auto-refresh timer
 
         window.switchTableTab = function (tab) {
-            const panels = { floormap: 'tblTabFloormap', list: 'tblTabList', schedule: 'tblTabSchedule' };
-            const buttons = { floormap: 'tblTab1', list: 'tblTab2', schedule: 'tblTab3' };
+            const panels = { floormap: 'tblTabFloormap', list: 'tblTabList' };
+            const buttons = { floormap: 'tblTab1', list: 'tblTab2' };
             Object.keys(panels).forEach(k => {
                 document.getElementById(panels[k]).style.display = k === tab ? 'block' : 'none';
                 document.getElementById(buttons[k]).classList.toggle('active', k === tab);
@@ -7676,13 +7676,13 @@
                 const name = nameEl.value.trim();
                 const type = parseInt(typeEl.value) || 4;
                 const location = locEl.value.trim() || 'Khu A';
-                const isEditing = !!editingTableId;
+                const isEditing = !!window.editingTableId;
                 const savedCode = code;
-                console.log('[saveTable] data:', { code, name, type, location, editingTableId });
+                console.log('[saveTable] data:', { code, name, type, location, id: window.editingTableId });
                 if (!name || !code) return Swal.fire({ icon: 'warning', title: 'Thiếu thông tin', text: 'Vui lòng nhập mã bàn và tên bàn.', confirmButtonColor: '#d4a574' });
                 const depositMap = { 2: 20000, 4: 40000, 6: 60000, 10: 100000 };
                 const data = { code, name, type, location, isActive: true, depositAmount: depositMap[type] || 20000 };
-                const tableKey = editingTableId || code.replace(/\s+/g, '');
+                const tableKey = window.editingTableId || code.replace(/\s+/g, '');
 
                 // 1) Cập nhật local state TRƯỚC — UI phản hồi ngay lập tức
                 if (isEditing) {
@@ -7730,9 +7730,13 @@
         };
 
         window.editTable = function (id) {
+            console.log('editTable called with id:', id);
             const t = adminAllTables.find(x => x.id === id);
-            if (!t) return;
-            editingTableId = id;
+            if (!t) {
+                console.warn('Table not found for id:', id);
+                return;
+            }
+            window.editingTableId = id;
             document.getElementById('tblCode').value = t.code || '';
             document.getElementById('tblName').value = t.name || '';
             document.getElementById('tblType').value = t.type || 4;
@@ -7763,7 +7767,7 @@
         };
 
         window.clearTableForm = function () {
-            editingTableId = null;
+            window.editingTableId = null;
             ['tblCode', 'tblName'].forEach(id => { const e = document.getElementById(id); if (e) e.value = ''; });
             document.getElementById('tblType').value = '4';
             document.getElementById('tblLocation').value = 'Khu A';
