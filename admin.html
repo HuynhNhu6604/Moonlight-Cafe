@@ -6850,7 +6850,7 @@
         }
 
         // Hàm gọi từ nơi khác (nút Làm mới, showSection)
-        function loadAdminReservations() {
+        window.loadAdminReservations = function () {
             const user = auth.currentUser;
             if (user) {
                 // Đã đăng nhập: khởi động/restart listener ngay
@@ -6862,7 +6862,7 @@
             }
         }
 
-        function updateResBadge() {
+        window.updateResBadge = function () {
             const cnt = allReservations.filter(r => r.status === 'pending').length;
             const badge = document.getElementById('resBadge');
             if (!badge) return;
@@ -6871,7 +6871,7 @@
         }
 
         // ─── Cập nhật widget đặt bàn trên Dashboard ────────────────────
-        function updateDashboardReservations() {
+        window.updateDashboardReservations = function () {
             const todayStr = new Date().toISOString().slice(0, 10);
             const now = Date.now();
             const todayRes = allReservations.filter(r => r.date === todayStr);
@@ -7579,7 +7579,7 @@
 
         // ─── Load tables từ Firebase ────────────────────────────────────
         // Luôn đảm bảo đúng 20 bàn cố định: A1-A8, B1-B6, C1-C4, D1-D2
-        async function loadAdminTables() {
+        window.loadAdminTables = async function () {
             // Fallback ngay lập tức cho UI
             const buildLocal = () => DEFAULT_TABLES.map(t => ({ id: t.code, ...t, isActive: true }));
             if (!adminAllTables.length) adminAllTables = buildLocal();
