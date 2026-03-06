@@ -6989,7 +6989,19 @@
                         actionBtns += `<button class="btn btn-sm" style="background:#999;color:#fff;margin-bottom:4px" onclick="adminMarkNoShow('${r.id}')"><i class="fas fa-user-slash"></i> Không đến (Mất cọc)</button>`;
                     }
                 } else if (r.status === 'checked-in') {
-                    actionBtns = `<button class="btn btn-sm" style="background:#4caf50;color:#fff;margin-bottom:4px" onclick="adminReleaseTable('${r.id}')"><i class="fas fa-flag-checkered"></i> Trả bàn (hoàn thành)</button>`;
+                    const now = new Date();
+                    const slotTime = r.timeSlot || tr.first || '00:00';
+                    const [slotH, slotM] = slotTime.split(':').map(Number);
+                    const resDateTime = new Date(r.date);
+                    resDateTime.setHours(slotH, slotM, 0, 0);
+
+                    actionBtns = '';
+                    if (now >= resDateTime) {
+                        actionBtns = `<button class="btn btn-sm" style="background:#4caf50;color:#fff;margin-bottom:4px" onclick="adminReleaseTable('${r.id}')"><i class="fas fa-flag-checkered"></i> Trả bàn (hoàn thành)</button>`;
+                    } else {
+                        const diffMin = Math.ceil((resDateTime - now) / 60000);
+                        actionBtns = `<span style="color:#e53e3e;font-size:.8rem"><i class="fas fa-clock"></i> Khách đến sớm (chờ ${diffMin}p)</span>`;
+                    }
                 } else if (['rejected', 'cancelled', 'no-show', 'cancelled_no_payment', 'cancelled_absent'].includes(r.status) &&
                     (r.depositStatus === 'paid' || r.depositStatus === 'refund_requested')) {
                     const refundLabel = r.depositStatus === 'refund_requested' ? 'Xác nhận đã hoàn' : 'Hoàn cọc';
