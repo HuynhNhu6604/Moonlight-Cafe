@@ -2728,16 +2728,7 @@
                         Trà</button>
                     <button class="btn btn-outline btn-sm" id="pfcat-cake" onclick="filterProductsByCategory('cake')">🍰
                         Bánh ngọt</button>
-                    <button class="btn btn-outline btn-sm" id="pfcat-pastry"
-                        onclick="filterProductsByCategory('pastry')">🥐 Bánh Pastry</button>
-                    <button class="btn btn-outline btn-sm" id="pfcat-smoothie"
-                        onclick="filterProductsByCategory('smoothie')">🥤 Sinh tố</button>
-                    <button class="btn btn-outline btn-sm" id="pfcat-snack"
-                        onclick="filterProductsByCategory('snack')">🥨 Snack</button>
-                    <button class="btn btn-outline btn-sm" id="pfcat-drink"
-                        onclick="filterProductsByCategory('drink')">🧃 Đồ uống khác</button>
-                    <button class="btn btn-outline btn-sm" id="pfcat-dessert"
-                        onclick="filterProductsByCategory('dessert')">🍮 Tráng miệng</button>
+                    <span id="dynamicCategoryFilters" style="display:contents"></span>
                     <span id="productFilterCount"
                         style="margin-left:auto;font-size:.82rem;color:var(--admin-text-muted)"></span>
                 </div>
@@ -3744,11 +3735,7 @@
                             <option value="coffee">Cà phê</option>
                             <option value="tea">Trà</option>
                             <option value="cake">Bánh ngọt</option>
-                            <option value="pastry">Bánh Pastry</option>
-                            <option value="smoothie">Sinh tố</option>
-                            <option value="snack">Snack</option>
-                            <option value="drink">Đồ uống khác</option>
-                            <option value="dessert">Tráng miệng</option>
+                            <optgroup id="dynamicCategoryOptions" label="Danh mục hiện có khác"></optgroup>
                         </select>
                         <button type="button" onclick="addNewCategory()"
                             style="margin-top:6px;font-size:.8rem;background:none;border:none;color:var(--admin-accent);cursor:pointer;padding:0;display:flex;align-items:center;gap:4px">
@@ -4022,7 +4009,11 @@
         // Render products
         function renderProducts(productsData = sampleProducts) {
             const tbody = document.getElementById('productsTable');
-            const catLabel = { coffee: '☕ Cà phê', tea: '🍵 Trà', cake: '🍰 Bánh ngọt', pastry: '🥐 Pastry', smoothie: '🥤 Sinh tố', snack: '🥨 Snack', drink: '🧃 Đồ uống khác', dessert: '🍮 Tráng miệng' };
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const currentItems = productsData.slice(startIndex, endIndex);
+
+            window.catLabel = { coffee: '☕ Cà phê', tea: '🍵 Trà', cake: '🍰 Bánh ngọt', pastry: '🥐 Pastry', smoothie: '🥤 Sinh tố', snack: '🥨 Snack', drink: '🧃 Đồ uống khác', dessert: '🍮 Tráng miệng' };
             // Cập nhật bộ đếm
             const countEl = document.getElementById('productFilterCount');
             if (countEl && _currentProductCatFilter === 'all') countEl.textContent = `${productsData.length} sản phẩm`;
@@ -4042,7 +4033,7 @@
                     </td>
                     <td>
                         <span style="background:rgba(212,165,116,0.1);color:var(--admin-accent);padding:4px 10px;border-radius:6px;font-size:0.8rem;">
-                            ${catLabel[product.category] || product.category}
+                            ${window.catLabel[product.category] || product.category}
                         </span>
                     </td>
                     <td class="price-cell">${formatCurrency(product.price)}</td>
@@ -4061,6 +4052,38 @@
             `).join('');
         }
 
+        // Cập nhật bộ lọc danh mục và dropdown thêm sản phẩm tự động
+        function updateDynamicCategories(products) {
+            const predefinedCats = ['coffee', 'tea', 'cake', 'all', ''];
+            const allCats = new Set(products.map(p => p.category ? p.category.trim() : ''));
+
+            const dynamicCats = Array.from(allCats).filter(c => !predefinedCats.includes(c));
+
+            const filterContainer = document.getElementById('dynamicCategoryFilters');
+            const optionsContainer = document.getElementById('dynamicCategoryOptions');
+
+            if (filterContainer) {
+                filterContainer.innerHTML = dynamicCats.map(cat => {
+                    const label = window.catLabel?.[cat] || cat;
+                    return `<button class="btn btn-outline btn-sm" id="pfcat-${cat}" onclick="filterProductsByCategory('${cat}')">${label}</button>`;
+                }).join('');
+            }
+
+            if (optionsContainer) {
+                optionsContainer.innerHTML = dynamicCats.map(cat => {
+                    const label = window.catLabel?.[cat] || cat;
+                    return `<option value="${cat}">${label}</option>`;
+                }).join('');
+
+                // Ẩn optgroup nếu không có option động nào, hiện nếu có
+                if (dynamicCats.length > 0) {
+                    optionsContainer.style.display = '';
+                } else {
+                    optionsContainer.style.display = 'none';
+                }
+            }
+        }
+
         // Listen to Products from Firebase
         function loadAdminProducts() {
             const productsRef = ref(db, 'products');
@@ -4073,9 +4096,11 @@
                         sampleProducts.push(data);
                     });
                     renderProducts(sampleProducts);
+                    updateDynamicCategories(sampleProducts); // Vẽ Category động
                 } else {
                     sampleProducts = [];
                     renderProducts([]);
+                    updateDynamicCategories([]); // Clean up
                 }
                 updateStats(); // Refresh stats when data changes
             });
