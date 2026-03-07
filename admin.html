@@ -4006,11 +4006,12 @@
             Swal.fire({ icon: 'success', title: 'Đã thêm danh mục!', timer: 1200, showConfirmButton: false, toast: true, position: 'top-end' });
         };
 
+        window.catLabel = { coffee: 'Cà phê', tea: 'Trà', cake: 'Bánh ngọt', pastry: 'Pastry', smoothie: 'Sinh tố', snack: 'Snack', drink: 'Đồ uống khác', dessert: 'Tráng miệng' };
+
         // Render products
         function renderProducts(productsData = sampleProducts) {
             const tbody = document.getElementById('productsTable');
 
-            window.catLabel = { coffee: 'Cà phê', tea: 'Trà', cake: 'Bánh ngọt', pastry: 'Pastry', smoothie: 'Sinh tố', snack: 'Snack', drink: 'Đồ uống khác', dessert: 'Tráng miệng' };
             // Cập nhật bộ đếm
             const countEl = document.getElementById('productFilterCount');
             if (countEl && _currentProductCatFilter === 'all') countEl.textContent = `${productsData.length} sản phẩm`;
