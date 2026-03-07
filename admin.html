@@ -4009,9 +4009,6 @@
         // Render products
         function renderProducts(productsData = sampleProducts) {
             const tbody = document.getElementById('productsTable');
-            const startIndex = (currentPage - 1) * itemsPerPage;
-            const endIndex = startIndex + itemsPerPage;
-            const currentItems = productsData.slice(startIndex, endIndex);
 
             window.catLabel = { coffee: '☕ Cà phê', tea: '🍵 Trà', cake: '🍰 Bánh ngọt', pastry: '🥐 Pastry', smoothie: '🥤 Sinh tố', snack: '🥨 Snack', drink: '🧃 Đồ uống khác', dessert: '🍮 Tráng miệng' };
             // Cập nhật bộ đếm
