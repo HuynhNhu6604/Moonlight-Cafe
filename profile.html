@@ -791,7 +791,7 @@
                             </div>
                             <div class="profile-menu-item" data-tab="reservations">
                                 <i class="fas fa-calendar-check"></i>
-                                <span>Đặt bàn</span>
+                                <span>Lịch sử đặt bàn</span>
                             </div>
                             <div class="profile-menu-item" data-tab="inbox">
                                 <i class="fas fa-envelope"></i>
@@ -1802,7 +1802,7 @@
                 };
 
                 wrap.style.display = 'flex';
-                wrap.innerHTML = rows.map(r => {
+                const renderCard = (r) => {
                     const sm = statusMap[r.status] || { cls: '#bbb', label: r.status, icon: 'fa-question' };
                     const dep = r.depositAmount ? r.depositAmount.toLocaleString('vi-VN') + 'đ' : '–';
                     const depLabel = {
@@ -1900,7 +1900,41 @@
                         </div>
                         ${notifHTML}
                     </div>`;
-                }).join('');
+                };
+
+                const topRows = rows.slice(0, 2);
+                const oldRows = rows.slice(2);
+
+                let renderHTML = topRows.map(renderCard).join('');
+
+                if (oldRows.length > 0) {
+                    renderHTML += `
+                        <div style="text-align:center; margin-top:10px;">
+                            <button id="toggleOldResBtn" style="background:none;border:none;color:var(--accent);cursor:pointer;font-weight:600;display:inline-flex;align-items:center;gap:6px">
+                                <i class="fas fa-chevron-down"></i> Xem lịch sử cũ hơn (${oldRows.length})
+                            </button>
+                        </div>
+                        <div id="oldResContainer" style="display:none;flex-direction:column;gap:12px;margin-top:12px">
+                            ${oldRows.map(renderCard).join('')}
+                        </div>
+                    `;
+                }
+
+                wrap.innerHTML = renderHTML;
+
+                if (oldRows.length > 0) {
+                    const btn = document.getElementById('toggleOldResBtn');
+                    const container = document.getElementById('oldResContainer');
+                    btn.addEventListener('click', () => {
+                        if (container.style.display === 'none') {
+                            container.style.display = 'flex';
+                            btn.innerHTML = '<i class="fas fa-chevron-up"></i> Ẩn bớt lịch sử';
+                        } else {
+                            container.style.display = 'none';
+                            btn.innerHTML = '<i class="fas fa-chevron-down"></i> Xem lịch sử cũ hơn (' + oldRows.length + ')';
+                        }
+                    });
+                }
 
                 wrap.style.display = 'flex';
             } catch (err) {
