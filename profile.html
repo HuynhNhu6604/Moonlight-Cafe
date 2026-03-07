@@ -1757,14 +1757,40 @@
             if (!loading) return;
 
             try {
-                const snap = await get(query(ref(db, 'reservations'), orderByChild('uid'), equalTo(uid)));
+                const rowsMap = new Map();
+
+                // 1. Fetch by UID field
+                try {
+                    const snap = await get(query(ref(db, 'reservations'), orderByChild('uid'), equalTo(uid)));
+                    if (snap.exists()) {
+                        snap.forEach(c => rowsMap.set(c.key, { id: c.key, ...c.val() }));
+                    }
+                } catch (e) {
+                    console.warn('[Profile Res] UID query err:', e.message);
+                }
+
+                // 2. Fetch missing ones by user index (fallback for older reservations without uid field)
+                try {
+                    const indexSnap = await get(ref(db, 'users/' + uid + '/myReservations'));
+                    if (indexSnap.exists()) {
+                        const ids = Object.keys(indexSnap.val());
+                        const missingIds = ids.filter(id => !rowsMap.has(id));
+                        if (missingIds.length > 0) {
+                            const readPromises = missingIds.map(id => get(ref(db, 'reservations/' + id)).then(s => s.exists() ? { id, ...s.val() } : null).catch(() => null));
+                            const results = await Promise.all(readPromises);
+                            results.forEach(r => { if (r) rowsMap.set(r.id, r); });
+                        }
+                    }
+                } catch (e) {
+                    console.warn('[Profile Res] Index query err:', e.message);
+                }
+
                 loading.style.display = 'none';
 
-                if (!snap.exists()) { empty.style.display = 'block'; return; }
+                let rows = Array.from(rowsMap.values());
+                if (!rows.length) { empty.style.display = 'block'; return; }
 
-                const rows = [];
-                snap.forEach(c => rows.push({ id: c.key, ...c.val() }));
-                rows.sort((a, b) => b.createdAt - a.createdAt);
+                rows.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
 
                 // Update notification banner
                 const actionNeeded = rows.filter(r =>
