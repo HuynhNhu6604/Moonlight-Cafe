@@ -2746,7 +2746,7 @@
                                 <i class="fas fa-file-excel" style="color:#1d6f42"></i> Xuất Excel
                             </button>
 
-                            <button class="btn btn-outline btn-sm" onclick="loadAdminProducts()">
+                            <button class="btn btn-outline btn-sm" onclick="_loadAdminProducts()">
                                 <i class="fas fa-sync-alt"></i> Làm mới
                             </button>
 
@@ -4082,7 +4082,7 @@
         }
 
         // Listen to Products from Firebase
-        function loadAdminProducts() {
+        window._loadAdminProducts = function _loadAdminProducts() {
             const productsRef = ref(db, 'products');
             onValue(productsRef, (snapshot) => {
                 if (snapshot.exists()) {
@@ -8284,7 +8284,7 @@
         document.addEventListener('DOMContentLoaded', () => {
             initCharts();
             loadOrders();
-            loadAdminProducts();
+            _loadAdminProducts();
             loadSettings();
             loadAdminReviews();
             loadAdminContacts();
