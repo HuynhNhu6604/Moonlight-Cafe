@@ -5899,16 +5899,10 @@
             }
         };
 
-        // ─── Seed 80 sản phẩm mẫu ────────────────────────────────
+        // ─── Seed 80 sản phẩm mẫu (Đã vô hiệu hoá để tránh lỗi vòng lặp popup) ────────────────────────────────
         window.seedDefaultProducts = async function () {
-            const { isConfirmed } = await Swal.fire({
-                icon: 'question',
-                title: 'Nhập 80 sản phẩm mẫu?',
-                html: 'Thao tác này sẽ <strong>xoá toàn bộ sản phẩm cũ</strong> và thêm 80 sản phẩm mới (4 danh mục × 20).<br><small style="color:#888">Hình ảnh bạn tự thêm sau.</small>',
-                showCancelButton: true, confirmButtonText: 'Tiến hành', cancelButtonText: 'Hủy',
-                confirmButtonColor: '#d4a574'
-            });
-            if (!isConfirmed) return;
+            console.log('Chức năng Seed dữ liệu mẫu đã được tắt.');
+            return;
 
             const DEFAULT_PRODUCTS = [
                 // ─── CÀ PHÊ ───────────────────────────────────────────────
