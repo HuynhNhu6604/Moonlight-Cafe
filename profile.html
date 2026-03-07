@@ -1902,8 +1902,8 @@
                     </div>`;
                 };
 
-                const topRows = rows.slice(0, 2);
-                const oldRows = rows.slice(2);
+                const topRows = rows.slice(0, 1);
+                const oldRows = rows.slice(1);
 
                 let renderHTML = topRows.map(renderCard).join('');
 
@@ -2081,7 +2081,7 @@
                         // Small extra delay to ensure rendering is complete before scrolling
                         setTimeout(() => {
                             targetTab.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                            const activeMenu = document.querySelector(`.profile - menu - item[data - tab="${tab}"]`);
+                            const activeMenu = document.querySelector(`.profile-menu-item[data-tab="${tab}"]`);
                         }, 100);
                     }
                 }
