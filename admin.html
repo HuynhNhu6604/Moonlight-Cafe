@@ -2723,11 +2723,11 @@
                     <button class="btn btn-primary btn-sm" id="pfcat-all" onclick="filterProductsByCategory('all')">Tất
                         cả</button>
                     <button class="btn btn-outline btn-sm" id="pfcat-coffee"
-                        onclick="filterProductsByCategory('coffee')">☕ Cà phê</button>
-                    <button class="btn btn-outline btn-sm" id="pfcat-tea" onclick="filterProductsByCategory('tea')">🍵
-                        Trà</button>
-                    <button class="btn btn-outline btn-sm" id="pfcat-cake" onclick="filterProductsByCategory('cake')">🍰
-                        Bánh ngọt</button>
+                        onclick="filterProductsByCategory('coffee')">Cà phê</button>
+                    <button class="btn btn-outline btn-sm" id="pfcat-tea"
+                        onclick="filterProductsByCategory('tea')">Trà</button>
+                    <button class="btn btn-outline btn-sm" id="pfcat-cake"
+                        onclick="filterProductsByCategory('cake')">Bánh ngọt</button>
                     <span id="dynamicCategoryFilters" style="display:contents"></span>
                     <span id="productFilterCount"
                         style="margin-left:auto;font-size:.82rem;color:var(--admin-text-muted)"></span>
@@ -4010,7 +4010,7 @@
         function renderProducts(productsData = sampleProducts) {
             const tbody = document.getElementById('productsTable');
 
-            window.catLabel = { coffee: '☕ Cà phê', tea: '🍵 Trà', cake: '🍰 Bánh ngọt', pastry: '🥐 Pastry', smoothie: '🥤 Sinh tố', snack: '🥨 Snack', drink: '🧃 Đồ uống khác', dessert: '🍮 Tráng miệng' };
+            window.catLabel = { coffee: 'Cà phê', tea: 'Trà', cake: 'Bánh ngọt', pastry: 'Pastry', smoothie: 'Sinh tố', snack: 'Snack', drink: 'Đồ uống khác', dessert: 'Tráng miệng' };
             // Cập nhật bộ đếm
             const countEl = document.getElementById('productFilterCount');
             if (countEl && _currentProductCatFilter === 'all') countEl.textContent = `${productsData.length} sản phẩm`;

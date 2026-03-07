@@ -31,10 +31,12 @@ foreach ($file in $files) {
             $content = $content -replace '</body>', $chatbotCode
             Set-Content -Path $filepath -Value $content -NoNewline
             Write-Host "✅ Added chatbot to $file" -ForegroundColor Green
-        } else {
+        }
+        else {
             Write-Host "⏭️  Chatbot already exists in $file" -ForegroundColor Yellow
         }
-    } else {
+    }
+    else {
         Write-Host "❌ File not found: $file" -ForegroundColor Red
     }
 }
