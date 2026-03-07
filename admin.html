@@ -4092,12 +4092,12 @@
                         data.id = childSnapshot.key;
                         sampleProducts.push(data);
                     });
-                    renderProducts(sampleProducts);
-                    updateDynamicCategories(sampleProducts); // Vẽ Category động
+                    updateDynamicCategories(sampleProducts); // Vẽ Category động trước để có button DOM
+                    filterProductsByCategory(_currentProductCatFilter); // Giữ bộ lọc đang kích hoạt
                 } else {
                     sampleProducts = [];
-                    renderProducts([]);
                     updateDynamicCategories([]); // Clean up
+                    filterProductsByCategory('all');
                 }
                 updateStats(); // Refresh stats when data changes
             });
