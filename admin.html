@@ -4261,7 +4261,7 @@
                         Swal.fire({ icon: 'success', title: 'Đã xóa!', text: 'Tài khoản đã được xóa khỏi hệ thống.', confirmButtonColor: '#d4a574' });
                     } catch (error) {
                         console.error('Lỗi khi xóa tài khoản:', error);
-                        Swal.fire('Lỗi', 'Có lỗi xảy ra khi xóa tài khoản.', 'error');
+                        Swal.fire('Lỗi phân quyền (Permission Denied)', 'Tài khoản admin hiện tại chưa được cấp quyền xóa dữ liệu người dùng trong Firebase Security Rules.\n\nVui lòng cập nhật set Quy tắc (Rules) của Realtime Database để cấp quyền .write cho admin.', 'error');
                     }
                 }
             });
