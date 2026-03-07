@@ -661,30 +661,7 @@
                             <i class="fas fa-list"></i> Danh mục
                         </h3>
                         <div class="category-list" id="categoryList">
-                            <div class="category-item active" data-category="all">
-                                <span>Tất cả</span>
-                                <span class="count" id="countAll">0</span>
-                            </div>
-                            <div class="category-item" data-category="coffee">
-                                <span>Cà phê</span>
-                                <span class="count" id="countCoffee">0</span>
-                            </div>
-                            <div class="category-item" data-category="tea">
-                                <span>Trà</span>
-                                <span class="count" id="countTea">0</span>
-                            </div>
-                            <div class="category-item" data-category="smoothie">
-                                <span>Sinh tố</span>
-                                <span class="count" id="countSmoothie">0</span>
-                            </div>
-                            <div class="category-item" data-category="pastry">
-                                <span>Bánh ngọt</span>
-                                <span class="count" id="countPastry">0</span>
-                            </div>
-                            <div class="category-item" data-category="snack">
-                                <span>Snack</span>
-                                <span class="count" id="countSnack">0</span>
-                            </div>
+                            <!-- Các danh mục sẽ được render động từ JS -->
                         </div>
                     </div>
 
@@ -821,7 +798,6 @@
         // DOM Elements
         const productsGrid = document.getElementById('productsGrid');
         const searchInput = document.getElementById('searchInput');
-        const categoryItems = document.querySelectorAll('.category-item');
         const sortSelect = document.getElementById('sortSelect');
         const viewBtns = document.querySelectorAll('.view-btn');
         const pagination = document.getElementById('pagination');
@@ -911,21 +887,55 @@
         }
 
         function updateCategoryCounts() {
-            const counts = {
-                all: allProducts.length,
-                coffee: allProducts.filter(p => p.category === 'coffee').length,
-                tea: allProducts.filter(p => p.category === 'tea').length,
-                smoothie: allProducts.filter(p => p.category === 'smoothie').length,
-                pastry: allProducts.filter(p => p.category === 'pastry').length,
-                snack: allProducts.filter(p => p.category === 'snack').length
-            };
+            const listEl = document.getElementById('categoryList');
+            if (!listEl) return;
 
-            document.getElementById('countAll').textContent = counts.all;
-            document.getElementById('countCoffee').textContent = counts.coffee;
-            document.getElementById('countTea').textContent = counts.tea;
-            document.getElementById('countSmoothie').textContent = counts.smoothie;
-            document.getElementById('countPastry').textContent = counts.pastry;
-            document.getElementById('countSnack').textContent = counts.snack;
+            // Tính số lượng dựa vào mảng allProducts
+            const counts = { all: allProducts.length };
+            allProducts.forEach(p => {
+                const cat = p.category || 'other';
+                counts[cat] = (counts[cat] || 0) + 1;
+            });
+
+            // Lấy danh sách danh mục có sẵn và các danh mục phát sinh (tương tự logic Admin)
+            const predefinedCats = ['coffee', 'tea', 'cake']; // Chỉ cố định Cà phê, Trà, Bánh ngọt theo yêu cầu
+            const allCats = new Set(allProducts.map(p => p.category ? p.category.trim() : 'other'));
+            const dynamicCats = Array.from(allCats).filter(c => !predefinedCats.includes(c));
+
+            const displayCats = ['all', ...predefinedCats, ...dynamicCats];
+
+            // Render lại HTML cho sidebar
+            listEl.innerHTML = displayCats.map(cat => {
+                const label = cat === 'all' ? 'Tất cả' : getCategoryName(cat);
+                const count = counts[cat] || 0;
+                // Nếu không phải 'all' hoặc 'coffee', 'tea', 'cake' thì kiểm tra nếu count = 0 thì không render, nhưng vì lấy từ Set nên auto count > 0
+                return `
+                    <div class="category-item ${currentCategory === cat ? 'active' : ''}" data-category="${cat}">
+                        <span>${label}</span>
+                        <span class="count">${count}</span>
+                    </div>
+                `;
+            }).join('');
+
+            // Gắn lại sự kiện click cho các item danh mục mới render
+            const newCategoryItems = listEl.querySelectorAll('.category-item');
+            newCategoryItems.forEach(item => {
+                item.addEventListener('click', () => {
+                    newCategoryItems.forEach(i => i.classList.remove('active'));
+                    item.classList.add('active');
+                    currentCategory = item.dataset.category;
+                    currentPage = 1;
+                    filterAndRenderProducts();
+
+                    // Close mobile sidebar
+                    if (typeof menuSidebar !== 'undefined' && menuSidebar) {
+                        menuSidebar.classList.remove('active');
+                    }
+                    if (typeof sidebarOverlay !== 'undefined' && sidebarOverlay) {
+                        sidebarOverlay.classList.remove('active');
+                    }
+                });
+            });
         }
 
         function filterAndRenderProducts() {
@@ -1087,20 +1097,6 @@
             searchQuery = e.target.value;
             currentPage = 1;
             filterAndRenderProducts();
-        });
-
-        categoryItems.forEach(item => {
-            item.addEventListener('click', () => {
-                categoryItems.forEach(i => i.classList.remove('active'));
-                item.classList.add('active');
-                currentCategory = item.dataset.category;
-                currentPage = 1;
-                filterAndRenderProducts();
-
-                // Close mobile sidebar
-                menuSidebar.classList.remove('active');
-                sidebarOverlay.classList.remove('active');
-            });
         });
 
         sortSelect.addEventListener('change', (e) => {
