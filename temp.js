@@ -1,0 +1,4564 @@
+
+        // Firebase imports
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+        import { getDatabase, ref, onValue, update, get, push, set, remove, query, orderByChild, equalTo } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
+        import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+        import { uploadImageToCloudinary } from './js/cloudinary-helper.js';
+        import { buildMenuImageTarget, buildNewsImageTarget } from './js/cloudinary-paths.js';
+
+        // Firebase config - embedded directly
+        const firebaseConfig = {
+            apiKey: "AIzaSyBhND1gGt1v0_hIBvda-YuOI5jGSqy2Jn8",
+            authDomain: "moonlight-cafe-57e5d.firebaseapp.com",
+            databaseURL: "https://moonlight-cafe-57e5d-default-rtdb.firebaseio.com",
+            projectId: "moonlight-cafe-57e5d",
+            storageBucket: "moonlight-cafe-57e5d.firebasestorage.app",
+            messagingSenderId: "304081978863",
+            appId: "1:304081978863:web:ee97854f5015ecf601221a",
+            measurementId: "G-PRSNTZ81C3"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const auth = getAuth(app);
+
+        // Current user
+        let currentUser = null;
+
+        // We will fetch orders from Firebase instead of using sample data
+        let sampleOrders = [];
+
+        // We will fetch products from Firebase instead of using sample data
+        let sampleProducts = [];
+
+        let sampleUsers = []; // Tải từ Firebase
+
+        // Format currency
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
+        }
+
+        // Format date
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+        }
+
+        // Get status badge HTML
+        function getStatusBadge(status) {
+            const statusMap = {
+                'pending': { text: 'Chờ xác nhận', class: 'status-pending' },
+                'confirmed': { text: 'Đã xác nhận', class: 'status-confirmed' },
+                'processing': { text: 'Đang chuẩn bị', class: 'status-processing' },
+                'shipping': { text: 'Đang giao', class: 'status-shipping' },
+                'delivered': { text: 'Hoàn thành', class: 'status-delivered' },
+                'cancelled': { text: 'Đã hủy', class: 'status-cancelled' }
+            };
+            const s = statusMap[status] || statusMap.pending;
+            return `<span class="status-badge ${s.class}">${s.text}</span>`;
+        }
+
+        // Render recent orders (dashboard)
+        function renderRecentOrders() {
+            const tbody = document.getElementById('recentOrdersTable');
+
+            if (!sampleOrders || sampleOrders.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding: 20px;">Không có đơn hàng mới nào.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = sampleOrders.slice(0, 5).map(order => {
+                const itemNames = order.items.map(i => i.name).join(', ');
+                const payLabel = { cod: 'COD', banking: 'CK ngân hàng', momo: 'MoMo', vnpay: 'VNPay' }[order.payment] || order.payment;
+                return `
+                <tr>
+                    <td><span class="order-id">#${order.id.slice(-6)}</span></td>
+                    <td>
+                        <div class="customer-cell">
+                            <div class="customer-avatar">${order.customer.fullName.charAt(0)}</div>
+                            <div>
+                                <div class="customer-name">${order.customer.fullName}</div>
+                                <div class="customer-sub">${order.customer.phone}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <div style="font-size:0.85rem;max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${itemNames}">${itemNames}</div>
+                        <div class="items-summary">${order.items.length} món &bull; <span class="payment-badge">${payLabel}</span></div>
+                    </td>
+                    <td style="white-space:nowrap;color:var(--admin-text-muted)">${formatDate(order.createdAt)}</td>
+                    <td class="price-cell">${formatCurrency(order.total)}</td>
+                    <td>${getStatusBadge(order.status)}</td>
+                    <td>
+                        <div class="action-btns">
+                            <button class="action-btn view" onclick="viewOrder('${order.id}')" title="Xem chi tiết"><i class="fas fa-eye"></i></button>
+                        </div>
+                    </td>
+                </tr>`;
+            }).join('');
+        }
+
+        // Render all orders
+        function renderOrders(orders = sampleOrders) {
+            const tbody = document.getElementById('ordersTable');
+
+            if (!orders || orders.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding: 20px;">Không có đơn hàng nào.</td></tr>';
+                return;
+            }
+
+            const payIcon = { cod: '💵', banking: '🏦', momo: '📱', vnpay: '💳' };
+            tbody.innerHTML = orders.map(order => {
+                const payLabel = (payIcon[order.payment] || '') + ' ' + ({ cod: 'COD', banking: 'Chuyển khoản', momo: 'MoMo', vnpay: 'VNPay' }[order.payment] || order.payment);
+                const shipText = order.shipping === 0 ? 'Miễn ship' : 'Ship: ' + formatCurrency(order.shipping);
+                const itemTags = order.items.map(i =>
+                    `<span style="display:inline-block;background:rgba(212,165,116,0.1);color:var(--admin-accent);border-radius:4px;padding:1px 7px;margin:2px 2px 0 0;font-size:0.76rem;white-space:nowrap">${i.name} ×${i.quantity}</span>`
+                ).join('');
+                return `
+                <tr>
+                    <td>
+                        <span class="order-id">#${order.id.slice(-6)}</span>
+                        <div class="items-summary" style="margin-top:3px">${formatDate(order.createdAt)}</div>
+                    </td>
+                    <td>
+                        <div class="customer-cell">
+                            <div class="customer-avatar">${order.customer.fullName.charAt(0)}</div>
+                            <div>
+                                <div class="customer-name">${order.customer.fullName}</div>
+                                <div class="customer-sub">📞 ${order.customer.phone}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td style="max-width:220px">${itemTags}</td>
+                    <td>
+                        <div class="price-cell">${formatCurrency(order.total)}</div>
+                        <div class="items-summary">${shipText}</div>
+                    </td>
+                    <td><span class="payment-badge">${payLabel}</span></td>
+                    <td>${getStatusBadge(order.status)}</td>
+                    <td>
+                        <div class="action-btns">
+                            <button class="action-btn view" onclick="viewOrder('${order.id}')" title="Xem chi tiết"><i class="fas fa-eye"></i></button>
+                            <button class="action-btn delete" onclick="deleteOrder('${order.id}')" title="Xóa đơn hàng"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </td>
+                </tr>`;
+            }).join('');
+        }
+
+        // Listen to Orders from Firebase
+        function loadOrders() {
+            const ordersRef = ref(db, 'orders');
+            onValue(ordersRef, (snapshot) => {
+                if (snapshot.exists()) {
+                    sampleOrders = [];
+                    snapshot.forEach((childSnapshot) => {
+                        const data = childSnapshot.val();
+                        data.id = childSnapshot.key;
+                        sampleOrders.push(data);
+                    });
+
+                    // Sort descending by creation date
+                    sampleOrders.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+                    renderRecentOrders();
+                    renderOrders();
+                } else {
+                    sampleOrders = [];
+                    renderRecentOrders();
+                    renderOrders();
+                }
+                updateStats(); // Refresh stats when data changes
+            });
+        }
+
+        // ─── Lọc sản phẩm theo danh mục ────────────────────────
+        let _currentProductCatFilter = 'all';
+        window.filterProductsByCategory = function (cat) {
+            _currentProductCatFilter = cat;
+            // Cập nhật active button
+            document.querySelectorAll('[id^="pfcat-"]').forEach(btn => {
+                btn.classList.toggle('btn-primary', btn.id === 'pfcat-' + cat);
+                btn.classList.toggle('btn-outline', btn.id !== 'pfcat-' + cat);
+            });
+            const filtered = cat === 'all' ? sampleProducts : sampleProducts.filter(p => p.category === cat);
+            renderProducts(filtered);
+            const countEl = document.getElementById('productFilterCount');
+            if (countEl) countEl.textContent = cat === 'all' ? `${filtered.length} sản phẩm` : `${filtered.length}/${sampleProducts.length} sản phẩm`;
+        };
+
+        // ─── Thêm danh mục mới vào dropdown ─────────────────────
+        window.addNewCategory = async function () {
+            const { value: catName } = await Swal.fire({
+                title: 'Tạo danh mục mới',
+                input: 'text',
+                inputLabel: 'Tên danh mục hiển thị',
+                inputPlaceholder: 'VD: Nước ép, Đá xay...',
+                showCancelButton: true,
+                confirmButtonText: 'Tạo',
+                cancelButtonText: 'Hủy',
+                confirmButtonColor: '#d4a574',
+                inputValidator: (v) => !v.trim() ? 'Vui lòng nhập tên danh mục!' : null
+            });
+            if (!catName) return;
+            const name = catName.trim();
+            // Tạo value từ tên (slug đơn giản)
+            const value = name.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '') || ('cat_' + Date.now());
+            const sel = document.getElementById('productCategory');
+            // Kiểm tra trùng
+            if (Array.from(sel.options).some(o => o.value === value || o.text === name)) {
+                return Swal.fire({ icon: 'info', title: 'Danh mục đã tồn tại!', confirmButtonColor: '#d4a574' });
+            }
+            const opt = new Option(name, value);
+            sel.add(opt);
+            sel.value = value;
+            // Thêm filter button tương ứng nếu chưa có
+            const filterBar = document.querySelector('[id^="pfcat-all"]')?.parentElement;
+            if (filterBar && !document.getElementById('pfcat-' + value)) {
+                const btn = document.createElement('button');
+                btn.className = 'btn btn-outline btn-sm';
+                btn.id = 'pfcat-' + value;
+                btn.textContent = name;
+                btn.onclick = () => filterProductsByCategory(value);
+                filterBar.insertBefore(btn, document.getElementById('productFilterCount'));
+            }
+            Swal.fire({ icon: 'success', title: 'Đã thêm danh mục!', timer: 1200, showConfirmButton: false, toast: true, position: 'top-end' });
+        };
+
+        // Render products
+        function renderProducts(productsData = sampleProducts) {
+            const tbody = document.getElementById('productsTable');
+
+            window.catLabel = { coffee: '☕ Cà phê', tea: '🍵 Trà', cake: '🍰 Bánh ngọt', pastry: '🥐 Pastry', smoothie: '🥤 Sinh tố', snack: '🥨 Snack', drink: '🧃 Đồ uống khác', dessert: '🍮 Tráng miệng' };
+            // Cập nhật bộ đếm
+            const countEl = document.getElementById('productFilterCount');
+            if (countEl && _currentProductCatFilter === 'all') countEl.textContent = `${productsData.length} sản phẩm`;
+
+            if (!productsData || productsData.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; padding: 20px;">Không có sản phẩm nào.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = productsData.map((product, index) => `
+                <tr>
+                    <td style="color:var(--admin-text-muted);font-size:0.85rem;font-weight:600">${String(index + 1).padStart(2, '0')}</td>
+                    <td><img src="${product.imageUrl || 'data:image/svg+xml;charset=UTF-8,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%22 height=%22100%22%3E%3Crect fill=%22%23555%22 width=%22100%22 height=%22100%22/%3E%3Ctext fill=%22%23aaa%22 font-family=%22sans-serif%22 font-size=%2212%22 x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22%3ENo img%3C/text%3E%3C/svg%3E'}" alt="${product.name}" class="product-img-table"></td>
+                    <td>
+                        <div style="font-weight:600;color:var(--admin-text)">${product.name}</div>
+                        <div class="items-summary" style="max-width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${product.description || ''}">${product.description || 'Không có mô tả'}</div>
+                    </td>
+                    <td>
+                        <span style="background:rgba(212,165,116,0.1);color:var(--admin-accent);padding:4px 10px;border-radius:6px;font-size:0.8rem;">
+                            ${window.catLabel[product.category] || product.category}
+                        </span>
+                    </td>
+                    <td class="price-cell">${formatCurrency(product.price)}</td>
+                    <td>
+                        <div style="font-weight:600;color:${(product.stock !== undefined ? product.stock : 50) <= 0 ? 'var(--admin-danger)' : ((product.stock !== undefined ? product.stock : 50) < 20 ? 'var(--admin-warning)' : 'var(--admin-text)')}">${product.stock !== undefined ? product.stock : 50}</div>
+                        <div class="items-summary">${(product.stock !== undefined ? product.stock : 50) <= 0 ? '❌ Hết hàng' : ((product.stock !== undefined ? product.stock : 50) < 20 ? '⚠️ Sắp hết' : 'Còn hàng')}</div>
+                    </td>
+                    <td><span class="status-badge ${product.isAvailable !== false ? 'status-active' : 'status-inactive'}">${product.isAvailable !== false ? '• Đang bán' : '• Ngưng bán'}</span></td>
+                    <td>
+                        <div class="action-btns">
+                            <button class="action-btn edit" title="Sửa" onclick="editProduct('${product.id}')"><i class="fas fa-edit"></i></button>
+                            <button class="action-btn delete" title="Xóa" onclick="deleteProduct('${product.id}')"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Cập nhật bộ lọc danh mục và dropdown thêm sản phẩm tự động
+        function updateDynamicCategories(products) {
+            const predefinedCats = ['coffee', 'tea', 'cake', 'all', ''];
+            const allCats = new Set(products.map(p => p.category ? p.category.trim() : ''));
+
+            const dynamicCats = Array.from(allCats).filter(c => !predefinedCats.includes(c));
+
+            const filterContainer = document.getElementById('dynamicCategoryFilters');
+            const optionsContainer = document.getElementById('dynamicCategoryOptions');
+
+            if (filterContainer) {
+                filterContainer.innerHTML = dynamicCats.map(cat => {
+                    const label = window.catLabel?.[cat] || cat;
+                    return `<button class="btn btn-outline btn-sm" id="pfcat-${cat}" onclick="filterProductsByCategory('${cat}')">${label}</button>`;
+                }).join('');
+            }
+
+            if (optionsContainer) {
+                optionsContainer.innerHTML = dynamicCats.map(cat => {
+                    const label = window.catLabel?.[cat] || cat;
+                    return `<option value="${cat}">${label}</option>`;
+                }).join('');
+
+                // Ẩn optgroup nếu không có option động nào, hiện nếu có
+                if (dynamicCats.length > 0) {
+                    optionsContainer.style.display = '';
+                } else {
+                    optionsContainer.style.display = 'none';
+                }
+            }
+        }
+
+        // Listen to Products from Firebase
+        window._loadAdminProducts = function _loadAdminProducts() {
+            const productsRef = ref(db, 'products');
+            onValue(productsRef, (snapshot) => {
+                if (snapshot.exists()) {
+                    sampleProducts = []; // Update global var
+                    snapshot.forEach((childSnapshot) => {
+                        const data = childSnapshot.val();
+                        data.id = childSnapshot.key;
+                        sampleProducts.push(data);
+                    });
+                    renderProducts(sampleProducts);
+                    updateDynamicCategories(sampleProducts); // Vẽ Category động
+                } else {
+                    sampleProducts = [];
+                    renderProducts([]);
+                    updateDynamicCategories([]); // Clean up
+                }
+                updateStats(); // Refresh stats when data changes
+            });
+        }
+
+        window.deleteProduct = function (productId) {
+            Swal.fire({
+                title: 'Xóa sản phẩm?',
+                text: "Bạn không thể hoàn tác hành động này!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Vâng, xóa nó!',
+                cancelButtonText: 'Hủy'
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    try {
+                        await remove(ref(db, 'products/' + productId));
+                        Swal.fire(
+                            'Đã xóa!',
+                            'Sản phẩm đã được xóa khỏi hệ thống.',
+                            'success'
+                        );
+                    } catch (error) {
+                        console.error('Lỗi khi xóa sản phẩm:', error);
+                        Swal.fire('Lỗi', 'Có lỗi xảy ra khi xóa.', 'error');
+                    }
+                }
+            });
+        };
+
+        window.deleteOrder = function (orderId) {
+            Swal.fire({
+                title: 'Xóa đơn hàng?',
+                text: 'Đơn hàng sẽ bị xóa vĩnh viễn, không thể hoàn tác!',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: 'Xóa',
+                cancelButtonText: 'Hủy'
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    try {
+                        await remove(ref(db, 'orders/' + orderId));
+                        Swal.fire({ icon: 'success', title: 'Đã xóa!', text: 'Đơn hàng đã được xóa khỏi hệ thống.', confirmButtonColor: '#d4a574' });
+                    } catch (error) {
+                        console.error('Lỗi khi xóa đơn hàng:', error);
+                        Swal.fire('Lỗi', 'Có lỗi xảy ra khi xóa đơn hàng.', 'error');
+                    }
+                }
+            });
+        };
+
+        window.viewUser = function (uid) {
+            const user = sampleUsers.find(u => u.uid === uid);
+            if (!user) return;
+            const displayName = ((user.firstName || '') + ' ' + (user.lastName || '')).trim() || user.fullName || user.email || 'N/A';
+            const avatar = displayName.charAt(0).toUpperCase();
+            const joinDate = user.createdAt ? formatDate(user.createdAt) : 'N/A';
+            const lastLogin = user.lastLoginAt ? formatDate(user.lastLoginAt) : 'Chưa có dữ liệu';
+            const phone = user.phone || '—';
+            const address = user.address ? `${user.address}${user.ward ? ', ' + user.ward : ''}${user.district ? ', ' + user.district : ''}` : '—';
+            const userOrders = sampleOrders.filter(o => o.customer && o.customer.email === user.email);
+            const totalSpent = userOrders.filter(o => ['delivered', 'shipping'].includes(o.status)).reduce((s, o) => s + (o.total || 0), 0);
+            const THREE_MONTHS = 90 * 24 * 60 * 60 * 1000;
+            let lastActive = user.lastLoginAt || null;
+            if (!lastActive && userOrders.length) {
+                const times = userOrders.map(o => new Date(o.createdAt).getTime()).filter(t => !isNaN(t));
+                if (times.length) lastActive = Math.max(...times);
+            }
+            if (!lastActive && user.createdAt) lastActive = new Date(user.createdAt).getTime();
+            const isInactive = lastActive ? (Date.now() - lastActive > THREE_MONTHS) : false;
+            const statusBadge = isInactive
+                ? '<span style="background:#fee2e2;color:#dc2626;padding:3px 12px;border-radius:12px;font-size:.82rem;font-weight:600">● Không hoạt động</span>'
+                : '<span style="background:#d1fae5;color:#059669;padding:3px 12px;border-radius:12px;font-size:.82rem;font-weight:600">● Hoạt động</span>';
+            const roleBadge = user.role === 'admin'
+                ? '<span style="background:#fef3c7;color:#d97706;padding:3px 12px;border-radius:12px;font-size:.82rem;font-weight:600">Admin</span>'
+                : '<span style="background:#ede9fe;color:#7c3aed;padding:3px 12px;border-radius:12px;font-size:.82rem;font-weight:600">Khách hàng</span>';
+            const recentOrders = [...userOrders].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, 5);
+            const orderRows = recentOrders.length ? recentOrders.map(o => `
+                <tr>
+                    <td style="padding:7px 10px;font-family:monospace;color:var(--admin-accent);font-weight:600">#${o.id.slice(-6)}</td>
+                    <td style="padding:7px 10px;color:var(--admin-text-muted);font-size:.85rem">${formatDate(o.createdAt)}</td>
+                    <td style="padding:7px 10px">${getStatusBadge(o.status)}</td>
+                    <td style="padding:7px 10px;font-weight:600;color:var(--admin-text)">${formatCurrency(o.total)}</td>
+                </tr>`).join('') : `<tr><td colspan="4" style="padding:14px;text-align:center;color:var(--admin-text-muted)">Chưa có đơn hàng nào</td></tr>`;
+            document.getElementById('userModalBody').innerHTML = `
+                <div style="display:flex;align-items:center;gap:18px;padding:16px 0 20px;border-bottom:1px solid var(--admin-border)">
+                    <div style="width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,var(--admin-accent),#b8865a);display:flex;align-items:center;justify-content:center;font-size:1.8rem;font-weight:700;color:#fff;flex-shrink:0">${avatar}</div>
+                    <div style="flex:1">
+                        <div style="font-size:1.2rem;font-weight:700;color:var(--admin-text);margin-bottom:4px">${displayName}</div>
+                        <div style="color:var(--admin-text-muted);font-size:.9rem;margin-bottom:8px">${user.email || ''}</div>
+                        <div style="display:flex;gap:8px;flex-wrap:wrap">${roleBadge}${statusBadge}</div>
+                    </div>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;padding:18px 0;border-bottom:1px solid var(--admin-border)">
+                    <div style="background:var(--admin-bg);border-radius:10px;padding:12px 16px">
+                        <div style="font-size:.78rem;color:var(--admin-text-muted);margin-bottom:3px">SỐ ĐIỆN THOẠI</div>
+                        <div style="font-weight:600;color:var(--admin-text)">${phone}</div>
+                    </div>
+                    <div style="background:var(--admin-bg);border-radius:10px;padding:12px 16px">
+                        <div style="font-size:.78rem;color:var(--admin-text-muted);margin-bottom:3px">NGÀY THAM GIA</div>
+                        <div style="font-weight:600;color:var(--admin-text)">${joinDate}</div>
+                    </div>
+                    <div style="background:var(--admin-bg);border-radius:10px;padding:12px 16px">
+                        <div style="font-size:.78rem;color:var(--admin-text-muted);margin-bottom:3px">ĐĂNG NHẬP GẦN NHẤT</div>
+                        <div style="font-weight:600;color:var(--admin-text)">${lastLogin}</div>
+                    </div>
+                    <div style="background:var(--admin-bg);border-radius:10px;padding:12px 16px">
+                        <div style="font-size:.78rem;color:var(--admin-text-muted);margin-bottom:3px">ĐỊA CHỈ</div>
+                        <div style="font-weight:600;color:var(--admin-text);font-size:.88rem">${address}</div>
+                    </div>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;padding:16px 0;border-bottom:1px solid var(--admin-border)">
+                    <div style="text-align:center;background:rgba(212,165,116,.08);border-radius:10px;padding:14px">
+                        <div style="font-size:1.8rem;font-weight:800;color:var(--admin-accent)">${userOrders.length}</div>
+                        <div style="font-size:.82rem;color:var(--admin-text-muted)">Tổng đơn hàng</div>
+                    </div>
+                    <div style="text-align:center;background:rgba(5,150,105,.08);border-radius:10px;padding:14px">
+                        <div style="font-size:1.4rem;font-weight:800;color:#059669">${formatCurrency(totalSpent)}</div>
+                        <div style="font-size:.82rem;color:var(--admin-text-muted)">Tổng chi tiêu</div>
+                    </div>
+                </div>
+                <div style="padding-top:16px">
+                    <div style="font-weight:600;color:var(--admin-text);margin-bottom:10px"><i class="fas fa-receipt" style="margin-right:6px;color:var(--admin-accent)"></i>Đơn hàng gần đây</div>
+                    <table style="width:100%;border-collapse:collapse">
+                        <thead><tr style="background:var(--admin-bg)">
+                            <th style="padding:7px 10px;text-align:left;font-size:.8rem;color:var(--admin-text-muted);font-weight:600">Mã đơn</th>
+                            <th style="padding:7px 10px;text-align:left;font-size:.8rem;color:var(--admin-text-muted);font-weight:600">Ngày đặt</th>
+                            <th style="padding:7px 10px;text-align:left;font-size:.8rem;color:var(--admin-text-muted);font-weight:600">Trạng thái</th>
+                            <th style="padding:7px 10px;text-align:left;font-size:.8rem;color:var(--admin-text-muted);font-weight:600">Tổng tiền</th>
+                        </tr></thead>
+                        <tbody>${orderRows}</tbody>
+                    </table>
+                </div>
+            `;
+            document.getElementById('userModal').classList.add('show');
+        };
+
+        window.deleteUser = function (uid) {
+            const user = sampleUsers.find(u => u.uid === uid);
+            const name = user ? (((user.firstName || '') + ' ' + (user.lastName || '')).trim() || user.email) : uid;
+            Swal.fire({
+                title: 'Xóa tài khoản?',
+                html: `Tài khoản <strong>${name}</strong> sẽ bị xóa vĩnh viễn khỏi cơ sở dữ liệu.<br><small style="color:#6b7280">Lưu ý: Lịch sử đơn hàng của khách vẫn được giữ lại.</small>`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: 'Xóa',
+                cancelButtonText: 'Hủy'
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    try {
+                        await remove(ref(db, 'users/' + uid));
+                        Swal.fire({ icon: 'success', title: 'Đã xóa!', text: 'Tài khoản đã được xóa khỏi hệ thống.', confirmButtonColor: '#d4a574' });
+                    } catch (error) {
+                        console.error('Lỗi khi xóa tài khoản:', error);
+                        Swal.fire('Lỗi phân quyền (Permission Denied)', 'Tài khoản admin hiện tại chưa được cấp quyền xóa dữ liệu người dùng trong Firebase Security Rules.\n\nVui lòng cập nhật set Quy tắc (Rules) của Realtime Database để cấp quyền .write cho admin.', 'error');
+                    }
+                }
+            });
+        };
+
+        // Load & save siteSettings
+        async function loadSettings() {
+            try {
+                const snap = await get(ref(db, 'siteSettings'));
+                if (!snap.exists()) return;
+                const s = snap.val();
+                const fields = ['name', 'slogan', 'address', 'phone', 'email', 'hours', 'copyright', 'facebook', 'instagram', 'tiktok', 'youtube'];
+                fields.forEach(f => { const el = document.getElementById('cfg-' + f); if (el && s[f] !== undefined) el.value = s[f]; });
+            } catch (e) { console.error('loadSettings error', e); }
+        }
+
+        window.saveSettings = async function () {
+            const fields = ['name', 'slogan', 'address', 'phone', 'email', 'hours', 'copyright', 'facebook', 'instagram', 'tiktok', 'youtube'];
+            const data = {};
+            fields.forEach(f => { const el = document.getElementById('cfg-' + f); if (el) data[f] = el.value.trim(); });
+            try {
+                await set(ref(db, 'siteSettings'), { ...data, updatedAt: Date.now() });
+                Swal.fire({ icon: 'success', title: 'Đã lưu!', text: 'Thông tin cửa hàng đã được cập nhật trên toàn bộ website.', confirmButtonColor: '#d4a574', timer: 2500, showConfirmButton: false });
+            } catch (e) {
+                console.error('saveSettings error', e);
+                Swal.fire('Lỗi', 'Không thể lưu cài đặt.', 'error');
+            }
+        };
+
+        // Load users từ Firebase — hiển thị TẤT CẢ khách hàng đã đăng ký
+        let _usersListenerActive = false;
+
+        function _sortUsers() {
+            sampleUsers.sort((a, b) => {
+                const ta = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+                const tb2 = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+                return tb2 - ta;
+            });
+        }
+
+        // Phương án dự phòng: đọc từng user riêng lẻ từ danh sách UID thu thập được
+        async function _fallbackLoadUsers() {
+            console.log('[Users] ⚠️ Fallback: đọc từng user riêng lẻ...');
+            const tbody = document.getElementById('usersTable');
+            if (tbody) tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:30px"><div style="display:inline-block;width:28px;height:28px;border:3px solid var(--admin-border);border-top-color:var(--admin-accent);border-radius:50%;animation:spin .8s linear infinite"></div><div style="color:var(--admin-text-muted);margin-top:8px;font-size:.9rem">Đang tải dữ liệu khách hàng (dự phòng)...</div></td></tr>';
+
+            // Thu thập UID từ orders + UID của chính mình
+            const uidSet = new Set();
+            if (auth.currentUser) uidSet.add(auth.currentUser.uid);
+            sampleOrders.forEach(o => { if (o.userId) uidSet.add(o.userId); });
+
+            // Cũng thử lấy toàn bộ keys từ /users bằng REST với shallow=true
+            try {
+                const resp = await fetch(firebaseConfig.databaseURL + '/users.json?shallow=true&auth=' + await auth.currentUser.getIdToken());
+                if (resp.ok) {
+                    const keys = await resp.json();
+                    if (keys) Object.keys(keys).forEach(k => uidSet.add(k));
+                }
+            } catch (e) { console.warn('[Users] Không lấy được danh sách keys:', e.message); }
+
+            console.log('[Users] Tìm thấy ' + uidSet.size + ' UID để đọc...');
+            sampleUsers = [];
+            const promises = [...uidSet].map(async uid => {
+                try {
+                    const snap = await get(ref(db, 'users/' + uid));
+                    if (snap.exists()) {
+                        const u = snap.val();
+                        u.uid = uid;
+                        sampleUsers.push(u);
+                    }
+                } catch (e) { /* Bỏ qua user không đọc được */ }
+            });
+            await Promise.all(promises);
+            _sortUsers();
+            console.log('[Users] ✅ Fallback đã tải ' + sampleUsers.length + ' khách hàng');
+            renderUsers();
+            updateStats();
+
+            // Thiết lập listener theo dõi thay đổi từng user đã load
+            sampleUsers.forEach(u => {
+                onValue(ref(db, 'users/' + u.uid), (snap) => {
+                    if (!snap.exists()) return;
+                    const updated = snap.val();
+                    updated.uid = u.uid;
+                    const idx = sampleUsers.findIndex(x => x.uid === u.uid);
+                    if (idx >= 0) sampleUsers[idx] = updated;
+                    renderUsers();
+                });
+            });
+        }
+
+        function loadUsers() {
+            if (_usersListenerActive) return;
+            _usersListenerActive = true;
+            console.log('[Users] Đang tải danh sách khách hàng...');
+
+            // Hiển thị loading
+            const tbody = document.getElementById('usersTable');
+            if (tbody) tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:30px"><div style="display:inline-block;width:28px;height:28px;border:3px solid var(--admin-border);border-top-color:var(--admin-accent);border-radius:50%;animation:spin .8s linear infinite"></div><div style="color:var(--admin-text-muted);margin-top:8px;font-size:.9rem">Đang tải danh sách khách hàng...</div></td></tr>';
+
+            onValue(ref(db, 'users'), (snapshot) => {
+                sampleUsers = [];
+                if (snapshot.exists()) {
+                    snapshot.forEach(child => {
+                        const u = child.val();
+                        u.uid = child.key;
+                        sampleUsers.push(u);
+                    });
+                }
+                _sortUsers();
+                console.log('[Users] ✅ Đã tải ' + sampleUsers.length + ' khách hàng');
+                renderUsers();
+                updateStats();
+            }, (error) => {
+                console.error('[Users] ❌ Lỗi tải danh sách khách hàng:', error);
+                _usersListenerActive = false;
+
+                if (error.code === 'PERMISSION_DENIED' || error.message?.includes('permission')) {
+                    console.warn('[Users] ⚠️ Lỗi quyền — chuyển sang phương án dự phòng');
+                    // Thử fallback đọc từng user
+                    _fallbackLoadUsers().catch(e2 => {
+                        console.error('[Users] ❌ Fallback cũng thất bại:', e2);
+                        _showUsersPermError();
+                    });
+                } else {
+                    const tb = document.getElementById('usersTable');
+                    if (tb) tb.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:30px;color:var(--admin-danger)"><i class="fas fa-exclamation-circle" style="margin-right:6px"></i>Lỗi tải dữ liệu: ' + (error.message || 'Không xác định') + '</td></tr>';
+                }
+            });
+        }
+
+        function _showUsersPermError() {
+            const tbody = document.getElementById('usersTable');
+            if (!tbody) return;
+            tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:40px">' +
+                '<div style="display:flex;flex-direction:column;align-items:center;gap:14px">' +
+                '<div style="width:56px;height:56px;border-radius:50%;background:rgba(220,38,38,.1);display:flex;align-items:center;justify-content:center">' +
+                '<i class="fas fa-shield-alt" style="font-size:1.5rem;color:#dc2626"></i></div>' +
+                '<div style="font-weight:700;color:var(--admin-text);font-size:1.05rem">Không thể tải danh sách khách hàng</div>' +
+                '<div style="color:var(--admin-text-muted);font-size:.88rem;max-width:480px;line-height:1.6;text-align:center">' +
+                'Lỗi <strong style="color:#dc2626">permission_denied</strong> từ Firebase.<br>' +
+                'Cần cập nhật <strong>Database Rules</strong> để cho phép Admin đọc dữ liệu khách hàng.</div>' +
+                '<div style="background:var(--admin-bg);border:1px solid var(--admin-border);border-radius:10px;padding:14px 18px;text-align:left;font-size:.84rem;line-height:1.7;max-width:480px;width:100%">' +
+                '📝 <strong>Hướng dẫn:</strong><br>' +
+                '1. Vào <a href="https://console.firebase.google.com/project/moonlight-cafe-57e5d/database/moonlight-cafe-57e5d-default-rtdb/rules" target="_blank" style="color:var(--admin-accent);text-decoration:underline">Firebase Console → Realtime Database → Rules</a><br>' +
+                '2. Thay toàn bộ nội dung bằng rules trong file <strong>database.rules.json</strong><br>' +
+                '3. Nhấn <strong>Publish</strong> rồi tải lại trang này</div>' +
+                '<button class="btn btn-primary btn-sm" onclick="_usersListenerActive=false;loadUsers()" style="margin-top:4px"><i class="fas fa-redo" style="margin-right:6px"></i>Thử lại</button>' +
+                '</div></td></tr>';
+        }
+
+        // ---- User management state ----
+        let userCurrentPage = 1;
+        const USERS_PER_PAGE = 10;
+        let userFilterTab = 'all';
+        let userSearchQuery = '';
+
+        const THREE_MONTHS_MS = 90 * 24 * 60 * 60 * 1000;
+
+        function getUserActivityInfo(user) {
+            const userOrders = sampleOrders.filter(o => o.customer && o.customer.email === user.email);
+            const totalSpent = userOrders.filter(o => ['delivered', 'shipping'].includes(o.status)).reduce((s, o) => s + (o.total || 0), 0);
+            let lastActive = user.lastLoginAt || null;
+            if (!lastActive && userOrders.length) {
+                const times = userOrders.map(o => new Date(o.createdAt).getTime()).filter(t => !isNaN(t));
+                if (times.length) lastActive = Math.max(...times);
+            }
+            if (!lastActive && user.createdAt) lastActive = new Date(user.createdAt).getTime();
+            const isInactive = lastActive ? (Date.now() - lastActive > THREE_MONTHS_MS) : false;
+            return { userOrders, totalSpent, lastActive, isInactive };
+        }
+
+        function getFilteredUsers() {
+            const q = userSearchQuery.toLowerCase().trim();
+            return sampleUsers.filter(user => {
+                // Filter by tab
+                const info = getUserActivityInfo(user);
+                if (userFilterTab === 'active' && info.isInactive) return false;
+                if (userFilterTab === 'inactive' && !info.isInactive) return false;
+                if (userFilterTab === 'admin' && user.role !== 'admin') return false;
+                // Filter by search
+                if (q) {
+                    const displayName = ((user.firstName || '') + ' ' + (user.lastName || '')).trim() || user.fullName || '';
+                    const haystack = (displayName + ' ' + (user.email || '') + ' ' + (user.phone || '')).toLowerCase();
+                    if (!haystack.includes(q)) return false;
+                }
+                return true;
+            });
+        }
+
+        window.filterUsersByTab = function (tab) {
+            userFilterTab = tab;
+            userCurrentPage = 1;
+            // Update tab active state
+            ['all', 'active', 'inactive', 'admin'].forEach(t => {
+                const btn = document.getElementById('utab-' + t);
+                if (btn) {
+                    btn.className = t === tab ? 'btn btn-primary btn-sm' : 'btn btn-outline btn-sm';
+                }
+            });
+            renderUsers();
+        };
+
+        window.onUserSearch = function () {
+            const input = document.getElementById('userSearchInput');
+            userSearchQuery = input ? input.value : '';
+            userCurrentPage = 1;
+            renderUsers();
+        };
+
+        window.goToUserPage = function (page) {
+            userCurrentPage = page;
+            renderUsers();
+        };
+
+        // Render users (dữ liệu thực từ Firebase)
+        function renderUsers() {
+            const tbody = document.getElementById('usersTable');
+            if (!tbody) return;
+
+            // Update summary cards
+            const now = Date.now();
+            let totalCount = sampleUsers.length;
+            let activeCount = 0, inactiveCount = 0, adminCount = 0;
+            sampleUsers.forEach(user => {
+                const info = getUserActivityInfo(user);
+                if (info.isInactive) inactiveCount++; else activeCount++;
+                if (user.role === 'admin') adminCount++;
+            });
+            const el = id => document.getElementById(id);
+            if (el('userStatTotal')) el('userStatTotal').textContent = totalCount;
+            if (el('userStatActive')) el('userStatActive').textContent = activeCount;
+            if (el('userStatInactive')) el('userStatInactive').textContent = inactiveCount;
+            if (el('userStatAdmin')) el('userStatAdmin').textContent = adminCount;
+
+            const filtered = getFilteredUsers();
+
+            if (!filtered.length) {
+                tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:24px;color:var(--admin-text-muted)">' +
+                    (sampleUsers.length ? 'Không tìm thấy khách hàng phù hợp' : 'Chưa có khách hàng nào') + '</td></tr>';
+                if (el('usersPaginationInfo')) el('usersPaginationInfo').textContent = 'Hiển thị 0/0 khách hàng';
+                if (el('usersPaginationBtns')) el('usersPaginationBtns').innerHTML = '';
+                return;
+            }
+
+            const totalPages = Math.ceil(filtered.length / USERS_PER_PAGE);
+            if (userCurrentPage > totalPages) userCurrentPage = totalPages;
+            const start = (userCurrentPage - 1) * USERS_PER_PAGE;
+            const pageUsers = filtered.slice(start, start + USERS_PER_PAGE);
+
+            const rows = pageUsers.map((user, idx) => {
+                const globalIdx = start + idx;
+                const displayName = ((user.firstName || '') + ' ' + (user.lastName || '')).trim() || user.fullName || user.email || 'N/A';
+                const avatar = displayName.charAt(0).toUpperCase();
+                const joinDate = user.createdAt ? formatDate(user.createdAt) : 'N/A';
+                const phone = user.phone || '—';
+                const role = user.role === 'admin' ? '<span style="background:#fef3c7;color:#d97706;padding:2px 8px;border-radius:12px;font-size:.78rem;font-weight:600">Admin</span>'
+                    : '<span style="background:#d1fae5;color:#059669;padding:2px 8px;border-radius:12px;font-size:.78rem;font-weight:600">Khách hàng</span>';
+                const info = getUserActivityInfo(user);
+                const activityBadge = info.isInactive
+                    ? '<span style="background:#fee2e2;color:#dc2626;padding:2px 10px;border-radius:12px;font-size:.78rem;font-weight:600"><i class="fas fa-circle" style="font-size:.5rem;vertical-align:middle;margin-right:3px"></i>Không HĐ</span>'
+                    : '<span style="background:#d1fae5;color:#059669;padding:2px 10px;border-radius:12px;font-size:.78rem;font-weight:600"><i class="fas fa-circle" style="font-size:.5rem;vertical-align:middle;margin-right:3px"></i>Hoạt động</span>';
+
+                let row = '<tr>';
+                row += '<td style="color:var(--admin-text-muted);font-size:0.85rem;font-weight:600">' + String(globalIdx + 1).padStart(2, '0') + '</td>';
+                row += '<td><div class="customer-cell">';
+                row += '<div class="customer-avatar">' + avatar + '</div>';
+                row += '<div><div class="customer-name">' + displayName + '</div>';
+                row += '<div class="customer-sub">📅 ' + joinDate + '</div></div></div></td>';
+                row += '<td style="font-size:0.88rem;color:var(--admin-text-muted)">' + (user.email || '') + '</td>';
+                row += '<td style="font-size:0.88rem">📞 ' + phone + '</td>';
+                row += '<td><div style="font-weight:700;font-size:1.05rem;text-align:center;color:var(--admin-text)">' + info.userOrders.length + '</div>';
+                row += '<div class="items-summary" style="text-align:center">đơn hàng</div></td>';
+                row += '<td class="price-cell">' + formatCurrency(info.totalSpent) + '</td>';
+                row += '<td>' + role + '</td>';
+                row += '<td>' + activityBadge + '</td>';
+                row += '<td><div class="action-btns"><button class="action-btn view" onclick="viewUser(\'' + user.uid + '\')" title="Xem thông tin"><i class="fas fa-eye"></i></button><button class="action-btn delete" onclick="deleteUser(\'' + user.uid + '\')" title="Xóa tài khoản"><i class="fas fa-trash"></i></button></div></td>';
+                row += '</tr>';
+                return row;
+            }).join('');
+            tbody.innerHTML = rows;
+
+            // Pagination info
+            const endIdx = Math.min(start + USERS_PER_PAGE, filtered.length);
+            if (el('usersPaginationInfo')) el('usersPaginationInfo').textContent = 'Hiển thị ' + (start + 1) + '-' + endIdx + '/' + filtered.length + ' khách hàng';
+
+            // Pagination buttons
+            if (el('usersPaginationBtns')) {
+                let btns = '';
+                btns += '<button class="pagination-btn" ' + (userCurrentPage <= 1 ? 'disabled' : '') + ' onclick="goToUserPage(' + (userCurrentPage - 1) + ')"><i class="fas fa-chevron-left"></i></button>';
+                // Show max 5 page buttons centered around current
+                let pageStart = Math.max(1, userCurrentPage - 2);
+                let pageEnd = Math.min(totalPages, pageStart + 4);
+                if (pageEnd - pageStart < 4) pageStart = Math.max(1, pageEnd - 4);
+                for (let p = pageStart; p <= pageEnd; p++) {
+                    btns += '<button class="pagination-btn' + (p === userCurrentPage ? ' active' : '') + '" onclick="goToUserPage(' + p + ')">' + p + '</button>';
+                }
+                btns += '<button class="pagination-btn" ' + (userCurrentPage >= totalPages ? 'disabled' : '') + ' onclick="goToUserPage(' + (userCurrentPage + 1) + ')"><i class="fas fa-chevron-right"></i></button>';
+                el('usersPaginationBtns').innerHTML = btns;
+            }
+        }
+
+        // View order detail
+        window.viewOrder = function (orderId) {
+            const order = sampleOrders.find(o => o.id === orderId);
+            if (!order) return;
+
+            const modalBody = document.getElementById('orderModalBody');
+            modalBody.innerHTML = `
+                <div style="margin-bottom: 20px;">
+                    <p><strong>Mã đơn hàng:</strong> #${order.id.slice(-6)}</p>
+                    <p><strong>Ngày đặt:</strong> ${formatDate(order.createdAt)}</p>
+                    <p><strong>Phương thức thanh toán:</strong> ${order.payment === 'cod' ? 'Tiền mặt (COD)' : order.payment === 'banking' ? 'Chuyển khoản' : 'MoMo'}</p>
+                </div>
+                <div style="margin-bottom: 20px;">
+                    <h4 style="margin-bottom: 10px;">Thông tin khách hàng</h4>
+                    <p><strong>Họ tên:</strong> ${order.customer.fullName}</p>
+                    <p><strong>Email:</strong> ${order.customer.email}</p>
+                    <p><strong>Điện thoại:</strong> ${order.customer.phone}</p>
+                </div>
+                <div style="margin-bottom: 20px;">
+                    <h4 style="margin-bottom: 10px;">Sản phẩm đã đặt</h4>
+                    ${order.items.map(item => `
+                        <div style="display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--secondary);">
+                            <div>
+                                <span style="font-weight: 500;">${item.name}</span>
+                                <span style="color: var(--text-muted);"> x${item.quantity}</span>
+                            </div>
+                            <span>${formatCurrency(item.price * item.quantity)}</span>
+                        </div>
+                    `).join('')}
+                </div>
+                <div>
+                    <div style="display: flex; justify-content: space-between; padding: 8px 0;">
+                        <span>Tạm tính:</span>
+                        <span>${formatCurrency(order.subtotal)}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; padding: 8px 0;">
+                        <span>Phí vận chuyển:</span>
+                        <span>${order.shipping === 0 ? 'Miễn phí' : formatCurrency(order.shipping)}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; padding: 12px 0; border-top: 2px solid var(--secondary); font-weight: 600; font-size: 1.1rem;">
+                        <span>Tổng cộng:</span>
+                        <span style="color: var(--accent);">${formatCurrency(order.total)}</span>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('orderModal').classList.add('show');
+
+            // Handle Confirm Button Click
+            const confirmBtn = document.getElementById('confirmOrderBtn');
+            if (order.status === 'pending') {
+                confirmBtn.style.display = 'inline-block';
+                confirmBtn.onclick = async () => {
+                    try {
+                        await update(ref(db, 'orders/' + orderId), { status: 'shipping' });
+
+                        // Trừ tồn kho khi xác nhận đơn (nếu chưa trừ)
+                        if (!order.stockDeducted && order.items && order.items.length) {
+                            const deductPromises = order.items.map(async (item) => {
+                                if (!item.id) return;
+                                try {
+                                    const snapStock = await get(ref(db, `products/${item.id}/stock`));
+                                    const currentStock = snapStock.exists() ? Number(snapStock.val()) : 0;
+                                    const newStock = Math.max(0, currentStock - (item.quantity || 1));
+                                    await update(ref(db, `products/${item.id}`), { stock: newStock });
+                                } catch (_) { }
+                            });
+                            await Promise.all(deductPromises);
+                            await update(ref(db, 'orders/' + orderId), { stockDeducted: true });
+                        }
+
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Thành công',
+                            text: 'Đã xác nhận và chuyển sang Đang giao! Tồn kho đã được cập nhật.',
+                            confirmButtonColor: '#d4a574'
+                        });
+                        closeModal('orderModal');
+                    } catch (error) {
+                        console.error('Lỗi khi xác nhận đơn:', error);
+                        Swal.fire('Lỗi', 'Không thể xác nhận đơn hàng.', 'error');
+                    }
+                };
+            } else {
+                confirmBtn.style.display = 'none';
+            }
+        };
+
+        // Update order status
+        window.updateOrderStatus = function (orderId) {
+            const order = sampleOrders.find(o => o.id === orderId);
+            if (!order) return;
+
+            const statusOptions = ['pending', 'confirmed', 'processing', 'shipping', 'delivered', 'cancelled'];
+            const statusText = { 'pending': 'Chờ xác nhận', 'confirmed': 'Đã xác nhận', 'processing': 'Đang chuẩn bị', 'shipping': 'Đang giao', 'delivered': 'Hoàn thành', 'cancelled': 'Đã hủy' };
+
+            let optionsHtml = statusOptions.map(s => `<option value="${s}" ${order.status === s ? 'selected' : ''}>${statusText[s]}</option>`).join('');
+
+            Swal.fire({
+                title: 'Cập nhật trạng thái',
+                html: `<select id="newStatus" class="form-control" style="margin-top: 15px;">${optionsHtml}</select>`,
+                showCancelButton: true,
+                confirmButtonText: 'Cập nhật',
+                cancelButtonText: 'Hủy',
+                confirmButtonColor: '#d4a574'
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    const newStatus = document.getElementById('newStatus').value;
+                    const oldStatus = order.status;
+                    try {
+                        // Cập nhật trạng thái đơn
+                        await update(ref(db, 'orders/' + orderId), { status: newStatus });
+
+                        // ⇒ Xác nhận đơn: trừ tồn kho (chỉ lần đầu, kiểm tra cờ stockDeducted)
+                        const DEDUCT_STATUSES = ['confirmed', 'processing', 'shipping', 'delivered'];
+                        const wasDeducted = !!order.stockDeducted;
+                        const shouldDeduct = DEDUCT_STATUSES.includes(newStatus) && !DEDUCT_STATUSES.includes(oldStatus) && !wasDeducted;
+                        const shouldRestore = newStatus === 'cancelled' && wasDeducted;
+
+                        if (shouldDeduct && order.items && order.items.length) {
+                            const deductPromises = order.items.map(async (item) => {
+                                if (!item.id) return;
+                                try {
+                                    const snapStock = await get(ref(db, `products/${item.id}/stock`));
+                                    const currentStock = snapStock.exists() ? Number(snapStock.val()) : 0;
+                                    const newStock = Math.max(0, currentStock - (item.quantity || 1));
+                                    await update(ref(db, `products/${item.id}`), { stock: newStock });
+                                } catch (_) { }
+                            });
+                            await Promise.all(deductPromises);
+                            await update(ref(db, 'orders/' + orderId), { stockDeducted: true });
+                        }
+
+                        if (shouldRestore && order.items && order.items.length) {
+                            const restorePromises = order.items.map(async (item) => {
+                                if (!item.id) return;
+                                try {
+                                    const snapStock = await get(ref(db, `products/${item.id}/stock`));
+                                    const currentStock = snapStock.exists() ? Number(snapStock.val()) : 0;
+                                    await update(ref(db, `products/${item.id}`), { stock: currentStock + (item.quantity || 1) });
+                                } catch (_) { }
+                            });
+                            await Promise.all(restorePromises);
+                            await update(ref(db, 'orders/' + orderId), { stockDeducted: false });
+                        }
+
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Đã cập nhật!',
+                            text: `Trạng thái đơn hàng #${order.id.slice(-6).toUpperCase()} đã được cập nhật.${shouldDeduct ? ' Tồn kho đã được trừ.' :
+                                shouldRestore ? ' Tồn kho đã được hoàn lại.' : ''
+                                }`,
+                            confirmButtonColor: '#d4a574'
+                        });
+                    } catch (error) {
+                        console.error('Lỗi khi cập nhật trạng thái:', error);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Cập nhật thất bại!',
+                            text: 'Đã xảy ra lỗi, vui lòng thử lại.'
+                        });
+                    }
+                }
+            });
+        };
+
+        // Filter orders
+        window.filterOrders = function (status) {
+            if (status === 'all') {
+                renderOrders();
+            } else if (status === 'shipping') {
+                const filtered = sampleOrders.filter(o => o.status === 'shipping' || o.status === 'confirmed' || o.status === 'processing');
+                renderOrders(filtered);
+            } else {
+                const filtered = sampleOrders.filter(o => o.status === status);
+                renderOrders(filtered);
+            }
+        };
+
+        let currentEditProductId = null;
+        let productImagePreviewObjectUrl = '';
+
+        function clearProductImagePreviewObjectUrl() {
+            if (productImagePreviewObjectUrl) {
+                URL.revokeObjectURL(productImagePreviewObjectUrl);
+                productImagePreviewObjectUrl = '';
+            }
+        }
+
+        function setProductImagePreview(imageUrl) {
+            const wrap = document.getElementById('productImagePreviewWrap');
+            const img = document.getElementById('productImagePreview');
+            if (!wrap || !img) return;
+
+            if (imageUrl) {
+                img.src = imageUrl;
+                wrap.style.display = 'block';
+                return;
+            }
+
+            img.src = '';
+            wrap.style.display = 'none';
+        }
+
+        // Open product modal for adding new
+        window.openProductModal = function () {
+            currentEditProductId = null;
+            document.querySelector('#productModal .modal-header h3').textContent = 'Thêm sản phẩm mới';
+            document.getElementById('productName').value = '';
+            document.getElementById('productPrice').value = '';
+            document.getElementById('productStock').value = '50';
+            document.getElementById('productCategory').value = 'coffee';
+            document.getElementById('productStatus').value = 'true';
+            document.getElementById('productDesc').value = '';
+            document.getElementById('productImage').value = '';
+            clearProductImagePreviewObjectUrl();
+            setProductImagePreview('');
+            document.getElementById('productModal').classList.add('show');
+        };
+
+        // Open product modal for editing
+        window.editProduct = function (productId) {
+            const product = sampleProducts.find(p => p.id === productId);
+            if (!product) return;
+
+            currentEditProductId = productId;
+            document.querySelector('#productModal .modal-header h3').textContent = 'Chỉnh sửa sản phẩm';
+            document.getElementById('productName').value = product.name;
+            document.getElementById('productPrice').value = product.price;
+            document.getElementById('productStock').value = product.stock !== undefined ? product.stock : 50;
+            document.getElementById('productCategory').value = product.category;
+            document.getElementById('productStatus').value = product.isAvailable !== false ? 'true' : 'false';
+            document.getElementById('productDesc').value = product.description || '';
+            document.getElementById('productImage').value = ''; // Don't require re-uploading image
+            clearProductImagePreviewObjectUrl();
+            setProductImagePreview(product.imageUrl || '');
+            document.getElementById('productModal').classList.add('show');
+        };
+
+        const _productImageInput = document.getElementById('productImage');
+        if (_productImageInput) _productImageInput.addEventListener('change', function () {
+            const selectedFile = this.files && this.files[0] ? this.files[0] : null;
+
+            clearProductImagePreviewObjectUrl();
+
+            if (!selectedFile) {
+                if (currentEditProductId) {
+                    const existing = sampleProducts.find(p => p.id === currentEditProductId);
+                    setProductImagePreview(existing?.imageUrl || '');
+                } else {
+                    setProductImagePreview('');
+                }
+                return;
+            }
+
+            productImagePreviewObjectUrl = URL.createObjectURL(selectedFile);
+            setProductImagePreview(productImagePreviewObjectUrl);
+        });
+
+        // Auto-update status when stock changes
+        const _stockEl = document.getElementById('productStock');
+        if (_stockEl) _stockEl.addEventListener('input', function () {
+            const stockValue = parseInt(this.value);
+            const statusSelect = document.getElementById('productStatus');
+            if (!isNaN(stockValue) && stockValue <= 0) {
+                statusSelect.value = 'false'; // Ngưng bán
+            } else if (!isNaN(stockValue) && stockValue > 0 && statusSelect.value === 'false') {
+                statusSelect.value = 'true'; // Đang bán
+            }
+        });
+
+        // Save product (upload image to Cloudinary)
+        window.saveProduct = async function () {
+            const name = document.getElementById('productName').value;
+            const price = document.getElementById('productPrice').value;
+            const stock = document.getElementById('productStock').value;
+            const category = document.getElementById('productCategory').value;
+            const status = document.getElementById('productStatus').value === 'true';
+            const desc = document.getElementById('productDesc').value;
+            const imageInput = document.getElementById('productImage');
+            const hasSelectedImage = !!(imageInput.files && imageInput.files[0]);
+
+            if (!name || !price) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Thiếu thông tin!',
+                    text: 'Vui lòng nhập tên và giá sản phẩm.'
+                });
+                return;
+            }
+
+            // Show loading
+            Swal.fire({
+                title: hasSelectedImage ? 'Đang xử lý ảnh...' : 'Đang lưu...',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
+            try {
+                let imageUrl = '';
+                let uploadedToCloudinary = false;
+                // If editing, preserve old image explicitly, handle defaults
+                if (currentEditProductId) {
+                    const existingProduct = sampleProducts.find(p => p.id === currentEditProductId);
+                    imageUrl = existingProduct.imageUrl || 'https://images.unsplash.com/photo-1572442388796-11668a67e53d?w=100';
+                } else {
+                    imageUrl = 'https://images.unsplash.com/photo-1572442388796-11668a67e53d?w=100'; // Default
+                }
+
+                // Upload image file to Cloudinary if provided
+                if (imageInput.files && imageInput.files[0]) {
+                    Swal.update({ title: 'Đang tải ảnh lên Cloudinary...' });
+                    const target = buildMenuImageTarget({
+                        category,
+                        name,
+                        productId: currentEditProductId || undefined
+                    });
+                    imageUrl = await uploadImageToCloudinary(imageInput.files[0], target.folder, { publicId: target.publicId });
+                    uploadedToCloudinary = /res\.cloudinary\.com/i.test(imageUrl);
+                }
+
+                Swal.update({ title: 'Đang lưu sản phẩm...' });
+
+                const productData = {
+                    name,
+                    price: parseInt(price),
+                    category,
+                    description: desc,
+                    imageUrl,
+                    stock: parseInt(stock) || 0, // save stock correctly
+                    isAvailable: status
+                };
+
+                if (currentEditProductId) {
+                    // Update existing
+                    await update(ref(db, 'products/' + currentEditProductId), productData);
+                } else {
+                    // Create new
+                    productData.createdAt = new Date().toISOString();
+                    await push(ref(db, 'products'), productData);
+                }
+
+                // Reset form
+                document.getElementById('productName').value = '';
+                document.getElementById('productPrice').value = '';
+                document.getElementById('productDesc').value = '';
+                document.getElementById('productImage').value = '';
+                clearProductImagePreviewObjectUrl();
+                setProductImagePreview('');
+
+                closeModal('productModal');
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Thành công!',
+                    text: currentEditProductId
+                        ? (hasSelectedImage
+                            ? (uploadedToCloudinary
+                                ? 'Cập nhật sản phẩm thành công và ảnh đã upload Cloudinary.'
+                                : 'Cập nhật sản phẩm thành công. Ảnh chưa xác nhận là URL Cloudinary.')
+                            : 'Cập nhật sản phẩm thành công.')
+                        : (hasSelectedImage
+                            ? (uploadedToCloudinary
+                                ? 'Sản phẩm đã lưu lên Firebase và ảnh đã upload Cloudinary.'
+                                : 'Sản phẩm đã lưu lên Firebase. Ảnh chưa xác nhận là URL Cloudinary.')
+                            : 'Sản phẩm đã được lưu lên Firebase.'),
+                    confirmButtonColor: '#d4a574'
+                });
+
+            } catch (error) {
+                console.error("Lỗi khi thêm/sửa sản phẩm: ", error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Lỗi',
+                    text: error?.message || 'Có lỗi xảy ra khi lưu sản phẩm'
+                });
+            }
+        };
+
+        // Close modal
+        window.closeModal = function (modalId) {
+            document.getElementById(modalId).classList.remove('show');
+            if (modalId === 'productModal') {
+                clearProductImagePreviewObjectUrl();
+                setProductImagePreview('');
+                const imageInput = document.getElementById('productImage');
+                if (imageInput) imageInput.value = '';
+            }
+        };
+
+        // Show section
+        window.showSection = function (sectionName) {
+            document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('active'));
+            document.getElementById(sectionName + 'Section').classList.add('active');
+            document.querySelectorAll('.menu-item').forEach(m => m.classList.remove('active'));
+            document.querySelector(`[data-section="${sectionName}"]`).classList.add('active');
+            if (sectionName === 'tables') {
+                switchTableTab('floormap');
+            }
+            if (sectionName === 'reservations') {
+                // Luôn đảm bảo listener đang chạy, nếu chết hoặc chưa chạy → khởi động lại
+                if (!resUnsubscribe) {
+                    loadAdminReservations();
+                } else {
+                    filterReservations(resCurrentFilter);
+                }
+            }
+        };
+
+        // Initialize charts
+        // Chart instances (global để update được)
+        let revenueChartInstance = null;
+        let statusChartInstance = null;
+
+        function initCharts() {
+            try {
+                // --- Revenue Bar Chart ---
+                const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+                revenueChartInstance = new Chart(revenueCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: [], datasets: [{
+                            label: 'Doanh thu (VNĐ)',
+                            data: [],
+                            backgroundColor: 'rgba(212,165,116,0.75)',
+                            borderColor: '#d4a574',
+                            borderWidth: 1,
+                            borderRadius: 6
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: { callbacks: { label: ctx => ' ' + new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(ctx.raw) } }
+                        },
+                        scales: {
+                            y: { beginAtZero: true, ticks: { callback: v => v >= 1e6 ? (v / 1e6).toFixed(1) + 'M' : (v >= 1e3 ? (v / 1e3).toFixed(0) + 'K' : v) } },
+                            x: { grid: { display: false } }
+                        }
+                    }
+                });
+
+                // --- Top 5 Products Doughnut ---
+                const statusCtx = document.getElementById('orderStatusChart').getContext('2d');
+                statusChartInstance = new Chart(statusCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: [],
+                        datasets: [{
+                            data: [],
+                            backgroundColor: ['#10b981', '#3b82f6', '#8b5cf6', '#f59e0b', '#ec4899'],
+                            borderWidth: 2,
+                            hoverOffset: 6
+                        }]
+                    },
+                    options: {
+                        responsive: false,
+                        cutout: '65%',
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: { callbacks: { label: ctx => ' ' + ctx.label + ': ' + ctx.raw } }
+                        }
+                    }
+                });
+            } catch (e) { console.warn('[initCharts] error:', e.message); }
+        }
+
+        // ============================================================
+        // DASHBOARD - Cập nhật stats và biểu đồ từ dữ liệu thực
+        // ============================================================
+        function updateStats() {
+            const now = new Date();
+            const curYear = now.getFullYear();
+            const curMonth = now.getMonth(); // 0-based
+
+            function isThisMonth(dateStr) {
+                if (!dateStr) return false;
+                const d = new Date(dateStr);
+                return d.getFullYear() === curYear && d.getMonth() === curMonth;
+            }
+            function isLastMonth(dateStr) {
+                if (!dateStr) return false;
+                const d = new Date(dateStr);
+                const lm = new Date(curYear, curMonth - 1, 1);
+                return d.getFullYear() === lm.getFullYear() && d.getMonth() === lm.getMonth();
+            }
+            function pct(cur, prev) {
+                if (prev === 0) return cur > 0 ? 100 : 0;
+                return Math.round((cur - prev) / prev * 100);
+            }
+            function changeHTML(elId, pctVal, suffix) {
+                const el = document.getElementById(elId);
+                if (!el) return;
+                const up = pctVal >= 0;
+                el.className = 'stat-change ' + (up ? 'up' : 'down');
+                el.innerHTML = '<i class="fas fa-arrow-' + (up ? 'up' : 'down') + '"></i><span>' + (up ? '+' : '') + pctVal + '% ' + suffix + '</span>';
+            }
+
+            // Doanh thu (delivered + shipping)
+            const validRevStatuses = ['delivered', 'shipping'];
+            const revOrders = sampleOrders.filter(o => validRevStatuses.includes(o.status));
+            const revThis = revOrders.filter(o => isThisMonth(o.createdAt)).reduce((s, o) => s + (o.total || 0), 0);
+            const revLast = revOrders.filter(o => isLastMonth(o.createdAt)).reduce((s, o) => s + (o.total || 0), 0);
+            const revAll = revOrders.reduce((s, o) => s + (o.total || 0), 0);
+            const avgOrder = sampleOrders.length ? Math.round(revAll / sampleOrders.length) : 0;
+
+            document.getElementById('totalRevenue').textContent = formatCurrency(revThis);
+            document.getElementById('totalRevenueAll').textContent = formatCurrency(revAll);
+            const avgEl = document.getElementById('avgOrderVal');
+            if (avgEl) avgEl.textContent = 'TB: ' + formatCurrency(avgOrder) + '/đơn';
+            changeHTML('revenueChange', pct(revThis, revLast), 'so với tháng trước');
+
+            // Đơn hàng
+            const ordThis = sampleOrders.filter(o => isThisMonth(o.createdAt)).length;
+            const ordLast = sampleOrders.filter(o => isLastMonth(o.createdAt)).length;
+            document.getElementById('totalOrders').textContent = sampleOrders.length;
+            changeHTML('ordersChange', pct(ordThis, ordLast), 'so với tháng trước');
+
+            // Đơn chờ + đang giao
+            const pendCnt = sampleOrders.filter(o => o.status === 'pending' || o.status === 'confirmed').length;
+            const shipCnt = sampleOrders.filter(o => o.status === 'shipping').length;
+            const pdEl = document.getElementById('pendingOrders');
+            if (pdEl) pdEl.textContent = pendCnt;
+            const dlEl = document.getElementById('deliveringCount');
+            if (dlEl) dlEl.textContent = shipCnt + ' đang giao';
+
+            // Sản phẩm
+            const activeProds = sampleProducts.filter(p => p.isAvailable !== false).length;
+            const outStock = sampleProducts.filter(p => Number(p.stock) <= 0).length;
+            document.getElementById('totalProducts').textContent = activeProds;
+            const oosEl = document.getElementById('outOfStock');
+            if (oosEl) oosEl.textContent = outStock + ' hết hàng';
+
+            // Khách hàng (loại admin)
+            const customers = sampleUsers.filter(u => u.role !== 'admin');
+            const usersThis = customers.filter(u => isThisMonth(u.createdAt)).length;
+            const usersLast = customers.filter(u => isLastMonth(u.createdAt)).length;
+            document.getElementById('totalUsers').textContent = customers.length;
+            changeHTML('usersChange', pct(usersThis, usersLast), 'so với tháng trước');
+
+            // Cập nhật biểu đồ
+            updateRevenueChart();
+            updateStatusChart();
+        }
+
+        function updateRevenueChart() {
+            if (!revenueChartInstance) return;
+            const now = new Date();
+            const labels = [], data = [];
+            for (let i = 11; i >= 0; i--) {
+                const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+                labels.push('T' + (d.getMonth() + 1) + '/' + String(d.getFullYear()).slice(-2));
+                const rev = sampleOrders
+                    .filter(o => ['delivered', 'shipping'].includes(o.status) && o.createdAt)
+                    .filter(o => { const od = new Date(o.createdAt); return od.getFullYear() === d.getFullYear() && od.getMonth() === d.getMonth(); })
+                    .reduce((s, o) => s + (o.total || 0), 0);
+                data.push(rev);
+            }
+            revenueChartInstance.data.labels = labels;
+            revenueChartInstance.data.datasets[0].data = data;
+            revenueChartInstance.update();
+            const noteEl = document.getElementById('revenueChartNote');
+            if (noteEl && labels.length === 12) noteEl.textContent = labels[0] + ' → ' + labels[11];
+        }
+
+        function updateStatusChart() {
+            const statusConfig = [
+                { key: 'delivered', label: 'Hoàn thành', color: '#10b981', icon: 'fa-check-circle', revenueCount: true },
+                { key: 'shipping', label: 'Đang giao', color: '#3b82f6', icon: 'fa-shipping-fast', revenueCount: true },
+                { key: 'processing', label: 'Đang chuẩn bị', color: '#8b5cf6', icon: 'fa-box-open', revenueCount: false },
+                { key: 'confirmed', label: 'Đã xác nhận', color: '#06b6d4', icon: 'fa-clipboard-check', revenueCount: false },
+                { key: 'pending', label: 'Chờ xác nhận', color: '#f59e0b', icon: 'fa-clock', revenueCount: false },
+                { key: 'cancelled', label: 'Đã hủy', color: '#ef4444', icon: 'fa-times-circle', revenueCount: false }
+            ];
+            const total = sampleOrders.length || 1;
+
+            // --- Cập nhật badge tổng ---
+            const noteEl = document.getElementById('totalOrderNote');
+            if (noteEl) noteEl.textContent = sampleOrders.length + ' đơn';
+
+            // --- Render breakdown list ---
+            const breakdown = document.getElementById('statusBreakdown');
+            if (breakdown) {
+                breakdown.innerHTML = statusConfig.map(cfg => {
+                    const cnt = sampleOrders.filter(o => o.status === cfg.key).length;
+                    const pct = Math.round(cnt / total * 100);
+                    const rev = cfg.revenueCount
+                        ? sampleOrders.filter(o => o.status === cfg.key).reduce((s, o) => s + (o.total || 0), 0)
+                        : null;
+                    const revHtml = rev !== null
+                        ? '<span style="margin-left:auto;font-size:.75rem;color:' + cfg.color + ';font-weight:600">' + new Intl.NumberFormat('vi-VN', { notation: 'compact', maximumFractionDigits: 1 }).format(rev) + 'đ</span>'
+                        : '';
+                    return '<div style="display:flex;flex-direction:column;gap:3px">'
+                        + '<div style="display:flex;align-items:center;gap:8px">'
+                        + '<i class="fas ' + cfg.icon + '" style="color:' + cfg.color + ';width:14px;font-size:.85rem"></i>'
+                        + '<span style="font-size:.82rem;font-weight:500;color:var(--admin-text);flex:1">' + cfg.label + '</span>'
+                        + '<span style="font-size:.82rem;font-weight:700;color:var(--admin-text);min-width:20px;text-align:right">' + cnt + '</span>'
+                        + '<span style="font-size:.75rem;color:var(--admin-text-muted);min-width:34px;text-align:right">' + pct + '%</span>'
+                        + revHtml
+                        + '</div>'
+                        + '<div style="height:5px;border-radius:3px;background:var(--admin-secondary);overflow:hidden">'
+                        + '<div style="height:100%;width:' + pct + '%;background:' + cfg.color + ';border-radius:3px;transition:width .5s"></div>'
+                        + '</div>'
+                        + '</div>';
+                }).join('');
+            }
+
+            // --- Cập nhật Widget Biểu đồ Top 5 ---
+            const validOrders = sampleOrders.filter(o => ['delivered', 'shipping'].includes(o.status));
+            const itemCounts = {};
+            validOrders.forEach(o => {
+                if (o.items && Array.isArray(o.items)) {
+                    o.items.forEach(item => {
+                        itemCounts[item.name] = (itemCounts[item.name] || 0) + (item.quantity || 1);
+                    });
+                }
+            });
+
+            // Sắp xếp giảm dần và lấy top 5
+            const sortedItems = Object.entries(itemCounts)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 5);
+
+            // --- Render legend cạnh doughnut ---
+            const legendEl = document.getElementById('statusLegend');
+            const colors = ['#10b981', '#3b82f6', '#8b5cf6', '#f59e0b', '#ec4899'];
+            if (legendEl) {
+                if (sortedItems.length === 0) {
+                    legendEl.innerHTML = '<span style="color:var(--admin-text-muted);font-style:italic">Chưa có dữ liệu bán hàng.</span>';
+                } else {
+                    legendEl.innerHTML = sortedItems.map((item, index) => {
+                        const color = colors[index % colors.length];
+                        return '<div style="display:flex;align-items:center;gap:6px">'
+                            + '<span style="width:10px;height:10px;border-radius:50%;background:' + color + ';flex-shrink:0"></span>'
+                            + '<span style="color:var(--admin-text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:120px" title="' + item[0] + '">' + item[0] + '</span>'
+                            + '<span style="font-weight:700;color:var(--admin-text);margin-left:auto">' + item[1] + '</span>'
+                            + '</div>';
+                    }).join('');
+                }
+            }
+
+            // --- Cập nhật doughnut ---
+            if (statusChartInstance) {
+                statusChartInstance.data.labels = sortedItems.map(i => i[0]);
+                statusChartInstance.data.datasets[0].data = sortedItems.map(i => i[1]);
+                statusChartInstance.update();
+            }
+        }
+
+        // Logout
+        const _logoutEl = document.getElementById('logoutBtn');
+        if (_logoutEl) _logoutEl.addEventListener('click', () => {
+            Swal.fire({
+                icon: 'question',
+                title: 'Đăng xuất?',
+                text: 'Bạn có chắc chắn muốn đăng xuất?',
+                showCancelButton: true,
+                confirmButtonText: 'Đăng xuất',
+                cancelButtonText: 'Hủy',
+                confirmButtonColor: '#d4a574'
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    try {
+                        // Đăng xuất khỏi Firebase
+                        await signOut(auth);
+                    } catch (e) {
+                        console.warn('Firebase signOut error:', e);
+                    }
+                    // Xóa session localStorage
+                    localStorage.removeItem('moonlight_user');
+                    localStorage.removeItem('moonlight_cart');
+                    // Chuyển về trang đăng nhập
+                    window.location.href = 'login.html';
+                }
+            });
+        });
+
+        // Menu navigation
+        document.querySelectorAll('.menu-item[data-section]').forEach(item => {
+            item.addEventListener('click', () => {
+                const section = item.dataset.section;
+                showSection(section);
+            });
+        });
+
+        // Mobile menu toggle
+        const _menuToggle = document.getElementById('menuToggle');
+        if (_menuToggle) _menuToggle.addEventListener('click', () => {
+            document.getElementById('adminSidebar').classList.toggle('open');
+            document.getElementById('sidebarOverlay').classList.toggle('show');
+        });
+
+        const _sidebarOverlay = document.getElementById('sidebarOverlay');
+        if (_sidebarOverlay) _sidebarOverlay.addEventListener('click', () => {
+            document.getElementById('adminSidebar').classList.remove('open');
+            document.getElementById('sidebarOverlay').classList.remove('show');
+        });
+
+        // Close modal on overlay click
+        document.querySelectorAll('.modal-overlay').forEach(overlay => {
+            overlay.addEventListener('click', (e) => {
+                if (e.target === overlay) {
+                    overlay.classList.remove('show');
+                }
+            });
+        });
+
+        // ============================================================
+        // ADMIN SUB-TAB: Reviews / Contacts
+        // ============================================================
+        window.switchAdminSubTab = function (tab) {
+            const reviews = document.getElementById('adminPanelReviews');
+            const contacts = document.getElementById('adminPanelContacts');
+            const btnR = document.getElementById('mainTab-reviews');
+            const btnC = document.getElementById('mainTab-contacts');
+            if (tab === 'reviews') {
+                reviews.style.display = 'block'; contacts.style.display = 'none';
+                btnR.style.borderBottomColor = 'var(--admin-accent)'; btnR.style.color = 'var(--admin-accent)'; btnR.style.background = 'var(--admin-card)'; btnR.style.borderLeft = '1px solid var(--admin-border)'; btnR.style.borderTop = '1px solid var(--admin-border)'; btnR.style.borderRight = '1px solid var(--admin-border)';
+                btnC.style.borderBottomColor = 'transparent'; btnC.style.color = 'var(--admin-text-muted)'; btnC.style.background = 'none'; btnC.style.border = 'none';
+            } else {
+                reviews.style.display = 'none'; contacts.style.display = 'block';
+                btnC.style.borderBottomColor = 'var(--admin-accent)'; btnC.style.color = 'var(--admin-accent)'; btnC.style.background = 'var(--admin-card)'; btnC.style.borderLeft = '1px solid var(--admin-border)'; btnC.style.borderTop = '1px solid var(--admin-border)'; btnC.style.borderRight = '1px solid var(--admin-border)';
+                btnR.style.borderBottomColor = 'transparent'; btnR.style.color = 'var(--admin-text-muted)'; btnR.style.background = 'none'; btnR.style.border = 'none';
+            }
+        };
+
+        // ============================================================
+        // REVIEWS MANAGEMENT
+        // ============================================================
+        let allReviews = [];
+        let currentReviewFilter = 'all';
+
+        function starsAdminHTML(n) {
+            let s = '';
+            for (let i = 1; i <= 5; i++)
+                s += `<i class="${i <= n ? 'fas' : 'far'} fa-star" style="color:#f59e0b;font-size:.9rem"></i>`;
+            return s;
+        }
+        function fmtDateAdmin(ts) {
+            if (!ts) return '—';
+            return new Date(ts).toLocaleDateString('vi-VN');
+        }
+        function statusBadge(status) {
+            const map = {
+                pending: { label: 'Chờ duyệt', color: '#f59e0b', bg: 'rgba(245,158,11,.15)' },
+                approved: { label: 'Đã duyệt', color: '#10b981', bg: 'rgba(16,185,129,.15)' },
+                rejected: { label: 'Từ chối', color: '#ef4444', bg: 'rgba(239,68,68,.15)' }
+            };
+            const s = map[status] || { label: status, color: '#888', bg: 'rgba(0,0,0,.1)' };
+            return `<span style="padding:3px 10px;border-radius:20px;background:${s.bg};color:${s.color};font-size:.78rem">${s.label}</span>`;
+        }
+
+        window.loadAdminReviews = async function () {
+            const tbody = document.getElementById('reviewsTbody');
+            if (!tbody) return;
+            tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:30px"><i class="fas fa-spinner fa-spin"></i> Đang tải...</td></tr>';
+            try {
+                const snap = await get(ref(db, 'reviews'));
+                allReviews = [];
+                if (snap.exists()) {
+                    snap.forEach(c => { allReviews.push({ id: c.key, ...c.val() }); });
+                    allReviews.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+                }
+                // Update pending badge
+                const pendingCount = allReviews.filter(r => r.status === 'pending').length;
+                const pendingBadge = document.getElementById('pendingBadge');
+                if (pendingBadge) pendingBadge.textContent = pendingCount;
+                const adminBadge = document.getElementById('adminReviewBadge');
+                if (adminBadge) {
+                    adminBadge.textContent = pendingCount;
+                    adminBadge.style.display = pendingCount > 0 ? 'inline-flex' : 'none';
+                }
+                filterAdminReviews(currentReviewFilter);
+            } catch (e) {
+                tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:30px;color:red">Lỗi tải dữ liệu: ${e.message}</td></tr>`;
+            }
+        };
+
+        window.filterAdminReviews = function (status) {
+            currentReviewFilter = status;
+            // Update tab buttons
+            document.querySelectorAll('[id^="rtab-"]').forEach(btn => {
+                btn.className = btn.id === `rtab-${status}` ? 'btn btn-primary btn-sm' : 'btn btn-outline btn-sm';
+            });
+            const filtered = status === 'all' ? allReviews : allReviews.filter(r => r.status === status);
+            const countEl = document.getElementById('reviewsCount');
+            if (countEl) countEl.textContent = `${filtered.length} đánh giá`;
+            const tbody = document.getElementById('reviewsTbody');
+            if (!tbody) return;
+            if (filtered.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:30px;color:#888">Không có đánh giá nào</td></tr>';
+                return;
+            }
+            tbody.innerHTML = filtered.map(r => `
+                <tr style="${!r.adminRead ? 'background:rgba(212,165,116,.05)' : ''}">
+                    <td>${starsAdminHTML(r.rating)}</td>
+                    <td>
+                        <strong>${r.userName || '—'}</strong><br>
+                        <small style="color:#888">${r.userEmail || ''}</small>
+                    </td>
+                    <td style="max-width:220px">
+                        <p style="margin:0;font-size:.9rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${r.content}">${r.content}</p>
+                        ${r.adminReply ? `<small style="color:#10b981"><i class="fas fa-reply"></i> Đã phản hồi</small>` : ''}
+                    </td>
+                    <td style="white-space:nowrap">${fmtDateAdmin(r.createdAt)}</td>
+                    <td>${statusBadge(r.status)}</td>
+                    <td style="text-align:center">
+                        ${r.adminRead
+                    ? '<i class="fas fa-check-circle" style="color:#10b981" title="Đã đọc"></i>'
+                    : `<button class="btn btn-outline btn-sm" onclick="markAdminRead('${r.id}')"><i class="fas fa-eye"></i></button>`
+                }
+                    </td>
+                    <td style="white-space:nowrap">
+                        ${r.status === 'pending' ? `
+                            <button class="btn btn-primary btn-sm" title="Duyệt" onclick="approveReview('${r.id}')" style="margin-right:4px">
+                                <i class="fas fa-check"></i>
+                            </button>
+                            <button class="btn btn-sm" title="Từ chối" onclick="rejectReview('${r.id}')" style="background:#ef4444;color:#fff;border:none;padding:6px 10px;border-radius:6px;margin-right:4px;cursor:pointer">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        ` : ''}
+                        <button class="btn btn-outline btn-sm" title="Phản hồi" onclick="openReplyModal('${r.id}', \`${(r.content || '').replace(/`/g, "'")}\`)">
+                            <i class="fas fa-reply"></i>
+                        </button>
+                        <button class="btn btn-sm" title="Xóa" onclick="deleteReview('${r.id}')" style="background:#6b7280;color:#fff;border:none;padding:6px 10px;border-radius:6px;margin-left:4px;cursor:pointer">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        };
+
+        window.markAdminRead = async function (id) {
+            try {
+                await update(ref(db, `reviews/${id}`), { adminRead: true });
+                const r = allReviews.find(x => x.id === id);
+                if (r) r.adminRead = true;
+                filterAdminReviews(currentReviewFilter);
+            } catch (e) { alert('Lỗi: ' + e.message); }
+        };
+
+        window.approveReview = async function (id) {
+            try {
+                await update(ref(db, `reviews/${id}`), { status: 'approved', adminRead: true });
+                const r = allReviews.find(x => x.id === id);
+                if (r) { r.status = 'approved'; r.adminRead = true; }
+                filterAdminReviews(currentReviewFilter);
+                const p = document.getElementById('pendingBadge');
+                const pending = allReviews.filter(x => x.status === 'pending').length;
+                if (p) p.textContent = pending;
+                const ab = document.getElementById('adminReviewBadge');
+                if (ab) { ab.textContent = pending; ab.style.display = pending > 0 ? 'inline-flex' : 'none'; }
+                Swal.fire({ icon: 'success', title: 'Đã duyệt!', timer: 1000, showConfirmButton: false });
+            } catch (e) { alert('Lỗi: ' + e.message); }
+        };
+
+        window.rejectReview = async function (id) {
+            const result = await Swal.fire({
+                icon: 'warning', title: 'Từ chối đánh giá?',
+                showCancelButton: true, confirmButtonText: 'Từ chối', cancelButtonText: 'Hủy', confirmButtonColor: '#ef4444'
+            });
+            if (!result.isConfirmed) return;
+            try {
+                await update(ref(db, `reviews/${id}`), { status: 'rejected', adminRead: true });
+                const r = allReviews.find(x => x.id === id);
+                if (r) { r.status = 'rejected'; r.adminRead = true; }
+                filterAdminReviews(currentReviewFilter);
+                Swal.fire({ icon: 'success', title: 'Đã từ chối!', timer: 1000, showConfirmButton: false });
+            } catch (e) { alert('Lỗi: ' + e.message); }
+        };
+
+        window.deleteReview = async function (id) {
+            const result = await Swal.fire({
+                icon: 'warning', title: 'Xóa đánh giá?',
+                showCancelButton: true, confirmButtonText: 'Xóa', cancelButtonText: 'Hủy', confirmButtonColor: '#ef4444'
+            });
+            if (!result.isConfirmed) return;
+            try {
+                await remove(ref(db, `reviews/${id}`));
+                allReviews = allReviews.filter(x => x.id !== id);
+                filterAdminReviews(currentReviewFilter);
+                Swal.fire({ icon: 'success', title: 'Đã xóa!', timer: 1000, showConfirmButton: false });
+            } catch (e) { alert('Lỗi: ' + e.message); }
+        };
+
+        window.openReplyModal = function (id, content) {
+            document.getElementById('replyReviewId').value = id;
+            document.getElementById('replyOriginalText').textContent = content;
+            // Pre-fill existing reply
+            const r = allReviews.find(x => x.id === id);
+            document.getElementById('replyContent').value = r?.adminReply || '';
+            document.getElementById('replyModal').classList.add('show');
+        };
+
+        window.submitAdminReply = async function () {
+            const id = document.getElementById('replyReviewId').value;
+            const reply = document.getElementById('replyContent').value.trim();
+            if (!reply) {
+                Swal.fire({ icon: 'warning', title: 'Vui lòng nhập nội dung phản hồi!' });
+                return;
+            }
+            try {
+                await update(ref(db, `reviews/${id}`), {
+                    adminReply: reply,
+                    replyAt: Date.now(),
+                    adminRead: true,
+                    userReadReply: false
+                });
+                const r = allReviews.find(x => x.id === id);
+                if (r) { r.adminReply = reply; r.replyAt = Date.now(); r.adminRead = true; r.userReadReply = false; }
+                document.getElementById('replyModal').classList.remove('show');
+                filterAdminReviews(currentReviewFilter);
+                Swal.fire({ icon: 'success', title: 'Đã gửi phản hồi!', text: 'Khách hàng sẽ nhận được thông báo.', timer: 1500, showConfirmButton: false });
+            } catch (e) {
+                Swal.fire({ icon: 'error', title: 'Lỗi!', text: e.message });
+            }
+        };
+
+        // ============================================================
+        // CONTACTS MANAGEMENT
+        // ============================================================
+        let allContacts = [];
+        let currentContactFilter = 'all';
+
+        const CONTACT_TYPE_MAP = {
+            gopy: { label: 'Góp ý', icon: '💡', color: '#3b82f6', bg: 'rgba(59,130,246,.15)' },
+            khieunai: { label: 'Khiếu nại', icon: '⚠️', color: '#ef4444', bg: 'rgba(239,68,68,.15)' },
+            hoidap: { label: 'Hỏi đáp', icon: '❓', color: '#10b981', bg: 'rgba(16,185,129,.15)' },
+            hoptac: { label: 'Hợp tác', icon: '🤝', color: '#8b5cf6', bg: 'rgba(139,92,246,.15)' },
+            khac: { label: 'Khác', icon: '📝', color: '#6b7280', bg: 'rgba(107,114,128,.15)' }
+        };
+
+        function contactTypeBadge(type) {
+            const t = CONTACT_TYPE_MAP[type] || CONTACT_TYPE_MAP.khac;
+            return `<span style="padding:3px 10px;border-radius:20px;background:${t.bg};color:${t.color};font-size:.78rem;font-weight:600">${t.icon} ${t.label}</span>`;
+        }
+
+        function contactStatusBadge(c) {
+            if (c.adminReply) return `<span style="padding:3px 10px;border-radius:20px;background:rgba(16,185,129,.15);color:#10b981;font-size:.78rem">Đã phản hồi</span>`;
+            if (c.adminRead || c.status === 'read') return `<span style="padding:3px 10px;border-radius:20px;background:rgba(107,114,128,.15);color:#6b7280;font-size:.78rem">Đã đọc</span>`;
+            return `<span style="padding:3px 10px;border-radius:20px;background:rgba(59,130,246,.15);color:#3b82f6;font-size:.78rem">✉ Chưa đọc</span>`;
+        }
+
+        window.loadAdminContacts = async function () {
+            const tbody = document.getElementById('contactsTbody');
+            if (!tbody) return;
+            tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:30px"><i class="fas fa-spinner fa-spin"></i> Đang tải...</td></tr>';
+            try {
+                const snap = await get(ref(db, 'contacts'));
+                allContacts = [];
+                if (snap.exists()) {
+                    snap.forEach(c => { allContacts.push({ id: c.key, ...c.val() }); });
+                    allContacts.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+                }
+                const unreadCount = allContacts.filter(c => !c.adminRead && c.status !== 'read' && !c.adminReply).length;
+                const badge1 = document.getElementById('contactPendingBadge');
+                if (badge1) badge1.textContent = unreadCount;
+                const badge2 = document.getElementById('adminContactBadge');
+                if (badge2) { badge2.textContent = unreadCount; badge2.style.display = unreadCount > 0 ? 'inline-flex' : 'none'; }
+                filterAdminContacts(currentContactFilter);
+            } catch (e) {
+                tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:30px;color:red">Lỗi tải dữ liệu: ${e.message}</td></tr>`;
+            }
+        };
+
+        window.filterAdminContacts = function (filter) {
+            currentContactFilter = filter;
+            document.querySelectorAll('[id^="ctab-"]').forEach(btn => {
+                btn.className = btn.id === `ctab-${filter}` ? 'btn btn-primary btn-sm' : 'btn btn-outline btn-sm';
+            });
+            let filtered;
+            if (filter === 'all') filtered = allContacts;
+            else if (filter === 'pending') filtered = allContacts.filter(c => !c.adminRead && c.status !== 'read' && !c.adminReply);
+            else if (filter === 'read') filtered = allContacts.filter(c => (c.adminRead || c.status === 'read') && !c.adminReply);
+            else if (filter === 'replied') filtered = allContacts.filter(c => !!c.adminReply);
+            else filtered = allContacts.filter(c => c.type === filter); // filter by type
+
+            const countEl = document.getElementById('contactsCount');
+            if (countEl) countEl.textContent = `${filtered.length} liên hệ`;
+            const tbody = document.getElementById('contactsTbody');
+            if (!tbody) return;
+            if (filtered.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:30px;color:#888">Không có liên hệ nào</td></tr>';
+                return;
+            }
+            tbody.innerHTML = filtered.map(c => `
+                <tr style="${!c.adminRead && !c.adminReply ? 'background:rgba(59,130,246,.05)' : ''}">
+                    <td>${contactTypeBadge(c.type)}</td>
+                    <td>
+                        <strong>${c.userName || '—'}</strong><br>
+                        <small style="color:#888">${c.userEmail || ''}</small>
+                        ${c.userPhone ? `<br><small style="color:#888"><i class="fas fa-phone" style="font-size:.7rem"></i> ${c.userPhone}</small>` : ''}
+                    </td>
+                    <td style="max-width:160px">
+                        <strong style="font-size:.88rem">${c.subject}</strong>
+                    </td>
+                    <td style="max-width:200px">
+                        <p style="margin:0;font-size:.85rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${(c.content || '').replace(/"/g, '&quot;')}">${c.content}</p>
+                        ${c.adminReply ? '<small style="color:#10b981"><i class="fas fa-reply"></i> Đã phản hồi</small>' : ''}
+                    </td>
+                    <td style="white-space:nowrap">${fmtDateAdmin(c.createdAt)}</td>
+                    <td>${contactStatusBadge(c)}</td>
+                    <td style="white-space:nowrap">
+                        <button class="btn btn-outline btn-sm" title="Xem chi tiết" onclick="viewContactDetail('${c.id}')" style="margin-right:4px">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="btn btn-primary btn-sm" title="Phản hồi" onclick="openContactReplyModal('${c.id}')" style="margin-right:4px">
+                            <i class="fas fa-reply"></i>
+                        </button>
+                        <button class="btn btn-sm" title="Xóa" onclick="deleteContact('${c.id}')" style="background:#6b7280;color:#fff;border:none;padding:6px 10px;border-radius:6px;cursor:pointer">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        };
+
+        window.viewContactDetail = async function (id) {
+            const c = allContacts.find(x => x.id === id);
+            if (!c) return;
+            // Mark as read
+            if (!c.adminRead) {
+                try {
+                    await update(ref(db, `contacts/${id}`), { adminRead: true, status: 'read' });
+                    c.adminRead = true; c.status = 'read';
+                    filterAdminContacts(currentContactFilter);
+                    // Update badges
+                    const unread = allContacts.filter(x => !x.adminRead && !x.adminReply).length;
+                    const b1 = document.getElementById('contactPendingBadge'); if (b1) b1.textContent = unread;
+                    const b2 = document.getElementById('adminContactBadge'); if (b2) { b2.textContent = unread; b2.style.display = unread > 0 ? 'inline-flex' : 'none'; }
+                } catch (e) { }
+            }
+            const t = CONTACT_TYPE_MAP[c.type] || CONTACT_TYPE_MAP.khac;
+            const body = document.getElementById('contactDetailBody');
+            body.innerHTML = `
+                <div style="margin-bottom:16px">
+                    ${contactTypeBadge(c.type)}
+                    ${contactStatusBadge(c)}
+                    <span style="float:right;font-size:.85rem;color:#888">${fmtDateAdmin(c.createdAt)}</span>
+                </div>
+                <h3 style="margin-bottom:12px">${c.subject}</h3>
+                <div style="background:rgba(0,0,0,.1);border-radius:8px;padding:16px;margin-bottom:16px;white-space:pre-wrap;font-size:.95rem;line-height:1.7">${c.content}</div>
+                <div style="display:flex;gap:16px;flex-wrap:wrap;font-size:.88rem;color:#888;margin-bottom:16px">
+                    <span><i class="fas fa-user"></i> ${c.userName}</span>
+                    <span><i class="fas fa-envelope"></i> ${c.userEmail}</span>
+                    ${c.userPhone ? `<span><i class="fas fa-phone"></i> ${c.userPhone}</span>` : ''}
+                </div>
+                ${c.adminReply ? `
+                <div style="border-top:1px solid var(--admin-border);padding-top:16px">
+                    <h4 style="color:var(--admin-accent);margin-bottom:8px"><i class="fas fa-reply"></i> Phản hồi của Admin</h4>
+                    <div style="background:rgba(212,165,116,.1);border:1px solid var(--admin-accent);border-radius:8px;padding:14px;font-size:.95rem;line-height:1.6">${c.adminReply}</div>
+                    <small style="color:#888">${fmtDateAdmin(c.replyAt)}</small>
+                </div>` : ''}
+            `;
+            document.getElementById('contactDetailModal').classList.add('show');
+        };
+
+        window.openContactReplyModal = async function (id) {
+            const c = allContacts.find(x => x.id === id);
+            if (!c) return;
+            // Mark as read
+            if (!c.adminRead) {
+                try {
+                    await update(ref(db, `contacts/${id}`), { adminRead: true, status: 'read' });
+                    c.adminRead = true; c.status = 'read';
+                    filterAdminContacts(currentContactFilter);
+                } catch (e) { }
+            }
+            const t = CONTACT_TYPE_MAP[c.type] || CONTACT_TYPE_MAP.khac;
+            document.getElementById('contactReplyId').value = id;
+            document.getElementById('contactReplyTypeBadge').innerHTML = contactTypeBadge(c.type);
+            document.getElementById('contactReplySubject').textContent = c.subject;
+            document.getElementById('contactReplyOriginal').textContent = c.content;
+            document.getElementById('contactReplyUser').textContent = c.userName;
+            document.getElementById('contactReplyEmail').textContent = c.userEmail;
+            if (c.userPhone) {
+                document.getElementById('contactReplyPhoneWrap').style.display = 'inline';
+                document.getElementById('contactReplyPhone').textContent = c.userPhone;
+            } else {
+                document.getElementById('contactReplyPhoneWrap').style.display = 'none';
+            }
+            document.getElementById('contactReplyContent').value = c.adminReply || '';
+            document.getElementById('contactReplyModal').classList.add('show');
+        };
+
+        window.submitContactReply = async function () {
+            const id = document.getElementById('contactReplyId').value;
+            const reply = document.getElementById('contactReplyContent').value.trim();
+            if (!reply) {
+                Swal.fire({ icon: 'warning', title: 'Vui lòng nhập nội dung phản hồi!' });
+                return;
+            }
+            try {
+                await update(ref(db, `contacts/${id}`), {
+                    adminReply: reply,
+                    replyAt: Date.now(),
+                    adminRead: true,
+                    status: 'replied',
+                    userReadReply: false
+                });
+                const c = allContacts.find(x => x.id === id);
+                if (c) { c.adminReply = reply; c.replyAt = Date.now(); c.adminRead = true; c.status = 'replied'; c.userReadReply = false; }
+                document.getElementById('contactReplyModal').classList.remove('show');
+                filterAdminContacts(currentContactFilter);
+                Swal.fire({ icon: 'success', title: 'Đã gửi phản hồi!', text: 'Khách hàng sẽ nhận được phản hồi khi vào trang liên hệ.', timer: 2000, showConfirmButton: false });
+            } catch (e) {
+                Swal.fire({ icon: 'error', title: 'Lỗi!', text: e.message });
+            }
+        };
+
+        window.deleteContact = async function (id) {
+            const result = await Swal.fire({
+                icon: 'warning', title: 'Xóa liên hệ này?',
+                showCancelButton: true, confirmButtonText: 'Xóa', cancelButtonText: 'Hủy', confirmButtonColor: '#ef4444'
+            });
+            if (!result.isConfirmed) return;
+            try {
+                await remove(ref(db, `contacts/${id}`));
+                allContacts = allContacts.filter(x => x.id !== id);
+                filterAdminContacts(currentContactFilter);
+                Swal.fire({ icon: 'success', title: 'Đã xóa!', timer: 1000, showConfirmButton: false });
+            } catch (e) { alert('Lỗi: ' + e.message); }
+        };
+
+        // ============================================================
+        // NEWS MANAGEMENT
+        // ============================================================
+        let adminNews = [];
+        let editingNewsId = null;
+
+        window.toggleNewsForm = function () {
+            const body = document.getElementById('newsFormBody');
+            const chevron = document.getElementById('newsFormChevron');
+            const hidden = body.style.display === 'none';
+            body.style.display = hidden ? 'block' : 'none';
+            chevron.className = hidden ? 'fas fa-chevron-up' : 'fas fa-chevron-down';
+        };
+
+        window.clearNewsForm = function () {
+            editingNewsId = null;
+            document.getElementById('newsTitle').value = '';
+            document.getElementById('newsCategory').value = 'Tin mới';
+            document.getElementById('newsAuthor').value = 'Admin';
+            document.getElementById('newsImage').value = '';
+            document.getElementById('newsImageFile').value = '';
+            document.getElementById('newsExcerpt').value = '';
+            document.getElementById('newsContent').value = '';
+            document.getElementById('newsStatus').value = 'published';
+            document.getElementById('newsFormTitle').textContent = 'Đăng bài viết mới';
+        };
+
+        window.loadAdminNews = async function () {
+            const tbody = document.getElementById('newsTbody');
+            if (!tbody) return;
+            tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:30px"><i class="fas fa-spinner fa-spin"></i> Đang tải...</td></tr>';
+            try {
+                const snap = await get(ref(db, 'news'));
+                adminNews = [];
+                if (snap.exists()) {
+                    snap.forEach(c => { adminNews.push({ id: c.key, ...c.val() }); });
+                    adminNews.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+                }
+                const countEl = document.getElementById('newsCount');
+                if (countEl) countEl.textContent = `${adminNews.length} bài viết`;
+                renderAdminNews();
+            } catch (e) {
+                tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:30px;color:red">Lỗi: ${e.message}</td></tr>`;
+            }
+        };
+
+        function renderAdminNews() {
+            const tbody = document.getElementById('newsTbody');
+            if (!tbody) return;
+            if (adminNews.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:30px;color:var(--admin-text-muted)">Chưa có bài viết nào. Nhấn "Nhập tin mẫu" để thêm 6 bài mẫu hoặc tạo bài mới.</td></tr>';
+                return;
+            }
+            const noImg = 'data:image/svg+xml;charset=UTF-8,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2280%22 height=%2250%22%3E%3Crect fill=%22%23444%22 width=%2280%22 height=%2250%22/%3E%3Ctext fill=%22%23999%22 font-family=%22sans-serif%22 font-size=%2210%22 x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22%3ENo img%3C/text%3E%3C/svg%3E';
+            tbody.innerHTML = adminNews.map(n => `
+                <tr>
+                    <td><img src="${n.image || noImg}" alt="" style="width:80px;height:50px;object-fit:cover;border-radius:6px" onerror="this.src='${noImg}'"></td>
+                    <td style="max-width:220px">
+                        <strong style="font-size:.9rem">${n.title}</strong>
+                    </td>
+                    <td><span style="padding:3px 10px;border-radius:20px;background:rgba(212,165,116,.15);color:var(--admin-accent);font-size:.78rem">${n.category || '—'}</span></td>
+                    <td>${n.author || '—'}</td>
+                    <td style="white-space:nowrap">${n.date || fmtDateAdmin(n.createdAt)}</td>
+                    <td>${n.status === 'draft'
+                    ? '<span style="padding:3px 10px;border-radius:20px;background:rgba(107,114,128,.15);color:#6b7280;font-size:.78rem">Bản nháp</span>'
+                    : '<span style="padding:3px 10px;border-radius:20px;background:rgba(16,185,129,.15);color:#10b981;font-size:.78rem">Đã đăng</span>'
+                }</td>
+                    <td style="white-space:nowrap">
+                        <button class="btn btn-outline btn-sm" title="Sửa" onclick="editNews('${n.id}')" style="margin-right:4px">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-sm" title="${n.status === 'draft' ? 'Đăng' : 'Ẩn'}" onclick="toggleNewsStatus('${n.id}')" style="background:${n.status === 'draft' ? '#10b981' : '#f59e0b'};color:#fff;border:none;padding:6px 10px;border-radius:6px;margin-right:4px;cursor:pointer">
+                            <i class="fas fa-${n.status === 'draft' ? 'eye' : 'eye-slash'}"></i>
+                        </button>
+                        <button class="btn btn-sm" title="Xóa" onclick="deleteNews('${n.id}')" style="background:#ef4444;color:#fff;border:none;padding:6px 10px;border-radius:6px;cursor:pointer">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        window.saveNews = async function () {
+            const title = document.getElementById('newsTitle').value.trim();
+            const category = document.getElementById('newsCategory').value;
+            const author = document.getElementById('newsAuthor').value.trim() || 'Admin';
+            const imageInputUrl = document.getElementById('newsImage').value.trim();
+            const imageFile = document.getElementById('newsImageFile').files?.[0] || null;
+            const excerpt = document.getElementById('newsExcerpt').value.trim();
+            const content = document.getElementById('newsContent').value.trim();
+            const status = document.getElementById('newsStatus').value;
+
+            if (!title || !excerpt || !content) {
+                Swal.fire({ icon: 'warning', title: 'Thiếu thông tin!', text: 'Vui lòng nhập tiêu đề, mô tả ngắn và nội dung.', confirmButtonColor: '#d4a574' });
+                return;
+            }
+
+            const now = new Date();
+            const dateStr = now.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' });
+
+            try {
+                Swal.fire({ title: 'Đang lưu...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+
+                let image = imageInputUrl;
+                if (imageFile) {
+                    const target = buildNewsImageTarget({
+                        category,
+                        title,
+                        newsId: editingNewsId || undefined
+                    });
+                    image = await uploadImageToCloudinary(imageFile, target.folder, { publicId: target.publicId });
+                } else if (!image && editingNewsId) {
+                    const existingNews = adminNews.find(x => x.id === editingNewsId);
+                    image = existingNews?.image || '';
+                }
+
+                const data = { title, category, author, image, excerpt, content, status, date: dateStr, updatedAt: Date.now() };
+
+                if (editingNewsId) {
+                    await update(ref(db, `news/${editingNewsId}`), data);
+                    Swal.fire({ icon: 'success', title: 'Đã cập nhật!', timer: 1200, showConfirmButton: false });
+                } else {
+                    data.createdAt = Date.now();
+                    const newRef = push(ref(db, 'news'));
+                    await set(newRef, data);
+                    Swal.fire({ icon: 'success', title: 'Đã đăng bài!', timer: 1200, showConfirmButton: false });
+                }
+                clearNewsForm();
+                loadAdminNews();
+            } catch (e) {
+                Swal.fire({ icon: 'error', title: 'Lỗi!', text: e.message });
+            }
+        };
+
+        window.editNews = function (id) {
+            const n = adminNews.find(x => x.id === id);
+            if (!n) return;
+            editingNewsId = id;
+            document.getElementById('newsTitle').value = n.title || '';
+            document.getElementById('newsCategory').value = n.category || 'Tin mới';
+            document.getElementById('newsAuthor').value = n.author || 'Admin';
+            document.getElementById('newsImage').value = n.image || '';
+            document.getElementById('newsImageFile').value = '';
+            document.getElementById('newsExcerpt').value = n.excerpt || '';
+            document.getElementById('newsContent').value = n.content || '';
+            document.getElementById('newsStatus').value = n.status || 'published';
+            document.getElementById('newsFormTitle').textContent = '✏️ Chỉnh sửa bài viết';
+            document.getElementById('newsFormBody').style.display = 'block';
+            document.getElementById('newsFormChevron').className = 'fas fa-chevron-up';
+            // Scroll to form
+            document.getElementById('newsSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        };
+
+        window.toggleNewsStatus = async function (id) {
+            const n = adminNews.find(x => x.id === id);
+            if (!n) return;
+            const newStatus = n.status === 'draft' ? 'published' : 'draft';
+            try {
+                await update(ref(db, `news/${id}`), { status: newStatus });
+                n.status = newStatus;
+                renderAdminNews();
+                Swal.fire({ icon: 'success', title: newStatus === 'published' ? 'Đã đăng!' : 'Đã ẩn!', timer: 1000, showConfirmButton: false });
+            } catch (e) { alert('Lỗi: ' + e.message); }
+        };
+
+        window.deleteNews = async function (id) {
+            const result = await Swal.fire({
+                icon: 'warning', title: 'Xóa bài viết?', text: 'Bài viết sẽ bị xóa vĩnh viễn.',
+                showCancelButton: true, confirmButtonText: 'Xóa', cancelButtonText: 'Hủy', confirmButtonColor: '#ef4444'
+            });
+            if (!result.isConfirmed) return;
+            try {
+                await remove(ref(db, `news/${id}`));
+                adminNews = adminNews.filter(x => x.id !== id);
+                renderAdminNews();
+                const countEl = document.getElementById('newsCount');
+                if (countEl) countEl.textContent = `${adminNews.length} bài viết`;
+                Swal.fire({ icon: 'success', title: 'Đã xóa!', timer: 1000, showConfirmButton: false });
+            } catch (e) { alert('Lỗi: ' + e.message); }
+        };
+
+        // ─── Helper: Xoá toàn bộ một node Firebase ──────────────
+        async function clearFirebaseNode(path, label) {
+            const { isConfirmed } = await Swal.fire({
+                icon: 'warning',
+                title: `Xoá tất cả ${label}?`,
+                html: `Sẽ <strong style="color:#ef4444">xoá vĩnh viễn toàn bộ ${label}</strong>. Không thể hoàn tác!`,
+                showCancelButton: true, confirmButtonText: 'Xoá tất cả', cancelButtonText: 'Hủy',
+                confirmButtonColor: '#ef4444'
+            });
+            if (!isConfirmed) return;
+            Swal.fire({ title: 'Đang xoá...', allowOutsideClick: false, showConfirmButton: false });
+            try {
+                const snap = await get(ref(db, path));
+                const total = snap.exists() ? snap.size : 0;
+                await remove(ref(db, path));
+                Swal.close();
+                Swal.fire({ icon: 'success', title: `Đã xoá ${total} ${label}!`, timer: 1500, showConfirmButton: false });
+            } catch (e) {
+                Swal.close();
+                Swal.fire({ icon: 'error', title: 'Lỗi!', text: e.message });
+            }
+        }
+
+        window.clearAllOrders = () => clearFirebaseNode('orders', 'đơn hàng');
+        window.clearAllUsers = () => clearFirebaseNode('users', 'tài khoản');
+        window.clearAllReviews = () => clearFirebaseNode('reviews', 'đánh giá');
+        window.clearAllPromotions = () => clearFirebaseNode('promotions', 'khuyến mãi');
+        window.clearAllNews = () => clearFirebaseNode('news', 'bài viết');
+
+        // ─── Xoá tất cả sản phẩm ────────────────────────────────
+        window.clearAllProducts = async function () {
+            const { isConfirmed } = await Swal.fire({
+                icon: 'warning',
+                title: 'Xoá tất cả sản phẩm?',
+                html: 'Thao tác này sẽ <strong style="color:#ef4444">xoá vĩnh viễn toàn bộ sản phẩm</strong> trong Firebase. Không thể hoàn tác!',
+                showCancelButton: true, confirmButtonText: 'Xoá tất cả', cancelButtonText: 'Hủy',
+                confirmButtonColor: '#ef4444'
+            });
+            if (!isConfirmed) return;
+            Swal.fire({ title: 'Đang xoá...', allowOutsideClick: false, showConfirmButton: false });
+            try {
+                // Xoá toàn bộ node 'products' một lần
+                const snap = await get(ref(db, 'products'));
+                const total = snap.exists() ? snap.size : 0;
+                await remove(ref(db, 'products'));
+                Swal.close();
+                Swal.fire({ icon: 'success', title: `Đã xoá ${total} sản phẩm!`, timer: 1500, showConfirmButton: false });
+            } catch (e) {
+                Swal.close();
+                Swal.fire({ icon: 'error', title: 'Lỗi!', text: e.message });
+            }
+        };
+
+        // ─── Seed 80 sản phẩm mẫu (Đã vô hiệu hoá để tránh lỗi vòng lặp popup) ────────────────────────────────
+        window.seedDefaultProducts = async function () {
+            console.log('Chức năng Seed dữ liệu mẫu đã được tắt.');
+            return;
+
+            const DEFAULT_PRODUCTS = [
+                // ─── CÀ PHÊ ───────────────────────────────────────────────
+                { name: 'Cà phê đen đá', category: 'coffee', price: 29000, stock: 50, description: 'Hương vị thuần tuý của cà phê Việt – đắng nhẹ, hậu ngọt, đá lạnh tan chậm trong từng ngụm. Thức uống của buổi sáng không thể thiếu.' },
+                { name: 'Cà phê sữa đá', category: 'coffee', price: 32000, stock: 50, description: 'Sự kết hợp hoàn hảo giữa cà phê phin đậm đà và sữa đặc ngọt ngào. Mỗi ngụm là một khoảnh khắc thoải mái và quen thuộc.' },
+                { name: 'Bạc xỉu', category: 'coffee', price: 32000, stock: 50, description: 'Cà phê nhẹ nhàng hơn, nhiều sữa hơn – lựa chọn dịu dàng cho những ai muốn thưởng thức hương cà phê mà không quá đắng.' },
+                { name: 'Cà phê trứng', category: 'coffee', price: 45000, stock: 50, description: 'Lớp bọt trứng mịn như mây phủ lên tầng cà phê đen óng ánh. Kỳ lạ lần đầu, nhớ mãi về sau.' },
+                { name: 'Cappuccino', category: 'coffee', price: 49000, stock: 50, description: 'Espresso đậm đà hòa quyện cùng lớp sữa đánh mịn bồng bềnh. Cốc cà phê Ý chính gốc ngay tại Cần Thơ.' },
+                { name: 'Latte', category: 'coffee', price: 49000, stock: 50, description: 'Sữa tươi steamed mềm mượt ôm lấy espresso, tạo ra hương vị cân bằng, thơm ngậy và dễ uống cho mọi buổi trong ngày.' },
+                { name: 'Americano', category: 'coffee', price: 39000, stock: 50, description: 'Espresso pha loãng với nước nóng – vị đắng thanh thoát, hậu vị sạch. Lựa chọn của những người yêu cà phê thuần túy.' },
+                { name: 'Espresso', category: 'coffee', price: 35000, stock: 50, description: 'Cô đặc tinh tuý của hạt cà phê trong 30ml nồng độ cao. Nhỏ nhưng đủ để đánh thức toàn bộ giác quan.' },
+                { name: 'Macchiato', category: 'coffee', price: 42000, stock: 50, description: 'Espresso điểm xuyết một chút sữa steamed – mạnh mẽ nhưng vẫn có chút dịu dàng. Nhấp nhỏ và cảm nhận từng tầng hương.' },
+                { name: 'Mocha', category: 'coffee', price: 52000, stock: 50, description: 'Sô-cô-la, espresso và sữa tươi hòa quyện trong một ly béo ngậy ngọt ngào. Giữa cà phê và dessert – bạn không cần chọn.' },
+                { name: 'Flat White', category: 'coffee', price: 49000, stock: 50, description: 'Espresso đậm chất với lớp sữa microfoam siêu mịn. Mạnh hơn latte, tinh tế hơn cappuccino – dành cho người biết uống cà phê.' },
+                { name: 'Cold Brew', category: 'coffee', price: 55000, stock: 50, description: 'Ủ lạnh suốt 12 tiếng, cà phê tiết ra vị ngọt tự nhiên, hoàn toàn không đắng gắt. Dài mát và cực kỳ sạch vị.' },
+                { name: 'Nitro Cold Brew', category: 'coffee', price: 65000, stock: 50, description: 'Cold brew được bơm nitơ tạo bọt mịn như bia sáng, vị ngọt béo không cần thêm sữa. Kỳ diệu trong từng bong bóng.' },
+                { name: 'Cà phê muối', category: 'coffee', price: 45000, stock: 50, description: 'Lớp kem muối béo ngậy phủ lên cà phê đen tạo ra sự tương phản vị mặn-đắng-ngọt tuyệt diệu không thể quên.' },
+                { name: 'Cà phê dừa', category: 'coffee', price: 49000, stock: 50, description: 'Cà phê phin Việt kết hợp nước cốt dừa tươi – tropical và quen thuộc cùng lúc. Mùa hè đọng lại trong một ly.' },
+                { name: 'Cà phê cốt dừa', category: 'coffee', price: 52000, stock: 50, description: 'Arabica pha cùng dừa sáp Bến Tre – béo, thơm và khác biệt hoàn toàn so với cà phê sữa thông thường.' },
+                { name: 'Cà phê matcha', category: 'coffee', price: 55000, stock: 50, description: 'Hai bản ngã: đắng của cà phê và chát thanh của matcha gặp nhau, tạo nên tầng vị phức tạp đến bất ngờ.' },
+                { name: 'Phô mai cà phê', category: 'coffee', price: 52000, stock: 50, description: 'Lớp phô mai cream salty nằm trên mặt cà phê – xu hướng Đài Loan khiến mọi người xuýt xoa ngay lần đầu.' },
+                { name: 'Cà phê tắc', category: 'coffee', price: 35000, stock: 50, description: 'Vị chua tươi của tắc cắt qua cái đắng của cà phê, tạo ra ly nước mát lạnh cực kỳ sảng khoái ngày nắng.' },
+                { name: 'Cortado', category: 'coffee', price: 45000, stock: 50, description: 'Espresso pha cùng lượng sữa vừa đủ để làm dịu độ acid – cân bằng hoàn hảo, nhỏ gọn, đậm chất barista.' },
+
+                // ─── TRÀ ──────────────────────────────────────────────────
+                { name: 'Trà hoa cúc', category: 'tea', price: 35000, stock: 99, description: 'Những cánh cúc vàng nở rộ trong tách trà ấm áp – nhẹ nhàng, thư giãn, xua tan mọi căng thẳng của một ngày dài.' },
+                { name: 'Trà đào cam sả', category: 'tea', price: 45000, stock: 99, description: 'Ngọt ngào của đào chín, chua thanh của cam và mát lạnh của sả hòa quyện – hương vị mùa hè không thể cưỡng lại.' },
+                { name: 'Trà vải', category: 'tea', price: 42000, stock: 99, description: 'Hương vải chín mọng ngào ngạt trong từng ngụm trà mát lạnh. Ngọt tự nhiên, thơm nhẹ và cực kỳ refreshing.' },
+                { name: 'Trà ổi', category: 'tea', price: 35000, stock: 99, description: 'Vị chát nhẹ đặc trưng của ổi hòa cùng trà xanh tươi mát – thức uống dân dã mà tinh tế, ký ức tuổi thơ trong ly.' },
+                { name: 'Trà chanh', category: 'tea', price: 29000, stock: 99, description: 'Đơn giản mà không bao giờ chán: chua tươi của chanh tươi, ngọt vừa phải, đá tan chầm chậm. Classic không lỗi thời.' },
+                { name: 'Trà sữa trân châu đen', category: 'tea', price: 49000, stock: 99, description: 'Trân châu đen dai giòn ngấm đường nâu thơm lừng, sữa trà béo ngậy – combo hoàn hảo đã chinh phục cả thế giới.' },
+                { name: 'Trà sữa trân châu trắng', category: 'tea', price: 49000, stock: 99, description: 'Trân châu trắng mềm mịn như mochi trong trà sữa oolong thơm nhẹ – thanh thoát hơn trân châu đen, dịu dàng hơn.' },
+                { name: 'Trà xanh matcha', category: 'tea', price: 45000, stock: 99, description: 'Matcha Nhật Bản hảo hạng, xay mịn từ lá trà non – chát nhẹ, umami sâu, màu xanh thuần khiết mê hoặc mắt nhìn.' },
+                { name: 'Trà gừng mật ong', category: 'tea', price: 39000, stock: 99, description: 'Ấm từ bên trong: gừng tươi cay nồng, mật ong nguyên chất ngọt thanh – bài thuốc dân gian thành thức uống xa xỉ.' },
+                { name: 'Trà hoa hồng', category: 'tea', price: 45000, stock: 99, description: 'Cánh hồng sấy khô tan chảy trong nước nóng, toả hương quyến rũ, vị ngọt tự nhiên. Uống một ly, lòng nhẹ tênh.' },
+                { name: 'Trà lài', category: 'tea', price: 35000, stock: 99, description: 'Hoa lài ướp trà trong đêm, tặng lại hương thơm tinh tế sáng hôm sau – thanh khiết, nhẹ nhàng và rất Việt Nam.' },
+                { name: 'Trà nhài sữa', category: 'tea', price: 45000, stock: 99, description: 'Hương lài thanh thoát gặp gỡ sữa tươi béo ngậy – sự kết hợp nhẹ nhàng mà khó quên, đặc biệt khi uống lạnh.' },
+                { name: 'Trà oolong sữa', category: 'tea', price: 49000, stock: 99, description: 'Oolong bán lên men với hương hoa và mật, pha cùng sữa tươi tạo ra tầng hương phức hợp sang trọng.' },
+                { name: 'Trà sen', category: 'tea', price: 42000, stock: 99, description: 'Tinh hoa của đầm sen Việt Nam trong từng tách trà – hương thơm tao nhã, vị ngọt tự nhiên của hoa sen thuần khiết.' },
+                { name: 'Trà dâu tây', category: 'tea', price: 45000, stock: 99, description: 'Ngọt chua của dâu tươi hòa quyện cùng trà đen – màu hồng bắt mắt, hương thơm cuốn hút, vị ngon khó cưỡng.' },
+                { name: 'Trà bạc hà', category: 'tea', price: 35000, stock: 99, description: 'Lá bạc hà tươi hãm cùng trà xanh – mát lạnh từ lưỡi đến cuống họng, thức tỉnh và làm mới hoàn toàn tâm trí.' },
+                { name: 'Trà chanh sả gừng', category: 'tea', price: 39000, stock: 99, description: 'Bộ ba detox hoàn hảo: chua chanh, thơm sả, cay gừng – vừa tốt cho sức khoẻ vừa ngon đến không thể dừng.' },
+                { name: 'Trà táo đỏ kỷ tử', category: 'tea', price: 42000, stock: 99, description: 'Ngọt nồng của táo đỏ, bùi thơm của kỷ tử – ấm bụng, đẹp da, bổ huyết. Tốt cho sức khoẻ mà vẫn ngon miệng.' },
+                { name: 'Trà xanh sữa', category: 'tea', price: 45000, stock: 99, description: 'Chát nhẹ của trà xanh thuần túy kết hợp sữa tươi nguyên kem – thanh mát mà vẫn béo ngậy, cân bằng tuyệt vời.' },
+                { name: 'Hồng trà sữa', category: 'tea', price: 45000, stock: 99, description: 'Hồng trà Ceylon pha đặc, hoà cùng sữa đặc và đường thắng – đậm đà, thơm ngọt, cổ điển mà không bao giờ lỗi mốt.' },
+
+                // ─── BÁNH NGỌT ────────────────────────────────────────────
+                { name: 'Bánh Mousse Chanh Dây', category: 'cake', price: 55000, stock: 30, description: 'Lớp mousse mịn màng rung rinh, vị chua ngọt thanh thoát của chanh dây nhiệt đới trên nền bánh biscuit giòn tan.' },
+                { name: 'Bánh Tiramisu', category: 'cake', price: 59000, stock: 30, description: 'Lady finger thấm đẫm espresso, phủ kem mascarpone béo ngậy và cacao đắng – kiệt tác Ý được tái hiện hoàn hảo.' },
+                { name: 'Bánh Cheesecake Dâu', category: 'cake', price: 65000, stock: 30, description: 'Kem phô mai New York style dày mịn trên đế biscuit bơ, điểm xuyết mứt dâu đỏ tươi óng ánh như đá quý.' },
+                { name: 'Bánh Croissant', category: 'cake', price: 45000, stock: 30, description: 'Bơ Pháp nguyên chất cán qua hàng chục lớp bột mỏng – vỏ vàng giòn xốp, ruột mềm dẻo thơm ngất ngây khi mới ra lò.' },
+                { name: 'Bánh Éclair', category: 'cake', price: 49000, stock: 30, description: 'Vỏ choux mỏng giòn ôm chặt nhân kem vani mịn như lụa, phủ fondant sô-cô-la bóng loáng – thanh lịch từ hình dáng đến vị ngon.' },
+                { name: 'Bánh Macaron', category: 'cake', price: 35000, stock: 30, description: 'Vỏ meringue hạnh nhân mỏng giòn tan rồi dai dẻo, kẹp nhân buttercream thơm ngọt – hương vị Pháp tinh tế trong miếng nhỏ.' },
+                { name: 'Bánh Bông Lan Trứng Muối', category: 'cake', price: 52000, stock: 30, description: 'Mềm bông như mây, ngọt dịu và mặn bùi của trứng muối chảy – xu hướng đang làm mưa làm gió khắp Việt Nam.' },
+                { name: 'Bánh Mochi Đậu Đỏ', category: 'cake', price: 39000, stock: 30, description: 'Vỏ nếp dẻo mịn phủ bột đậu nành thơm béo, bên trong là nhân đậu đỏ ngọt thanh – hương vị Nhật truyền thống.' },
+                { name: 'Bánh Matcha Roll', category: 'cake', price: 55000, stock: 30, description: 'Cuộn biscuit matcha Uji mềm mượt quấn quanh kem tươi đánh bông – xanh mướt, thơm trà, ngọt nhẹ và rất photogenic.' },
+                { name: 'Bánh Basque Cheesecake', category: 'cake', price: 62000, stock: 30, description: 'Phô mai nướng cháy xém ngoài, tan chảy mềm mượt trong – đơn giản đến bất ngờ nhưng ngon đến nghiện.' },
+                { name: 'Bánh Crepe Sầu Riêng', category: 'cake', price: 65000, stock: 30, description: 'Lớp crepe mỏng tang như giấy quấn quanh kem tươi và sầu riêng Ri6 chín mọng – đặc sản miền Tây trong mỗi miếng cắn.' },
+                { name: 'Bánh Soufflé Phô Mai', category: 'cake', price: 69000, stock: 20, description: 'Nở phồng kiêu hãnh từ lò, vỏ ngoài vàng ruộm, bên trong sệt mềm tan chảy – thưởng thức ngay khi thả xuống bàn.' },
+                { name: 'Bánh Mille-feuille', category: 'cake', price: 72000, stock: 20, description: 'Ngàn lớp puff pastry giòn xốp xen kẽ với kem bánh mịn như nhung – tác phẩm nghệ thuật của người thợ bánh Pháp.' },
+                { name: 'Bánh Cinnamon Roll', category: 'cake', price: 49000, stock: 30, description: 'Cuộn bột mềm xốp thấm đẫm quế nâu ấm áp, phủ kem cheese ngọt ngào – mùi thơm đủ để đánh thức cả khu phố.' },
+                { name: 'Bánh Financier Trà Xanh', category: 'cake', price: 39000, stock: 30, description: 'Hình thoi vàng ruộm ngoài, ẩm mềm bên trong với bơ nâu thơm bùi và matcha nhẹ – snack bánh sang chảnh nhất buổi chiều.' },
+                { name: 'Bánh Scone Việt Quất', category: 'cake', price: 45000, stock: 30, description: 'Kết cấu giữa bánh mì và brioche – giòn ngoài, bở tơi trong, việt quất tươi bùng nổ vị chua ngọt trong mỗi miếng.' },
+                { name: 'Bánh Tart Trứng', category: 'cake', price: 29000, stock: 30, description: 'Vỏ tart bơ giòn tan ôm nhân custard rung rinh vàng ươm thơm vanilla – huyền thoại Bồ Đào Nha được yêu thích toàn cầu.' },
+                { name: 'Bánh Brownie Sô-cô-la', category: 'cake', price: 49000, stock: 30, description: 'Bên ngoài vỏ sần sùi bóng, bên trong fudgy ẩm mượt – nồng nàn của sô-cô-la đen 70%. Không thể dừng ở một miếng.' },
+                { name: 'Bánh Waffle', category: 'cake', price: 45000, stock: 30, description: 'Giòn vàng từng ô vuông đặc trưng, mềm xốp phía trong – ăn cùng bơ chảy và si-rô maple để trải nghiệm trọn vẹn.' },
+                { name: 'Bánh Red Velvet', category: 'cake', price: 59000, stock: 30, description: 'Đỏ thắm như nhung với hương socola thoang thoảng, phủ kem cheese trắng muốt – ngọt ngào và nhan sắc cuốn hút.' },
+
+                // ─── TRÁNG MIỆNG ──────────────────────────────────────────
+                { name: 'Pudding Trái Cây', category: 'dessert', price: 45000, stock: 30, description: 'Lớp pudding sữa mịn mướt rung rinh bên dưới thạch thơm và hoa quả tươi đầy màu sắc – tráng miệng mát lạnh xua tan nắng hè.' },
+                { name: 'Pudding Matcha', category: 'dessert', price: 49000, stock: 30, description: 'Matcha Uji hảo hạng đổ vào pudding sữa tươi, tạo lớp xanh ngọc trong vắt – đắng nhẹ, béo thơm, hoàn hảo sau bữa ăn.' },
+                { name: 'Chè Khúc Bạch', category: 'dessert', price: 52000, stock: 30, description: 'Khúc bạch mềm mịn thơm hạnh nhân, hạt sen bùi ngọt, vải thiều mọng nước trong nước đường thơm – hương Hà Nội xưa.' },
+                { name: 'Kem Dừa', category: 'dessert', price: 39000, stock: 30, description: 'Tự chế từ dừa sáp Bến Tre – béo ngậy, mát lạnh, thơm thuần khiết không chất bảo quản. Món quà của thiên nhiên.' },
+                { name: 'Kem Matcha', category: 'dessert', price: 45000, stock: 30, description: 'Matcha Nhật hảo hạng trộn vào kem tươi quay tay – màu ngọc bích đẹp mắt, vị chát ngọt hài hoà, mát lạnh thấu tâm.' },
+                { name: 'Panna Cotta Vani', category: 'dessert', price: 52000, stock: 30, description: 'Kem Ý thuần khiết rung rinh như thạch, điểm xuyết vanilla Madagascar – thanh thoát, không ngọt gắt, dành cho khẩu vị tinh tế.' },
+                { name: 'Chè Ba Màu', category: 'dessert', price: 35000, stock: 30, description: 'Ba lớp màu sắc rực rỡ: đậu đỏ, đậu xanh, thạch xanh lá, tắm trong nước cốt dừa sánh béo – tuổi thơ Việt Nam không thể quên.' },
+                { name: 'Sương Sáo Mật Ong', category: 'dessert', price: 35000, stock: 30, description: 'Sương sáo đen mát lạnh thơm nhẹ hương đất, chan mật ong cỏ nguyên chất ngọt say – thức tráng miệng giải nhiệt số một.' },
+                { name: 'Kem Sầu Riêng', category: 'dessert', price: 55000, stock: 30, description: 'Sầu riêng Ri6 chín tới xay nhuyễn trộn vào kem tươi – mùi thơm đặc trưng, vị béo ngậy cực đà, chỉ dành cho người thật sự yêu sầu riêng.' },
+                { name: 'Mousse Sô-cô-la', category: 'dessert', price: 52000, stock: 30, description: 'Sô-cô-la đen 70% đánh bông nhẹ như mây, tan chảy trên lưỡi – sâu đậm, sang trọng, ít ngọt và nhiều cảm xúc.' },
+                { name: 'Thạch Hoa Đậu Biếc', category: 'dessert', price: 39000, stock: 30, description: 'Thạch rau câu tím biếc từ hoa đậu biếc tươi – màu sắc thay đổi theo pH như phép màu, vị thanh mát dịu dàng.' },
+                { name: 'Kem Trứng Muối', category: 'dessert', price: 49000, stock: 30, description: 'Kem vani mặn-ngọt với lòng đỏ trứng muối chảy rỉ – xu hướng Đài Loan đang chinh phục khẩu vị Việt thập kỷ này.' },
+                { name: 'Chè Chuối Nước Cốt Dừa', category: 'dessert', price: 32000, stock: 30, description: 'Chuối sứ chín mềm trong nước cốt dừa sánh béo thơm nức – dân dã mà ngon đến lạ, ký ức của mỗi buổi chiều thơ ấu.' },
+                { name: 'Kem Chanh Leo', category: 'dessert', price: 45000, stock: 30, description: 'Chua tươi của chanh leo nhiệt đới tan vào kem béo ngậy – sự đối lập hài hoà khiến bạn cứ muốn thêm một muỗng nữa.' },
+                { name: 'Pudding Trà Sữa', category: 'dessert', price: 49000, stock: 30, description: 'Pudding mịn màng hương trà sữa oolong, rắc trân châu đen nhỏ xinh lên trên – tráng miệng của những người mê trà sữa.' },
+                { name: 'Thạch Rau Câu Hoa Quả', category: 'dessert', price: 42000, stock: 30, description: 'Thạch trong suốt như pha lê, bên trong giam giữ những lát hoa quả tươi đầy màu sắc – đẹp như tranh, ngon như mơ.' },
+                { name: 'Kem Vị Cà Phê', category: 'dessert', price: 49000, stock: 30, description: 'Cold brew espresso đặc xay vào kem tươi nguyên kem – đắng thơm của cà phê và ngọt béo của kem, bộ đôi kinh điển.' },
+                { name: 'Chè Đậu Xanh Đá', category: 'dessert', price: 29000, stock: 30, description: 'Đậu xanh cà vỏ nấu mềm bùi ngọt, múc trên đá bào mịn và chan nước cốt dừa – mát lạnh và ngọt ngào như buổi trưa hè.' },
+                { name: 'Sữa Chua Xoài', category: 'dessert', price: 45000, stock: 30, description: 'Sữa chua Hy Lạp đặc sệt chua nhẹ phủ xoài Cát Chu chín mọng – đơn giản, healthy và ngon đến từng muỗng cuối.' },
+                { name: 'Chè Hạt Sen Long Nhãn', category: 'dessert', price: 39000, stock: 30, description: 'Hạt sen bùi mềm, long nhãn ngọt thanh trong nước đường gừng ấm – bài thuốc dưỡng tâm an thần của người xưa, nay thành món ngon.' },
+            ];
+
+            // Hiện loading (KHÔNG await - để code tiếp tục chạy bên dưới)
+            Swal.fire({
+                title: 'Đang xử lý...', html: 'Đang xoá sản phẩm cũ...',
+                allowOutsideClick: false, showConfirmButton: false, showCancelButton: false
+            });
+
+            try {
+                // 1) Xoá toàn bộ node 'products' một lần (nhanh và đáng tin cậy hơn lập từng item)
+                await remove(ref(db, 'products'));
+
+                // 2) Thêm 80 sản phẩm mới
+                let count = 0;
+                for (const p of DEFAULT_PRODUCTS) {
+                    const newRef = push(ref(db, 'products'));
+                    await set(newRef, {
+                        ...p,
+                        imageUrl: '',
+                        isAvailable: true,
+                        createdAt: Date.now() + count
+                    });
+                    count++;
+                    Swal.update({ html: `Đang nhập sản phẩm... <strong>${count}/${DEFAULT_PRODUCTS.length}</strong>` });
+                }
+
+                Swal.close();
+                await Swal.fire({
+                    icon: 'success',
+                    title: `Đã nhập ${count} sản phẩm!`,
+                    html: 'Bạn có thể thêm hình ảnh cho từng sản phẩm bằng nút <b>Sửa</b>.',
+                    confirmButtonColor: '#d4a574'
+                });
+            } catch (e) {
+                Swal.close();
+
+                Swal.fire({ icon: 'error', title: 'Lỗi!', text: e.message });
+            }
+        };
+
+        // Seed 6 default news articles
+        window.seedDefaultNews = async function () {
+            const result = await Swal.fire({
+                icon: 'question', title: 'Nhập 6 bài viết mẫu?',
+                text: 'Sẽ thêm 6 bài viết mẫu có sẵn vào hệ thống.',
+                showCancelButton: true, confirmButtonText: 'Nhập', cancelButtonText: 'Hủy', confirmButtonColor: '#d4a574'
+            });
+            if (!result.isConfirmed) return;
+
+            const seedData = [
+                {
+                    title: 'Moonlight Cafe khai trương cơ sở mới tại Ninh Kiều, Cần Thơ',
+                    category: 'Tin mới', author: 'Admin', date: '10/01/2026',
+                    image: 'https://images.unsplash.com/photo-1559925393-8be0ec4767c8?w=600',
+                    excerpt: 'Moonlight Cafe chính thức khai trương cơ sở mới ngay trung tâm quận Ninh Kiều, mang đến không gian thưởng thức cà phê ấm cúng giữa lòng TP. Cần Thơ...',
+                    content: `<p>Moonlight Cafe chính thức khai trương cơ sở mới ngay trung tâm quận Ninh Kiều, mang đến không gian thưởng thức cà phê ấm cúng giữa lòng TP. Cần Thơ.</p><h2>🌟 Không gian mới, trải nghiệm mới</h2><p>Với diện tích hơn 200m², cơ sở mới tại Ninh Kiều được thiết kế theo phong cách hiện đại kết hợp với không gian xanh mát.</p><ul><li>Thưởng thức những ly cà phê thủ công</li><li>Gặp gỡ bạn bè trong không gian ấm cúng</li><li>Làm việc với Wi-Fi miễn phí tốc độ cao</li></ul><blockquote>"Chúng tôi tin rằng mỗi ly cà phê đều kể một câu chuyện."<br>— <strong>Nguyễn Thị Huỳnh Như, Founder</strong></blockquote><h2>📍 Địa chỉ</h2><p><strong>Moonlight Cafe</strong><br>Nguyễn Đệ, Cái Khế, Ninh Kiều, TP. Cần Thơ<br>Giờ mở cửa: 7:00 - 22:00 hàng ngày</p>`,
+                    status: 'published', createdAt: new Date('2026-01-10').getTime()
+                },
+                {
+                    title: 'Bí quyết pha cà phê phin Việt Nam thơm ngon đúng điệu',
+                    category: 'Tips & Tricks', author: 'Barista Team', date: '05/01/2026',
+                    image: 'https://images.unsplash.com/photo-1519082274554-1ca37b2df78d?w=600',
+                    excerpt: 'Với những mẹo nhỏ từ đội ngũ barista của Moonlight, bạn có thể pha được những ly cà phê phin đậm đà thơm ngon ngay tại nhà...',
+                    content: `<p>Với những mẹo nhỏ từ đội ngũ barista của Moonlight, bạn hoàn toàn có thể pha được những ly cà phê thơm ngon không thua gì quán.</p><h2>☕ Chọn cà phê đúng cách</h2><ul><li>Chọn hạt nguyên chất 100% Arabica hoặc blend Arabica-Robusta</li><li>Ưu tiên hạt rang vừa (medium roast)</li><li>Mua vừa đủ dùng trong 2-3 tuần</li></ul><h2>📝 Công thức pha Latte</h2><ol><li>Pha 1 shot espresso (18g cà phê, 36ml nước)</li><li>Đun sữa đến 60-65°C, tạo bọt sữa mịn</li><li>Đổ espresso vào ly, thêm sữa và tạo hình latte art</li></ol><blockquote>"Pha cà phê là một nghệ thuật."<br>— <strong>Đội ngũ Barista Moonlight</strong></blockquote>`,
+                    status: 'published', createdAt: new Date('2026-01-05').getTime()
+                },
+                {
+                    title: 'Ra mắt bộ sưu tập bánh ngọt Tết Bính Ngọ 2026',
+                    category: 'Menu mới', author: 'Chef Team', date: '25/12/2025',
+                    image: 'https://images.unsplash.com/photo-1551024601-bec78aea704b?w=600',
+                    excerpt: 'Moonlight Cafe giới thiệu bộ sưu tập bánh ngọt Tết với những hương vị đậm đà, kết hợp nguyên liệu tươi theo mùa...',
+                    content: `<p>Moonlight Cafe giới thiệu bộ sưu tập bánh ngọt mùa xuân với những hương vị mới lạ.</p><h2>🌸 Bánh Ngọt Tết 2026</h2><p>Bộ sưu tập Tết 2026 mang đến 5 loại bánh đặc sản.</p><h2>🍰 Strawberry Cheesecake</h2><p>Bánh phô mai kem mịn màng phủ trên lớp bánh quy giòn.</p><h2>🥭 Mango Mousse</h2><p>Bánh mousse xoài mát lạnh, nhẹ nhàng tan trên đầu lưỡi.</p>`,
+                    status: 'published', createdAt: new Date('2025-12-25').getTime()
+                },
+                {
+                    title: 'Ưu đãi 20% cho đơn hàng online mừng năm mới 2026',
+                    category: 'Khuyến mãi', author: 'Marketing', date: '01/01/2026',
+                    image: 'https://images.unsplash.com/photo-1461023058943-07fcbe16d735?w=600',
+                    excerpt: 'Chào năm mới 2026, Moonlight Cafe tri ân khách hàng với ưu đãi giảm giá 20% cho tất cả đơn hàng đặt online tại Cần Thơ...',
+                    content: `<p>Chào năm mới 2026, Moonlight Cafe tri ân khách hàng với ưu đãi giảm giá 20% cho tất cả đơn hàng đặt online.</p><h2>🎉 Chi tiết chương trình</h2><ul><li>Giảm 20% cho đơn hàng từ 200.000đ</li><li>Áp dụng cho tất cả sản phẩm trên menu</li><li>Miễn phí ship cho đơn từ 300.000đ</li></ul>`,
+                    status: 'published', createdAt: new Date('2026-01-01').getTime()
+                },
+                {
+                    title: 'Workshop Latte Art tại Moonlight Cafe Cần Thơ',
+                    category: 'Sự kiện', author: 'Admin', date: '15/12/2025',
+                    image: 'https://images.unsplash.com/photo-1447933601403-0c6688de566e?w=600',
+                    excerpt: 'Đăng ký tham gia workshop Latte Art cùng các barista của Moonlight Cafe. Học cách tạo những hình vẽ đẹp mắt trên ly cà phê...',
+                    content: `<p>Đăng ký tham gia workshop Latte Art cùng các barista hàng đầu.</p><h2>📅 Thông tin Workshop</h2><ul><li><strong>Ngày:</strong> 15/01/2026</li><li><strong>Thời gian:</strong> 14:00 - 16:00</li><li><strong>Địa điểm:</strong> Moonlight Cafe - Nguyễn Đệ, Cần Thơ</li><li><strong>Học phí:</strong> 350.000đ/người</li></ul><h2>🎓 Nội dung workshop</h2><ol><li>Giới thiệu về cà phê và nguồn gốc</li><li>Kỹ thuật pha espresso chuẩn</li><li>Hướng dẫn vẽ các hình: heart, tulip, rosetta</li><li>Thực hành và nhận xét</li></ol>`,
+                    status: 'published', createdAt: new Date('2025-12-15').getTime()
+                },
+                {
+                    title: 'Cam kết sử dụng nguồn cà phê Tây Nguyên sạch 100%',
+                    category: 'Bền vững', author: 'Admin', date: '10/12/2025',
+                    image: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=600',
+                    excerpt: 'Moonlight Cafe cam kết sử dụng 100% cà phê Arabica từ vùng trồng Tây Nguyên, hỗ trợ nông dân Việt Nam và bảo vệ môi trường...',
+                    content: `<p>Moonlight Cafe cam kết sử dụng 100% cà phê từ nguồn bền vững.</p><h2>🌱 Cam kết của chúng tôi</h2><ul><li>100% cà phê Arabica từ vùng trồng bền vững</li><li>Hỗ trợ thu mua với giá công bằng cho nông dân</li><li>Không sử dụng bao bì nhựa một lần</li><li>Tái chế 100% phế phẩm cà phê làm phân bón</li></ul><blockquote>"Mỗi ly cà phê bạn uống có thể thay đổi cuộc sống của một nông dân."<br>— <strong>Moonlight Cafe</strong></blockquote>`,
+                    status: 'published', createdAt: new Date('2025-12-10').getTime()
+                }
+            ];
+
+            try {
+                for (const item of seedData) {
+                    await set(push(ref(db, 'news')), item);
+                }
+                Swal.fire({ icon: 'success', title: 'Đã nhập 6 bài mẫu!', timer: 1500, showConfirmButton: false });
+                loadAdminNews();
+            } catch (e) {
+                Swal.fire({ icon: 'error', title: 'Lỗi!', text: e.message });
+            }
+        };
+
+        // ============================================================
+        // PROMOTIONS MANAGEMENT
+        // ============================================================
+        let adminPromos = [];
+        let editingPromoId = null;
+
+        window.togglePromoForm = function () {
+            const body = document.getElementById('promoFormBody');
+            const chevron = document.getElementById('promoFormChevron');
+            const hidden = body.style.display === 'none';
+            body.style.display = hidden ? 'block' : 'none';
+            chevron.className = hidden ? 'fas fa-chevron-up' : 'fas fa-chevron-down';
+        };
+
+        window.toggleMaxDiscount = function () {
+            const type = document.getElementById('promoDiscountType').value;
+            document.getElementById('maxDiscountGroup').style.display = type === 'percent' ? '' : 'none';
+            document.getElementById('promoDiscountValueLabel').textContent =
+                type === 'percent' ? 'Giá trị giảm (%) *' : 'Số tiền giảm (VNĐ) *';
+        };
+
+        window.clearPromoForm = function () {
+            editingPromoId = null;
+            document.getElementById('promoTitle').value = '';
+            document.getElementById('promoCode').value = '';
+            document.getElementById('promoDesc').value = '';
+            document.getElementById('promoDiscountType').value = 'percent';
+            document.getElementById('promoDiscountValue').value = '';
+            document.getElementById('promoMaxDiscount').value = '0';
+            document.getElementById('promoMinOrder').value = '0';
+            document.getElementById('promoStartDate').value = '';
+            document.getElementById('promoEndDate').value = '';
+            document.getElementById('promoUsageLimit').value = '0';
+            document.getElementById('promoTimeStart').value = '';
+            document.getElementById('promoTimeEnd').value = '';
+            document.getElementById('promoIsActive').checked = true;
+            document.getElementById('savePromoBtn').innerHTML = '<i class="fas fa-save"></i> Lưu khuyến mãi';
+            toggleMaxDiscount();
+        };
+
+        window.savePromotion = async function () {
+            const title = document.getElementById('promoTitle').value.trim();
+            const code = document.getElementById('promoCode').value.trim().toUpperCase();
+            const desc = document.getElementById('promoDesc').value.trim();
+            const discountType = document.getElementById('promoDiscountType').value;
+            const discountValue = parseFloat(document.getElementById('promoDiscountValue').value);
+            const maxDiscount = parseFloat(document.getElementById('promoMaxDiscount').value) || 0;
+            const minOrder = parseFloat(document.getElementById('promoMinOrder').value) || 0;
+            const startDateVal = document.getElementById('promoStartDate').value;
+            const endDateVal = document.getElementById('promoEndDate').value;
+            const usageLimit = parseInt(document.getElementById('promoUsageLimit').value) || 0;
+            const timeStart = document.getElementById('promoTimeStart').value || '';
+            const timeEnd = document.getElementById('promoTimeEnd').value || '';
+            const isActive = document.getElementById('promoIsActive').checked;
+
+            if (timeStart && !timeEnd || !timeStart && timeEnd) {
+                Swal.fire({ icon: 'warning', title: 'Vui lòng điền cả giờ bắt đầu lẫn giờ kết thúc!' });
+                return;
+            }
+            if (timeStart && timeEnd && timeStart >= timeEnd) {
+                Swal.fire({ icon: 'warning', title: 'Giờ kết thúc phải sau giờ bắt đầu!' });
+                return;
+            }
+
+            if (!title || !code || isNaN(discountValue) || discountValue <= 0 || !startDateVal || !endDateVal) {
+                Swal.fire({ icon: 'warning', title: 'Vui lòng điền đầy đủ thông tin bắt buộc!' });
+                return;
+            }
+            if (discountType === 'percent' && discountValue > 100) {
+                Swal.fire({ icon: 'warning', title: 'Giá trị % không được vượt quá 100!' });
+                return;
+            }
+            if (new Date(startDateVal) >= new Date(endDateVal)) {
+                Swal.fire({ icon: 'warning', title: 'Ngày kết thúc phải sau ngày bắt đầu!' });
+                return;
+            }
+
+            // Check code uniqueness (skip if editing same)
+            const existing = adminPromos.find(p => p.code === code && p.id !== editingPromoId);
+            if (existing) {
+                Swal.fire({ icon: 'warning', title: `Mã "${code}" đã tồn tại!` });
+                return;
+            }
+
+            const data = {
+                title, code, description: desc,
+                discountType, discountValue, maxDiscount, minOrder,
+                startDate: new Date(startDateVal).getTime(),
+                endDate: new Date(endDateVal).getTime(),
+                usageLimit, timeStart, timeEnd, isActive,
+                usageCount: editingPromoId ? (adminPromos.find(p => p.id === editingPromoId)?.usageCount || 0) : 0,
+                createdAt: editingPromoId ? (adminPromos.find(p => p.id === editingPromoId)?.createdAt || Date.now()) : Date.now(),
+                updatedAt: Date.now()
+            };
+
+            try {
+                if (editingPromoId) {
+                    await update(ref(db, `promotions/${editingPromoId}`), data);
+                    Swal.fire({ icon: 'success', title: 'Đã cập nhật!', timer: 1200, showConfirmButton: false });
+                } else {
+                    await push(ref(db, 'promotions'), data);
+                    Swal.fire({ icon: 'success', title: 'Đã tạo khuyến mãi!', timer: 1200, showConfirmButton: false });
+                }
+                clearPromoForm();
+                loadAdminPromotions();
+            } catch (e) {
+                Swal.fire({ icon: 'error', title: 'Lỗi!', text: e.message });
+            }
+        };
+
+        window.loadAdminPromotions = async function () {
+            const tbody = document.getElementById('promosTbody');
+            if (!tbody) return;
+            tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:30px"><i class="fas fa-spinner fa-spin"></i></td></tr>';
+            try {
+                const snap = await get(ref(db, 'promotions'));
+                adminPromos = [];
+                if (snap.exists()) {
+                    snap.forEach(c => { if (c.val()) adminPromos.push({ id: c.key, ...c.val() }); });
+                }
+                adminPromos.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+                document.getElementById('promoListCount').textContent = `(${adminPromos.length})`;
+
+                if (adminPromos.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:30px;color:#888">Chưa có khuyến mãi nào</td></tr>';
+                    return;
+                }
+
+                function fmtD(ts) { return ts ? new Date(ts).toLocaleDateString('vi-VN') : '—'; }
+                function fmtP(n) { return new Intl.NumberFormat('vi-VN').format(n) + 'đ'; }
+                function promoStatus(p) {
+                    const now = Date.now();
+                    if (!p.isActive) return { label: 'Tắt', color: '#6b7280', bg: 'rgba(107,114,128,.15)' };
+                    if (p.startDate > now) return { label: 'Sắp diễn ra', color: '#3b82f6', bg: 'rgba(59,130,246,.15)' };
+                    if (p.endDate < now) return { label: 'Đã hết', color: '#ef4444', bg: 'rgba(239,68,68,.15)' };
+                    return { label: 'Đang diễn ra', color: '#10b981', bg: 'rgba(16,185,129,.15)' };
+                }
+
+                tbody.innerHTML = adminPromos.map(p => {
+                    const s = promoStatus(p);
+                    const disc = p.discountType === 'percent' ? `${p.discountValue}%` : fmtP(p.discountValue);
+                    const usage = p.usageLimit > 0 ? `${p.usageCount || 0}/${p.usageLimit}` : `${p.usageCount || 0}/∞`;
+                    return `<tr>
+                        <td><strong style="color:var(--accent);letter-spacing:.05em">${p.code}</strong></td>
+                        <td>${p.title}</td>
+                        <td>Giảm ${disc}${p.discountType === 'percent' && p.maxDiscount > 0 ? '<br><small style="color:#888">tối đa ' + fmtP(p.maxDiscount) + '</small>' : ''}</td>
+                        <td style="font-size:.82rem">${fmtD(p.startDate)}<br><span style="color:#888">→ ${fmtD(p.endDate)}</span></td>
+                        <td>${usage}</td>
+                        <td><span style="padding:3px 10px;border-radius:20px;background:${s.bg};color:${s.color};font-size:.78rem">${s.label}</span></td>
+                        <td style="white-space:nowrap">
+                            <button class="btn btn-outline btn-sm" onclick="editPromo('${p.id}')" title="Sửa"><i class="fas fa-edit"></i></button>
+                            <button class="btn btn-sm" onclick="togglePromoActive('${p.id}',${!p.isActive})" title="${p.isActive ? 'Tắt' : 'Bật'}" style="background:${p.isActive ? '#6b7280' : '#10b981'};color:#fff;border:none;padding:6px 10px;border-radius:6px;cursor:pointer;margin-left:4px">
+                                <i class="fas fa-${p.isActive ? 'pause' : 'play'}"></i>
+                            </button>
+                            <button class="btn btn-sm" onclick="deletePromo('${p.id}')" title="Xóa" style="background:#ef4444;color:#fff;border:none;padding:6px 10px;border-radius:6px;cursor:pointer;margin-left:4px">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>`;
+                }).join('');
+            } catch (e) {
+                tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:red;padding:20px">Lỗi: ${e.message}</td></tr>`;
+            }
+        };
+
+        window.editPromo = function (id) {
+            const p = adminPromos.find(x => x.id === id);
+            if (!p) return;
+            editingPromoId = id;
+            document.getElementById('promoTitle').value = p.title || '';
+            document.getElementById('promoCode').value = p.code || '';
+            document.getElementById('promoDesc').value = p.description || '';
+            document.getElementById('promoDiscountType').value = p.discountType || 'percent';
+            document.getElementById('promoDiscountValue').value = p.discountValue || '';
+            document.getElementById('promoMaxDiscount').value = p.maxDiscount || 0;
+            document.getElementById('promoMinOrder').value = p.minOrder || 0;
+            document.getElementById('promoStartDate').value = p.startDate ? new Date(p.startDate).toISOString().slice(0, 16) : '';
+            document.getElementById('promoEndDate').value = p.endDate ? new Date(p.endDate).toISOString().slice(0, 16) : '';
+            document.getElementById('promoUsageLimit').value = p.usageLimit || 0;
+            document.getElementById('promoTimeStart').value = p.timeStart || '';
+            document.getElementById('promoTimeEnd').value = p.timeEnd || '';
+            document.getElementById('promoIsActive').checked = !!p.isActive;
+            document.getElementById('savePromoBtn').innerHTML = '<i class="fas fa-save"></i> Cập nhật';
+            toggleMaxDiscount();
+            // Scroll to form
+            document.getElementById('promoFormBody').style.display = 'block';
+            document.getElementById('promoFormBody').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        };
+
+        window.togglePromoActive = async function (id, newState) {
+            try {
+                await update(ref(db, `promotions/${id}`), { isActive: newState });
+                loadAdminPromotions();
+            } catch (e) { alert('Lỗi: ' + e.message); }
+        };
+
+        window.deletePromo = async function (id) {
+            const p = adminPromos.find(x => x.id === id);
+            const result = await Swal.fire({
+                icon: 'warning',
+                title: `Xóa khuyến mãi "${p?.code}"?`,
+                text: 'Hành động này không thể hoàn tác.',
+                showCancelButton: true,
+                confirmButtonText: 'Xóa',
+                cancelButtonText: 'Hủy',
+                confirmButtonColor: '#ef4444'
+            });
+            if (!result.isConfirmed) return;
+            try {
+                await remove(ref(db, `promotions/${id}`));
+                adminPromos = adminPromos.filter(x => x.id !== id);
+                loadAdminPromotions();
+                Swal.fire({ icon: 'success', title: 'Đã xóa!', timer: 1000, showConfirmButton: false });
+            } catch (e) { Swal.fire({ icon: 'error', title: 'Lỗi!', text: e.message }); }
+        };
+
+        // ============================================================
+        // EXCEL EXPORT FUNCTIONS (SheetJS / XLSX)
+        // Helper nội bộ (không cần window)
+        // ============================================================
+        function xlsxDownload(wb, filename) { XLSX.writeFile(wb, filename); }
+        function _fmtN(n) { return Number(n) || 0; }
+        function _fmtDS(d) { return d ? new Date(d).toLocaleDateString('vi-VN') : ''; }
+        function _nowStr() { return new Date().toLocaleString('vi-VN'); }
+        function _setW(ws, w) { ws['!cols'] = w.map(v => ({ wch: v })); }
+
+        // ---- Đơn hàng ----
+        window.exportOrdersExcel = function () {
+            if (!window.XLSX) { alert('Thư viện Excel chưa tải xong, vui lòng thử lại.'); return; }
+            if (!sampleOrders.length) { Swal.fire('Thông báo', 'Chưa có dữ liệu đơn hàng.', 'info'); return; }
+            const stMap = { pending: 'Chờ xác nhận', confirmed: 'Đã xác nhận', processing: 'Đang chuẩn bị', shipping: 'Đang giao', delivered: 'Hoàn thành', cancelled: 'Đã hủy' };
+            const pyMap = { cod: 'Tiền mặt (COD)', banking: 'Chuyển khoản', momo: 'MoMo', vnpay: 'VNPay' };
+            const aoa = [
+                ['DANH SÁCH ĐƠN HÀNG - MOONLIGHT CAFE'],
+                ['Ngày xuất: ' + _nowStr()],
+                [],
+                ['STT', 'Mã đơn', 'Khách hàng', 'Email', 'Số điện thoại', 'Địa chỉ', 'Ngày đặt', 'Sản phẩm', 'Tạm tính (đ)',
+                    'Phí giao (đ)', 'Giảm giá (đ)', 'Tổng tiền (đ)', 'Thanh toán', 'Trạng thái', 'Mã KM']
+            ];
+            sampleOrders.forEach((o, i) => {
+                const items = (o.items || []).map(it => it.name + ' x' + it.quantity).join('; ');
+                const addr = [o.customer?.address, o.customer?.ward, o.customer?.district].filter(Boolean).join(', ');
+                aoa.push([i + 1, '#' + (o.id || '').slice(-8).toUpperCase(), o.customer?.fullName || '', o.customer?.email || '',
+                o.customer?.phone || '', addr, _fmtDS(o.createdAt), items,
+                _fmtN(o.subtotal), _fmtN(o.shipping), _fmtN(o.discount), _fmtN(o.total),
+                pyMap[o.payment] || o.payment || '', stMap[o.status] || o.status || '', o.promoCode || '']);
+            });
+            const revO = sampleOrders.filter(o => ['delivered', 'shipping'].includes(o.status));
+            aoa.push([], ['TỔNG KẾT'], ['Tổng đơn hàng', sampleOrders.length],
+                ['Đơn hoàn thành + đang giao', revO.length],
+                ['Tổng doanh thu (đ)', revO.reduce((s, o) => s + _fmtN(o.total), 0)]);
+            const ws = XLSX.utils.aoa_to_sheet(aoa);
+            _setW(ws, [5, 14, 22, 28, 14, 40, 13, 55, 14, 12, 12, 15, 18, 17, 12]);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Đơn hàng');
+            xlsxDownload(wb, 'DonHang_MoonlightCafe_' + new Date().toISOString().slice(0, 10) + '.xlsx');
+        };
+
+        // ---- Khách hàng ----
+        window.exportUsersExcel = function () {
+            if (!window.XLSX) { alert('Thư viện Excel chưa tải xong, vui lòng thử lại.'); return; }
+            if (!sampleUsers.length) { Swal.fire('Thông báo', 'Chưa có dữ liệu khách hàng.', 'info'); return; }
+            const aoa = [
+                ['DANH SÁCH KHÁCH HÀNG - MOONLIGHT CAFE'],
+                ['Ngày xuất: ' + _nowStr()],
+                [],
+                ['STT', 'Họ tên', 'Email', 'Số điện thoại', 'Vai trò', 'Đăng nhập qua', 'Ngày đăng ký', 'Số đơn', 'Tổng chi tiêu (đ)', 'Đơn hoàn thành']
+            ];
+            sampleUsers.forEach((u, i) => {
+                const name = ((u.firstName || '') + ' ' + (u.lastName || '')).trim() || u.fullName || u.email;
+                const uord = sampleOrders.filter(o => o.customer?.email === u.email);
+                const spent = uord.filter(o => ['delivered', 'shipping'].includes(o.status)).reduce((s, o) => s + _fmtN(o.total), 0);
+                aoa.push([i + 1, name, u.email || '', u.phone || '', u.role === 'admin' ? 'Admin' : 'Khách hàng',
+                u.provider || 'email', _fmtDS(u.createdAt), uord.length, spent, uord.filter(o => o.status === 'delivered').length]);
+            });
+            const ws = XLSX.utils.aoa_to_sheet(aoa);
+            _setW(ws, [5, 26, 30, 15, 14, 14, 15, 12, 18, 17]);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Khách hàng');
+            xlsxDownload(wb, 'KhachHang_MoonlightCafe_' + new Date().toISOString().slice(0, 10) + '.xlsx');
+        };
+
+        // ---- Sản phẩm ----
+        window.exportProductsExcel = function () {
+            if (!window.XLSX) { alert('Thư viện Excel chưa tải xong, vui lòng thử lại.'); return; }
+            if (!sampleProducts.length) { Swal.fire('Thông báo', 'Chưa có dữ liệu sản phẩm.', 'info'); return; }
+            const aoa = [
+                ['DANH SÁCH SẢN PHẨM - MOONLIGHT CAFE'],
+                ['Ngày xuất: ' + _nowStr()],
+                [],
+                ['STT', 'Tên sản phẩm', 'Danh mục', 'Giá (đ)', 'Giá sale (đ)', 'Tồn kho', 'Trạng thái', 'Mô tả']
+            ];
+            sampleProducts.forEach((p, i) => {
+                aoa.push([i + 1, p.name || '', p.category || '', _fmtN(p.price),
+                p.salePrice ? _fmtN(p.salePrice) : '', p.stock !== undefined ? Number(p.stock) : '',
+                p.isAvailable === false ? 'Ngừng bán' : 'Đang bán', p.description || '']);
+            });
+            aoa.push([], ['Tổng sản phẩm', sampleProducts.length],
+                ['Đang bán', sampleProducts.filter(p => p.isAvailable !== false).length],
+                ['Ngừng bán', sampleProducts.filter(p => p.isAvailable === false).length]);
+            const ws = XLSX.utils.aoa_to_sheet(aoa);
+            _setW(ws, [5, 36, 18, 13, 13, 10, 13, 50]);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Sản phẩm');
+            xlsxDownload(wb, 'SanPham_MoonlightCafe_' + new Date().toISOString().slice(0, 10) + '.xlsx');
+        };
+
+        // ---- Khuyến mãi ----
+        window.exportPromotionsExcel = function () {
+            if (!window.XLSX) { alert('Thư viện Excel chưa tải xong, vui lòng thử lại.'); return; }
+            get(ref(db, 'promotions')).then(snap => {
+                const promos = [];
+                if (snap.exists()) snap.forEach(c => { const p = c.val(); p.id = c.key; promos.push(p); });
+                if (!promos.length) { Swal.fire('Thông báo', 'Chưa có dữ liệu khuyến mãi.', 'info'); return; }
+                const aoa = [
+                    ['DANH SÁCH KHUYẾN MÃI - MOONLIGHT CAFE'],
+                    ['Ngày xuất: ' + _nowStr()],
+                    [],
+                    ['Mã KM', 'Tiêu đề', 'Loại giảm', 'Mức giảm', 'Giảm tối đa (đ)', 'ĐK tối thiểu (đ)', 'Bắt đầu', 'Kết thúc', 'Lượt dùng', 'Giới hạn', 'Trạng thái']
+                ];
+                const nowTs = Date.now();
+                promos.forEach(p => {
+                    const disc = p.discountType === 'percent' ? p.discountValue + '%' : _fmtN(p.discountValue) + 'đ';
+                    let st = 'Không xác định';
+                    if (!p.isActive) st = 'Đã tắt';
+                    else if (p.startDate > nowTs) st = 'Sắp diễn ra';
+                    else if (p.endDate < nowTs) st = 'Hết hạn';
+                    else st = 'Đang hoạt động';
+                    aoa.push([p.code || '', p.title || '', p.discountType === 'percent' ? 'Phần trăm' : 'Số tiền cố định',
+                        disc, p.maxDiscount ? _fmtN(p.maxDiscount) : '', p.minOrder ? _fmtN(p.minOrder) : '',
+                    _fmtDS(p.startDate), _fmtDS(p.endDate), Number(p.usageCount) || 0,
+                    p.usageLimit ? Number(p.usageLimit) : 'Không giới hạn', st]);
+                });
+                const ws = XLSX.utils.aoa_to_sheet(aoa);
+                _setW(ws, [14, 36, 20, 12, 16, 18, 14, 14, 13, 16, 18]);
+                const wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, 'Khuyến mãi');
+                xlsxDownload(wb, 'KhuyenMai_MoonlightCafe_' + new Date().toISOString().slice(0, 10) + '.xlsx');
+            }).catch(e => Swal.fire('Lỗi', e.message, 'error'));
+        };
+
+        // ---- Báo cáo tổng hợp Dashboard (3 sheet) ----
+        window.exportDashboardReport = function () {
+            if (!window.XLSX) { alert('Thư viện Excel chưa tải xong, vui lòng thử lại.'); return; }
+            const now = new Date();
+            const curYear = now.getFullYear();
+            const curMonth = now.getMonth();
+            const isM = d => { if (!d) return false; const x = new Date(d); return x.getFullYear() === curYear && x.getMonth() === curMonth; };
+            const isLM = d => { if (!d) return false; const x = new Date(d); const lm = new Date(curYear, curMonth - 1, 1); return x.getFullYear() === lm.getFullYear() && x.getMonth() === lm.getMonth(); };
+            const revSt = ['delivered', 'shipping'];
+            const revAll = sampleOrders.filter(o => revSt.includes(o.status)).reduce((s, o) => s + _fmtN(o.total), 0);
+            const revThis = sampleOrders.filter(o => revSt.includes(o.status) && isM(o.createdAt)).reduce((s, o) => s + _fmtN(o.total), 0);
+            const revLast = sampleOrders.filter(o => revSt.includes(o.status) && isLM(o.createdAt)).reduce((s, o) => s + _fmtN(o.total), 0);
+            const custs = sampleUsers.filter(u => u.role !== 'admin');
+            const wb = XLSX.utils.book_new();
+
+            // Sheet 1: Tổng quan
+            const ws1 = XLSX.utils.aoa_to_sheet([
+                ['BÁO CÁO TỔNG HỢP - MOONLIGHT CAFE'],
+                ['Thời điểm xuất: ' + _nowStr()],
+                [],
+                ['CHỈ SỐ', 'GIÁ TRỊ', 'GHI CHÚ'],
+                ['Doanh thu tháng này (đ)', revThis, new Date(curYear, curMonth, 1).toLocaleDateString('vi-VN', { month: 'long', year: 'numeric' })],
+                ['Doanh thu tháng trước (đ)', revLast, new Date(curYear, curMonth - 1, 1).toLocaleDateString('vi-VN', { month: 'long', year: 'numeric' })],
+                ['Tổng doanh thu (đ)', revAll, 'Đơn hoàn thành + đang giao'],
+                ['Giá trị TB/đơn (đ)', sampleOrders.length ? Math.round(revAll / sampleOrders.length) : 0, ''],
+                [],
+                ['Tổng đơn hàng', sampleOrders.length, ''],
+                ['Đơn tháng này', sampleOrders.filter(o => isM(o.createdAt)).length, ''],
+                ['Đơn hoàn thành', sampleOrders.filter(o => o.status === 'delivered').length, ''],
+                ['Đơn đang giao', sampleOrders.filter(o => o.status === 'shipping').length, ''],
+                ['Đơn đang chuẩn bị', sampleOrders.filter(o => o.status === 'processing').length, ''],
+                ['Đơn chờ xác nhận', sampleOrders.filter(o => ['pending', 'confirmed'].includes(o.status)).length, ''],
+                ['Đơn đã hủy', sampleOrders.filter(o => o.status === 'cancelled').length, ''],
+                [],
+                ['Tổng sản phẩm', sampleProducts.length, ''],
+                ['Đang bán', sampleProducts.filter(p => p.isAvailable !== false).length, ''],
+                [],
+                ['Tổng khách hàng', custs.length, 'Không tính admin'],
+                ['Khách mới tháng này', custs.filter(u => isM(u.createdAt)).length, ''],
+            ]);
+            _setW(ws1, [36, 20, 42]);
+            XLSX.utils.book_append_sheet(wb, ws1, 'Tổng quan');
+
+            // Sheet 2: Doanh thu 12 tháng
+            const s2 = [['DOANH THU 12 THÁNG GẦN ĐÂY'], ['Tính từ đơn hoàn thành và đang giao'], [],
+            ['Tháng', 'Số đơn tất cả', 'Số đơn hợp lệ', 'Doanh thu (đ)', 'Tỷ lệ (%)']];
+            const mRevs = [];
+            for (let i = 11; i >= 0; i--) {
+                const d = new Date(curYear, curMonth - i, 1);
+                const lbl = 'Tháng ' + (d.getMonth() + 1) + '/' + d.getFullYear();
+                const allO = sampleOrders.filter(o => { if (!o.createdAt) return false; const od = new Date(o.createdAt); return od.getFullYear() === d.getFullYear() && od.getMonth() === d.getMonth(); });
+                const valO = allO.filter(o => revSt.includes(o.status));
+                const rev = valO.reduce((s, o) => s + _fmtN(o.total), 0);
+                mRevs.push(rev);
+                s2.push([lbl, allO.length, valO.length, rev, 0]);
+            }
+            const totRev = mRevs.reduce((a, b) => a + b, 0);
+            for (let r = 4; r < s2.length; r++) s2[r][4] = totRev > 0 ? +(s2[r][3] / totRev * 100).toFixed(1) : 0;
+            s2.push([], ['Tổng', '', '', totRev, 100]);
+            const ws2 = XLSX.utils.aoa_to_sheet(s2);
+            _setW(ws2, [18, 16, 16, 18, 12]);
+            XLSX.utils.book_append_sheet(wb, ws2, 'Doanh thu 12 tháng');
+
+            // Sheet 3: Trạng thái đơn
+            const sCfg = [['Hoàn thành', 'delivered'], ['Đang giao', 'shipping'],
+            ['Đang chuẩn bị', 'processing'], ['Đã xác nhận', 'confirmed'],
+            ['Chờ xác nhận', 'pending'], ['Đã hủy', 'cancelled']];
+            const s3 = [['PHÂN TÍCH ĐƠN HÀNG THEO TRẠNG THÁI'],
+            ['Tại thời điểm: ' + _nowStr()], [],
+            ['Trạng thái', 'Số đơn', 'Tỷ lệ (%)', 'Doanh thu (đ)', 'Ghi chú']];
+            const tot3 = sampleOrders.length || 1;
+            sCfg.forEach(([lbl, key]) => {
+                const arr = sampleOrders.filter(o => o.status === key);
+                const rev = revSt.includes(key) ? arr.reduce((s, o) => s + _fmtN(o.total), 0) : 0;
+                s3.push([lbl, arr.length, +(arr.length / tot3 * 100).toFixed(1), rev, revSt.includes(key) ? 'Tính doanh thu' : '']);
+            });
+            s3.push([], ['Tổng', sampleOrders.length, 100, revAll, '']);
+            const ws3 = XLSX.utils.aoa_to_sheet(s3);
+            _setW(ws3, [20, 12, 12, 18, 20]);
+            XLSX.utils.book_append_sheet(wb, ws3, 'Trạng thái đơn hàng');
+
+            xlsxDownload(wb, 'BaoCaoTongHop_MoonlightCafe_' + now.toISOString().slice(0, 10) + '.xlsx');
+        };
+
+        // ============================================================
+        // NOTIFICATION SYSTEM
+        // ============================================================
+        const LOW_STOCK_THRESHOLD = 5; // cảnh báo khi tồn kho <= 5
+
+        // ─── Helper: tính khung giờ multi-slot ──────────────────
+        function _getResTimeRange(r) {
+            const slots = r.timeSlots || (r.time ? [r.time] : []);
+            if (!slots.length) return { first: '', last: '', endTime: '', label: '–', slots: [] };
+            const first = slots[0], last = slots[slots.length - 1];
+            const [h, m] = last.split(':');
+            const endTime = String(+h + 1).padStart(2, '0') + ':' + m;
+            const label = first + ' – ' + endTime + (slots.length > 1 ? ' (' + slots.length + 'h)' : '');
+            return { first, last, endTime, label, slots };
+        }
+
+        window.loadNotifications = async function () {
+            const spinIcon = document.getElementById('notifSpinIcon');
+            if (spinIcon) spinIcon.classList.add('fa-spin');
+
+            const notifs = [];
+            const now = Date.now();
+
+            // 1. Đánh giá chờ duyệt (pending)
+            try {
+                const snapR = await get(ref(db, 'reviews'));
+                if (snapR.exists()) {
+                    snapR.forEach(c => {
+                        const r = c.val();
+                        if (r.status === 'pending') {
+                            notifs.push({
+                                type: 'review',
+                                icon: 'fa-star',
+                                color: '#f59e0b',
+                                title: `Đánh giá mới từ <strong>${r.userName || 'khách hàng'}</strong>`,
+                                body: `${r.rating ? '⭐'.repeat(r.rating) + ' — ' : ''}${(r.content || '').slice(0, 70)}${(r.content || '').length > 70 ? '…' : ''}`,
+                                time: r.createdAt,
+                                action: `showSection('reviewsSection')`
+                            });
+                        }
+                    });
+                }
+            } catch (e) { console.warn('notif reviews:', e); }
+
+            // 2. Sản phẩm sắp hết hàng (stock <= LOW_STOCK_THRESHOLD)
+            try {
+                const snapP = await get(ref(db, 'products'));
+                if (snapP.exists()) {
+                    snapP.forEach(c => {
+                        const p = c.val();
+                        const stock = Number(p.stock);
+                        if (p.isAvailable !== false && !isNaN(stock) && stock <= LOW_STOCK_THRESHOLD) {
+                            notifs.push({
+                                type: 'stock',
+                                icon: stock === 0 ? 'fa-times-circle' : 'fa-box-open',
+                                color: stock === 0 ? '#dc2626' : '#f97316',
+                                title: stock === 0
+                                    ? `Hết hàng: <strong>${p.name}</strong>`
+                                    : `Sắp hết: <strong>${p.name}</strong>`,
+                                body: stock === 0 ? 'Không còn hàng trong kho' : `Còn ${stock} sản phẩm trong kho`,
+                                time: now,
+                                action: `showSection('productsSection')`
+                            });
+                        }
+                    });
+                }
+            } catch (e) { console.warn('notif products:', e); }
+
+            // 3. Khuyến mãi đã hết hạn (isActive = true nhưng endDate < now)
+            try {
+                const snapPr = await get(ref(db, 'promotions'));
+                if (snapPr.exists()) {
+                    snapPr.forEach(c => {
+                        const p = c.val();
+                        if (p.isActive && p.endDate && Number(p.endDate) < now) {
+                            notifs.push({
+                                type: 'promo',
+                                icon: 'fa-tag',
+                                color: '#8b5cf6',
+                                title: `Khuyến mãi hết hạn: <strong>${p.code || ''}</strong>`,
+                                body: p.title || '',
+                                time: Number(p.endDate),
+                                action: `showSection('promotionsSection')`
+                            });
+                        }
+                    });
+                }
+            } catch (e) { console.warn('notif promos:', e); }
+
+            // Sắp xếp: review + stock trước, promo sau; mới nhất lên đầu
+            const order = { review: 0, stock: 1, promo: 2 };
+            notifs.sort((a, b) => (order[a.type] - order[b.type]) || (b.time || 0) - (a.time || 0));
+
+            _renderNotifications(notifs);
+            if (spinIcon) spinIcon.classList.remove('fa-spin');
+        };
+
+        // ─── Mailbox: Yêu cầu đặt bàn ──────────────────────
+        window.loadResMailNotifications = async function () {
+            const spinIcon = document.getElementById('resMailSpinIcon');
+            if (spinIcon) spinIcon.classList.add('fa-spin');
+            const notifs = [];
+            try {
+                const snapRes = await get(ref(db, 'reservations'));
+                if (snapRes.exists()) {
+                    snapRes.forEach(c => {
+                        const r = c.val();
+                        if (r.status === 'pending') {
+                            const tr = _getResTimeRange(r);
+                            notifs.push({
+                                type: 'reservation',
+                                icon: 'fa-calendar-plus',
+                                color: '#10b981',
+                                title: `Đặt bàn mới từ <strong>${r.name || 'Khách hàng'}</strong>`,
+                                body: `📅 ${r.date || '–'} · ⏰ ${tr.label} · 🪑 Bàn ${r.tableType || '?'} người × ${r.tableCount || 1}`,
+                                time: r.createdAt,
+                                action: `showSection('reservations')`
+                            });
+                        }
+                    });
+                }
+            } catch (e) { console.warn('notif reservations:', e); }
+            notifs.sort((a, b) => (a.time || 0) - (b.time || 0));
+            _renderResMailNotifications(notifs);
+            if (spinIcon) spinIcon.classList.remove('fa-spin');
+        };
+
+        function _renderResMailNotifications(notifs) {
+            const badge = document.getElementById('resMailBadge');
+            const list = document.getElementById('resMailList');
+            if (!list) return;
+            const count = notifs.length;
+            if (badge) {
+                badge.textContent = count > 99 ? '99+' : count;
+                badge.style.display = count > 0 ? '' : 'none';
+            }
+            if (count === 0) {
+                list.innerHTML = `<div class="notif-empty"><i class="fas fa-check-circle" style="color:#10b981"></i><p>Không có yêu cầu đặt bàn mới.</p></div>`;
+                return;
+            }
+            list.innerHTML = notifs.map((n, nIdx) => {
+                let sentLabel = 'Vừa gửi';
+                if (n.time) {
+                    const sd = new Date(n.time);
+                    sentLabel = sd.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' }) + ' ' + sd.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                }
+                return `
+                <div class="notif-item notif-reservation" onclick="${n.action}; closeResMailPanel()">
+                    <div class="notif-icon-wrap" style="background:${n.color}22;color:${n.color}">
+                        <i class="fas ${n.icon}"></i>
+                    </div>
+                    <div class="notif-body">
+                        <div class="notif-title"><span style="color:#f59e0b;font-size:.72rem;font-weight:700;margin-right:4px">#${nIdx + 1}</span>${n.title}</div>
+                        ${n.body ? `<div class="notif-desc">${n.body}</div>` : ''}
+                        <div class="notif-meta">
+                            <span class="notif-tag notif-tag-reservation">Đặt bàn</span>
+                            <span style="color:#60a5fa;font-weight:600"><i class="fas fa-paper-plane" style="font-size:.6rem;margin-right:2px"></i>${sentLabel}</span>
+                        </div>
+                    </div>
+                </div>
+            `}).join('');
+        }
+
+        function _renderNotifications(notifs) {
+            const badge = document.getElementById('notifCountBadge');
+            const list = document.getElementById('notifList');
+            if (!list) return;
+
+            const count = notifs.length;
+            if (badge) {
+                badge.textContent = count > 99 ? '99+' : count;
+                badge.style.display = count > 0 ? '' : 'none';
+            }
+
+            if (count === 0) {
+                list.innerHTML = `<div class="notif-empty">
+                    <i class="fas fa-check-circle" style="color:#10b981"></i>
+                    <p>Tất cả ổn! Không có thông báo mới.</p>
+                </div>`;
+                return;
+            }
+
+            const typeLabel = { review: 'Đánh giá', stock: 'Kho hàng', promo: 'Khuyến mãi', reservation: 'Đặt bàn' };
+            list.innerHTML = notifs.map(n => `
+                <div class="notif-item notif-${n.type}" onclick="${n.action}; closeNotifPanel()">
+                    <div class="notif-icon-wrap" style="background:${n.color}22;color:${n.color}">
+                        <i class="fas ${n.icon}"></i>
+                    </div>
+                    <div class="notif-body">
+                        <div class="notif-title">${n.title}</div>
+                        ${n.body ? `<div class="notif-desc">${n.body}</div>` : ''}
+                        <div class="notif-meta">
+                            <span class="notif-tag notif-tag-${n.type}">${typeLabel[n.type] || n.type}</span>
+                            ${n.time && n.time !== Date.now() ? `<span>${fmtDateAdmin(n.time)}</span>` : '<span>Vừa cập nhật</span>'}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        window.toggleNotifPanel = function () {
+            const panel = document.getElementById('notifPanel');
+            if (!panel) return;
+            closeResMailPanel(); // Đóng panel kia
+            const isOpen = panel.classList.toggle('open');
+            if (isOpen) loadNotifications();
+        };
+
+        window.closeNotifPanel = function () {
+            const panel = document.getElementById('notifPanel');
+            if (panel) panel.classList.remove('open');
+        };
+
+        window.toggleResMailPanel = function () {
+            const panel = document.getElementById('resMailPanel');
+            if (!panel) return;
+            closeNotifPanel(); // Đóng panel kia
+            const isOpen = panel.classList.toggle('open');
+            if (isOpen) loadResMailNotifications();
+        };
+
+        window.closeResMailPanel = function () {
+            const panel = document.getElementById('resMailPanel');
+            if (panel) panel.classList.remove('open');
+        };
+
+        // Đóng panel khi click ra ngoài
+        document.addEventListener('click', function (e) {
+            if (!e.target.closest('#notifBellWrap')) closeNotifPanel();
+            if (!e.target.closest('#resMailWrap')) closeResMailPanel();
+        });
+
+        // ============================================================
+        // RESERVATIONS – Admin management
+        // ============================================================
+        let allReservations = [];
+        window.resCurrentFilter = 'all';
+        let adminAllTables = [];
+        let resUnsubscribe = null;
+        const SLOT_DURATION_MS = 1 * 60 * 60 * 1000; // Khung giờ 1 tiếng
+
+        // Gọi 1 lần sau khi admin đã xác thực Firebase Auth
+        function startReservationsListener() {
+            if (resUnsubscribe) { resUnsubscribe(); resUnsubscribe = null; }
+
+            // Hiển trạng thái đang tải
+            const tbody = document.getElementById('resTbody');
+            if (tbody) tbody.innerHTML = '<tr><td colspan="11" style="text-align:center;padding:30px"><i class="fas fa-spinner fa-spin" style="color:var(--admin-accent)"></i> Đang kết nối cơ sở dữ liệu...</td></tr>';
+
+            const resRef = ref(db, 'reservations');
+            resUnsubscribe = onValue(
+                resRef,
+                (snap) => {
+                    allReservations = [];
+                    if (snap.exists()) {
+                        snap.forEach(c => { allReservations.push({ id: c.key, ...c.val() }); });
+                    }
+                    allReservations.sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
+                    console.log('[Reservations] Listener nhận ' + allReservations.length + ' đơn đặt bàn:', allReservations.map(r => r.id + ' | ' + r.date + ' ' + r.time + ' | ' + r.status).join(' ; '));
+                    updateResBadge();
+                    filterReservations(resCurrentFilter);
+                    updateDashboardReservations();
+                },
+                (err) => {
+                    console.error('Reservations listener error:', err);
+                    resUnsubscribe = null;
+                    const tb = document.getElementById('resTbody');
+                    if (tb) tb.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:30px;color:#e57373"><i class="fas fa-exclamation-triangle"></i> Không thể tải dữ liệu. Lỗi: ' + (err.code || err.message) + '</td></tr>';
+                    // Fallback: thử đọc trực tiếp bằng get()
+                    verifyReservationsWithGet();
+                }
+            );
+
+            // Xác minh dữ liệu bằng get() — phòng trường hợp listener bị thiếu
+            setTimeout(verifyReservationsWithGet, 2500);
+        }
+
+        async function verifyReservationsWithGet() {
+            try {
+                const snap = await get(ref(db, 'reservations'));
+                const getCount = snap.exists() ? Object.keys(snap.val()).length : 0;
+                console.log('[Reservations] get() verification: ' + getCount + ' records (listener has ' + allReservations.length + ')');
+                if (getCount > allReservations.length) {
+                    console.warn('[Reservations] get() found MORE records than listener — merging...');
+                    allReservations = [];
+                    snap.forEach(c => { allReservations.push({ id: c.key, ...c.val() }); });
+                    allReservations.sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
+                    console.log('[Reservations] Merged: ' + allReservations.length + ' đơn đặt bàn:', allReservations.map(r => r.id + ' | ' + r.date + ' ' + r.time + ' | ' + r.status).join(' ; '));
+                    updateResBadge();
+                    filterReservations(resCurrentFilter);
+                    updateDashboardReservations();
+                }
+            } catch (e) { console.warn('[Reservations] get() verification failed:', e.message); }
+        }
+
+        // Hàm gọi từ nơi khác (nút Làm mới, showSection)
+        window.loadAdminReservations = function () {
+            const user = auth.currentUser;
+            if (user) {
+                // Đã đăng nhập: khởi động/restart listener ngay
+                startReservationsListener();
+            } else {
+                // Chưa xác thực: hiện thông báo chờ
+                const tb = document.getElementById('resTbody');
+                if (tb) tb.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:30px;color:#f59e0b"><i class="fas fa-lock"></i> Cần đăng nhập để xem dữ liệu đặt bàn.</td></tr>';
+            }
+        }
+
+        window.updateResBadge = function () {
+            const cnt = allReservations.filter(r => r.status === 'pending').length;
+            const badge = document.getElementById('resBadge');
+            if (!badge) return;
+            badge.textContent = cnt;
+            badge.style.display = cnt > 0 ? 'flex' : 'none';
+        }
+
+        // ─── Cập nhật widget đặt bàn trên Dashboard ────────────────────
+        window.updateDashboardReservations = function () {
+            const todayStr = new Date().toISOString().slice(0, 10);
+            const now = Date.now();
+            const todayRes = allReservations.filter(r => r.date === todayStr);
+            const pending = todayRes.filter(r => r.status === 'pending');
+            const deposited = todayRes.filter(r => r.status === 'deposited');
+            const checkedIn = todayRes.filter(r => r.status === 'checked-in');
+
+            // Tính số bàn đang phục vụ (deposited/checked-in xuyên suốt multi-slot)
+            let servingCnt = 0;
+            [...deposited, ...checkedIn].forEach(r => {
+                try {
+                    const rSlots = r.timeSlots || (r.time ? [r.time] : []);
+                    if (!rSlots.length) return;
+                    const firstTs = new Date(r.date + 'T' + rSlots[0] + ':00').getTime();
+                    const lastEnd = new Date(r.date + 'T' + rSlots[rSlots.length - 1] + ':00').getTime() + SLOT_DURATION_MS;
+                    if (now >= firstTs && now < lastEnd) servingCnt++;
+                } catch (e) { }
+            });
+
+            const upd = (id, v) => { const e = document.getElementById(id); if (e) e.textContent = v; };
+            upd('dashResPending', pending.length);
+            upd('dashResDeposited', deposited.length);
+            upd('dashResServing', servingCnt);
+            upd('dashResTotalToday', todayRes.length);
+
+            const emptyEl = document.getElementById('dashResEmpty');
+            const listWrap = document.getElementById('dashResPendingList');
+            const listRows = document.getElementById('dashResPendingRows');
+
+            if (pending.length > 0 && listWrap && listRows) {
+                listWrap.style.display = 'block';
+                if (emptyEl) emptyEl.style.display = 'none';
+                listRows.innerHTML = pending.slice(0, 5).map((r, pIdx) => {
+                    const tr = _getResTimeRange(r);
+                    let sentAt = '';
+                    if (r.createdAt) { const cd = new Date(r.createdAt); sentAt = cd.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' }) + ' ' + cd.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', second: '2-digit' }); }
+                    return `<div style="display:flex;align-items:center;gap:10px;padding:8px 12px;margin-bottom:6px;border-radius:8px;background:rgba(245,158,11,.06);border:1px solid rgba(245,158,11,.15)">
+                        <div style="min-width:22px;text-align:center;font-size:.78rem;font-weight:700;color:#f59e0b">${pIdx + 1}</div>
+                        <div style="flex:1;font-size:.82rem">
+                            <strong>${r.name || '?'}</strong> — <span style="color:var(--admin-text-muted)">${r.phone || ''}</span>
+                            <div style="font-size:.73rem;color:var(--admin-text-muted);margin-top:2px"><i class="fas fa-clock" style="color:#f59e0b;width:14px"></i> ${tr.label} · ${r.tableType ? 'Bàn ' + r.tableType + ' người × ' + (r.tableCount || 1) : (r.totalSeats ? r.totalSeats + ' chỗ' : '?')}</div>
+                            ${sentAt ? `<div style="font-size:.7rem;color:#60a5fa;margin-top:2px"><i class="fas fa-paper-plane" style="width:14px;font-size:.6rem"></i> Gửi lúc: ${sentAt}</div>` : ''}
+                        </div>
+                        <button class="btn btn-sm" style="background:var(--admin-success);color:#fff;white-space:nowrap" onclick="showSection('reservations');setTimeout(()=>adminMarkDeposited('${r.id}'),300)">
+                            <i class="fas fa-coins"></i> Xác nhận
+                        </button>
+                    </div>`;
+                }).join('');
+                if (pending.length > 5) listRows.innerHTML += `<div style="font-size:.75rem;color:var(--admin-text-muted);text-align:center;padding:4px">... +${pending.length - 5} đơn nữa</div>`;
+            } else {
+                if (listWrap) listWrap.style.display = 'none';
+                if (emptyEl) emptyEl.style.display = todayRes.length > 0 ? 'none' : 'block';
+            }
+        }
+
+        window.filterReservations = function (filter) {
+            window.resCurrentFilter = filter;
+            document.querySelectorAll('.res-filter-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.filter === filter));
+            let rows = filter === 'all' ? allReservations : allReservations.filter(r => r.status === filter);
+            // Áp dụng lọc ngày nếu có
+            const dateFilter = document.getElementById('resFilterDate')?.value;
+            if (dateFilter) {
+                // dateFilter từ input date luôn là dạng YYYY-MM-DD
+                rows = rows.filter(r => {
+                    if (!r.date) return false;
+                    let rd = r.date;
+                    // Chuẩn hóa lỡ trong DB r.date bị lưu dạng DD/MM/YYYY
+                    if (rd.includes('/')) {
+                        const parts = rd.split('/');
+                        if (parts.length === 3) rd = `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
+                    }
+                    return rd === dateFilter;
+                });
+            }
+            const el = document.getElementById('resCount'); if (el) el.textContent = rows.length + ' bản ghi';
+            renderResTable(rows);
+        };
+
+        function resStatusBadge(status) {
+            const map = {
+                // ── Trạng thái hiện tại ──
+                pending: { cls: 'status-pending', label: 'Chờ xác nhận' },
+                deposited: { cls: 'status-confirmed', label: 'Đã cọc', extra: 'background:rgba(76,175,80,.15);color:#4caf50;border-color:rgba(76,175,80,.4)' },
+                'checked-in': { cls: 'status-confirmed', label: 'Đã nhận khách', extra: 'background:rgba(229,62,62,.15);color:#e53e3e;border-color:rgba(229,62,62,.4)' },
+                rejected: { cls: 'status-cancelled', label: 'Từ chối' },
+                cancelled: { cls: 'status-cancelled', label: 'Đã hủy' },
+                'no-show': { cls: 'status-cancelled', label: 'Không đến', extra: 'background:rgba(158,158,158,.15);color:#9e9e9e' },
+                // ── Legacy (đơn cũ trong DB) ──
+                confirmed: { cls: 'status-confirmed', label: 'Đã xác nhận (cũ)' },
+                agreed: { cls: 'status-confirmed', label: 'Đã đồng ý (cũ)' },
+                negotiating: { cls: 'status-pending', label: 'Thương lượng (cũ)' },
+                serving: { cls: 'status-confirmed', label: 'Đang phục vụ (cũ)', extra: 'background:rgba(229,62,62,.2);color:#e53e3e' },
+                completed: { cls: 'status-delivered', label: 'Hoàn thành' },
+                cancelled_no_payment: { cls: 'status-cancelled', label: 'Hủy (hết hạn cọc)' },
+                cancelled_absent: { cls: 'status-cancelled', label: 'Hủy (vắng mặt)' },
+            };
+            const s = map[status] || { cls: '', label: status };
+            return `<span class="status-badge ${s.cls}" ${s.extra ? `style="${s.extra}"` : ''} >${s.label}</span>`;
+        }
+
+        function renderResTable(rows) {
+            const tbody = document.getElementById('resTbody');
+            if (!tbody) return;
+            if (!rows.length) {
+                tbody.innerHTML = '<tr><td colspan="11" style="text-align:center;padding:40px;color:var(--admin-text-muted)"><i class="fas fa-calendar-times" style="font-size:2rem;display:block;margin-bottom:10px;opacity:.4"></i>Không có đặt bàn nào.</td></tr>';
+                return;
+            }
+            tbody.innerHTML = rows.map((r, idx) => {
+                const dep = r.depositAmount ? r.depositAmount.toLocaleString('vi-VN') + 'đ' : '–';
+                const depLabel = { unpaid: 'Chưa TT', pending_payment: `<span style="color:#f59e0b">Chờ xác nhận CK</span>`, paid: '<span style="color:#4caf50">Đã TT</span>', refunded: 'Đã hoàn' }[r.depositStatus] || '–';
+                const tables = (r.assignedTableIds || []).join(', ') || '–';
+                const tr = _getResTimeRange(r);
+                // Format createdAt thành DD/MM/YYYY HH:mm:ss
+                let createdAtStr = '–';
+                if (r.createdAt) {
+                    const cd = new Date(r.createdAt);
+                    createdAtStr = cd.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' }) + ' ' + cd.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                }
+                let actionBtns = '';
+                if (r.status === 'pending') {
+                    actionBtns = `<button class="btn btn-sm" style="background:var(--admin-success);color:#fff;margin-bottom:4px" onclick="adminMarkDeposited('${r.id}')"><i class="fas fa-coins"></i> Xác nhận cọc & Gán bàn</button>
+                                  <button class="btn btn-sm" style="background:var(--admin-danger);color:#fff" onclick="adminRejectReservation('${r.id}')"><i class="fas fa-times"></i> Từ chối</button>`;
+                } else if (r.status === 'deposited') {
+                    const now = new Date();
+                    const slotTime = r.timeSlot || tr.first || '00:00';
+                    const [slotH, slotM] = slotTime.split(':').map(Number);
+                    const resDateTime = new Date(r.date);
+                    resDateTime.setHours(slotH, slotM, 0, 0);
+                    const diffMin = (resDateTime - now) / 60000;
+
+                    actionBtns = '';
+                    if (diffMin <= 15) {
+                        actionBtns += `<button class="btn btn-sm" style="background:#e53e3e;color:#fff;margin-bottom:4px" onclick="adminCheckIn('${r.id}')"><i class="fas fa-sign-in-alt"></i> Đã nhận khách</button> `;
+                    }
+                    if (diffMin > 120) {
+                        actionBtns += `<button class="btn btn-sm" style="background:rgba(229,62,62,.7);color:#fff;margin-bottom:4px" onclick="adminCancelReservation('${r.id}')"><i class="fas fa-ban"></i> Hủy đơn (Hoàn cọc)</button>`;
+                    } else {
+                        actionBtns += `<button class="btn btn-sm" style="background:#999;color:#fff;margin-bottom:4px" onclick="adminMarkNoShow('${r.id}')"><i class="fas fa-user-slash"></i> Không đến (Mất cọc)</button>`;
+                    }
+                } else if (r.status === 'checked-in') {
+                    const now = new Date();
+                    const slotTime = r.timeSlot || tr.first || '00:00';
+                    const [slotH, slotM] = slotTime.split(':').map(Number);
+                    const resDateTime = new Date(r.date);
+                    resDateTime.setHours(slotH, slotM, 0, 0);
+
+                    actionBtns = '';
+                    if (now >= resDateTime) {
+                        actionBtns = `<button class="btn btn-sm" style="background:#4caf50;color:#fff;margin-bottom:4px" onclick="adminReleaseTable('${r.id}')"><i class="fas fa-flag-checkered"></i> Trả bàn (hoàn thành)</button>`;
+                    } else {
+                        const diffMin = Math.ceil((resDateTime - now) / 60000);
+                        actionBtns = `<span style="color:#e53e3e;font-size:.8rem"><i class="fas fa-clock"></i> Khách đến sớm (chờ ${diffMin}p)</span>`;
+                    }
+                } else if (['rejected', 'cancelled'].includes(r.status) &&
+                    (r.depositStatus === 'paid' || r.depositStatus === 'refund_requested')) {
+                    const refundLabel = r.depositStatus === 'refund_requested' ? 'Xác nhận đã hoàn' : 'Hoàn cọc';
+                    actionBtns = `<button class="btn btn-sm" style="background:#64b5f6;color:#fff" onclick="adminRefundDeposit('${r.id}')"><i class="fas fa-undo"></i> ${refundLabel}</button>`;
+                } else {
+                    actionBtns = `<span style="color:var(--admin-text-muted);font-size:.82rem">–</span>`;
+                }
+                // Nút xóa luôn hiển thị
+                actionBtns += `<button class="btn btn-sm" style="background:transparent;border:1px solid rgba(229,62,62,.4);color:#e57373;margin-top:4px;font-size:.75rem" onclick="adminDeleteReservation('${r.id}','${(r.name || '').replace(/'/g, "\\'")}')"><i class="fas fa-trash-alt"></i> Xóa</button>`;
+                return `<tr>
+                    <td style="text-align:center;font-size:.78rem;color:var(--admin-text-muted)">${idx + 1}</td>
+                    <td style="white-space:nowrap;font-size:.78rem"><i class="fas fa-paper-plane" style="color:#60a5fa;margin-right:4px;font-size:.65rem"></i><strong style="color:#60a5fa">${createdAtStr}</strong></td>
+                    <td>${r.date || '–'}</td>
+                    <td>${tr.label}</td>
+                    <td><strong>${r.name || '–'}</strong><br><a href="tel:${r.phone}" style="font-size:.78rem;color:var(--admin-accent)">${r.phone || '–'}</a></td>
+                    <td>${r.tableType ? 'Bàn ' + r.tableType + ' người × ' + (r.tableCount || 1) : '–'}</td>
+                    <td style="text-align:center">${r.tableType ? (r.tableCount || 1) * r.tableType + ' chỗ' : (r.totalSeats ? r.totalSeats + ' chỗ' : '–')}</td>
+                    <td>${dep}<br><span style="font-size:.75rem">${depLabel}</span></td>
+                    <td style="font-size:.82rem;color:var(--admin-accent)">${tables}</td>
+                    <td>${resStatusBadge(r.status)}</td>
+                    <td style="white-space:nowrap;min-width:140px">${actionBtns}</td>
+                </tr>`;
+            }).join('');
+        }
+
+        // ─── Tìm bàn trống xuyên suốt TẤT CẢ khung giờ (multi-slot) ──
+        function getFreeTables(date, timeSlots, tableType, excludeResId) {
+            const tablesOfType = adminAllTables.filter(t => t.type === tableType && t.isActive !== false);
+            const slotsArr = Array.isArray(timeSlots) ? timeSlots : (timeSlots ? [timeSlots] : []);
+            // Tìm bàn ĐÃ được gán cho đơn khác tại cùng date, CÓ CHUNG bất kỳ khung giờ nào
+            const assignedIds = new Set();
+            allReservations.forEach(r => {
+                if (r.id === excludeResId) return;
+                if (r.date !== date) return;
+                if (!['pending', 'deposited', 'checked-in'].includes(r.status)) return;
+                const rSlots = r.timeSlots || (r.time ? [r.time] : []);
+                const hasOverlap = slotsArr.some(s => rSlots.includes(s));
+                if (!hasOverlap) return;
+                (r.assignedTableIds || []).forEach(tid => { assignedIds.add(tid); });
+            });
+            return tablesOfType.filter(t => !assignedIds.has(t.id));
+        }
+
+        // ─── Xác nhận đã nhận cọc + Gán bàn ─────────────────────────
+        window.adminMarkDeposited = async function (resId) {
+            const r = allReservations.find(x => x.id === resId);
+            if (!r) return;
+            const needCount = r.tableCount || 1;
+            const tr = _getResTimeRange(r);
+            const freeTables = getFreeTables(r.date, tr.slots, r.tableType, resId);
+
+            // ── Kiểm tra ưu tiên: có đơn pending nào GỬI TRƯỚC cùng ngày/giờ/loại bàn không? ──
+            let priorityWarningHTML = '';
+            const earlierPending = allReservations.filter(other => {
+                if (other.id === resId) return false;
+                if (other.status !== 'pending') return false;
+                if (other.date !== r.date) return false;
+                if (other.tableType !== r.tableType) return false;
+                const otherSlots = other.timeSlots || (other.time ? [other.time] : []);
+                const thisSlots = tr.slots;
+                const hasOverlap = thisSlots.some(s => otherSlots.includes(s));
+                if (!hasOverlap) return false;
+                return (other.createdAt || 0) < (r.createdAt || 0);
+            });
+            if (earlierPending.length > 0) {
+                const epList = earlierPending.map(ep => {
+                    const epTr = _getResTimeRange(ep);
+                    const epDate = ep.createdAt ? new Date(ep.createdAt) : null;
+                    const epSent = epDate ? epDate.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' }) + ' ' + epDate.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) : '?';
+                    return `<div style="font-size:.82rem;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.06)"><strong>${ep.name || '?'}</strong> — ${epTr.label} — Gửi lúc: <strong>${epSent}</strong></div>`;
+                }).join('');
+                priorityWarningHTML = `<div style="background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.35);border-radius:8px;padding:10px 14px;margin-bottom:12px;text-align:left">
+                    <div style="font-size:.82rem;font-weight:700;color:#f59e0b;margin-bottom:6px"><i class="fas fa-exclamation-triangle"></i> Lưu ý ưu tiên!</div>
+                    <div style="font-size:.78rem;color:var(--admin-text-muted);margin-bottom:6px">Có <strong style="color:#f59e0b">${earlierPending.length}</strong> đơn pending <u>gửi trước</u> cùng ngày & trùng khung giờ & cùng loại bàn:</div>
+                    ${epList}
+                    <div style="font-size:.75rem;color:#f59e0b;margin-top:6px"><i class="fas fa-info-circle"></i> Nên xếp bàn cho đơn gửi trước để đảm bảo công bằng.</div>
+                </div>`;
+            }
+
+            // Build bảng chọn bàn
+            let tablePickerHTML = '';
+            if (freeTables.length === 0) {
+                tablePickerHTML = '<div style="color:#e57373;padding:10px;text-align:center"><i class="fas fa-exclamation-triangle"></i> Không còn bàn ' + r.tableType + ' người trống xuyên suốt ' + tr.slots.length + ' khung giờ!</div>';
+            } else {
+                tablePickerHTML = '<div style="margin:12px 0 6px;font-size:.82rem;color:#aaa;text-align:left"><i class="fas fa-chair" style="color:#60a5fa"></i> Chọn ' + needCount + ' bàn để gán (' + freeTables.length + ' bàn trống xuyên suốt):</div>'
+                    + '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:8px;margin-bottom:8px">';
+                freeTables.forEach((t, idx) => {
+                    const checked = idx < needCount ? 'checked' : '';
+                    tablePickerHTML += `<label style="display:flex;align-items:center;gap:6px;padding:8px 12px;border-radius:8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);cursor:pointer;font-size:.85rem;transition:.2s" onmouseover="this.style.borderColor='#60a5fa'" onmouseout="this.style.borderColor='rgba(255,255,255,.1)'">
+                        <input type="checkbox" class="swal-table-pick" value="${t.id}" ${checked} style="accent-color:#4caf50;width:16px;height:16px">
+                        <strong style="color:#60a5fa">${t.code}</strong>
+                    </label>`;
+                });
+                tablePickerHTML += '</div>';
+            }
+
+            // Format thời gian gửi yêu cầu
+            let rSentAt = '–';
+            if (r.createdAt) { const cd2 = new Date(r.createdAt); rSentAt = cd2.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' }) + ' ' + cd2.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', second: '2-digit' }); }
+
+            const result = await Swal.fire({
+                title: '<i class="fas fa-coins" style="color:#4caf50"></i> Xác nhận cọc & Gán bàn',
+                html: `${priorityWarningHTML}
+                       <div style="text-align:left;font-size:.88rem;line-height:1.8">
+                         <p><strong>${r.name || '?'}</strong> &nbsp;&nbsp; ${r.phone || ''}</p>
+                         <p><i class="fas fa-paper-plane" style="color:#60a5fa;width:16px"></i> Gửi lúc: <strong style="color:#60a5fa">${rSentAt}</strong></p>
+                         <p><i class="fas fa-calendar" style="color:#60a5fa;width:16px"></i> <strong>${r.date}</strong> &nbsp;|&nbsp; Khung giờ: <strong>${tr.label}</strong></p>
+                         <p><i class="fas fa-chair" style="color:#60a5fa;width:16px"></i> Bàn <strong>${r.tableType} người</strong> &times; ${needCount} bàn</p>
+                         <p><i class="fas fa-coins" style="color:#f59e0b;width:16px"></i> Phí cọc: <strong style="color:#4caf50">${(r.depositAmount || 0).toLocaleString('vi-VN')}đ</strong></p>
+                         <p><i class="fas fa-tag" style="color:#60a5fa;width:16px"></i> Mã CK: <strong>${r.depositRef || '–'}</strong></p>
+                       </div>
+                       ${tablePickerHTML}`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: '<i class="fas fa-check"></i> Xác nhận cọc & Gán bàn',
+                cancelButtonText: 'Hủy',
+                confirmButtonColor: '#4caf50',
+                width: 520,
+                preConfirm: () => {
+                    const checked = document.querySelectorAll('.swal-table-pick:checked');
+                    const ids = Array.from(checked).map(cb => cb.value);
+                    if (ids.length === 0) {
+                        Swal.showValidationMessage('Vui lòng chọn ít nhất 1 bàn');
+                        return false;
+                    }
+                    if (ids.length !== needCount) {
+                        Swal.showValidationMessage('Cần chọn đúng ' + needCount + ' bàn (đang chọn ' + ids.length + ')');
+                        return false;
+                    }
+                    return ids;
+                }
+            });
+            if (!result.isConfirmed) return;
+
+            const selectedTableIds = result.value;
+            const now = Date.now();
+            try {
+                await update(ref(db, 'reservations/' + resId), {
+                    status: 'deposited',
+                    depositStatus: 'paid',
+                    assignedTableIds: selectedTableIds,
+                    confirmedAt: now,
+                    notificationRead: false,
+                    updatedAt: now
+                });
+                // Gửi thông báo vào hộp thư khách hàng
+                if (r.uid) {
+                    const notifData = {
+                        type: 'reservation-deposited',
+                        title: 'Đặt bàn thành công!',
+                        body: `✅ Mã bàn: <strong>${selectedTableIds.join(', ')}</strong><br>📅 Ngày nhận bàn: <strong>${r.date}</strong><br>⏰ Giờ: <strong>${tr.label}</strong><br>💰 Đã xác nhận cọc: <strong>${(r.depositAmount || 0).toLocaleString('vi-VN')}đ</strong><br>Vui lòng đến đúng giờ!`,
+                        reservationId: resId,
+                        read: false,
+                        createdAt: now
+                    };
+                    try { await push(ref(db, 'users/' + r.uid + '/notifications'), notifData); } catch (e) { console.warn('Gửi thông báo thất bại:', e); }
+                }
+                // Cập nhật sơ đồ nếu đang hiển thị
+                if (document.getElementById('tblTabFloormap') &&
+                    document.getElementById('tblTabFloormap').style.display !== 'none') loadFloorMap();
+                Swal.fire({ icon: 'success', title: 'Đã xác nhận cọc!', html: 'Bàn <strong>' + selectedTableIds.join(', ') + '</strong> đã được gán.<br>Thông báo đã gửi cho khách.', timer: 2500, showConfirmButton: false });
+            } catch (e) { Swal.fire({ icon: 'error', title: 'Lỗi', text: e.message }); }
+        };
+
+        // ─── Từ chối đặt bàn ────────────────────────────────────────────
+        window.adminRejectReservation = async function (resId) {
+            const r = allReservations.find(x => x.id === resId);
+            if (!r) return;
+            const tr = _getResTimeRange(r);
+            const hasPaidDeposit = r.depositStatus === 'paid';
+            const { value: note, isConfirmed } = await Swal.fire({
+                title: 'Từ chối đặt bàn',
+                html: `<p style="text-align:left;font-size:.88rem;margin-bottom:10px">Khách: <strong>${r.name || '?'}</strong> — ${r.date} ${tr.label}</p>
+                       ${hasPaidDeposit ? '<p style="font-size:.85rem;color:#64b5f6;text-align:left"><i class="fas fa-coins" style="color:#f59e0b"></i> Đơn đã cọc <strong>' + (r.depositAmount || 0).toLocaleString('vi-VN') + 'đ</strong> — sẽ chuyển trạng thái hoàn cọc.</p>' : ''}
+                       <label style="font-size:.82rem;color:#aaa;display:block;margin-bottom:4px;text-align:left">Lý do từ chối (gửi cho khách)</label>`,
+                input: 'textarea',
+                inputPlaceholder: 'Rất tiếc, không còn bàn phù hợp...',
+                showCancelButton: true,
+                confirmButtonText: '<i class="fas fa-times"></i> Từ chối',
+                cancelButtonText: 'Hủy',
+                confirmButtonColor: '#e53e3e'
+            });
+            if (!isConfirmed) return;
+            try {
+                const updObj = {
+                    status: 'rejected',
+                    adminNote: note || 'Rất tiếc, quán không thể đáp ứng yêu cầu của bạn.',
+                    notificationRead: false,
+                    updatedAt: Date.now()
+                };
+                if (hasPaidDeposit) updObj.depositStatus = 'refund_requested';
+                await update(ref(db, 'reservations/' + resId), updObj);
+                // Gửi thông báo từ chối cho khách
+                if (r.uid) {
+                    const notifData = {
+                        type: 'reservation-rejected',
+                        title: 'Đặt bàn bị từ chối',
+                        body: `❌ Đơn đặt bàn ngày <strong>${r.date}</strong> · <strong>${tr.label}</strong> đã bị từ chối.<br>📝 Lý do: ${note || 'Quán không thể đáp ứng yêu cầu.'}${hasPaidDeposit ? '<br>💰 Cọc <strong>' + (r.depositAmount || 0).toLocaleString('vi-VN') + 'đ</strong> sẽ được hoàn lại.' : ''}`,
+                        reservationId: resId,
+                        read: false,
+                        createdAt: Date.now()
+                    };
+                    try { await push(ref(db, 'users/' + r.uid + '/notifications'), notifData); } catch (e) { console.warn('Gửi thông báo thất bại:', e); }
+                }
+                Swal.fire({ icon: 'info', title: 'Đã từ chối đặt bàn', html: hasPaidDeposit ? 'Trạng thái cọc: <strong>Yêu cầu hoàn</strong>' : '', timer: 2200, showConfirmButton: false });
+            } catch (e) { Swal.fire({ icon: 'error', title: 'Lỗi', text: e.message }); }
+        };
+
+        // ─── Không đến ──────────────────────────────────────────────────
+        window.adminMarkNoShow = async function (resId) {
+            const r = allReservations.find(x => x.id === resId);
+            if (!r) return;
+            const tr = _getResTimeRange(r);
+            const { isConfirmed } = await Swal.fire({
+                title: 'Đánh dấu Không đến?',
+                html: `<p>Khách <strong>${r.name || '?'}</strong> — ${r.date} ${tr.label}</p><p style="font-size:.85rem;color:#f59e0b">Tiền cọc sẽ không được hoàn.</p>`,
+                icon: 'question', showCancelButton: true,
+                confirmButtonText: '<i class="fas fa-user-slash"></i> Không đến',
+                cancelButtonText: 'Hủy', confirmButtonColor: '#999'
+            });
+            if (!isConfirmed) return;
+            try {
+                await update(ref(db, 'reservations/' + resId), { status: 'no-show', updatedAt: Date.now(), notificationRead: false });
+                Swal.fire({ icon: 'success', timer: 1200, showConfirmButton: false });
+            } catch (e) { Swal.fire({ icon: 'error', title: 'Lỗi', text: e.message }); }
+        };
+
+        // ─── Đã nhận khách (Check-in) ───────────────────────────────────
+        window.adminCheckIn = async function (resId) {
+            const r = allReservations.find(x => x.id === resId);
+            if (!r) return;
+            const tables = (r.assignedTableIds || []).join(', ') || '–';
+            const tr = _getResTimeRange(r);
+
+            // ── Kiểm tra thời gian: chỉ cho check-in khi đã đến (hoặc sớm tối đa 15 phút) ──
+            const now = new Date();
+            // Tạo Date object từ r.date (YYYY-MM-DD) + r.timeSlot (HH:MM)
+            const slotTime = r.timeSlot || (tr.start || '00:00');
+            const [slotH, slotM] = slotTime.split(':').map(Number);
+            const resDateTime = new Date(r.date);
+            resDateTime.setHours(slotH, slotM, 0, 0);
+            const diffMin = (resDateTime - now) / 60000; // dương = còn bao nhiêu phút nữa mới đến giờ
+
+            if (diffMin > 15) {
+                // Chưa đến giờ (còn hơn 15 phút)
+                const hLeft = Math.floor(diffMin / 60);
+                const mLeft = Math.round(diffMin % 60);
+                const timeStr = hLeft > 0 ? `${hLeft} giờ ${mLeft} phút` : `${Math.round(diffMin)} phút`;
+                return Swal.fire({
+                    icon: 'warning',
+                    title: 'Chưa đến giờ nhận khách!',
+                    html: `<p>Đơn đặt bàn của <strong>${r.name || '?'}</strong> lúc <strong>${slotTime} ngày ${r.date}</strong>.</p>
+                           <p style="margin-top:8px">⏳ Còn <strong style="color:#f59e0b">${timeStr}</strong> nữa mới đến giờ.</p>
+                           <p style="font-size:.82rem;color:#888;margin-top:6px">Chỉ có thể nhận khách trước giờ đặt tối đa <strong>15 phút</strong>.</p>`,
+                    confirmButtonColor: '#d4a574'
+                });
+            }
+
+            const { isConfirmed } = await Swal.fire({
+                title: '<i class="fas fa-sign-in-alt" style="color:#e53e3e"></i> Xác nhận nhận khách',
+                html: `<p>Khách <strong>${r.name || '?'}</strong> — ${r.date} ${tr.label}</p>
+                      <p>Bàn: <strong style="color:#60a5fa">${tables}</strong></p>
+                      <p style="font-size:.85rem;color:var(--admin-text-muted)">Trạng thái bàn sẽ chuyển sang <strong style="color:#e53e3e">Đã nhận khách</strong>.</p>`,
+                icon: 'question', showCancelButton: true,
+                confirmButtonText: '<i class="fas fa-check"></i> Đã nhận khách',
+                cancelButtonText: 'Hủy', confirmButtonColor: '#e53e3e'
+            });
+            if (!isConfirmed) return;
+            try {
+                await update(ref(db, 'reservations/' + resId), {
+                    status: 'checked-in',
+                    checkedInAt: Date.now(),
+                    updatedAt: Date.now(),
+                    notificationRead: false
+                });
+                // Gửi thông báo vào hộp thư khách hàng
+                if (r.uid) {
+                    const notifData = {
+                        type: 'reservation-checkedin',
+                        title: 'Đã nhận khách!',
+                        body: `🔥 Bàn <strong>${tables}</strong> đang phục vụ<br>📅 ${r.date} · ⏰ ${tr.label}<br>Chúc bạn có trải nghiệm tuyệt vời tại Moonlight Cafe!`,
+                        reservationId: resId,
+                        read: false,
+                        createdAt: Date.now()
+                    };
+                    try { await push(ref(db, 'users/' + r.uid + '/notifications'), notifData); } catch (e) { console.warn('Gửi thông báo thất bại:', e); }
+                }
+                if (document.getElementById('tblTabFloormap') &&
+                    document.getElementById('tblTabFloormap').style.display !== 'none') loadFloorMap();
+                Swal.fire({ icon: 'success', title: 'Đã nhận khách!', html: 'Bàn <strong>' + tables + '</strong> đang phục vụ.', timer: 2000, showConfirmButton: false });
+            } catch (e) { Swal.fire({ icon: 'error', title: 'Lỗi', text: e.message }); }
+        };
+
+        // ─── Trả bàn / Hoàn thành sớm ──────────────────────────────────
+        window.adminReleaseTable = async function (resId) {
+            const r = allReservations.find(x => x.id === resId);
+            if (!r) return;
+            const tables = (r.assignedTableIds || []).join(', ') || '–';
+            const { isConfirmed } = await Swal.fire({
+                title: '<i class="fas fa-flag-checkered" style="color:#4caf50"></i> Trả bàn & Hoàn thành',
+                html: `<p>Khách <strong>${r.name || '?'}</strong> rời bàn <strong style="color:#60a5fa">${tables}</strong></p>
+                      <p style="font-size:.85rem;color:var(--admin-text-muted)">Bàn sẽ chuyển về <strong style="color:#4caf50">Trống</strong>.</p>`,
+                icon: 'question', showCancelButton: true,
+                confirmButtonText: '<i class="fas fa-check"></i> Hoàn thành',
+                cancelButtonText: 'Hủy', confirmButtonColor: '#4caf50'
+            });
+            if (!isConfirmed) return;
+            try {
+                await update(ref(db, 'reservations/' + resId), {
+                    status: 'completed',
+                    completedAt: Date.now(),
+                    updatedAt: Date.now(),
+                    notificationRead: false
+                });
+                if (document.getElementById('tblTabFloormap') &&
+                    document.getElementById('tblTabFloormap').style.display !== 'none') loadFloorMap();
+                Swal.fire({ icon: 'success', title: 'Bàn đã trống!', html: 'Đơn đã hoàn thành. Bàn <strong>' + tables + '</strong> trả về trống.', timer: 2000, showConfirmButton: false });
+            } catch (e) { Swal.fire({ icon: 'error', title: 'Lỗi', text: e.message }); }
+        };
+
+        // ─── Admin hủy đơn đã cọc ───────────────────────────────────────
+        window.adminCancelReservation = async function (resId) {
+            const r = allReservations.find(x => x.id === resId);
+            if (!r) return;
+            const { isConfirmed } = await Swal.fire({
+                title: 'Hủy đơn đặt bàn?',
+                html: `<p>Khách <strong>${r.name || '?'}</strong> — ${r.date} ${_getResTimeRange(r).label}</p>${r.depositStatus === 'paid' ? '<p style="font-size:.85rem;color:#64b5f6">Đơn đã cọc — bạn sẽ cần hoàn tiền cho khách.</p>' : ''}`,
+                icon: 'warning', showCancelButton: true,
+                confirmButtonText: '<i class="fas fa-ban"></i> Hủy đơn',
+                cancelButtonText: 'Giữ nguyên', confirmButtonColor: '#e53e3e'
+            });
+            if (!isConfirmed) return;
+            try {
+                const updates = { status: 'cancelled', cancelReason: 'Admin hủy đơn', updatedAt: Date.now(), notificationRead: false };
+                if (r.depositStatus === 'paid') updates.depositStatus = 'refund_requested';
+                await update(ref(db, 'reservations/' + resId), updates);
+                Swal.fire({ icon: 'success', timer: 1200, showConfirmButton: false });
+            } catch (e) { Swal.fire({ icon: 'error', title: 'Lỗi', text: e.message }); }
+        };
+
+        window.adminRefundDeposit = async function (resId) {
+            const r = allReservations.find(x => x.id === resId);
+            const dep = r && r.depositAmount ? r.depositAmount.toLocaleString('vi-VN') + 'đ' : 'cọc';
+            const isRequested = r && r.depositStatus === 'refund_requested';
+            const { isConfirmed } = await Swal.fire({
+                icon: isRequested ? 'info' : 'question',
+                title: isRequested ? 'Khách yêu cầu hoàn cọc' : 'Xác nhận hoàn cọc cho khách?',
+                html: `<p>Đặt bàn: <strong>${r ? r.name : resId}</strong></p><p>Số tiền hoàn: <strong style="color:#64b5f6">${dep}</strong></p>${isRequested ? '<p style="color:#f59e0b;font-size:.88rem">⚠️ Khách đã chủ động hủy và yêu cầu hoàn tiền.</p>' : ''}`,
+                showCancelButton: true,
+                confirmButtonText: 'Đã hoàn tiền', cancelButtonText: 'Hủy',
+                confirmButtonColor: '#4caf50'
+            });
+            if (!isConfirmed) return;
+            try {
+                await update(ref(db, 'reservations/' + resId), {
+                    depositStatus: 'refunded',
+                    refundedAt: Date.now(),
+                    updatedAt: Date.now(),
+                    notificationRead: false
+                });
+                Swal.fire({ icon: 'success', title: 'Đã xác nhận hoàn tiền!', text: 'Khách sẽ nhận thông báo tại trang Tài khoản.', timer: 2000, showConfirmButton: false });
+            } catch (e) { Swal.fire({ icon: 'error', title: 'Lỗi', text: e.message }); }
+        };
+
+        // ─── Xóa đơn đặt bàn ────────────────────────────────
+        window.adminDeleteReservation = async function (resId, name) {
+            const { isConfirmed } = await Swal.fire({
+                icon: 'warning', title: 'Xóa đơn đặt bàn?',
+                html: `<p>Xóa vĩnh viễn đơn của <strong>${name || resId}</strong>?</p><p style="font-size:.82rem;color:#e57373">Hành động này không thể hoàn tác.</p>`,
+                showCancelButton: true, confirmButtonText: '<i class="fas fa-trash-alt"></i> Xóa',
+                cancelButtonText: 'Hủy', confirmButtonColor: '#e53e3e'
+            });
+            if (!isConfirmed) return;
+            try {
+                await remove(ref(db, 'reservations/' + resId));
+                Swal.fire({ icon: 'success', title: 'Đã xóa!', timer: 1200, showConfirmButton: false });
+            } catch (e) { Swal.fire({ icon: 'error', title: 'Lỗi', text: e.message }); }
+        };
+
+        window.adminDeleteAllReservations = async function () {
+            const count = allReservations.length;
+            if (!count) return Swal.fire({ icon: 'info', title: 'Không có đơn nào để xóa' });
+            const { isConfirmed } = await Swal.fire({
+                icon: 'warning', title: 'Xóa TẤT CẢ đơn đặt bàn?',
+                html: `<p>Sẽ xóa vĩnh viễn <strong style="color:#e53e3e">${count} đơn</strong> đặt bàn.</p><p style="font-size:.82rem;color:#e57373">Hành động này KHÔNG THỂ hoàn tác!</p>`,
+                showCancelButton: true, confirmButtonText: '<i class="fas fa-trash-alt"></i> Xóa tất cả ' + count + ' đơn',
+                cancelButtonText: 'Hủy', confirmButtonColor: '#e53e3e'
+            });
+            if (!isConfirmed) return;
+            try {
+                await remove(ref(db, 'reservations'));
+                Swal.fire({ icon: 'success', title: 'Đã xóa tất cả!', text: count + ' đơn đã được xóa.', timer: 2000, showConfirmButton: false });
+            } catch (e) { Swal.fire({ icon: 'error', title: 'Lỗi', text: e.message }); }
+        };
+
+        // ============================================================
+        // TABLES MANAGEMENT — 20 bàn cố định, trạng thái thời gian thực
+        // ============================================================
+        window.editingTableId = null;
+        let floorMapTimer = null; // auto-refresh timer
+
+        window.switchTableTab = function (tab) {
+            const panels = { floormap: 'tblTabFloormap', list: 'tblTabList' };
+            const buttons = { floormap: 'tblTab1', list: 'tblTab2' };
+            Object.keys(panels).forEach(k => {
+                document.getElementById(panels[k]).style.display = k === tab ? 'block' : 'none';
+                document.getElementById(buttons[k]).classList.toggle('active', k === tab);
+            });
+            if (tab === 'floormap') loadFloorMap();
+            else if (tab === 'list') { loadAdminTables(); renderTablesTable(); }
+            else if (tab === 'schedule') {
+                const sd = document.getElementById('scheduleDate');
+                if (!sd.value) sd.value = new Date().toISOString().slice(0, 10);
+                loadScheduleGrid();
+            }
+        };
+
+        // ─── 20 bàn cố định — KHÔNG thay đổi ───────────────────────────
+        const DEFAULT_TABLES = [
+            { code: 'A1', name: 'Bàn A1', type: 2, location: 'Khu A', depositAmount: 20000 },
+            { code: 'A2', name: 'Bàn A2', type: 2, location: 'Khu A', depositAmount: 20000 },
+            { code: 'A3', name: 'Bàn A3', type: 2, location: 'Khu A', depositAmount: 20000 },
+            { code: 'A4', name: 'Bàn A4', type: 2, location: 'Khu A', depositAmount: 20000 },
+            { code: 'A5', name: 'Bàn A5', type: 2, location: 'Khu A', depositAmount: 20000 },
+            { code: 'A6', name: 'Bàn A6', type: 2, location: 'Khu A', depositAmount: 20000 },
+            { code: 'A7', name: 'Bàn A7', type: 2, location: 'Khu A', depositAmount: 20000 },
+            { code: 'A8', name: 'Bàn A8', type: 2, location: 'Khu A', depositAmount: 20000 },
+            { code: 'B1', name: 'Bàn B1', type: 4, location: 'Khu B', depositAmount: 40000 },
+            { code: 'B2', name: 'Bàn B2', type: 4, location: 'Khu B', depositAmount: 40000 },
+            { code: 'B3', name: 'Bàn B3', type: 4, location: 'Khu B', depositAmount: 40000 },
+            { code: 'B4', name: 'Bàn B4', type: 4, location: 'Khu B', depositAmount: 40000 },
+            { code: 'B5', name: 'Bàn B5', type: 4, location: 'Khu B', depositAmount: 40000 },
+            { code: 'B6', name: 'Bàn B6', type: 4, location: 'Khu B', depositAmount: 40000 },
+            { code: 'C1', name: 'Bàn C1', type: 6, location: 'Khu C', depositAmount: 60000 },
+            { code: 'C2', name: 'Bàn C2', type: 6, location: 'Khu C', depositAmount: 60000 },
+            { code: 'C3', name: 'Bàn C3', type: 6, location: 'Khu C', depositAmount: 60000 },
+            { code: 'C4', name: 'Bàn C4', type: 6, location: 'Khu C', depositAmount: 60000 },
+            { code: 'D1', name: 'Bàn D1', type: 10, location: 'Khu D', depositAmount: 100000 },
+            { code: 'D2', name: 'Bàn D2', type: 10, location: 'Khu D', depositAmount: 100000 },
+        ];
+
+        const ZONE_CONFIG = {
+            'Khu A': { color: '#60a5fa', bg: 'rgba(96,165,250,.08)', border: 'rgba(96,165,250,.3)', icon: 'fa-mug-hot', cap: '2 người', desc: 'Bàn đôi — Tầng A', deposit: '20.000đ' },
+            'Khu B': { color: '#f59e0b', bg: 'rgba(245,158,11,.08)', border: 'rgba(245,158,11,.3)', icon: 'fa-users', cap: '4 người', desc: 'Bàn nhóm — Tầng B', deposit: '40.000đ' },
+            'Khu C': { color: '#a78bfa', bg: 'rgba(167,139,250,.08)', border: 'rgba(167,139,250,.3)', icon: 'fa-user-friends', cap: '6 người', desc: 'Bàn họp — Tầng C', deposit: '60.000đ' },
+            'Khu D': { color: '#d4a574', bg: 'rgba(212,165,116,.08)', border: 'rgba(212,165,116,.3)', icon: 'fa-crown', cap: '10 người', desc: 'Phòng VIP — Tầng D', deposit: '100.000đ' },
+        };
+
+        // ─── Tính trạng thái bàn tại 1 thời điểm cụ thể (multi-slot) ─────
+        // atTime = timestamp (mặc định Date.now()) — chỉ xét khung giờ chứa atTime
+        // Trả về: { status, res }   (status: 'free' | 'deposited' | 'serving')
+        function getTableRealtimeStatus(tableId, atTime) {
+            const t = atTime || Date.now();
+
+            let servingRes = null;   // checked-in đang trong khung giờ
+            let depositedRes = null; // deposited  đang trong khung giờ
+
+            allReservations.forEach(r => {
+                if (!['deposited', 'checked-in'].includes(r.status)) return;
+                if (!r.date) return;
+                const assigned = r.assignedTableIds || [];
+                if (!assigned.includes(tableId)) return;
+
+                const rSlots = r.timeSlots || (r.time ? [r.time] : []);
+                if (!rSlots.length) return;
+
+                try {
+                    const firstTs = new Date(r.date + 'T' + rSlots[0] + ':00').getTime();
+                    const lastEnd = new Date(r.date + 'T' + rSlots[rSlots.length - 1] + ':00').getTime() + SLOT_DURATION_MS;
+
+                    // Chỉ quan tâm nếu atTime NẰM TRONG khoảng [firstTs, lastEnd)
+                    if (t < firstTs || t >= lastEnd) return;
+
+                    if (r.status === 'checked-in') {
+                        servingRes = r;
+                    } else if (r.status === 'deposited') {
+                        depositedRes = r;
+                    }
+                } catch (e) { }
+            });
+
+            if (servingRes) return { status: 'serving', res: servingRes };
+            if (depositedRes) return { status: 'deposited', res: depositedRes };
+            return { status: 'free', res: null };
+        }
+
+        // Lấy đơn đặt gần nhất SAU thời điểm cho trước cho 1 bàn
+        function getNextReservation(tableId, afterTime) {
+            return getUpcomingReservations(tableId, afterTime)[0] || null;
+        }
+
+        // Tất cả lịch đặt sắp tới được phân công cho bàn này (multi-slot)
+        function getUpcomingReservations(tableId, afterTime) {
+            const threshold = afterTime || Date.now();
+            const result = [];
+            allReservations.forEach(r => {
+                if (!['pending', 'deposited', 'checked-in'].includes(r.status)) return;
+                if (!r.date) return;
+                const assigned = r.assignedTableIds || [];
+                if (!assigned.includes(tableId)) return;
+                const rSlots = r.timeSlots || (r.time ? [r.time] : []);
+                if (!rSlots.length) return;
+                try {
+                    // Lấy đơn bắt đầu SAU threshold
+                    if (new Date(r.date + 'T' + rSlots[0] + ':00').getTime() <= threshold) return;
+                } catch (e) { return; }
+                result.push(r);
+            });
+            result.sort((a, b) => {
+                try {
+                    const aSlots = a.timeSlots || (a.time ? [a.time] : []);
+                    const bSlots = b.timeSlots || (b.time ? [b.time] : []);
+                    return new Date(a.date + 'T' + (aSlots[0] || '23:59') + ':00').getTime() - new Date(b.date + 'T' + (bSlots[0] || '23:59') + ':00').getTime();
+                } catch (e) { return 0; }
+            });
+            return result;
+        }
+
+        // ─── Stats bar (hỗ trợ filter time) ─────────────────────────────
+        function updateTableStats(atTime) {
+            let free = 0, deposited = 0, serving = 0;
+            adminAllTables.forEach(t => {
+                const { status } = getTableRealtimeStatus(t.id, atTime);
+                if (status === 'serving') serving++;
+                else if (status === 'deposited') deposited++;
+                else free++;
+            });
+            const upd = (id, v) => { const e = document.getElementById(id); if (e) e.textContent = v; };
+            upd('tblStatTotal', adminAllTables.length || '–');
+            upd('tblStatFree', free);
+            upd('tblStatOccupied', deposited);
+            upd('tblStatReserved', serving);
+        }
+
+        // ─── Seed / Reset 20 bàn cố định ───────────────────────────────
+        window.seedDefaultTables = async function () {
+            const { isConfirmed } = await Swal.fire({
+                title: 'Reset 20 bàn cố định?',
+                html: 'Xóa toàn bộ bàn cũ trên Firebase,<br>tạo lại <b>20 bàn</b> theo 4 tầng <b>A · B · C · D</b>.',
+                icon: 'warning', showCancelButton: true,
+                confirmButtonText: '<i class="fas fa-magic"></i> Reset ngay', cancelButtonText: 'Hủy', confirmButtonColor: '#d4a574'
+            });
+            if (!isConfirmed) return;
+            try {
+                // Xóa toàn bộ node tables cũ
+                await remove(ref(db, 'tables'));
+                // Tạo lại 20 bàn mới
+                const writes = {};
+                DEFAULT_TABLES.forEach(t => { writes['tables/' + t.code] = { ...t, isActive: true }; });
+                await update(ref(db), writes);
+                // Reload
+                adminAllTables = DEFAULT_TABLES.map(t => ({ id: t.code, ...t, isActive: true }));
+                renderTablesTable();
+                loadFloorMap();
+                Swal.fire({ icon: 'success', title: 'Đã tạo 20 bàn!', html: 'Khu A (8) · Khu B (6) · Khu C (4) · Khu D (2)', timer: 2000, showConfirmButton: false });
+            } catch (e) {
+                // Fallback offline
+                adminAllTables = DEFAULT_TABLES.map(t => ({ id: t.code, ...t, isActive: true }));
+                renderTablesTable();
+                loadFloorMap();
+                Swal.fire({ icon: 'info', title: 'Đã hiển thị offline', text: e.message, confirmButtonColor: '#d4a574' });
+            }
+        };
+
+        // ─── Load tables từ Firebase ────────────────────────────────────
+        // Luôn đảm bảo đúng 20 bàn cố định: A1-A8, B1-B6, C1-C4, D1-D2
+        window.loadAdminTables = async function () {
+            // Fallback ngay lập tức cho UI
+            const buildLocal = () => DEFAULT_TABLES.map(t => ({ id: t.code, ...t, isActive: true }));
+            if (!adminAllTables.length) adminAllTables = buildLocal();
+
+            try {
+                // Timeout 5 giây cho Firebase read — tránh treo vô hạn
+                const snapPromise = get(ref(db, 'tables'));
+                const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 5000));
+                const snap = await Promise.race([snapPromise, timeoutPromise]);
+
+                if (snap.exists()) {
+                    const fbTables = [];
+                    snap.forEach(c => { fbTables.push({ id: c.key, ...c.val() }); });
+
+                    // Kiểm tra đủ 20 bàn cố định chưa — nếu thiếu thì bổ sung
+                    const existingCodes = new Set(fbTables.map(t => t.code || t.id));
+                    const missing = DEFAULT_TABLES.filter(t => !existingCodes.has(t.code));
+
+                    if (missing.length > 0) {
+                        console.log('[Tables] Bổ sung ' + missing.length + ' bàn thiếu:', missing.map(t => t.code).join(', '));
+                        const writes = {};
+                        missing.forEach(t => { writes['tables/' + t.code] = { ...t, isActive: true }; });
+                        // Fire-and-forget — không await để tránh treo
+                        update(ref(db), writes).catch(e => console.warn('[Tables] bổ sung lỗi:', e.message));
+                        missing.forEach(t => fbTables.push({ id: t.code, ...t, isActive: true }));
+                    }
+
+                    // Sắp xếp theo thứ tự Khu A→D, số tăng dần
+                    const zoneOrder = { 'Khu A': 0, 'Khu B': 1, 'Khu C': 2, 'Khu D': 3 };
+                    fbTables.sort((a, b) => {
+                        const za = zoneOrder[a.location] ?? 9;
+                        const zb = zoneOrder[b.location] ?? 9;
+                        if (za !== zb) return za - zb;
+                        return (a.code || '').localeCompare(b.code || '', undefined, { numeric: true });
+                    });
+
+                    adminAllTables = fbTables;
+                } else if (auth.currentUser) {
+                    // Firebase trống → seed 20 bàn mới
+                    console.log('[Tables] Firebase trống — tạo 20 bàn cố định');
+                    const writes = {};
+                    DEFAULT_TABLES.forEach(t => { writes['tables/' + t.code] = { ...t, isActive: true }; });
+                    update(ref(db), writes).catch(e => console.warn('[Tables] seed lỗi:', e.message));
+                    adminAllTables = buildLocal();
+                }
+            } catch (e) {
+                console.warn('loadAdminTables Firebase:', e.code || e.message || e);
+                // Offline / timeout → dùng fallback
+                if (!adminAllTables.length) adminAllTables = buildLocal();
+            }
+            renderTablesTable();
+            updateTableStats();
+        }
+
+        // ─── Render danh sách bàn (Tab: Danh sách) ─────────────────────
+        function renderTablesTable() {
+            const tbody = document.getElementById('tableTbody');
+            if (!tbody) return;
+            const el = document.getElementById('tableCount');
+            if (el) el.textContent = adminAllTables.length + ' bàn';
+            const typeLabel = { 2: '2 người', 4: '4 người', 6: '6 người', 10: '10 người (VIP)' };
+            if (!adminAllTables.length) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:30px;color:var(--admin-text-muted)">Chưa có bàn nào. Nhấn "Reset bàn mặc định".</td></tr>';
+                return;
+            }
+            tbody.innerHTML = adminAllTables.map(t => {
+                const { status, res } = getTableRealtimeStatus(t.id);
+                const nextRes = getNextReservation(t.id);
+                const upcoming = getUpcomingReservations(t.id);
+
+                // Trạng thái badge
+                let statusHtml = '';
+                if (status === 'serving') {
+                    statusHtml = '<span style="color:#e53e3e;font-weight:600"><i class="fas fa-fire"></i> Đang phục vụ</span>';
+                    if (res) statusHtml += '<br><span style="font-size:.75rem;color:var(--admin-text-muted)">' + (res.name || '') + ' · ' + _getResTimeRange(res).label + '</span>';
+                } else if (status === 'deposited') {
+                    statusHtml = '<span style="color:#f59e0b;font-weight:600"><i class="fas fa-coins"></i> Đã cọc</span>';
+                    if (res) statusHtml += '<br><span style="font-size:.75rem;color:var(--admin-text-muted)">' + (res.name || '') + ' · ' + res.date + ' ' + _getResTimeRange(res).label + '</span>';
+                } else {
+                    statusHtml = '<span style="color:#4caf50"><i class="fas fa-check-circle"></i> Trống</span>';
+                }
+
+                // Lịch đặt sắp tới
+                let scheduleHtml = '';
+                if (upcoming.length > 0) {
+                    scheduleHtml = upcoming.slice(0, 3).map(r =>
+                        '<div style="font-size:.73rem;color:var(--admin-text-muted);margin-top:2px"><i class="fas fa-calendar-alt" style="width:14px;color:var(--admin-accent)"></i> ' + r.date + ' ' + _getResTimeRange(r).label + ' — ' + (r.name || '?') + '</div>'
+                    ).join('');
+                    if (upcoming.length > 3) scheduleHtml += '<div style="font-size:.7rem;color:var(--admin-text-muted);margin-top:2px">... +' + (upcoming.length - 3) + ' đơn nữa</div>';
+                } else {
+                    scheduleHtml = '<span style="font-size:.73rem;color:var(--admin-text-muted);opacity:.5">Chưa có lịch</span>';
+                }
+
+                return `<tr>
+                    <td><strong style="color:var(--admin-accent)">${t.code || '–'}</strong></td>
+                    <td>${t.name || '–'}</td>
+                    <td>${typeLabel[t.type] || t.type + ' người'}</td>
+                    <td>${t.location || '–'}</td>
+                    <td>${statusHtml}</td>
+                    <td style="min-width:160px">${scheduleHtml}</td>
+                    <td style="white-space:nowrap">
+                        <button class="btn btn-sm" style="background:rgba(212,165,116,.2);color:var(--admin-accent);margin-right:4px" onclick="editTable('${t.id}')" title="Sửa"><i class="fas fa-pen"></i></button>
+                        <button class="btn btn-sm" style="background:rgba(239,68,68,.15);color:#ef4444" onclick="deleteTable('${t.id}','${t.name || t.code}')" title="Xóa"><i class="fas fa-trash"></i></button>
+                    </td>
+                </tr>`;
+            }).join('');
+        }
+
+        window.saveTable = async function () {
+            console.log('[saveTable] called');
+            try {
+                const codeEl = document.getElementById('tblCode');
+                const nameEl = document.getElementById('tblName');
+                const typeEl = document.getElementById('tblType');
+                const locEl = document.getElementById('tblLocation');
+                if (!codeEl || !nameEl || !typeEl || !locEl) {
+                    console.error('[saveTable] Form elements not found');
+                    return Swal.fire({ icon: 'error', title: 'Lỗi', text: 'Không tìm thấy form nhập liệu.', confirmButtonColor: '#d4a574' });
+                }
+                const code = codeEl.value.trim();
+                const name = nameEl.value.trim();
+                const type = parseInt(typeEl.value) || 4;
+                const location = locEl.value.trim() || 'Khu A';
+                const isEditing = !!window.editingTableId;
+                const savedCode = code;
+                console.log('[saveTable] data:', { code, name, type, location, id: window.editingTableId });
+                if (!name || !code) return Swal.fire({ icon: 'warning', title: 'Thiếu thông tin', text: 'Vui lòng nhập mã bàn và tên bàn.', confirmButtonColor: '#d4a574' });
+                const depositMap = { 2: 20000, 4: 40000, 6: 60000, 10: 100000 };
+                const data = { code, name, type, location, isActive: true, depositAmount: depositMap[type] || 20000 };
+                const tableKey = window.editingTableId || code.replace(/\s+/g, '');
+
+                // 1) Cập nhật local state TRƯỚC — UI phản hồi ngay lập tức
+                if (isEditing) {
+                    const idx = adminAllTables.findIndex(t => t.id === tableKey);
+                    if (idx >= 0) adminAllTables[idx] = { ...adminAllTables[idx], ...data };
+                } else {
+                    const existing = adminAllTables.findIndex(t => t.id === tableKey || t.code === code);
+                    if (existing >= 0) {
+                        adminAllTables[existing] = { ...adminAllTables[existing], ...data };
+                    } else {
+                        adminAllTables.push({ id: tableKey, ...data });
+                    }
+                    // Sắp xếp lại
+                    const zo = { 'Khu A': 0, 'Khu B': 1, 'Khu C': 2, 'Khu D': 3 };
+                    adminAllTables.sort((a, b) => {
+                        const za = zo[a.location] ?? 9, zb = zo[b.location] ?? 9;
+                        if (za !== zb) return za - zb;
+                        return (a.code || '').localeCompare(b.code || '', undefined, { numeric: true });
+                    });
+                }
+
+                clearTableForm();
+                renderTablesTable();
+                updateTableStats();
+                loadFloorMap();
+
+                // 2) Ghi Firebase — fire-and-forget, KHÔNG reload lại từ server
+                //    (tránh race condition: server chưa có data mới → ghi đè local)
+                const writePromise = isEditing
+                    ? update(ref(db, 'tables/' + tableKey), data)
+                    : set(ref(db, 'tables/' + tableKey), data);
+                writePromise
+                    .then(() => console.log('[saveTable] Firebase write OK'))
+                    .catch(e => console.warn('[saveTable] Firebase write error:', e.message));
+
+                Swal.fire({
+                    icon: 'success',
+                    title: isEditing ? 'Đã cập nhật!' : 'Đã thêm bàn ' + savedCode + '!',
+                    timer: 1500, showConfirmButton: false
+                });
+            } catch (e) {
+                console.error('[saveTable] error:', e);
+                Swal.fire({ icon: 'error', title: 'Lỗi lưu bàn', text: e.message || 'Không thể lưu.', confirmButtonColor: '#d4a574' });
+            }
+        };
+
+        window.editTable = function (id) {
+            console.log('editTable called with id:', id);
+            const t = adminAllTables.find(x => x.id === id);
+            if (!t) {
+                console.warn('Table not found for id:', id);
+                return;
+            }
+            window.editingTableId = id;
+            document.getElementById('tblCode').value = t.code || '';
+            document.getElementById('tblName').value = t.name || '';
+            document.getElementById('tblType').value = t.type || 4;
+            document.getElementById('tblLocation').value = t.location || 'Khu A';
+            const title = document.getElementById('tblFormTitle');
+            if (title) title.innerHTML = '<i class="fas fa-pen" style="color:var(--admin-accent);margin-right:6px"></i>Chỉnh sửa: ' + t.name;
+            document.getElementById('tblCode').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        };
+
+        window.deleteTable = async function (id, name) {
+            const { isConfirmed } = await Swal.fire({
+                title: 'Xóa "' + name + '"?', icon: 'warning', showCancelButton: true,
+                confirmButtonText: 'Xóa', cancelButtonText: 'Hủy', confirmButtonColor: '#ef4444'
+            });
+            if (!isConfirmed) return;
+            try {
+                // Xóa khỏi local ngay
+                adminAllTables = adminAllTables.filter(t => t.id !== id);
+                renderTablesTable();
+                updateTableStats();
+                loadFloorMap();
+                // Xóa khỏi Firebase (background)
+                remove(ref(db, 'tables/' + id)).catch(e => console.warn('[deleteTable] Firebase:', e.message));
+                Swal.fire({ icon: 'success', title: 'Đã xóa!', timer: 1200, showConfirmButton: false });
+            } catch (e) {
+                console.error('[deleteTable]', e);
+            }
+        };
+
+        window.clearTableForm = function () {
+            window.editingTableId = null;
+            ['tblCode', 'tblName'].forEach(id => { const e = document.getElementById(id); if (e) e.value = ''; });
+            document.getElementById('tblType').value = '4';
+            document.getElementById('tblLocation').value = 'Khu A';
+            const title = document.getElementById('tblFormTitle');
+            if (title) title.innerHTML = '<i class="fas fa-plus-circle" style="color:var(--admin-accent);margin-right:6px"></i>Thêm bàn mới';
+        };
+
+        // ─── Floor Map — trạng thái theo khung giờ (hỗ trợ filter) ────────
+        // _floorFilterTs: null = hiện tại (Date.now), hoặc timestamp cụ thể
+        let _floorFilterTs = null;
+
+        // Bộ lọc: chuyển radio now / custom
+        window.onFloorFilterChange = function () {
+            const mode = document.querySelector('input[name="floorTimeMode"]:checked')?.value || 'now';
+            const picker = document.getElementById('floorCustomPicker');
+            const label = document.getElementById('floorFilterLabel');
+            if (mode === 'custom') {
+                picker.style.display = 'flex';
+                // Đặt mặc định = hôm nay + giờ hiện tại
+                const dateEl = document.getElementById('floorFilterDate');
+                const slotEl = document.getElementById('floorFilterSlot');
+                if (!dateEl.value) {
+                    dateEl.value = new Date().toISOString().slice(0, 10);
+                    const hh = String(new Date().getHours()).padStart(2, '0') + ':00';
+                    const opts = [...slotEl.options].map(o => o.value);
+                    slotEl.value = opts.includes(hh) ? hh : opts[0];
+                }
+                applyFloorFilter();
+            } else {
+                picker.style.display = 'none';
+                if (label) { label.style.display = 'none'; label.textContent = ''; }
+                _floorFilterTs = null;
+                loadFloorMap();
+            }
+        };
+
+        window.applyFloorFilter = function () {
+            const dateVal = document.getElementById('floorFilterDate')?.value;
+            const slotVal = document.getElementById('floorFilterSlot')?.value;
+            const label = document.getElementById('floorFilterLabel');
+            if (!dateVal || !slotVal) return;
+            // Timestamp ở giữa khung giờ (+ 30 phút)
+            _floorFilterTs = new Date(dateVal + 'T' + slotVal + ':00').getTime() + 30 * 60 * 1000;
+            if (label) {
+                const [sh] = slotVal.split(':');
+                const eh = String(+sh + 1).padStart(2, '0') + ':' + slotVal.split(':')[1];
+                label.style.display = 'inline';
+                label.textContent = '📅 ' + dateVal + '  ⏰ ' + slotVal + ' – ' + eh;
+            }
+            loadFloorMap();
+        };
+
+        window.loadFloorMap = async function () {
+            const areasEl = document.getElementById('floorMapAreas');
+            if (!areasEl) return;
+            areasEl.innerHTML = '<div style="text-align:center;padding:50px"><i class="fas fa-spinner fa-spin" style="font-size:2rem;color:var(--admin-accent)"></i></div>';
+
+            if (!adminAllTables.length) await loadAdminTables();
+            const tables = adminAllTables.filter(t => t.isActive !== false);
+            if (!tables.length) {
+                areasEl.innerHTML = '<div style="text-align:center;padding:50px;color:var(--admin-text-muted)">Chưa có bàn. Nhấn "Reset bàn mặc định".</div>';
+                return;
+            }
+
+            // -------- Thời điểm hiển thị: filter hoặc now --------
+            const viewTs = _floorFilterTs || Date.now();
+            const isFiltered = !!_floorFilterTs;
+
+            const ST = {
+                free: { bg: 'rgba(76,175,80,.12)', border: 'rgba(76,175,80,.5)', glow: 'rgba(76,175,80,.25)', dot: '#4caf50', label: 'Trống', icon: 'fa-chair' },
+                deposited: { bg: 'rgba(245,158,11,.12)', border: 'rgba(245,158,11,.5)', glow: 'rgba(245,158,11,.25)', dot: '#f59e0b', label: 'Đã cọc', icon: 'fa-coins' },
+                serving: { bg: 'rgba(229,62,62,.12)', border: 'rgba(229,62,62,.5)', glow: 'rgba(229,62,62,.25)', dot: '#e53e3e', label: 'Đang phục vụ', icon: 'fa-fire' },
+            };
+
+            let cntFree = 0, cntDeposited = 0, cntServing = 0;
+            const now = new Date();
+
+            const zoneOrder = ['Khu A', 'Khu B', 'Khu C', 'Khu D'];
+            const grouped = {};
+            tables.forEach(t => {
+                const loc = t.location || 'Khác';
+                if (!grouped[loc]) grouped[loc] = [];
+                grouped[loc].push(t);
+            });
+            const locations = [...zoneOrder.filter(z => grouped[z]), ...Object.keys(grouped).filter(z => !zoneOrder.includes(z))];
+
+            let html = '<div style="display:flex;flex-direction:column;gap:24px">';
+            locations.forEach(loc => {
+                const zone = ZONE_CONFIG[loc] || { color: '#aaa', bg: 'rgba(170,170,170,.08)', border: 'rgba(170,170,170,.3)', icon: 'fa-chair', cap: '?', desc: loc };
+                const group = grouped[loc];
+
+                // Tính status tại viewTs cho từng bàn
+                const groupStatuses = group.map(t => {
+                    const { status, res } = getTableRealtimeStatus(t.id, viewTs);
+                    return { ...t, _rtStatus: status, _rtRes: res };
+                });
+                groupStatuses.forEach(t => {
+                    if (t._rtStatus === 'serving') cntServing++;
+                    else if (t._rtStatus === 'deposited') cntDeposited++;
+                    else cntFree++;
+                });
+
+                const freeCount = groupStatuses.filter(t => t._rtStatus === 'free').length;
+                const allOccupied = freeCount === 0;
+
+                html += `
+                <div class="table-card" style="overflow:hidden;border:1px solid ${zone.border}">
+                    <div style="background:${zone.bg};border-bottom:1px solid ${zone.border};padding:14px 20px;display:flex;align-items:center;gap:12px">
+                        <div style="width:38px;height:38px;border-radius:10px;background:${zone.color}22;border:1px solid ${zone.color}55;display:flex;align-items:center;justify-content:center;color:${zone.color};font-size:1rem;flex-shrink:0">
+                            <i class="fas ${zone.icon}"></i>
+                        </div>
+                        <div style="flex:1">
+                            <div style="font-weight:700;font-size:1rem;color:${zone.color}">${loc}</div>
+                            <div style="font-size:.75rem;color:var(--admin-text-muted)">${zone.cap} · ${zone.desc} · <span style="color:${zone.color}">Cọc: ${zone.deposit || '–'}</span></div>
+                        </div>
+                        <div style="display:flex;gap:8px;align-items:center">
+                            <span style="font-size:.75rem;padding:4px 12px;border-radius:20px;background:${allOccupied ? 'rgba(229,62,62,.15)' : 'rgba(76,175,80,.15)'};color:${allOccupied ? '#e53e3e' : '#4caf50'};font-weight:600">
+                                ${freeCount}/${group.length} trống
+                            </span>
+                        </div>
+                    </div>
+                    <div style="padding:16px;display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px">`;
+
+                groupStatuses.forEach(t => {
+                    const s = ST[t._rtStatus] || ST.free;
+                    // Sub-info: nếu đang có đơn → hiện tên + giờ;
+                    // nếu trống → hiện đơn kế tiếp (nếu có) dựa trên viewTs
+                    const nextRes = getNextReservation(t.id, viewTs);
+                    let subInfo = '';
+                    if (t._rtRes) {
+                        subInfo = `<div style="margin-top:4px;font-size:.63rem;color:var(--admin-text-muted);line-height:1.3">${t._rtRes.name || 'Khách'}<br>${_getResTimeRange(t._rtRes).label}</div>`;
+                    } else if (nextRes) {
+                        subInfo = `<div style="margin-top:4px;font-size:.63rem;color:var(--admin-text-muted);line-height:1.3;opacity:.7"><i class="fas fa-clock"></i> ${nextRes.date} ${_getResTimeRange(nextRes).label}</div>`;
+                    }
+
+                    html += `
+                    <div
+                        onclick="adminToggleFloorTable('${t.id}')"
+                        title="${t.code} · ${s.label}"
+                        style="cursor:pointer;border-radius:10px;background:${s.bg};border:1.5px solid ${s.border};padding:14px 10px 10px;text-align:center;transition:all .18s;position:relative"
+                        onmouseover="this.style.boxShadow='0 0 18px ${s.glow}';this.style.transform='translateY(-2px)'"
+                        onmouseout="this.style.boxShadow='';this.style.transform=''">
+                        <div style="font-size:1.4rem;color:${s.dot};margin-bottom:4px"><i class="fas ${s.icon}"></i></div>
+                        <div style="font-weight:700;font-size:.95rem;color:var(--admin-text);margin-bottom:2px">${t.code}</div>
+                        <div style="font-size:.7rem;color:var(--admin-text-muted);margin-bottom:6px">${t.type} người</div>
+                        <div style="display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;background:${s.dot}20;color:${s.dot};font-size:.7rem;font-weight:700">
+                            <span style="width:5px;height:5px;border-radius:50%;background:${s.dot}"></span>
+                            ${s.label}
+                        </div>
+                        ${subInfo}
+                    </div>`;
+                });
+                html += `</div></div>`;
+            });
+            html += '</div>';
+            areasEl.innerHTML = html;
+
+            const upd = document.getElementById('floorLastUpdate');
+            if (upd) {
+                if (isFiltered) {
+                    const fDate = document.getElementById('floorFilterDate')?.value || '';
+                    const fSlot = document.getElementById('floorFilterSlot')?.value || '';
+                    upd.textContent = 'Đang xem: ' + fDate + ' ' + fSlot;
+                } else {
+                    upd.textContent = 'Cập nhật: ' + now.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                }
+            }
+            updateTableStats(viewTs);
+
+            // Auto-refresh mỗi 30 giây chỉ khi ở chế độ "Hiện tại"
+            if (floorMapTimer) clearTimeout(floorMapTimer);
+            if (!isFiltered) {
+                floorMapTimer = setTimeout(() => {
+                    if (document.getElementById('tblTabFloormap') && document.getElementById('tblTabFloormap').style.display !== 'none') {
+                        loadFloorMap();
+                    }
+                }, 30000);
+            }
+        };
+
+        // ─── Ghi trạng thái bàn xuống Firebase ─────────────────────────
+        async function setTableStatus(tableId, newStatus) {
+            try {
+                await update(ref(db, 'tables/' + tableId), { currentStatus: newStatus, updatedAt: Date.now() });
+            } catch (e) { console.warn('setTableStatus:', e.code || e.message); }
+            loadFloorMap();
+        }
+
+        // ─── Click bàn trên sơ đồ ──────────────────────────────────────
+        window.adminToggleFloorTable = async function (tableId) {
+            const t = adminAllTables.find(x => x.id === tableId);
+            if (!t) return;
+            const viewTs = _floorFilterTs || undefined;
+            const { status: cur, res: activeRes } = getTableRealtimeStatus(tableId, viewTs);
+            const upcoming = getUpcomingReservations(tableId, viewTs);
+
+            // Lịch đặt sắp tới
+            let scheduleHtml = '';
+            if (upcoming.length) {
+                scheduleHtml = '<div style="text-align:left;margin-top:12px;background:rgba(255,255,255,.04);border-radius:8px;padding:10px 14px"><div style="font-size:.78rem;font-weight:600;color:var(--admin-accent);margin-bottom:6px"><i class="fas fa-calendar-alt"></i> Lịch đặt sắp tới:</div>';
+                upcoming.slice(0, 5).forEach(r => {
+                    const stLabel = r.status === 'deposited' ? '<span style="color:#4caf50">Đã cọc</span>' : (r.status === 'checked-in' ? '<span style="color:#e53e3e">Đã nhận khách</span>' : '<span style="color:#f59e0b">Chờ</span>');
+                    const rtr = _getResTimeRange(r);
+                    scheduleHtml += `<div style="font-size:.8rem;margin-bottom:4px;color:var(--admin-text-muted)">• ${r.date} ${rtr.label} — <strong>${r.name || '?'}</strong> (${stLabel})</div>`;
+                });
+                if (upcoming.length > 5) scheduleHtml += `<div style="font-size:.75rem;color:#888">... +${upcoming.length - 5} đơn nữa</div>`;
+                scheduleHtml += '</div>';
+            }
+
+            if (cur === 'free') {
+                Swal.fire({
+                    title: t.code + ' — Đang trống',
+                    html: `<p style="font-size:.9rem">Bàn <strong>${t.name}</strong> (${t.type} người)</p>${scheduleHtml}`,
+                    icon: 'info', confirmButtonText: 'Đóng', confirmButtonColor: '#4caf50'
+                });
+
+            } else if (cur === 'serving') {
+                // Đang phục vụ: khách đã đến hoặc đang trong khung giờ
+                let infoHtml = '';
+                const isCheckedIn = activeRes && activeRes.status === 'checked-in';
+                if (activeRes) {
+                    const atr = _getResTimeRange(activeRes);
+                    const statusBadge = isCheckedIn
+                        ? '<span style="color:#e53e3e;font-weight:700"><i class="fas fa-fire"></i> Đã nhận khách</span>'
+                        : '<span style="color:#4caf50;font-weight:700"><i class="fas fa-coins"></i> Đã cọc (chưa check-in)</span>';
+                    infoHtml = `<div style="text-align:left;font-size:.88rem;background:rgba(255,255,255,.05);border-radius:10px;padding:12px 16px;margin:10px 0">
+                        <div style="margin-bottom:6px"><i class="fas fa-user" style="color:#e53e3e;width:18px"></i> <strong>${activeRes.name || '?'}</strong> — ${activeRes.phone || ''}</div>
+                        <div style="margin-bottom:6px"><i class="fas fa-clock" style="color:#e53e3e;width:18px"></i> Khung giờ: <strong>${atr.label}</strong></div>
+                        <div style="margin-bottom:6px"><i class="fas fa-coins" style="color:#4caf50;width:18px"></i> Đã cọc: <span style="color:#4caf50">${(activeRes.depositAmount || 0).toLocaleString('vi-VN')}đ</span></div>
+                        <div>${statusBadge}</div>
+                    </div>`;
+                }
+                if (isCheckedIn) {
+                    // Đã check-in → chỉ cần nút Trả bàn
+                    const { isConfirmed } = await Swal.fire({
+                        title: t.code + ' — Đang phục vụ',
+                        html: infoHtml + scheduleHtml,
+                        icon: 'question', showCancelButton: true,
+                        confirmButtonText: '<i class="fas fa-flag-checkered"></i> Trả bàn (hoàn thành)',
+                        cancelButtonText: 'Đóng', confirmButtonColor: '#4caf50'
+                    });
+                    if (isConfirmed && activeRes) {
+                        try {
+                            await update(ref(db, 'reservations/' + activeRes.id), {
+                                status: 'completed', completedAt: Date.now(), updatedAt: Date.now()
+                            });
+                            Swal.fire({ icon: 'success', title: 'Bàn đã trống!', timer: 1500, showConfirmButton: false });
+                            loadFloorMap();
+                        } catch (e) { Swal.fire({ icon: 'error', title: 'Lỗi', text: e.message }); }
+                    }
+                } else {
+                    // Deposited trong khung giờ → nút Check-in hoặc Trả bàn sớm
+                    const { isConfirmed, isDenied } = await Swal.fire({
+                        title: t.code + ' — Đang chờ khách',
+                        html: infoHtml + scheduleHtml,
+                        icon: 'question', showCancelButton: true, showDenyButton: true,
+                        confirmButtonText: '<i class="fas fa-sign-in-alt"></i> Nhận khách (check-in)',
+                        denyButtonText: '<i class="fas fa-flag-checkered"></i> Trả bàn sớm',
+                        cancelButtonText: 'Đóng',
+                        confirmButtonColor: '#e53e3e', denyButtonColor: '#4caf50'
+                    });
+                    if (isConfirmed && activeRes) {
+                        try {
+                            await update(ref(db, 'reservations/' + activeRes.id), {
+                                status: 'checked-in', checkedInAt: Date.now(), updatedAt: Date.now(), notificationRead: false
+                            });
+                            // Gửi thông báo vào hộp thư khách
+                            if (activeRes.uid) {
+                                const atr2 = _getResTimeRange(activeRes);
+                                const tbl = (activeRes.assignedTableIds || []).join(', ');
+                                try {
+                                    await push(ref(db, 'users/' + activeRes.uid + '/notifications'), {
+                                        type: 'reservation-checkedin', title: 'Đã nhận khách!',
+                                        body: `🔥 Bàn <strong>${tbl}</strong> đang phục vụ<br>📅 ${activeRes.date} · ⏰ ${atr2.label}<br>Chúc bạn có trải nghiệm tuyệt vời!`,
+                                        reservationId: activeRes.id, read: false, createdAt: Date.now()
+                                    });
+                                } catch (e) { }
+                            }
+                            Swal.fire({ icon: 'success', title: 'Đã nhận khách!', timer: 1500, showConfirmButton: false });
+                            loadFloorMap();
+                        } catch (e) { Swal.fire({ icon: 'error', title: 'Lỗi', text: e.message }); }
+                    } else if (isDenied && activeRes) {
+                        try {
+                            await update(ref(db, 'reservations/' + activeRes.id), {
+                                status: 'completed', completedAt: Date.now(), updatedAt: Date.now()
+                            });
+                            Swal.fire({ icon: 'success', title: 'Bàn đã trống!', timer: 1500, showConfirmButton: false });
+                            loadFloorMap();
+                        } catch (e) { Swal.fire({ icon: 'error', title: 'Lỗi', text: e.message }); }
+                    }
+                }
+
+            } else if (cur === 'deposited') {
+                // Đang chờ đến giờ hẹn
+                let infoHtml = '';
+                if (activeRes) {
+                    const atr3 = _getResTimeRange(activeRes);
+                    const paid = activeRes.depositStatus === 'paid'
+                        ? '<span style="color:#4caf50"><i class="fas fa-check-circle"></i> Đã chuyển khoản</span>'
+                        : '<span style="color:#f59e0b"><i class="fas fa-hourglass-half"></i> Chờ cọc</span>';
+                    infoHtml = `<div style="text-align:left;font-size:.88rem;background:rgba(255,255,255,.05);border-radius:10px;padding:12px 16px;margin:10px 0">
+                        <div style="margin-bottom:6px"><i class="fas fa-user" style="color:#60a5fa;width:18px"></i> <strong>${activeRes.name || '?'}</strong> — ${activeRes.phone || ''}</div>
+                        <div style="margin-bottom:6px"><i class="fas fa-calendar" style="color:#60a5fa;width:18px"></i> ${activeRes.date} &nbsp; <strong>${atr3.label}</strong></div>
+                        <div><i class="fas fa-coins" style="color:#f59e0b;width:18px"></i> ${paid}</div>
+                    </div>`;
+                }
+                const { isConfirmed, isDenied } = await Swal.fire({
+                    title: t.code + ' — Đã đặt trước',
+                    html: infoHtml + scheduleHtml,
+                    icon: 'info', showCancelButton: true, showDenyButton: true,
+                    confirmButtonText: '<i class="fas fa-sign-in-alt"></i> Nhận khách (check-in)',
+                    denyButtonText: '<i class="fas fa-ban"></i> Hủy lịch này',
+                    cancelButtonText: 'Đóng',
+                    confirmButtonColor: '#e53e3e', denyButtonColor: '#718096'
+                });
+                if (isConfirmed && activeRes) {
+                    try {
+                        await update(ref(db, 'reservations/' + activeRes.id), {
+                            status: 'checked-in', checkedInAt: Date.now(), updatedAt: Date.now(), notificationRead: false
+                        });
+                        // Gửi thông báo vào hộp thư khách
+                        if (activeRes.uid) {
+                            const atr4 = _getResTimeRange(activeRes);
+                            const tbl2 = (activeRes.assignedTableIds || []).join(', ');
+                            try {
+                                await push(ref(db, 'users/' + activeRes.uid + '/notifications'), {
+                                    type: 'reservation-checkedin', title: 'Đã nhận khách!',
+                                    body: `🔥 Bàn <strong>${tbl2}</strong> đang phục vụ<br>📅 ${activeRes.date} · ⏰ ${atr4.label}<br>Chúc bạn có trải nghiệm tuyệt vời!`,
+                                    reservationId: activeRes.id, read: false, createdAt: Date.now()
+                                });
+                            } catch (e) { }
+                        }
+                        Swal.fire({ icon: 'success', title: 'Đã nhận khách!', timer: 1500, showConfirmButton: false });
+                        loadFloorMap();
+                    } catch (e) { Swal.fire({ icon: 'error', title: 'Lỗi', text: e.message }); }
+                } else if (isDenied && activeRes) {
+                    const { isConfirmed: ok } = await Swal.fire({
+                        title: 'Hủy lịch của ' + (activeRes.name || '?') + '?',
+                        html: activeRes.depositStatus === 'paid' ? '<p style="color:#64b5f6">Đơn đã cọc — bạn sẽ cần hoàn tiền cho khách.</p>' : '',
+                        icon: 'warning', showCancelButton: true,
+                        confirmButtonText: 'Hủy lịch', cancelButtonText: 'Giữ nguyên', confirmButtonColor: '#e53e3e'
+                    });
+                    if (ok) {
+                        const upd = { status: 'cancelled', cancelReason: 'Admin hủy từ sơ đồ', notificationRead: false, updatedAt: Date.now() };
+                        if (activeRes.depositStatus === 'paid') upd.depositStatus = 'refund_requested';
+                        try {
+                            await update(ref(db, 'reservations/' + activeRes.id), upd);
+                            Swal.fire({ icon: 'success', title: 'Đã hủy lịch!', timer: 1500, showConfirmButton: false });
+                            loadFloorMap();
+                        } catch (e) { Swal.fire({ icon: 'error', title: 'Lỗi', text: e.message }); }
+                    }
+                }
+            }
+        };
+
+        // ─── Schedule Grid — lịch từ reservations thực ──────────────────
+        window.loadScheduleGrid = async function () {
+            const date = document.getElementById('scheduleDate').value;
+            if (!date) return;
+            const wrap = document.getElementById('scheduleGridWrap');
+            wrap.innerHTML = '<div style="text-align:center;padding:40px"><i class="fas fa-spinner fa-spin" style="font-size:1.5rem;color:var(--admin-accent)"></i></div>';
+            if (!adminAllTables.length) await loadAdminTables();
+            const tables = adminAllTables.length ? adminAllTables : DEFAULT_TABLES.map(t => ({ id: t.code, ...t }));
+
+            const dayReservations = allReservations.filter(r =>
+                r.date === date && ['pending', 'deposited', 'checked-in'].includes(r.status)
+            );
+
+            // Khung giờ 1 tiếng cố định
+            const SCHED_SLOTS = [
+                { value: '07:00', label: '07–08' }, { value: '08:00', label: '08–09' },
+                { value: '09:00', label: '09–10' }, { value: '10:00', label: '10–11' },
+                { value: '11:00', label: '11–12' }, { value: '12:00', label: '12–13' },
+                { value: '13:00', label: '13–14' }, { value: '14:00', label: '14–15' },
+                { value: '15:00', label: '15–16' }, { value: '16:00', label: '16–17' },
+                { value: '17:00', label: '17–18' }, { value: '18:00', label: '18–19' },
+                { value: '19:00', label: '19–20' }, { value: '20:00', label: '20–21' },
+                { value: '21:00', label: '21–22' }, { value: '22:00', label: '22–23' },
+            ];
+
+            // Gom reservation theo (giờ, loại bàn) → phân công theo chỉ số bàn
+            const tablesByType = {};
+            tables.forEach(t => {
+                if (!tablesByType[t.type]) tablesByType[t.type] = [];
+                tablesByType[t.type].push(t.id);
+            });
+            const slotMap = {}; // tableId → slotValue → reservation
+            // Sử dụng assignedTableIds để gán đơn vào đúng bàn
+            dayReservations.forEach(r => {
+                const rSlots = r.timeSlots || (r.time ? [r.time] : []);
+                if (!rSlots.length) return;
+                const assigned = r.assignedTableIds || [];
+                assigned.forEach(tid => {
+                    if (!slotMap[tid]) slotMap[tid] = {};
+                    rSlots.forEach(slot => { slotMap[tid][slot] = r; });
+                });
+            });
+
+            let html = '<div style="overflow-x:auto"><table style="border-collapse:collapse;font-size:.78rem;min-width:560px;width:100%">';
+            html += '<thead><tr><th style="padding:8px 14px;text-align:left;white-space:nowrap;background:rgba(255,255,255,.05);border-bottom:1px solid rgba(255,255,255,.09);position:sticky;left:0;z-index:2;min-width:110px">Khung giờ</th>';
+            tables.forEach(t => {
+                const zone = ZONE_CONFIG[t.location];
+                const clr = zone ? zone.color : '#888';
+                html += `<th style="padding:8px 6px;text-align:center;white-space:nowrap;background:rgba(255,255,255,.05);border-bottom:1px solid rgba(255,255,255,.09)"><span style="color:${clr};font-weight:700">${t.code}</span><br><span style="opacity:.5;font-weight:400;font-size:.7rem">${t.type}ng</span></th>`;
+            });
+            html += '</tr></thead><tbody>';
+
+            SCHED_SLOTS.forEach(slot => {
+                html += `<tr style="border-bottom:1px solid rgba(255,255,255,.04)"><td style="padding:7px 14px;white-space:nowrap;color:var(--admin-text-muted);background:rgba(255,255,255,.02);position:sticky;left:0;font-weight:600">${slot.label}</td>`;
+                tables.forEach(t => {
+                    const r = slotMap[t.id]?.[slot.value];
+                    let bg = 'rgba(76,175,80,.07)', color = 'rgba(76,175,80,.35)', label = '—', title = 'Trống';
+                    if (r) {
+                        if (r.status === 'checked-in') { bg = 'rgba(229,62,62,.18)'; color = '#e53e3e'; label = '<i class="fas fa-fire"></i>'; title = r.name + ' (đã nhận khách)'; }
+                        else if (r.status === 'deposited') { bg = 'rgba(76,175,80,.18)'; color = '#4caf50'; label = '<i class="fas fa-coins"></i>'; title = r.name + ' (đã cọc)'; }
+                        else { bg = 'rgba(245,158,11,.15)'; color = '#f59e0b'; label = '<i class="fas fa-clock"></i>'; title = r.name + ' (chờ xác nhận)'; }
+                    }
+                    html += `<td style="padding:4px;text-align:center" title="${title}"><span style="display:inline-block;padding:4px 8px;border-radius:5px;background:${bg};color:${color};min-width:38px;font-size:.74rem">${label}</span></td>`;
+                });
+                html += '</tr>';
+            });
+            html += '</tbody></table></div>';
+
+            const bookedSlots = Object.values(slotMap).reduce((s, m) => s + Object.keys(m).length, 0);
+            html += `<div style="margin-top:12px;font-size:.8rem;color:var(--admin-text-muted);text-align:right"><i class="fas fa-info-circle" style="color:var(--admin-accent)"></i> ${dayReservations.length} đơn đặt · ${bookedSlots}/${tables.length * SCHED_SLOTS.length} khung giờ đã đặt</div>`;
+            wrap.innerHTML = html;
+        };
+
+
+        // ============================================================
+        // BACKGROUND JOBS — Tự động hoàn thành sau khi hết khung giờ
+        // ============================================================
+        // Cứ mỗi 60 giây: quét đơn deposited đã hết khung 2h → auto completed
+        function startBackgroundJobs() {
+            async function runAutoCancelJobs() {
+                const now = Date.now();
+                const toComplete = [];
+
+                for (const r of allReservations) {
+                    if (r.status === 'deposited' && r.date) {
+                        try {
+                            const rSlots = r.timeSlots || (r.time ? [r.time] : []);
+                            if (!rSlots.length) continue;
+                            // Dùng slot CUỐI CÙNG + SLOT_DURATION để xác định end time
+                            const lastEnd = new Date(r.date + 'T' + rSlots[rSlots.length - 1] + ':00').getTime() + SLOT_DURATION_MS;
+                            if (now > lastEnd) {
+                                toComplete.push(r.id);
+                            }
+                        } catch (e) { }
+                    }
+                }
+
+                for (const id of toComplete) {
+                    try {
+                        await update(ref(db, 'reservations/' + id), {
+                            status: 'completed',
+                            completedAt: Date.now(),
+                            autoCompletedAt: Date.now(),
+                            updatedAt: Date.now()
+                        });
+                        console.log(`[AutoJob] auto-completed → đơn ${id}`);
+                    } catch (e) { console.warn('[AutoJob] lỗi xử lý đơn', id, e); }
+                }
+
+                if (toComplete.length > 0 && document.getElementById('tblTabFloormap') &&
+                    document.getElementById('tblTabFloormap').style.display !== 'none') {
+                    loadFloorMap();
+                }
+            }
+
+            runAutoCancelJobs();
+            const jobTimer = setInterval(runAutoCancelJobs, 60_000);
+            console.log('[AutoJob] Bắt đầu giám sát hoàn thành tự động: kiểm tra mỗi 60 giây');
+            return jobTimer;
+        }
+
+        // ============================================================
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            initCharts();
+            loadOrders();
+            _loadAdminProducts();
+            loadSettings();
+            loadAdminReviews();
+            loadAdminContacts();
+            loadAdminPromotions();
+            loadAdminNews();
+            loadAdminTables(); // Pre-load bàn sẵn để sơ đồ hiển thị ngay khi chuyển tab
+
+            // Đợi Firebase Auth xác nhận xong rồi mới khởi động listener đặt bàn
+            onAuthStateChanged(auth, (user) => {
+                console.log('[Auth] onAuthStateChanged →', user ? user.email : 'null');
+                if (user) {
+                    // Đăng nhập: load users SAU KHI auth xác nhận xong
+                    loadUsers();
+                    // Đăng nhập: luôn (re)start listener — phòng trường hợp listener cũ đã chết
+                    startReservationsListener();
+                    // Khởi động background jobs (chỉ một lần)
+                    if (!window._bgJobStarted) {
+                        window._bgJobStarted = true;
+                        setTimeout(startBackgroundJobs, 3000);
+                    }
+                } else {
+                    // Đăng xuất: dọn dẹp listener và xoá dữ liệu tạm
+                    if (resUnsubscribe) { resUnsubscribe(); resUnsubscribe = null; }
+                    allReservations = [];
+                    sampleUsers = [];
+                    _usersListenerActive = false; // Reset để cho phép re-load khi đăng nhập lại
+                    const tb = document.getElementById('resTbody');
+                    if (tb) tb.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:30px;color:#f59e0b"><i class="fas fa-lock"></i> Cần đăng nhập để xem dữ liệu đặt bàn.</td></tr>';
+                    window._bgJobStarted = false;
+                    updateDashboardReservations();
+                }
+            });
+
+            setTimeout(loadNotifications, 2500);
+
+            // Set default promo start/end dates
+            const now = new Date();
+            const future = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+            const promoStart = document.getElementById('promoStartDate');
+            const promoEnd = document.getElementById('promoEndDate');
+            if (promoStart) promoStart.value = now.toISOString().slice(0, 16);
+            if (promoEnd) promoEnd.value = future.toISOString().slice(0, 16);
+            toggleMaxDiscount();
+
+            // Set default date for reports
+            const reportEl = document.getElementById('reportDate');
+            if (reportEl) reportEl.valueAsDate = new Date();
+        });
+
+        // Hide loading overlay
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                const overlay = document.getElementById('loadingOverlay');
+                if (overlay) overlay.classList.add('hidden');
+            }, 500);
+        });
+    
