@@ -16,22 +16,35 @@ export async function updateMsgBadge(uid) {
 
     if (!uid) {
         msgIcon.classList.add('hidden');
+        msgIcon.href = 'contact.html';
         return;
     }
+    msgIcon.href = 'profile.html?tab=inbox'; // Cập nhật href sang Hộp thư
 
     try {
-        // Lấy tất cả reviews của user này
+        let unread = 0;
+
+        // 1. Phản hồi đánh giá chưa đọc
         const reviewsRef = ref(db, 'reviews');
         const snap = await get(reviewsRef);
-        if (!snap.exists()) { msgIcon.classList.add('hidden'); return; }
+        if (snap.exists()) {
+            snap.forEach(child => {
+                const r = child.val();
+                if (r.uid === uid && r.adminReply && !r.userReadReply) {
+                    unread++;
+                }
+            });
+        }
 
-        let unread = 0;
-        snap.forEach(child => {
-            const r = child.val();
-            if (r.uid === uid && r.adminReply && !r.userReadReply) {
-                unread++;
-            }
-        });
+        // 2. Thông báo hệ thống chưa đọc (như từ chối bàn)
+        const notifRef = ref(db, 'users/' + uid + '/notifications');
+        const notifSnap = await get(notifRef);
+        if (notifSnap.exists()) {
+            notifSnap.forEach(child => {
+                const n = child.val();
+                if (!n.read) unread++;
+            });
+        }
 
         if (unread > 0) {
             msgIcon.classList.remove('hidden');
@@ -68,7 +81,7 @@ export async function loadStoreInfo() {
         setHref('footer-ig', s.instagram);
         setHref('footer-tt', s.tiktok);
         setHref('footer-yt', s.youtube);
-    } catch(e) {}
+    } catch (e) { }
 }
 
 export function initUserDropdown() {

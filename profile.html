@@ -930,7 +930,8 @@
                                     style="display:none;margin-bottom:16px;padding:14px 18px;background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.35);border-radius:var(--radius-sm)">
                                     <div
                                         style="display:flex;align-items:center;gap:8px;font-weight:600;color:#f59e0b;margin-bottom:4px">
-                                        <i class="fas fa-bell"></i> Bạn có thông báo đặt bàn mới</div>
+                                        <i class="fas fa-bell"></i> Bạn có thông báo đặt bàn mới
+                                    </div>
                                     <div style="font-size:.85rem;color:var(--text-secondary)" id="profileResNotifText">
                                     </div>
                                 </div>
@@ -2125,6 +2126,17 @@
         import { updateMsgBadge } from './js/nav-helper.js';
         import { auth, onAuthStateChanged } from './js/firebase-config.js';
         onAuthStateChanged(auth, user => updateMsgBadge(user ? user.uid : null));
+
+        // Tự kéo tới Hộp thư nếu link có báo ?tab=inbox
+        document.addEventListener('DOMContentLoaded', () => {
+            const params = new URLSearchParams(window.location.search);
+            if (params.get('tab') === 'inbox') {
+                setTimeout(() => {
+                    const inboxItem = document.querySelector('.profile-menu-item[data-tab="inbox"]');
+                    if (inboxItem) inboxItem.click();
+                }, 600);
+            }
+        });
     </script>
 </body>
 
