@@ -1532,7 +1532,7 @@
                 if (entry.isIntersecting) {
                     const id = entry.target.id.replace('Tab', '');
                     document.querySelectorAll('.profile-menu-item').forEach(m => m.classList.remove('active'));
-                    const activeMenu = document.querySelector(`.profile - menu - item[data - tab="${id}"]`);
+                    const activeMenu = document.querySelector(`.profile-menu-item[data-tab="${id}"]`);
                     if (activeMenu) activeMenu.classList.add('active');
                 }
             });
