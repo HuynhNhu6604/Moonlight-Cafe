@@ -684,7 +684,7 @@
                         </div>
                     </div>
                     <div class="product-info">
-                        <span class="product-category">${product.category || 'Cà phê'}</span>
+                        <span class="product-category">${getCategoryName(product.category)}</span>
                         <h4 class="product-name" onclick="viewProduct('${product.id}')" style="cursor: pointer;">${product.name}</h4>
                         <div class="product-footer">
                             <div class="product-price">
@@ -702,6 +702,18 @@
                     </div>
                 </div>
             `}).join('');
+        }
+
+        function getCategoryName(category) {
+            const map = {
+                coffee: 'Cà phê',
+                tea: 'Trà',
+                smoothie: 'Sinh tố',
+                pastry: 'Bánh ngọt',
+                snack: 'Snack',
+                dessert: 'Tráng miệng'
+            };
+            return map[category] || category || 'Cà phê';
         }
 
         function formatPrice(price) {
