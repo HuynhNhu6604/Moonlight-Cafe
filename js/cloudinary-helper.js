@@ -117,8 +117,22 @@ export async function uploadImageToCloudinary(file, folder = 'moonlight-cafe/gen
   };
   if (publicId) payload.publicId = publicId;
 
+  const publicCfg = await getPublicCloudinaryConfig();
+  const cloudName = publicCfg.CLOUDINARY_CLOUD_NAME || '';
+  const unsignedUploadPreset = publicCfg.CLOUDINARY_UNSIGNED_PRESET || '';
+
+  // Ưu tiên Upload trực tiếp lên Cloudinary bằng Unsigned Preset
+  if (cloudName && unsignedUploadPreset) {
+    try {
+      return await uploadViaUnsignedPreset(optimizedFile, folder, cloudName, unsignedUploadPreset, { publicId });
+    } catch (error) {
+      console.warn('Unsigned Upload thất bại:', error.message);
+      // Nếu preset chưa được thiết lập trên Cloudinary, ta lọt xuống dưới
+    }
+  }
+
   const endpoints = ['/api/cloudinary/upload', '/.netlify/functions/cloudinary-upload'];
-  let lastError = 'Upload thất bại';
+  let lastError = 'Upload thất bại. Nếu chạy bằng Live Server, hãy cấu hình CLOUDINARY_UNSIGNED_PRESET.';
 
   for (const endpoint of endpoints) {
     try {
@@ -140,13 +154,5 @@ export async function uploadImageToCloudinary(file, folder = 'moonlight-cafe/gen
     }
   }
 
-  const publicCfg = await getPublicCloudinaryConfig();
-  const cloudName = publicCfg.CLOUDINARY_CLOUD_NAME || '';
-  const unsignedUploadPreset = publicCfg.CLOUDINARY_UNSIGNED_PRESET || '';
-
-  if (cloudName && unsignedUploadPreset) {
-    return uploadViaUnsignedPreset(optimizedFile, folder, cloudName, unsignedUploadPreset, { publicId });
-  }
-
-  throw new Error(`${lastError}. Nếu chạy bằng Live Server, hãy cấu hình CLOUDINARY_UNSIGNED_PRESET trong js/cloudinary-public-config.js`);
+  throw new Error(`${lastError}`);
 }
