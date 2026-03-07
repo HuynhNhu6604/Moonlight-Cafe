@@ -2584,15 +2584,11 @@
                     </div>
                     <div class="chart-card" style="display:flex;flex-direction:column;gap:0">
                         <div class="chart-header" style="margin-bottom:12px">
-                            <h3>Đơn hàng theo trạng thái</h3>
+                            <h3>Top 5 Sản phẩm bán chạy</h3>
                             <span id="totalOrderNote"
-                                style="background:var(--admin-secondary);padding:3px 10px;border-radius:20px;font-size:.8rem;font-weight:600;color:var(--admin-text)">0
-                                đơn</span>
+                                style="background:var(--admin-secondary);padding:3px 10px;border-radius:20px;font-size:.8rem;font-weight:600;color:var(--admin-text)">Từ
+                                đơn Hoàn thành/Đang giao</span>
                         </div>
-
-                        <!-- Status breakdown list -->
-                        <div id="statusBreakdown"
-                            style="flex:1;display:flex;flex-direction:column;gap:9px;margin-bottom:16px"></div>
 
                         <!-- Mini doughnut + legend -->
                         <div
@@ -2600,7 +2596,8 @@
                             <canvas id="orderStatusChart"
                                 style="width:100px!important;height:100px!important;flex-shrink:0"></canvas>
                             <div id="statusLegend"
-                                style="flex:1;display:flex;flex-direction:column;gap:6px;font-size:.78rem"></div>
+                                style="flex:1;display:flex;flex-direction:column;gap:6px;font-size:.78rem;overflow-y:auto;max-height:160px">
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -4986,15 +4983,15 @@
                     }
                 });
 
-                // --- Order Status Doughnut (mini, legend tạo riêng) ---
+                // --- Top 5 Products Doughnut ---
                 const statusCtx = document.getElementById('orderStatusChart').getContext('2d');
                 statusChartInstance = new Chart(statusCtx, {
                     type: 'doughnut',
                     data: {
-                        labels: ['Hoàn thành', 'Đang giao', 'Đang chuẩn bị', 'Đã xác nhận', 'Chờ xác nhận', 'Đã hủy'],
+                        labels: [],
                         datasets: [{
-                            data: [0, 0, 0, 0, 0, 0],
-                            backgroundColor: ['#10b981', '#3b82f6', '#8b5cf6', '#06b6d4', '#f59e0b', '#ef4444'],
+                            data: [],
+                            backgroundColor: ['#10b981', '#3b82f6', '#8b5cf6', '#f59e0b', '#ec4899'],
                             borderWidth: 2,
                             hoverOffset: 6
                         }]
@@ -5151,24 +5148,46 @@
                 }).join('');
             }
 
+            // --- Cập nhật Widget Biểu đồ Top 5 ---
+            const validOrders = sampleOrders.filter(o => ['delivered', 'shipping'].includes(o.status));
+            const itemCounts = {};
+            validOrders.forEach(o => {
+                if (o.items && Array.isArray(o.items)) {
+                    o.items.forEach(item => {
+                        itemCounts[item.name] = (itemCounts[item.name] || 0) + (item.quantity || 1);
+                    });
+                }
+            });
+
+            // Sắp xếp giảm dần và lấy top 5
+            const sortedItems = Object.entries(itemCounts)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 5);
+
             // --- Render legend cạnh doughnut ---
             const legendEl = document.getElementById('statusLegend');
+            const colors = ['#10b981', '#3b82f6', '#8b5cf6', '#f59e0b', '#ec4899'];
             if (legendEl) {
-                legendEl.innerHTML = statusConfig.map(cfg => {
-                    const cnt = sampleOrders.filter(o => o.status === cfg.key).length;
-                    return '<div style="display:flex;align-items:center;gap:6px">'
-                        + '<span style="width:10px;height:10px;border-radius:50%;background:' + cfg.color + ';flex-shrink:0"></span>'
-                        + '<span style="color:var(--admin-text-muted)">' + cfg.label + ':</span>'
-                        + '<span style="font-weight:700;color:var(--admin-text);margin-left:auto">' + cnt + '</span>'
-                        + '</div>';
-                }).join('');
+                if (sortedItems.length === 0) {
+                    legendEl.innerHTML = '<span style="color:var(--admin-text-muted);font-style:italic">Chưa có dữ liệu bán hàng.</span>';
+                } else {
+                    legendEl.innerHTML = sortedItems.map((item, index) => {
+                        const color = colors[index % colors.length];
+                        return '<div style="display:flex;align-items:center;gap:6px">'
+                            + '<span style="width:10px;height:10px;border-radius:50%;background:' + color + ';flex-shrink:0"></span>'
+                            + '<span style="color:var(--admin-text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:120px" title="' + item[0] + '">' + item[0] + '</span>'
+                            + '<span style="font-weight:700;color:var(--admin-text);margin-left:auto">' + item[1] + '</span>'
+                            + '</div>';
+                    }).join('');
+                }
             }
 
             // --- Cập nhật doughnut ---
-            if (!statusChartInstance) return;
-            const counts = statusConfig.map(cfg => sampleOrders.filter(o => o.status === cfg.key).length);
-            statusChartInstance.data.datasets[0].data = counts;
-            statusChartInstance.update();
+            if (statusChartInstance) {
+                statusChartInstance.data.labels = sortedItems.map(i => i[0]);
+                statusChartInstance.data.datasets[0].data = sortedItems.map(i => i[1]);
+                statusChartInstance.update();
+            }
         }
 
         // Logout
