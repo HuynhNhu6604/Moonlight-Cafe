@@ -3735,7 +3735,6 @@
                             <option value="coffee">Cà phê</option>
                             <option value="tea">Trà</option>
                             <option value="cake">Bánh ngọt</option>
-                            <optgroup id="dynamicCategoryOptions" label="Danh mục hiện có khác"></optgroup>
                         </select>
                         <button type="button" onclick="addNewCategory()"
                             style="margin-top:6px;font-size:.8rem;background:none;border:none;color:var(--admin-accent);cursor:pointer;padding:0;display:flex;align-items:center;gap:4px">
@@ -4058,7 +4057,7 @@
             const dynamicCats = Array.from(allCats).filter(c => !predefinedCats.includes(c));
 
             const filterContainer = document.getElementById('dynamicCategoryFilters');
-            const optionsContainer = document.getElementById('dynamicCategoryOptions');
+            const productCategorySelect = document.getElementById('productCategory');
 
             if (filterContainer) {
                 filterContainer.innerHTML = dynamicCats.map(cat => {
@@ -4067,18 +4066,19 @@
                 }).join('');
             }
 
-            if (optionsContainer) {
-                optionsContainer.innerHTML = dynamicCats.map(cat => {
-                    const label = window.catLabel?.[cat] || cat;
-                    return `<option value="${cat}">${label}</option>`;
-                }).join('');
+            if (productCategorySelect) {
+                // Xoá các option động cũ
+                Array.from(productCategorySelect.querySelectorAll('.dynamic-cat-opt')).forEach(opt => opt.remove());
 
-                // Ẩn optgroup nếu không có option động nào, hiện nếu có
-                if (dynamicCats.length > 0) {
-                    optionsContainer.style.display = '';
-                } else {
-                    optionsContainer.style.display = 'none';
-                }
+                // Thêm các option động mới
+                dynamicCats.forEach(cat => {
+                    const label = window.catLabel?.[cat] || cat;
+                    const option = document.createElement('option');
+                    option.value = cat;
+                    option.textContent = label;
+                    option.className = 'dynamic-cat-opt';
+                    productCategorySelect.appendChild(option);
+                });
             }
         }
 
