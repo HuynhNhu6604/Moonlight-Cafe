@@ -2,21 +2,60 @@
   "rules": {
     "users": {
       ".read": "auth != null",
+      ".write": "auth != null",
       "$uid": {
-        ".read": "$uid === auth.uid || root.child('users').child(auth.uid).child('role').val() === 'admin'",
-        ".write": "$uid === auth.uid || root.child('users').child(auth.uid).child('role').val() === 'admin'"
+        ".read": "$uid === auth.uid || auth != null",
+        ".write": "$uid === auth.uid || auth != null"
       }
     },
-    "orders":        { ".read": "auth != null", ".write": "auth != null" },
-    "products":      { ".read": true,           ".write": "auth != null" },
-    "reservations":  { ".read": "auth != null", ".write": "auth != null", ".indexOn": ["uid", "date", "status"] },
-    "tables":        { ".read": true,           ".write": "auth != null" },
-    "tableSlots":    { ".read": true,           ".write": "auth != null" },
-    "reviews":       { ".read": true,           ".write": "auth != null" },
-    "promotions":    { ".read": true,           ".write": "auth != null" },
-    "siteSettings":  { ".read": true,           ".write": "auth != null" },
-    "notifications": { ".read": "auth != null", ".write": "auth != null" },
-    "contacts":      { ".read": "auth != null", ".write": "auth != null" },
-    "news":          { ".read": true,           ".write": "auth != null" }
+    "orders": {
+      ".read": "auth != null",
+      ".write": "auth != null"
+    },
+    "products": {
+      ".read": true,
+      ".write": "auth != null"
+    },
+    "reservations": {
+      ".read": "auth != null",
+      ".write": "auth != null",
+      ".indexOn": [
+        "uid",
+        "date",
+        "status"
+      ]
+    },
+    "tables": {
+      ".read": true,
+      ".write": "auth != null"
+    },
+    "tableSlots": {
+      ".read": true,
+      ".write": "auth != null"
+    },
+    "reviews": {
+      ".read": true,
+      ".write": "auth != null"
+    },
+    "promotions": {
+      ".read": true,
+      ".write": "auth != null"
+    },
+    "siteSettings": {
+      ".read": true,
+      ".write": "auth != null"
+    },
+    "notifications": {
+      ".read": "auth != null",
+      ".write": "auth != null"
+    },
+    "contacts": {
+      ".read": "auth != null",
+      ".write": "auth != null"
+    },
+    "news": {
+      ".read": true,
+      ".write": "auth != null"
+    }
   }
 }
