@@ -888,14 +888,10 @@
                     <h1>${product.name}</h1>
                     
                     <div class="product-rating">
-                        <div class="stars">
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star-half-alt"></i>
+                        <div class="stars" id="mainProductStars">
+                            <!-- filled dynamically -->
                         </div>
-                        <span class="rating-count">(4.5 - 128 đánh giá)</span>
+                        <span class="rating-count" id="mainProductRatingCount"></span>
                     </div>
                     
                     <div class="product-price-detail">${formatPrice(product.price)}</div>
@@ -951,67 +947,91 @@
         };
 
         // Add to cart
-        window.addToCart = function () {
-            if (window.currentProduct && window.currentProduct.stock <= 0) {
-                return Swal.fire({ icon: 'error', title: 'Hết hàng', text: 'Sản phẩm này hiện tại đã hết, vui lòng chọn sản phẩm khác!' });
-            }
-            if (window.currentProduct && quantity > window.currentProduct.stock) {
-                return Swal.fire({ icon: 'warning', title: 'Không đủ số lượng', text: `Chỉ còn ${window.currentProduct.stock} sản phẩm. Vui lòng giảm số lượng.` });
-            }
+        window.addToCart = async function () {
+            if (!window.currentProduct) return;
 
-            const user = auth.currentUser;
-            if (!user) {
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'Chưa đăng nhập',
-                    text: 'Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng!',
-                    showCancelButton: true,
-                    confirmButtonText: 'Đăng nhập',
-                    cancelButtonText: 'Hủy',
-                    confirmButtonColor: '#d4a574'
-                }).then((result) => {
-                    if (result.isConfirmed) window.location.href = 'login.html';
-                });
-                return;
-            }
-            const cartKey = `moonlight_cart_${user.uid}`;
-            const cart = JSON.parse(localStorage.getItem(cartKey)) || [];
-            const existingItem = cart.find(item => item.id === productId);
-
-            if (existingItem) {
-                existingItem.quantity += quantity;
-            } else {
-                cart.push({
-                    id: productId,
-                    name: window.currentProduct.name,
-                    price: window.currentProduct.price,
-                    imageUrl: window.currentProduct.imageUrl,
-                    quantity: quantity
-                });
-            }
-
-            localStorage.setItem(cartKey, JSON.stringify(cart));
-
-            // Update cart count
-            const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
-            document.getElementById('cartCount').textContent = totalItems;
-
-            Swal.fire({
-                icon: 'success',
-                title: 'Đã thêm vào giỏ!',
-                text: `${quantity} ${window.currentProduct.name}`,
-                showCancelButton: true,
-                confirmButtonText: 'Xem giỏ hàng',
-                cancelButtonText: 'Tiếp tục mua'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    window.location.href = 'cart.html';
+            // Check real-time stock
+            try {
+                const docRef = ref(db, `products/${productId}`);
+                const snapshot = await get(docRef);
+                if (!snapshot.exists()) {
+                    return Swal.fire({ icon: 'error', title: 'Lỗi', text: 'Sản phẩm không tồn tại!' });
                 }
-            });
+                const productData = snapshot.val();
+                const stock = productData.stock !== undefined ? productData.stock : 50;
 
-            // Reset quantity
-            quantity = 1;
-            document.getElementById('quantity').textContent = 1;
+                // Update local currentProduct stock just in case
+                window.currentProduct.stock = stock;
+
+                if (stock <= 0) {
+                    return Swal.fire({ icon: 'error', title: 'Hết hàng', text: 'Sản phẩm này hiện tại đã hết, vui lòng chọn sản phẩm khác!' });
+                }
+
+                if (quantity > stock) {
+                    return Swal.fire({ icon: 'warning', title: 'Không đủ số lượng', text: `Chỉ còn ${stock} sản phẩm. Vui lòng giảm số lượng.` });
+                }
+
+                const user = auth.currentUser;
+                if (!user) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Chưa đăng nhập',
+                        text: 'Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng!',
+                        showCancelButton: true,
+                        confirmButtonText: 'Đăng nhập',
+                        cancelButtonText: 'Hủy',
+                        confirmButtonColor: '#d4a574'
+                    }).then((result) => {
+                        if (result.isConfirmed) window.location.href = 'login.html';
+                    });
+                    return;
+                }
+
+                const cartKey = `moonlight_cart_${user.uid}`;
+                const cart = JSON.parse(localStorage.getItem(cartKey)) || [];
+                const existingItem = cart.find(item => item.id === productId);
+
+                if (existingItem) {
+                    if (existingItem.quantity + quantity > stock) {
+                        return Swal.fire({ icon: 'warning', title: 'Không đủ số lượng', text: `Bạn đã có ${existingItem.quantity} sản phẩm này trong giỏ. Kho chỉ còn ${stock} sản phẩm.` });
+                    }
+                    existingItem.quantity += quantity;
+                } else {
+                    cart.push({
+                        id: productId,
+                        name: window.currentProduct.name,
+                        price: window.currentProduct.price,
+                        imageUrl: window.currentProduct.imageUrl,
+                        quantity: quantity
+                    });
+                }
+
+                localStorage.setItem(cartKey, JSON.stringify(cart));
+
+                // Update cart count
+                const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+                document.getElementById('cartCount').textContent = totalItems;
+
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Đã thêm vào giỏ!',
+                    text: `${quantity} ${window.currentProduct.name}`,
+                    showCancelButton: true,
+                    confirmButtonText: 'Xem giỏ hàng',
+                    cancelButtonText: 'Tiếp tục mua'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = 'cart.html';
+                    }
+                });
+
+                // Reset quantity
+                quantity = 1;
+                document.getElementById('quantity').textContent = 1;
+            } catch (error) {
+                console.error('Error adding to cart:', error);
+                Swal.fire({ icon: 'error', title: 'Lỗi', text: 'Có lỗi xảy ra khi kiểm tra kho hàng.' });
+            }
         };
 
         // Toggle Favorite from Detail
@@ -1150,64 +1170,8 @@
 
         // ========== REVIEWS SECTION ==========
 
-        // Sample reviews data
-        let reviews = [
-            {
-                id: 1,
-                productId: productId,
-                name: 'Nguyễn Thị Hương',
-                email: 'huong@gmail.com',
-                rating: 5,
-                content: 'Cappuccino ở đây ngon tuyệt vời! Bọt sữa mịn màng, cà phê thơm hương chocolate. Sẽ quay lại nhiều lần nữa!',
-                date: '2024-01-28T14:30:00',
-                helpful: 24,
-                verified: true
-            },
-            {
-                id: 2,
-                productId: productId,
-                name: 'Trần Minh Khoa',
-                email: 'khoa@gmail.com',
-                rating: 4,
-                content: 'Sản phẩm tốt, giao hàng nhanh. Đóng gói cẩn thận. Đánh giá 4 sao vì hơi ngọt hơn mình nghĩ.',
-                date: '2024-01-25T10:15:00',
-                helpful: 12,
-                verified: true
-            },
-            {
-                id: 3,
-                productId: productId,
-                name: 'Lê Phương Anh',
-                email: 'anh@gmail.com',
-                rating: 5,
-                content: 'Lần đầu thử đã trở thành fan! Không gian quán đẹp, nhân viên thân thiện, cà phê ngon xuất sắc!',
-                date: '2024-01-20T16:45:00',
-                helpful: 18,
-                verified: true
-            },
-            {
-                id: 4,
-                productId: productId,
-                name: 'Phạm Đức Long',
-                email: 'long@gmail.com',
-                rating: 4,
-                content: 'Cà phê chuẩn vị, thơm và không bị đắng. Giá cả hợp lý. Sẽ ủng hộ dài dài!',
-                date: '2024-01-15T09:30:00',
-                helpful: 8,
-                verified: true
-            },
-            {
-                id: 5,
-                productId: productId,
-                name: 'Hoàng Mai Linh',
-                email: 'linh@gmail.com',
-                rating: 5,
-                content: 'Perfect! Mình rất thích cách pha chế ở đây. Đặc biệt thích latte art siêu đẹp. Highly recommend!',
-                date: '2024-01-10T11:20:00',
-                helpful: 15,
-                verified: true
-            }
-        ];
+        // Reviews array (will be populated from Firebase)
+        let reviews = [];
 
         let currentRating = 0;
         let reviewsPerPage = 5;
@@ -1247,9 +1211,9 @@
             let stars = '';
             for (let i = 1; i <= 5; i++) {
                 if (i <= rating) {
-                    stars += '<i class="fas fa-star"></i>';
+                    stars += '<i class="fas fa-star" style="color: #fbbf24;"></i>';
                 } else if (i - 0.5 <= rating) {
-                    stars += '<i class="fas fa-star-half-alt"></i>';
+                    stars += '<i class="fas fa-star-half-alt" style="color: #fbbf24;"></i>';
                 } else if (isInput) {
                     stars += '<i class="far fa-star"></i>';
                 } else {
@@ -1261,6 +1225,7 @@
 
         // Format date
         function formatReviewDate(dateString) {
+            if (!dateString) return '';
             const date = new Date(dateString);
             return date.toLocaleDateString('vi-VN', {
                 day: '2-digit',
@@ -1269,6 +1234,40 @@
                 hour: '2-digit',
                 minute: '2-digit'
             });
+        }
+
+        // Fetch reviews from Firebase
+        async function fetchProductReviews() {
+            try {
+                const reviewsRef = ref(db, 'reviews');
+                const snapshot = await get(reviewsRef);
+
+                reviews = [];
+                if (snapshot.exists()) {
+                    snapshot.forEach((childSnapshot) => {
+                        const reviewItem = childSnapshot.val();
+                        // Only get approved reviews for this product
+                        if (String(reviewItem.productId) === String(productId) && reviewItem.status === 'approved') {
+                            reviews.push({
+                                id: childSnapshot.key,
+                                ...reviewItem,
+                                date: reviewItem.createdAt || reviewItem.date
+                            });
+                        }
+                    });
+
+                    // Sort reviews by date descending (newest first)
+                    reviews.sort((a, b) => {
+                        const dateA = new Date(a.date).getTime() || 0;
+                        const dateB = new Date(b.date).getTime() || 0;
+                        return dateB - dateA;
+                    });
+                }
+
+                renderReviews();
+            } catch (error) {
+                console.error("Lỗi khi tải đánh giá:", error);
+            }
         }
 
         // Render reviews
@@ -1280,6 +1279,12 @@
             document.getElementById('ratingNumber').textContent = average;
             document.getElementById('ratingStars').innerHTML = renderStars(parseFloat(average));
             document.getElementById('ratingTotal').textContent = `${total} đánh giá`;
+
+            // Update upper product panel rating
+            const mainStars = document.getElementById('mainProductStars');
+            const mainCount = document.getElementById('mainProductRatingCount');
+            if (mainStars) mainStars.innerHTML = renderStars(parseFloat(average));
+            if (mainCount) mainCount.textContent = total > 0 ? `(${average} - ${total} đánh giá)` : '(Chưa có đánh giá)';
 
             renderRatingBars();
 

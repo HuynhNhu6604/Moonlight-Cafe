@@ -613,7 +613,7 @@
     </section>
 
     <script type="module">
-        import { auth, db, ref, push, set, get, onAuthStateChanged } from './js/firebase-config.js';
+        import { auth, db, ref, push, set, get, update, onAuthStateChanged } from './js/firebase-config.js';
 
         let currentUser = null;
         let isGuest = false;
@@ -967,6 +967,62 @@
 
             const cart = getCart();
             if (!cart.length) { window.location.href = 'cart.html'; return; }
+
+            // ============================================
+            // FINAL STOCK VALIDATION BEFORE PLACING ORDER
+            // ============================================
+            Swal.fire({
+                title: 'Đang kiểm tra kho hàng...',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
+            const outOfStockItems = [];
+            for (const item of cart) {
+                try {
+                    const docRef = ref(db, `products/${item.id}`);
+                    const snapshot = await get(docRef);
+                    if (snapshot.exists()) {
+                        const productData = snapshot.val();
+                        const realStock = productData.stock !== undefined ? productData.stock : 50;
+                        if (realStock < item.quantity) {
+                            outOfStockItems.push({
+                                name: item.name,
+                                requested: item.quantity,
+                                available: Math.max(0, realStock)
+                            });
+                        }
+                    } else {
+                        outOfStockItems.push({
+                            name: item.name,
+                            requested: item.quantity,
+                            available: 0
+                        });
+                    }
+                } catch (error) {
+                    console.error('Error checking stock for ' + item.name, error);
+                }
+            }
+
+            if (outOfStockItems.length > 0) {
+                Swal.close();
+                let errorHtml = '<ul style="text-align: left; margin-top: 10px;">';
+                outOfStockItems.forEach(item => {
+                    errorHtml += `<li><strong>${item.name}</strong>: Đặt ${item.requested}, còn ${item.available}</li>`;
+                });
+                errorHtml += '</ul><p style="margin-top: 10px; font-size: 0.9em; color: var(--text-muted)">Vui lòng quay lại Giỏ hàng để điều chỉnh số lượng.</p>';
+
+                return Swal.fire({
+                    icon: 'error',
+                    title: 'Sản phẩm không đủ số lượng',
+                    html: errorHtml,
+                    confirmButtonText: 'Đã hiểu'
+                });
+            }
+            // ============================================
+
             const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
             const shipping = getShippingFee(wardVal, subtotal);
             const discount = calcDiscount(appliedPromo, subtotal);
@@ -1005,6 +1061,23 @@
                         Swal.showLoading();
                     }
                 });
+
+                // Deduct stock before saving the order to reduce race condition window
+                const updates = {};
+                for (const item of cart) {
+                    const docRef = ref(db, `products/${item.id}`);
+                    const snapshot = await get(docRef);
+                    if (snapshot.exists()) {
+                        const currentStock = snapshot.val().stock !== undefined ? snapshot.val().stock : 50;
+                        const newStock = Math.max(0, currentStock - item.quantity);
+                        updates[`products/${item.id}/stock`] = newStock;
+                    }
+                }
+
+                // We should technically use a transaction here, but updating directly for now
+                if (Object.keys(updates).length > 0) {
+                    await update(ref(db), updates);
+                }
 
                 // Save order to Firebase
                 const ordersRef = ref(db, 'orders');

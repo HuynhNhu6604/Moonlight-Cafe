@@ -343,7 +343,8 @@
         <div class="container">
             <nav class="nav">
                 <a href="index.html" class="nav-brand">
-                    <div class="nav-logo-wrapper"><img src="images/logo.png?v=4" alt="Moonlight Cafe" class="nav-logo"></div>
+                    <div class="nav-logo-wrapper"><img src="images/logo.png?v=4" alt="Moonlight Cafe" class="nav-logo">
+                    </div>
                     <span class="nav-brand-text">Moonlight Cafe</span>
                 </a>
 
@@ -370,9 +371,12 @@
                         <i class="fas fa-user"></i>
                     </div>
                     <div class="nav-toggle" id="navToggle">
-                        <div class="nav-logo-wrapper"><img src="images/logo.png?v=4" alt="Moonlight Cafe" class="nav-logo"></div>
-                        <div class="nav-logo-wrapper"><img src="images/logo.png?v=4" alt="Moonlight Cafe" class="nav-logo"></div>
-                        <div class="nav-logo-wrapper"><img src="images/logo.png?v=4" alt="Moonlight Cafe" class="nav-logo"></div>
+                        <div class="nav-logo-wrapper"><img src="images/logo.png?v=4" alt="Moonlight Cafe"
+                                class="nav-logo"></div>
+                        <div class="nav-logo-wrapper"><img src="images/logo.png?v=4" alt="Moonlight Cafe"
+                                class="nav-logo"></div>
+                        <div class="nav-logo-wrapper"><img src="images/logo.png?v=4" alt="Moonlight Cafe"
+                                class="nav-logo"></div>
                     </div>
                 </div>
             </nav>
@@ -406,10 +410,12 @@
             <div class="footer-grid">
                 <div class="footer-col">
                     <div class="footer-brand">
-                        <div class="nav-logo-wrapper"><img src="images/logo.png?v=4" alt="Moonlight Cafe" class="nav-logo"></div>
+                        <div class="nav-logo-wrapper"><img src="images/logo.png?v=4" alt="Moonlight Cafe"
+                                class="nav-logo"></div>
                         <span class="nav-brand-text">Moonlight Cafe</span>
                     </div>
-                    <p id="footer-slogan">Nơi thưởng thức cà phê và bánh ngọt thượng hạng trong không gian ấm cúng dưới ánh trăng.</p>
+                    <p id="footer-slogan">Nơi thưởng thức cà phê và bánh ngọt thượng hạng trong không gian ấm cúng dưới
+                        ánh trăng.</p>
                     <div class="footer-social">
                         <a href="#" id="footer-fb"><i class="fab fa-facebook-f"></i></a>
                         <a href="#" id="footer-ig"><i class="fab fa-instagram"></i></a>
@@ -431,7 +437,8 @@
                 <div class="footer-col">
                     <h4 class="footer-title">Liên hệ</h4>
                     <ul class="footer-contact">
-                        <li><i class="fas fa-map-marker-alt"></i> <span id="footer-address">Nguyễn Đệ, Cái Khế, Cần Thơ</span></li>
+                        <li><i class="fas fa-map-marker-alt"></i> <span id="footer-address">Nguyễn Đệ, Cái Khế, Cần
+                                Thơ</span></li>
                         <li><i class="fas fa-phone"></i> <span id="footer-phone">0110 766 204</span></li>
                         <li><i class="fas fa-envelope"></i> <span id="footer-email">moonlightcafe@gmail.com</span></li>
                         <li><i class="fas fa-clock"></i> <span id="footer-hours">7:00 - 22:00 hàng ngày</span></li>
@@ -454,7 +461,7 @@
     </div>
 
     <script type="module">
-        import { auth, onAuthStateChanged } from './js/firebase-config.js';
+        import { auth, db, ref, get, onAuthStateChanged } from './js/firebase-config.js';
         import { initUserDropdown } from './js/nav-helper.js';
         initUserDropdown();
 
@@ -618,16 +625,41 @@
         }
 
         // Update quantity
-        window.updateQuantity = function (id, delta) {
+        window.updateQuantity = async function (id, delta) {
             const cart = getCart();
             const item = cart.find(i => i.id === id);
 
             if (item) {
-                item.quantity += delta;
-                if (item.quantity <= 0) {
+                const newQuantity = item.quantity + delta;
+
+                if (newQuantity <= 0) {
                     removeItem(id);
                     return;
                 }
+
+                // If increasing quantity, check stock first
+                if (delta > 0) {
+                    try {
+                        const docRef = ref(db, `products/${id}`);
+                        const snapshot = await get(docRef);
+                        if (snapshot.exists()) {
+                            const productData = snapshot.val();
+                            const stock = productData.stock !== undefined ? productData.stock : 50;
+
+                            if (newQuantity > stock) {
+                                return Swal.fire({
+                                    icon: 'warning',
+                                    title: 'Không đủ số lượng',
+                                    text: `Sản phẩm này hiện chỉ còn ${stock} món trên hệ thống.`
+                                });
+                            }
+                        }
+                    } catch (error) {
+                        console.error('Error checking stock:', error);
+                    }
+                }
+
+                item.quantity = newQuantity;
                 saveCart(cart);
                 renderCart();
             }
@@ -695,7 +727,7 @@
         try {
             const tudong_chatbox = new TuDongChat('XUitpr3VDU2e5vJgSRYO9');
             tudong_chatbox.initial();
-        } catch(e) {}
+        } catch (e) { }
     </script>
 </body>
 

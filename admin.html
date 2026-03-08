@@ -336,15 +336,30 @@
 
         .header-icon .badge {
             position: absolute;
-            top: -8px;
-            right: -8px;
-            background: var(--danger);
+            top: -10px;
+            right: -10px;
+            background: #ef4444;
             color: white;
-            font-size: 0.7rem;
-            padding: 2px 6px;
-            border-radius: 10px;
-            min-width: 18px;
+            font-size: 0.75rem;
+            padding: 3px 8px;
+            border-radius: 12px;
+            min-width: 22px;
             text-align: center;
+            font-weight: 700;
+            box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4);
+            animation: badgePulse 2s ease-in-out infinite;
+            border: 2px solid white;
+        }
+
+        @keyframes badgePulse {
+            0%, 100% {
+                transform: scale(1);
+                box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4);
+            }
+            50% {
+                transform: scale(1.15);
+                box-shadow: 0 2px 12px rgba(239, 68, 68, 0.6);
+            }
         }
 
         /* ─── Notification Panel ─── */
@@ -417,6 +432,7 @@
             cursor: pointer;
             border-bottom: 1px solid var(--border, #2a2a2a);
             transition: background .15s;
+            position: relative;
         }
 
         .notif-item:last-child {
@@ -425,6 +441,34 @@
 
         .notif-item:hover {
             background: rgba(212, 165, 116, .07);
+        }
+
+        .notif-delete-btn {
+            position: absolute;
+            top: 6px;
+            right: 6px;
+            background: rgba(239, 68, 68, 0.15);
+            color: #ef4444;
+            border: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.6rem;
+            transition: all 0.15s ease;
+            opacity: 0;
+        }
+
+        .notif-item:hover .notif-delete-btn {
+            opacity: 1;
+        }
+
+        .notif-delete-btn:hover {
+            background: rgba(239, 68, 68, 0.3);
+            transform: scale(1.1);
         }
 
         .notif-icon-wrap {
@@ -2264,6 +2308,20 @@
             background: rgba(255, 255, 255, 0.06);
             color: var(--admin-text-muted);
         }
+
+        /* Menu item badges */
+        .menu-item .badge {
+            padding: 3px 8px !important;
+            border-radius: 12px !important;
+            font-size: 0.7rem !important;
+            min-width: 22px !important;
+            text-align: center !important;
+            font-weight: 700 !important;
+            background: #ef4444 !important;
+            color: white !important;
+            box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3) !important;
+            animation: badgePulse 2s ease-in-out infinite !important;
+        }
     </style>
 </head>
 
@@ -2299,9 +2357,11 @@
 
                 <div class="menu-section">
                     <div class="menu-section-title">Quản lý</div>
-                    <a class="menu-item" data-section="orders">
+                    <a class="menu-item" data-section="orders" style="position:relative">
                         <span class="menu-icon"><i class="fas fa-receipt"></i></span>
                         <span>Đơn hàng</span>
+                        <span id="adminOrdersBadge" class="badge"
+                            style="margin-left:auto;display:none">0</span>
                     </a>
                     <a class="menu-item" data-section="products">
                         <span class="menu-icon"><i class="fas fa-coffee"></i></span>
@@ -2315,7 +2375,7 @@
                         <span class="menu-icon"><i class="fas fa-star"></i></span>
                         <span>Đánh giá &amp; Liên hệ</span>
                         <span id="adminReviewBadge" class="badge"
-                            style="margin-left:auto;display:none;background:#f59e0b">0</span>
+                            style="margin-left:auto;display:none">0</span>
                     </a>
                     <a class="menu-item" data-section="promotions">
                         <span class="menu-icon"><i class="fas fa-tags"></i></span>
@@ -2329,7 +2389,7 @@
                         <span class="menu-icon"><i class="fas fa-calendar-check"></i></span>
                         <span>Đặt bàn</span>
                         <span id="resBadge" class="badge"
-                            style="margin-left:auto;display:none;background:#f59e0b">0</span>
+                            style="margin-left:auto;display:none">0</span>
                     </a>
                     <a class="menu-item" data-section="tables">
                         <span class="menu-icon"><i class="fas fa-chair"></i></span>
@@ -3882,12 +3942,20 @@
         // Render all orders
         function renderOrders(orders = sampleOrders) {
             const tbody = document.getElementById('ordersTable');
+            
+            if (!tbody) {
+                console.error('❌ ordersTable tbody not found!');
+                return;
+            }
 
             if (!orders || orders.length === 0) {
+                console.log('📭 No orders to display');
                 tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding: 20px;">Không có đơn hàng nào.</td></tr>';
                 return;
             }
 
+            console.log(`✅ Rendering ${orders.length} orders`);
+            
             const payIcon = { cod: '💵', banking: '🏦', momo: '📱', vnpay: '💳' };
             tbody.innerHTML = orders.map(order => {
                 const payLabel = (payIcon[order.payment] || '') + ' ' + ({ cod: 'COD', banking: 'Chuyển khoản', momo: 'MoMo', vnpay: 'VNPay' }[order.payment] || order.payment);
@@ -3928,27 +3996,76 @@
         }
 
         // Listen to Orders from Firebase
+        let knownOrderIds = new Set();
+        let isInitialOrdersLoad = true;
+
         function loadOrders() {
             const ordersRef = ref(db, 'orders');
             onValue(ordersRef, (snapshot) => {
+                console.log('📡 loadOrders triggered from Firebase');
                 if (snapshot.exists()) {
                     sampleOrders = [];
+                    let newOrdersCount = 0;
+
                     snapshot.forEach((childSnapshot) => {
                         const data = childSnapshot.val();
                         data.id = childSnapshot.key;
                         sampleOrders.push(data);
+
+                        if (!isInitialOrdersLoad && !knownOrderIds.has(data.id)) {
+                            newOrdersCount++;
+                        }
+                        knownOrderIds.add(data.id);
                     });
 
+                    console.log(`✅ Loaded ${sampleOrders.length} orders from Firebase`);
+                    
                     // Sort descending by creation date
                     sampleOrders.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
                     renderRecentOrders();
                     renderOrders();
+
+                    const pendingOrders = sampleOrders.filter(o => o.status === 'pending');
+                    const ordersBadge = document.getElementById('adminOrdersBadge');
+                    if (ordersBadge) {
+                        ordersBadge.style.display = pendingOrders.length > 0 ? 'inline-block' : 'none';
+                        ordersBadge.textContent = pendingOrders.length;
+                    }
+
+                    // Cập nhật notification panel nếu đang mở
+                    const notifPanel = document.getElementById('notifPanel');
+                    if (notifPanel && notifPanel.classList.contains('open')) {
+                        loadNotifications();
+                    }
+
+                    // Notify if there are new orders
+                    if (!isInitialOrdersLoad && newOrdersCount > 0) {
+                        Swal.fire({
+                            toast: true,
+                            position: 'top-end',
+                            icon: 'info',
+                            title: 'Có đơn đặt hàng mới!',
+                            text: `Bạn vừa nhận được ${newOrdersCount} đơn hàng mới.`,
+                            showConfirmButton: false,
+                            timer: 5000,
+                            timerProgressBar: true
+                        });
+
+                        // Play a notification sound
+                        try {
+                            const audio = new Audio('https://actions.google.com/sounds/v1/alarms/beep_short.ogg');
+                            audio.play().catch(e => { console.log('Autoplay prevented or audio error'); });
+                        } catch (e) { }
+                    }
                 } else {
+                    console.log('❌ No orders in Firebase');
                     sampleOrders = [];
                     renderRecentOrders();
                     renderOrders();
                 }
+
+                isInitialOrdersLoad = false;
                 updateStats(); // Refresh stats when data changes
             });
         }
@@ -4101,6 +4218,12 @@
                     updateDynamicCategories([]); // Clean up
                     filterProductsByCategory('all');
                 }
+                
+                // Cập nhật notification panel nếu đang mở
+                if (document.getElementById('notifPanel').classList.contains('open')) {
+                    loadNotifications();
+                }
+                
                 updateStats(); // Refresh stats when data changes
             });
         }
@@ -4131,6 +4254,206 @@
                 }
             });
         };
+
+        // --- Hệ thống Thông báo (Bell & Mail) ---
+        window.toggleNotifPanel = function () {
+            document.getElementById('notifPanel').classList.toggle('show');
+            loadNotifications();
+        };
+        window.closeNotifPanel = function () {
+            document.getElementById('notifPanel').classList.remove('show');
+        };
+
+        window.toggleResMailPanel = function () {
+            const panel = document.getElementById('resMailPanel');
+            if (panel) panel.classList.toggle('show');
+            if (window.loadResMailNotifications) window.loadResMailNotifications();
+        };
+        window.closeResMailPanel = function () {
+            const panel = document.getElementById('resMailPanel');
+            if (panel) panel.classList.remove('show');
+        };
+
+        // Real-time listeners cho thông báo
+        let ordersListener = null;
+        let productsListener = null;
+        let reviewsListener = null;
+        let reservationsListener = null;
+
+        window.setupNotificationListeners = async function() {
+            console.log('✅ Notification listeners initialized - using main data sources');
+        };
+
+        window.loadNotifications = async function () {
+            const notifList = document.getElementById('notifList');
+            const notifBadge = document.getElementById('notifCountBadge');
+            const spinIcon = document.getElementById('notifSpinIcon');
+            if (!notifList || !notifBadge) return;
+
+            if (spinIcon) spinIcon.classList.add('fa-spin');
+            let notifications = [];
+
+            try {
+                // 1. Đơn hàng chờ xác nhận
+                const pendingOrders = sampleOrders.filter(o => o.status === 'pending');
+                if (pendingOrders.length > 0) {
+                    notifications.push({
+                        id: 'order-pending',
+                        icon: 'fa-receipt', color: '#3b82f6', tag: 'ĐƠN HÀNG',
+                        tagClass: 'notif-tag-promo', 
+                        title: `Có ${pendingOrders.length} đơn hàng mới`,
+                        desc: 'Vui lòng kiểm tra và xác nhận đơn hàng',
+                        time: Date.now(), 
+                        onclick: "if(window.showSection) showSection('orders'); if(window.filterOrders) filterOrders('pending'); deleteNotification('order-pending')"
+                    });
+                }
+
+                // 2. Sản phẩm sắp hết hàng
+                const lowStockProducts = sampleProducts.filter(p => p.stock !== undefined && p.stock <= 10 && p.isAvailable !== false);
+                if (lowStockProducts.length > 0) {
+                    notifications.push({
+                        id: 'product-lowstock',
+                        icon: 'fa-box-open', color: '#ef4444', tag: 'KHO HÀNG',
+                        tagClass: 'notif-tag-stock',
+                        title: `Có ${lowStockProducts.length} sản phẩm sắp hết hàng`,
+                        desc: lowStockProducts.slice(0, 3).map(p => p.name).join(', ') + (lowStockProducts.length > 3 ? '...' : ''),
+                        time: Date.now(), 
+                        onclick: "if(window.showSection) showSection('products'); deleteNotification('product-lowstock')"
+                    });
+                }
+
+                // 3. Đánh giá mới
+                try {
+                    const revSnap = await get(ref(db, 'reviews'));
+                    if (revSnap.exists()) {
+                        let pendingReviews = 0;
+                        revSnap.forEach(child => {
+                            if (child.val().status === 'pending') pendingReviews++;
+                        });
+                        if (pendingReviews > 0) {
+                            notifications.push({
+                                id: 'review-pending',
+                                icon: 'fa-star', color: '#f59e0b', tag: 'ĐÁNH GIÁ',
+                                tagClass: 'notif-tag-review',
+                                title: `Ký duyệt ${pendingReviews} đánh giá mới`,
+                                desc: 'Khách hàng vừa để lại đánh giá về sản phẩm',
+                                time: Date.now(), 
+                                onclick: "if(window.showSection) showSection('reviews'); if(window.filterReviewTab) filterReviewTab('pending'); deleteNotification('review-pending')"
+                            });
+                        }
+                    }
+                } catch (e) { }
+
+                // Lọc bỏ những thông báo đã xem
+                const viewedNotifs = JSON.parse(localStorage.getItem('viewedNotifications') || '[]');
+                notifications = notifications.filter(n => !viewedNotifs.includes(n.id));
+
+                // Hiển thị
+                if (notifications.length === 0) {
+                    notifList.innerHTML = '<div class="notif-empty"><i class="fas fa-bell-slash"></i><p>Không có thông báo mới</p></div>';
+                    notifBadge.style.display = 'none';
+                } else {
+                    notifBadge.style.display = 'inline-block';
+                    notifBadge.textContent = notifications.length;
+                    notifList.innerHTML = notifications.map(n => `
+                        <div class="notif-item" onclick="${n.onclick}">
+                            <button class="notif-delete-btn" onclick="event.stopPropagation(); deleteNotification('${n.id}'); loadNotifications()" title="Xóa thông báo">
+                                <i class="fas fa-times"></i>
+                            </button>
+                            <div class="notif-icon-wrap" style="background:${n.color}22;color:${n.color}">
+                                <i class="fas ${n.icon}"></i>
+                            </div>
+                            <div class="notif-body">
+                                <div class="notif-title">${n.title}</div>
+                                <div class="notif-desc">${n.desc}</div>
+                                <div class="notif-meta">
+                                    <span class="notif-tag ${n.tagClass}">${n.tag}</span>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+            } catch (e) {
+                console.error('loadNotifications error:', e);
+                notifList.innerHTML = '<div class="notif-empty"><i class="fas fa-exclamation-triangle" style="color:#ef4444"></i><p>Lỗi tải thông báo</p></div>';
+            }
+            if (spinIcon) spinIcon.classList.remove('fa-spin');
+        };
+
+        // Hàm xóa thông báo
+        window.deleteNotification = function(notifId) {
+            const viewedNotifs = JSON.parse(localStorage.getItem('viewedNotifications') || '[]');
+            if (!viewedNotifs.includes(notifId)) {
+                viewedNotifs.push(notifId);
+                localStorage.setItem('viewedNotifications', JSON.stringify(viewedNotifs));
+            }
+        };
+
+        window.loadResMailNotifications = function () {
+            const notifList = document.getElementById('resMailList');
+            const resBadge = document.getElementById('resMailBadge');
+            const spinIcon = document.getElementById('resMailSpinIcon');
+            if (!notifList) return;
+            if (spinIcon) spinIcon.classList.add('fa-spin');
+
+            // Tìm số lượng reservation pending
+            let pendingCount = 0;
+            if (window.allReservations) {
+                pendingCount = window.allReservations.filter(r => r.status === 'pending').length;
+            }
+
+            if (pendingCount > 0) {
+                // Kiểm tra xem reservation notification đã được xem chưa
+                const viewedNotifs = JSON.parse(localStorage.getItem('viewedNotifications') || '[]');
+                const notifId = 'reservation-pending';
+                
+                if (viewedNotifs.includes(notifId)) {
+                    notifList.innerHTML = '<div class="notif-empty"><i class="fas fa-inbox"></i><p>Không có yêu cầu đặt bàn mới</p></div>';
+                    if (resBadge) resBadge.style.display = 'none';
+                } else {
+                    notifList.innerHTML = `
+                        <div class="notif-item" onclick="if(window.showSection) showSection('reservations'); deleteNotification('${notifId}'); loadResMailNotifications(); closeResMailPanel()">
+                            <button class="notif-delete-btn" onclick="event.stopPropagation(); deleteNotification('${notifId}'); loadResMailNotifications()" title="Xóa thông báo">
+                                <i class="fas fa-times"></i>
+                            </button>
+                            <div class="notif-icon-wrap" style="background:rgba(245,158,11,0.2);color:#f59e0b">
+                                <i class="fas fa-calendar-plus"></i>
+                            </div>
+                            <div class="notif-body">
+                                <div class="notif-title">Có ${pendingCount} yêu cầu đặt bàn mới</div>
+                                <div class="notif-desc">Bạn cần xếp bàn và xác nhận cho khách</div>
+                                <div class="notif-meta">
+                                    <span class="notif-tag notif-tag-reservation">ĐẶT BÀN</span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    if (resBadge) {
+                        resBadge.style.display = 'inline-block';
+                        resBadge.textContent = pendingCount;
+                    }
+                }
+            } else {
+                notifList.innerHTML = '<div class="notif-empty"><i class="fas fa-inbox"></i><p>Không có yêu cầu đặt bàn mới</p></div>';
+                if (resBadge) resBadge.style.display = 'none';
+            }
+
+            if (spinIcon) setTimeout(() => spinIcon.classList.remove('fa-spin'), 300);
+        };
+
+        // Đóng panel khi click ra ngoài
+        window.addEventListener('click', function (e) {
+            const btn1 = document.getElementById('notifBellWrap');
+            const pnl1 = document.getElementById('notifPanel');
+            if (btn1 && pnl1 && !btn1.contains(e.target) && !pnl1.contains(e.target)) {
+                pnl1.classList.remove('show');
+            }
+            const btn2 = document.getElementById('resMailWrap');
+            const pnl2 = document.getElementById('resMailPanel');
+            if (btn2 && pnl2 && !btn2.contains(e.target) && !pnl2.contains(e.target)) {
+                pnl2.classList.remove('show');
+            }
+        });
 
         window.deleteOrder = function (orderId) {
             Swal.fire({
@@ -4569,6 +4892,19 @@
             if (!order) return;
 
             const modalBody = document.getElementById('orderModalBody');
+            
+            // Status dropdown options
+            const statusOptions = ['pending', 'confirmed', 'processing', 'shipping', 'delivered', 'completed', 'cancelled'];
+            const statusMap = {
+                'pending': 'Chờ xác nhận',
+                'confirmed': 'Đã xác nhận',
+                'processing': 'Đang chuẩn bị',
+                'shipping': 'Đang giao',
+                'delivered': 'Hoàn thành',
+                'completed': 'Hoàn thành',
+                'cancelled': 'Đã hủy'
+            };
+            
             modalBody.innerHTML = `
                 <div style="margin-bottom: 20px;">
                     <p><strong>Mã đơn hàng:</strong> #${order.id.slice(-6)}</p>
@@ -4579,6 +4915,17 @@
                         ? 'Đã thanh toán qua ' + (order.payment === 'vnpay' ? 'VNPay' : order.payment === 'momo' ? 'MoMo' : 'Chuyển khoản')
                         : (order.payment === 'vnpay' ? 'VNPay' : order.payment === 'momo' ? 'MoMo' : 'Chuyển khoản'))
                 }</p>
+                </div>
+                <div style="margin-bottom: 20px;">
+                    <h4 style="margin-bottom: 10px;">Trạng thái đơn hàng</h4>
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <select id="orderStatus" style="padding: 8px 12px; border-radius: 6px; border: 1px solid var(--secondary); font-size: 0.9rem;">
+                            ${statusOptions.map(s => `<option value="${s}" ${s === order.status ? 'selected' : ''}>${statusMap[s]}</option>`).join('')}
+                        </select>
+                        <button onclick="updateOrderStatus('${orderId}')" class="btn btn-primary btn-sm">
+                            <i class="fas fa-check"></i> Cập nhật
+                        </button>
+                    </div>
                 </div>
                 <div style="margin-bottom: 20px;">
                     <h4 style="margin-bottom: 10px;">Thông tin khách hàng</h4>
@@ -4616,7 +4963,7 @@
 
             document.getElementById('orderModal').classList.add('show');
 
-            // Handle Confirm Button Click
+            // Handle Confirm Button Click (deprecated, now using dropdown)
             const confirmBtn = document.getElementById('confirmOrderBtn');
             if (order.status === 'pending') {
                 confirmBtn.style.display = 'inline-block';
@@ -4653,6 +5000,107 @@
                 };
             } else {
                 confirmBtn.style.display = 'none';
+            }
+        };
+
+        // Hàm tải lại đơn hàng từ Firebase (dùng cho nút Làm mới)
+        window.loadAdminOrders = function() {
+            console.log('🔄 Refreshing orders from Firebase...');
+            renderOrders();
+        };
+
+        // DEBUG: Tạo đơn hàng test cho mục đích demo
+        window.createTestOrders = async function() {
+            const testOrders = [
+                {
+                    customer: { fullName: 'Nguyễn Văn Test', email: 'test@example.com', phone: '0901234567' },
+                    items: [{ name: 'Espresso', quantity: 1, price: 35000, id: '-NqA1' }],
+                    payment: 'vnpay',
+                    shipping: 15000,
+                    subtotal: 35000,
+                    total: 50000,
+                    status: 'delivered',
+                    createdAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
+                    stockDeducted: true
+                },
+                {
+                    customer: { fullName: 'Trần Thị Demo', email: 'demo@example.com', phone: '0909876543' },
+                    items: [{ name: 'Cappuccino', quantity: 2, price: 45000, id: '-NqA2' }],
+                    payment: 'momo',
+                    shipping: 10000,
+                    subtotal: 90000,
+                    total: 100000,
+                    status: 'completed',
+                    createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
+                    stockDeducted: true
+                },
+                {
+                    customer: { fullName: 'Lê Minh Test', email: 'test2@example.com', phone: '0912345678' },
+                    items: [{ name: 'Caramel Latte', quantity: 1, price: 50000, id: '-NqA3' }],
+                    payment: 'cod',
+                    shipping: 20000,
+                    subtotal: 50000,
+                    total: 70000,
+                    status: 'pending',
+                    createdAt: new Date().toISOString(),
+                    stockDeducted: false
+                }
+            ];
+
+            try {
+                for (const order of testOrders) {
+                    const newRef = push(ref(db, 'orders'), order);
+                    console.log(`✅ Created test order:`, await newRef);
+                }
+                Swal.fire('✅ Thành công', 'Tạo đơn hàng test thành công! Refresh trang để thấy dữ liệu.', 'success');
+            } catch (error) {
+                console.error('❌ Error creating test orders:', error);
+                Swal.fire('❌ Lỗi', 'Không thể tạo đơn hàng test: ' + error.message, 'error');
+            }
+        };
+
+        // Hàm cập nhật status đơn hàng
+        window.updateOrderStatus = async function(orderId) {
+            const newStatus = document.getElementById('orderStatus').value;
+            const order = sampleOrders.find(o => o.id === orderId);
+            
+            if (!order) {
+                Swal.fire('Lỗi', 'Không tìm thấy đơn hàng.', 'error');
+                return;
+            }
+            
+            try {
+                console.log(`🔄 Updating order ${orderId} status from '${order.status}' to '${newStatus}'`);
+                
+                await update(ref(db, 'orders/' + orderId), { status: newStatus });
+                
+                // Nếu chuyển sang 'pending' → 'shipping', trừ tồn kho
+                if (order.status === 'pending' && newStatus === 'shipping') {
+                    if (!order.stockDeducted && order.items && order.items.length) {
+                        const deductPromises = order.items.map(async (item) => {
+                            if (!item.id) return;
+                            try {
+                                const snapStock = await get(ref(db, `products/${item.id}/stock`));
+                                const currentStock = snapStock.exists() ? Number(snapStock.val()) : 0;
+                                const newStock = Math.max(0, currentStock - (item.quantity || 1));
+                                await update(ref(db, `products/${item.id}`), { stock: newStock });
+                            } catch (e) { console.warn('Error deducting stock:', e); }
+                        });
+                        await Promise.all(deductPromises);
+                        await update(ref(db, 'orders/' + orderId), { stockDeducted: true });
+                    }
+                }
+                
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Thành công',
+                    text: 'Cập nhật trạng thái đơn hàng thành công!',
+                    confirmButtonColor: '#d4a574'
+                });
+                closeModal('orderModal');
+            } catch (error) {
+                console.error('❌ Lỗi khi cập nhật status:', error);
+                Swal.fire('Lỗi', 'Không thể cập nhật trạng thái: ' + error.message, 'error');
             }
         };
 
@@ -4736,13 +5184,35 @@
 
         // Filter orders
         window.filterOrders = function (status) {
+            console.log(`🔍 Filtering orders by status: ${status}`);
+            console.log(`📦 Total orders in sampleOrders: ${sampleOrders.length}`);
+            
             if (status === 'all') {
+                console.log('Showing all orders');
                 renderOrders();
             } else if (status === 'shipping') {
                 const filtered = sampleOrders.filter(o => o.status === 'shipping' || o.status === 'confirmed' || o.status === 'processing');
+                console.log(`Shipping orders found: ${filtered.length}`);
+                renderOrders(filtered);
+            } else if (status === 'delivered') {
+                // Hiển thị cả 'delivered' và 'completed' vì cả hai đều là hoàn thành
+                const filtered = sampleOrders.filter(o => o.status === 'delivered' || o.status === 'completed');
+                console.log(`Delivered/Completed orders found: ${filtered.length}`);
+                if (filtered.length === 0) {
+                    console.log('Status breakdown:', {
+                        pending: sampleOrders.filter(o => o.status === 'pending').length,
+                        confirmed: sampleOrders.filter(o => o.status === 'confirmed').length,
+                        processing: sampleOrders.filter(o => o.status === 'processing').length,
+                        shipping: sampleOrders.filter(o => o.status === 'shipping').length,
+                        delivered: sampleOrders.filter(o => o.status === 'delivered').length,
+                        completed: sampleOrders.filter(o => o.status === 'completed').length,
+                        cancelled: sampleOrders.filter(o => o.status === 'cancelled').length
+                    });
+                }
                 renderOrders(filtered);
             } else {
                 const filtered = sampleOrders.filter(o => o.status === status);
+                console.log(`Orders with status '${status}': ${filtered.length}`);
                 renderOrders(filtered);
             }
         };
@@ -4962,9 +5432,11 @@
         // Show section
         window.showSection = function (sectionName) {
             document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('active'));
-            document.getElementById(sectionName + 'Section').classList.add('active');
+            const sectionEl = document.getElementById(sectionName + 'Section');
+            if (sectionEl) sectionEl.classList.add('active');
             document.querySelectorAll('.menu-item').forEach(m => m.classList.remove('active'));
-            document.querySelector(`[data-section="${sectionName}"]`).classList.add('active');
+            const menuEl = document.querySelector(`[data-section="${sectionName}"]`);
+            if (menuEl) menuEl.classList.add('active');
             if (sectionName === 'tables') {
                 switchTableTab('floormap');
             }
@@ -5342,6 +5814,10 @@
                 if (adminBadge) {
                     adminBadge.textContent = pendingCount;
                     adminBadge.style.display = pendingCount > 0 ? 'inline-flex' : 'none';
+                }
+                // Cập nhật notification panel nếu đang mở
+                if (document.getElementById('notifPanel').classList.contains('open')) {
+                    loadNotifications();
                 }
                 filterAdminReviews(currentReviewFilter);
             } catch (e) {
@@ -6595,7 +7071,7 @@
                                 title: `Đánh giá mới từ <strong>${r.userName || 'khách hàng'}</strong>`,
                                 body: `${r.rating ? '⭐'.repeat(r.rating) + ' — ' : ''}${(r.content || '').slice(0, 70)}${(r.content || '').length > 70 ? '…' : ''}`,
                                 time: r.createdAt,
-                                action: `showSection('reviewsSection')`
+                                action: `showSection('reviews')`
                             });
                         }
                     });
@@ -6608,6 +7084,7 @@
                 if (snapP.exists()) {
                     snapP.forEach(c => {
                         const p = c.val();
+                        if (!p || !p.name) return; // Skip if product doesn't have name
                         const stock = Number(p.stock);
                         if (p.isAvailable !== false && !isNaN(stock) && stock <= LOW_STOCK_THRESHOLD) {
                             notifs.push({
@@ -6615,11 +7092,11 @@
                                 icon: stock === 0 ? 'fa-times-circle' : 'fa-box-open',
                                 color: stock === 0 ? '#dc2626' : '#f97316',
                                 title: stock === 0
-                                    ? `Hết hàng: <strong>${p.name}</strong>`
-                                    : `Sắp hết: <strong>${p.name}</strong>`,
+                                    ? `Hết hàng: <strong>${p.name || 'Sản phẩm'}</strong>`
+                                    : `Sắp hết: <strong>${p.name || 'Sản phẩm'}</strong>`,
                                 body: stock === 0 ? 'Không còn hàng trong kho' : `Còn ${stock} sản phẩm trong kho`,
                                 time: now,
-                                action: `showSection('productsSection')`
+                                action: `showSection('products')`
                             });
                         }
                     });
@@ -6640,7 +7117,7 @@
                                 title: `Khuyến mãi hết hạn: <strong>${p.code || ''}</strong>`,
                                 body: p.title || '',
                                 time: Number(p.endDate),
-                                action: `showSection('promotionsSection')`
+                                action: `showSection('promotions')`
                             });
                         }
                     });
@@ -8308,6 +8785,15 @@
                     loadUsers();
                     // Đăng nhập: luôn (re)start listener — phòng trường hợp listener cũ đã chết
                     startReservationsListener();
+                    // Cập nhật notifications mỗi 10 giây khi panel mở
+                    setInterval(() => {
+                        if (document.getElementById('notifPanel') && document.getElementById('notifPanel').classList.contains('open')) {
+                            loadNotifications();
+                        }
+                        if (document.getElementById('resMailPanel') && document.getElementById('resMailPanel').classList.contains('open')) {
+                            loadResMailNotifications();
+                        }
+                    }, 10000);
                     // Khởi động background jobs (chỉ một lần)
                     if (!window._bgJobStarted) {
                         window._bgJobStarted = true;
