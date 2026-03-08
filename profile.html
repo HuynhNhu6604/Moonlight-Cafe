@@ -1227,7 +1227,7 @@
                     </div>
                     <div class="order-items-preview">
                         ${order.items.slice(0, 3).map(item => `
-                            <img src="${item.image}" alt="${item.name}" class="order-item-thumb">
+                            <img src="${item.imageUrl || item.image || 'https://via.placeholder.com/60x50'}" alt="${item.name}" class="order-item-thumb">
                         `).join('')}
                         ${order.items.length > 3 ? `<span style="align-self: center; color: var(--text-muted);">+${order.items.length - 3} more</span>` : ''}
                     </div>
@@ -1248,7 +1248,7 @@
                             ${order.items.map(item => `
                                 <div class="order-product-item">
                                     <div class="order-product-info">
-                                        <img src="${item.image}" alt="${item.name}" class="order-product-img">
+                                        <img src="${item.imageUrl || item.image || 'https://via.placeholder.com/60x50'}" alt="${item.name}" class="order-product-img">
                                         <div>
                                             <div class="order-product-name">${item.name}</div>
                                             <div class="order-product-qty">${item.quantity} x ${formatCurrency(item.price)}</div>
