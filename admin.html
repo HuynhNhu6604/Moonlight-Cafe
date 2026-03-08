@@ -3832,6 +3832,7 @@
                 'processing': { text: 'Đang chuẩn bị', class: 'status-processing' },
                 'shipping': { text: 'Đang giao', class: 'status-shipping' },
                 'delivered': { text: 'Hoàn thành', class: 'status-delivered' },
+                'completed': { text: 'Hoàn thành', class: 'status-delivered' },
                 'cancelled': { text: 'Đã hủy', class: 'status-cancelled' }
             };
             const s = statusMap[status] || statusMap.pending;
@@ -4164,7 +4165,7 @@
             const phone = user.phone || '—';
             const address = user.address ? `${user.address}${user.ward ? ', ' + user.ward : ''}${user.district ? ', ' + user.district : ''}` : '—';
             const userOrders = sampleOrders.filter(o => o.customer && o.customer.email === user.email);
-            const totalSpent = userOrders.filter(o => ['delivered', 'shipping'].includes(o.status)).reduce((s, o) => s + (o.total || 0), 0);
+            const totalSpent = userOrders.filter(o => ['delivered', 'completed', 'shipping'].includes(o.status)).reduce((s, o) => s + (o.total || 0), 0);
             const THREE_MONTHS = 90 * 24 * 60 * 60 * 1000;
             let lastActive = user.lastLoginAt || null;
             if (!lastActive && userOrders.length) {
@@ -4660,8 +4661,8 @@
             const order = sampleOrders.find(o => o.id === orderId);
             if (!order) return;
 
-            const statusOptions = ['pending', 'confirmed', 'processing', 'shipping', 'delivered', 'cancelled'];
-            const statusText = { 'pending': 'Chờ xác nhận', 'confirmed': 'Đã xác nhận', 'processing': 'Đang chuẩn bị', 'shipping': 'Đang giao', 'delivered': 'Hoàn thành', 'cancelled': 'Đã hủy' };
+            const statusOptions = ['pending', 'confirmed', 'processing', 'shipping', 'delivered', 'completed', 'cancelled'];
+            const statusText = { 'pending': 'Chờ xác nhận', 'confirmed': 'Đã xác nhận', 'processing': 'Đang chuẩn bị', 'shipping': 'Đang giao', 'delivered': 'Hoàn thành', 'completed': 'Hoàn thành', 'cancelled': 'Đã hủy' };
 
             let optionsHtml = statusOptions.map(s => `<option value="${s}" ${order.status === s ? 'selected' : ''}>${statusText[s]}</option>`).join('');
 
@@ -4681,7 +4682,7 @@
                         await update(ref(db, 'orders/' + orderId), { status: newStatus });
 
                         // ⇒ Xác nhận đơn: trừ tồn kho (chỉ lần đầu, kiểm tra cờ stockDeducted)
-                        const DEDUCT_STATUSES = ['confirmed', 'processing', 'shipping', 'delivered'];
+                        const DEDUCT_STATUSES = ['confirmed', 'processing', 'shipping', 'delivered', 'completed'];
                         const wasDeducted = !!order.stockDeducted;
                         const shouldDeduct = DEDUCT_STATUSES.includes(newStatus) && !DEDUCT_STATUSES.includes(oldStatus) && !wasDeducted;
                         const shouldRestore = newStatus === 'cancelled' && wasDeducted;
@@ -5068,7 +5069,7 @@
             }
 
             // Doanh thu (delivered + shipping)
-            const validRevStatuses = ['delivered', 'shipping'];
+            const validRevStatuses = ['delivered', 'completed', 'shipping'];
             const revOrders = sampleOrders.filter(o => validRevStatuses.includes(o.status));
             const revThis = revOrders.filter(o => isThisMonth(o.createdAt)).reduce((s, o) => s + (o.total || 0), 0);
             const revLast = revOrders.filter(o => isLastMonth(o.createdAt)).reduce((s, o) => s + (o.total || 0), 0);
@@ -5122,7 +5123,7 @@
                 const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
                 labels.push('T' + (d.getMonth() + 1) + '/' + String(d.getFullYear()).slice(-2));
                 const rev = sampleOrders
-                    .filter(o => ['delivered', 'shipping'].includes(o.status) && o.createdAt)
+                    .filter(o => ['delivered', 'completed', 'shipping'].includes(o.status) && o.createdAt)
                     .filter(o => { const od = new Date(o.createdAt); return od.getFullYear() === d.getFullYear() && od.getMonth() === d.getMonth(); })
                     .reduce((s, o) => s + (o.total || 0), 0);
                 data.push(rev);
@@ -5137,6 +5138,7 @@
         function updateStatusChart() {
             const statusConfig = [
                 { key: 'delivered', label: 'Hoàn thành', color: '#10b981', icon: 'fa-check-circle', revenueCount: true },
+                { key: 'completed', label: 'Hoàn thành', color: '#10b981', icon: 'fa-check-circle', revenueCount: true },
                 { key: 'shipping', label: 'Đang giao', color: '#3b82f6', icon: 'fa-shipping-fast', revenueCount: true },
                 { key: 'processing', label: 'Đang chuẩn bị', color: '#8b5cf6', icon: 'fa-box-open', revenueCount: false },
                 { key: 'confirmed', label: 'Đã xác nhận', color: '#06b6d4', icon: 'fa-clipboard-check', revenueCount: false },
@@ -5177,7 +5179,7 @@
             }
 
             // --- Cập nhật Widget Biểu đồ Top 5 ---
-            const validOrders = sampleOrders.filter(o => ['delivered', 'shipping'].includes(o.status));
+            const validOrders = sampleOrders.filter(o => ['delivered', 'completed', 'shipping'].includes(o.status));
             const itemCounts = {};
             validOrders.forEach(o => {
                 if (o.items && Array.isArray(o.items)) {
@@ -6361,7 +6363,7 @@
         window.exportOrdersExcel = function () {
             if (!window.XLSX) { alert('Thư viện Excel chưa tải xong, vui lòng thử lại.'); return; }
             if (!sampleOrders.length) { Swal.fire('Thông báo', 'Chưa có dữ liệu đơn hàng.', 'info'); return; }
-            const stMap = { pending: 'Chờ xác nhận', confirmed: 'Đã xác nhận', processing: 'Đang chuẩn bị', shipping: 'Đang giao', delivered: 'Hoàn thành', cancelled: 'Đã hủy' };
+            const stMap = { pending: 'Chờ xác nhận', confirmed: 'Đã xác nhận', processing: 'Đang chuẩn bị', shipping: 'Đang giao', delivered: 'Hoàn thành', completed: 'Hoàn thành', cancelled: 'Đã hủy' };
             const pyMap = { cod: 'Tiền mặt (COD)', banking: 'Chuyển khoản', momo: 'MoMo', vnpay: 'VNPay' };
             const aoa = [
                 ['DANH SÁCH ĐƠN HÀNG - MOONLIGHT CAFE'],
@@ -6378,7 +6380,7 @@
                 _fmtN(o.subtotal), _fmtN(o.shipping), _fmtN(o.discount), _fmtN(o.total),
                 pyMap[o.payment] || o.payment || '', stMap[o.status] || o.status || '', o.promoCode || '']);
             });
-            const revO = sampleOrders.filter(o => ['delivered', 'shipping'].includes(o.status));
+            const revO = sampleOrders.filter(o => ['delivered', 'completed', 'shipping'].includes(o.status));
             aoa.push([], ['TỔNG KẾT'], ['Tổng đơn hàng', sampleOrders.length],
                 ['Đơn hoàn thành + đang giao', revO.length],
                 ['Tổng doanh thu (đ)', revO.reduce((s, o) => s + _fmtN(o.total), 0)]);
@@ -6404,7 +6406,7 @@
                 const uord = sampleOrders.filter(o => o.customer?.email === u.email);
                 const spent = uord.filter(o => ['delivered', 'shipping'].includes(o.status)).reduce((s, o) => s + _fmtN(o.total), 0);
                 aoa.push([i + 1, name, u.email || '', u.phone || '', u.role === 'admin' ? 'Admin' : 'Khách hàng',
-                u.provider || 'email', _fmtDS(u.createdAt), uord.length, spent, uord.filter(o => o.status === 'delivered').length]);
+                u.provider || 'email', _fmtDS(u.createdAt), uord.length, spent, uord.filter(o => o.status === 'delivered' || o.status === 'completed').length]);
             });
             const ws = XLSX.utils.aoa_to_sheet(aoa);
             _setW(ws, [5, 26, 30, 15, 14, 14, 15, 12, 18, 17]);

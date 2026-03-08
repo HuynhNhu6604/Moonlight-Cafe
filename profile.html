@@ -785,10 +785,7 @@
                                 <i class="fas fa-shopping-bag"></i>
                                 <span>Lịch sử đơn hàng</span>
                             </div>
-                            <div class="profile-menu-item" data-tab="wishlist">
-                                <i class="fas fa-heart"></i>
-                                <span>Sản phẩm yêu thích</span>
-                            </div>
+
                             <div class="profile-menu-item" data-tab="reservations">
                                 <i class="fas fa-calendar-check"></i>
                                 <span>Lịch sử đặt bàn</span>
@@ -907,16 +904,7 @@
                             </div>
                         </div>
 
-                        <!-- Wishlist Tab -->
-                        <div class="profile-tab" id="wishlistTab">
-                            <h3 class="profile-section-title">
-                                <i class="fas fa-heart"></i>
-                                Sản phẩm yêu thích
-                            </h3>
-                            <div class="wishlist-grid" id="wishlistGrid">
-                                <!-- Wishlist items will be loaded here -->
-                            </div>
-                        </div>
+
 
                         <!-- Reservations Tab -->
                         <div class="profile-tab" id="reservationsTab">
@@ -1169,6 +1157,7 @@
                 'processing': { text: 'Đang chuẩn bị', class: 'status-processing', icon: 'fa-cog fa-spin' },
                 'shipping': { text: 'Đang giao', class: 'status-shipping', icon: 'fa-truck' },
                 'delivered': { text: 'Hoàn thành', class: 'status-delivered', icon: 'fa-check-circle' },
+                'completed': { text: 'Hoàn thành', class: 'status-delivered', icon: 'fa-check-circle' },
                 'cancelled': { text: 'Đã hủy', class: 'status-cancelled', icon: 'fa-times-circle' }
             };
             const s = statusMap[status] || statusMap.pending;
@@ -1332,13 +1321,13 @@
 
         window.confirmReceived = async function (orderId) {
             Swal.fire({
-                title: 'Xác nhận đã nhận hàng?',
-                text: "Bạn xác nhận đã nhận được sản phẩm từ người giao hàng?",
+                title: 'Xác nhận hoàn thành?',
+                text: "Bạn xác nhận đã nhận được sản phẩm từ người giao hàng và hoàn thành đơn hàng?",
                 icon: 'question',
                 showCancelButton: true,
                 confirmButtonColor: '#10b981',
                 cancelButtonColor: '#d33',
-                confirmButtonText: 'Đã nhận',
+                confirmButtonText: 'Hoàn thành',
                 cancelButtonText: 'Hủy'
             }).then(async (result) => {
                 if (result.isConfirmed) {
