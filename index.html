@@ -615,12 +615,16 @@
         // Load featured products
         async function loadFeaturedProducts() {
             try {
+                // Fetch products and orders
                 const productsRef = ref(db, 'products');
-                const snapshot = await get(productsRef);
+                const productsSnapshot = await get(productsRef);
 
-                if (snapshot.exists()) {
+                const ordersRef = ref(db, 'orders');
+                const ordersSnapshot = await get(ordersRef);
+
+                if (productsSnapshot.exists()) {
                     const allProducts = [];
-                    snapshot.forEach((child) => {
+                    productsSnapshot.forEach((child) => {
                         const product = child.val();
                         product.id = child.key;
                         if (product.isAvailable !== false) {
@@ -628,16 +632,67 @@
                         }
                     });
 
-                    // Ưu tiên 1: sản phẩm được admin đánh dấu isFeatured=true
-                    const featuredByAdmin = allProducts.filter(p => p.isFeatured === true);
-                    // Ưu tiên 2: sản phẩm có badge (Best Seller, Mới, Hot...)
-                    const withBadge = allProducts.filter(p => !p.isFeatured && p.badge);
-                    // Ưu tiên 3: còn lại theo thứ tự
-                    const rest = allProducts.filter(p => !p.isFeatured && !p.badge);
+                    // Tính tổng số lượng bán được của mỗi sản phẩm từ các hoá đơn
+                    const soldCounts = {};
+                    let totalSales = 0;
+                    if (ordersSnapshot.exists()) {
+                        ordersSnapshot.forEach(child => {
+                            const order = child.val();
+                            if (order.items && Array.isArray(order.items)) {
+                                order.items.forEach(item => {
+                                    if (item.id) {
+                                        soldCounts[item.id] = (soldCounts[item.id] || 0) + (item.quantity || 1);
+                                        totalSales += (item.quantity || 1);
+                                    }
+                                });
+                            }
+                        });
+                    }
 
-                    // Ghép lại, tối đa 8 sản phẩm
-                    const MAX_FEATURED = 8;
-                    const featured = [...featuredByAdmin, ...withBadge, ...rest].slice(0, MAX_FEATURED);
+                    let featured = [];
+                    if (totalSales > 0) {
+                        // Sắp xếp các sản phẩm theo số lượng đã bán (giảm dần)
+                        allProducts.sort((a, b) => {
+                            const countA = soldCounts[a.id] || 0;
+                            const countB = soldCounts[b.id] || 0;
+                            if (countB !== countA) return countB - countA;
+
+                            // Nếu bằng nhau, ưu tiên sản phẩm nổi bật (badge hot) hoặc isFeatured
+                            const isHotA = a.badge && (String(a.badge).toLowerCase().includes('best') || String(a.badge).toLowerCase().includes('hot')) ? 1 : 0;
+                            const isHotB = b.badge && (String(b.badge).toLowerCase().includes('best') || String(b.badge).toLowerCase().includes('hot')) ? 1 : 0;
+                            if (isHotA !== isHotB) return isHotB - isHotA;
+                            return (b.isFeatured ? 1 : 0) - (a.isFeatured ? 1 : 0);
+                        });
+
+                        featured = allProducts.slice(0, 8);
+                    } else {
+                        // Fallback: Khi CSDL chưa có đơn hàng nào
+                        // Ưu tiên 1: sản phẩm có badge "Best Seller" hoặc "Hot"
+                        let hotProducts = allProducts.filter(p => p.badge && (String(p.badge).toLowerCase().includes('best') || String(p.badge).toLowerCase().includes('hot')));
+
+                        // Fallback 2: Tự động lấy các sản phẩm tiêu biểu
+                        if (hotProducts.length === 0) {
+                            const defaultBestSellers = ["Cà phê sữa đá", "Bạc xỉu", "Cà phê muối", "Trà đào cam sả", "Bánh Tiramisu", "Trà vải", "Cà phê dừa", "Macchiato"];
+                            hotProducts = allProducts.filter(p => defaultBestSellers.includes(p.name));
+                        }
+
+                        // Ưu tiên 2: sản được đánh dấu isFeatured
+                        const featuredByAdmin = allProducts.filter(p => p.isFeatured === true && !hotProducts.includes(p));
+                        // Ưu tiên 3: có badge Mới
+                        const withBadge = allProducts.filter(p => !p.isFeatured && p.badge && !hotProducts.includes(p));
+
+                        const selectedProducts = [...hotProducts, ...featuredByAdmin, ...withBadge];
+
+                        // Ưu tiên 4: Cà phê
+                        const coffees = allProducts.filter(p => p.category === 'coffee' && !selectedProducts.includes(p));
+
+                        // Ưu tiên 5: Còn lại
+                        const rest = allProducts.filter(p => !selectedProducts.includes(p) && !coffees.includes(p));
+
+                        // Ghép lại, tối đa 8 sản phẩm
+                        featured = [...selectedProducts, ...coffees, ...rest].slice(0, 8);
+                    }
+
                     renderFeaturedProducts(featured);
                 } else {
                     featuredProducts.innerHTML = '<div style="grid-column: 1 / -1; text-align: center; color: var(--text-muted); padding: 40px;">Chưa có sản phẩm nổi bật</div>';
