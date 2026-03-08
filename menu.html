@@ -940,9 +940,16 @@
 
         function filterAndRenderProducts() {
             // Filter by category
-            filteredProducts = currentCategory === 'all'
-                ? [...allProducts]
-                : allProducts.filter(p => p.category === currentCategory);
+            if (currentCategory === 'all') {
+                filteredProducts = [...allProducts];
+                // Shuffle array for 'all' category
+                for (let i = filteredProducts.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [filteredProducts[i], filteredProducts[j]] = [filteredProducts[j], filteredProducts[i]];
+                }
+            } else {
+                filteredProducts = allProducts.filter(p => p.category === currentCategory);
+            }
 
             // Filter by search
             if (searchQuery) {
