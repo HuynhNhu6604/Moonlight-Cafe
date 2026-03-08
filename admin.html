@@ -4572,7 +4572,12 @@
                 <div style="margin-bottom: 20px;">
                     <p><strong>Mã đơn hàng:</strong> #${order.id.slice(-6)}</p>
                     <p><strong>Ngày đặt:</strong> ${formatDate(order.createdAt)}</p>
-                    <p><strong>Phương thức thanh toán:</strong> ${order.payment === 'cod' ? 'Tiền mặt (COD)' : order.payment === 'banking' ? 'Chuyển khoản' : 'MoMo'}</p>
+                    <p><strong>Phương thức thanh toán:</strong> ${order.payment === 'cod'
+                    ? 'Thanh toán khi nhận hàng (COD)'
+                    : (['shipping', 'delivered', 'completed'].includes(order.status)
+                        ? 'Đã thanh toán qua ' + (order.payment === 'vnpay' ? 'VNPay' : order.payment === 'momo' ? 'MoMo' : 'Chuyển khoản')
+                        : (order.payment === 'vnpay' ? 'VNPay' : order.payment === 'momo' ? 'MoMo' : 'Chuyển khoản'))
+                }</p>
                 </div>
                 <div style="margin-bottom: 20px;">
                     <h4 style="margin-bottom: 10px;">Thông tin khách hàng</h4>

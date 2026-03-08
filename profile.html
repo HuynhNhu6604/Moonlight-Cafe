@@ -1237,7 +1237,12 @@
                             <p><strong>Người nhận:</strong> ${order.customer.fullName}</p>
                             <p><strong>Điện thoại:</strong> ${order.customer.phone}</p>
                             <p><strong>Địa chỉ:</strong> ${order.customer.address}</p>
-                            <p><strong>Thanh toán:</strong> ${order.payment === 'cod' ? 'Tiền mặt (COD)' : order.payment === 'banking' ? 'Chuyển khoản' : 'MoMo'}</p>
+                            <p><strong>Thanh toán:</strong> ${order.payment === 'cod'
+                    ? 'Thanh toán khi nhận hàng (COD)'
+                    : (['shipping', 'delivered', 'completed'].includes(order.status)
+                        ? 'Đã thanh toán qua ' + (order.payment === 'vnpay' ? 'VNPay' : order.payment === 'momo' ? 'MoMo' : 'Chuyển khoản')
+                        : (order.payment === 'vnpay' ? 'VNPay' : order.payment === 'momo' ? 'MoMo' : 'Chuyển khoản'))
+                }</p>
                         </div>
                         <div class="order-products-list">
                             ${order.items.map(item => `
