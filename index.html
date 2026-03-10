@@ -170,7 +170,7 @@
         <div class="container">
             <div class="about-grid">
                 <div class="about-image">
-                    <img src="https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=600"
+                    <img src="images/gallery/cafe.jpg"
                         alt="Moonlight Cafe Interior">
                     <div class="about-badge">
                         <span class="badge-number">5+</span>
@@ -618,8 +618,14 @@
                 const productsRef = ref(db, 'products');
                 const productsSnapshot = await get(productsRef);
 
-                const ordersRef = ref(db, 'orders');
-                const ordersSnapshot = await get(ordersRef);
+                let ordersSnapshot = null;
+                try {
+                    const ordersRef = ref(db, 'orders');
+                    ordersSnapshot = await get(ordersRef);
+                } catch (ordersError) {
+                    console.warn('Could not load orders data:', ordersError);
+                    // Continue without orders data
+                }
 
                 if (productsSnapshot.exists()) {
                     const allProducts = [];
@@ -634,7 +640,7 @@
                     // Tính tổng số lượng bán được của mỗi sản phẩm từ các hoá đơn
                     const soldCounts = {};
                     let totalSales = 0;
-                    if (ordersSnapshot.exists()) {
+                    if (ordersSnapshot && ordersSnapshot.exists()) {
                         ordersSnapshot.forEach(child => {
                             const order = child.val();
                             if (order.items && Array.isArray(order.items)) {
