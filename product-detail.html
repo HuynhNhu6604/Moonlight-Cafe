@@ -1038,7 +1038,26 @@
             if (!window.currentProduct) return;
 
             const currentUid = auth.currentUser?.uid;
-            const wishlistKey = currentUid ? `moonlight_wishlist_${currentUid}` : 'moonlight_wishlist_guest';
+            
+            // Kiểm tra đăng nhập
+            if (!currentUid) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Vui lòng đăng nhập',
+                    text: 'Bạn cần đăng nhập để sử dụng tính năng yêu thích sản phẩm.',
+                    confirmButtonText: 'Đi đến đăng nhập',
+                    confirmButtonColor: '#d4a574',
+                    showCancelButton: true,
+                    cancelButtonText: 'Huỷ'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = 'login.html';
+                    }
+                });
+                return;
+            }
+
+            const wishlistKey = `moonlight_wishlist_${currentUid}`;
             let wishlist = JSON.parse(localStorage.getItem(wishlistKey)) || [];
             const index = wishlist.findIndex(item => String(item.id) === String(productId));
             const icon = document.getElementById('heart-icon-detail');

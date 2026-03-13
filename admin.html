@@ -2422,10 +2422,6 @@
                     <button class="menu-toggle" id="menuToggle">
                         <i class="fas fa-bars"></i>
                     </button>
-                    <div class="search-box">
-                        <i class="fas fa-search"></i>
-                        <input type="text" placeholder="Tìm kiếm đơn hàng, sản phẩm...">
-                    </div>
                 </div>
 
                 <div class="header-right">
@@ -2726,7 +2722,7 @@
                     <div class="table-header">
                         <h3>Danh sách đơn hàng</h3>
                         <div class="table-actions">
-                            <input type="text" placeholder="Tìm kiếm..." class="form-control" style="width: 250px;">
+                            <input type="text" id="ordersSearchInput" placeholder="Tìm kiếm..." class="form-control" style="width: 250px;">
                             <button class="btn btn-outline btn-sm" onclick="clearAllOrders()" style="color:#ef4444"
                                 title="Xoá toàn bộ đơn hàng">
                                 <i class="fas fa-trash-alt"></i> Xoá tất cả
@@ -2796,6 +2792,7 @@
                     <div class="table-header">
                         <h3>Danh sách sản phẩm</h3>
                         <div class="table-actions">
+                            <input type="text" id="productsSearchInput" placeholder="Tìm kiếm sản phẩm..." class="form-control" style="width: 250px;">
                             <button class="btn btn-outline btn-sm" onclick="clearAllProducts()"
                                 title="Xoá toàn bộ sản phẩm khỏi Firebase" style="color:#ef4444">
                                 <i class="fas fa-trash-alt"></i> Xoá tất cả
@@ -5214,6 +5211,54 @@
                 console.log(`Orders with status '${status}': ${filtered.length}`);
                 renderOrders(filtered);
             }
+        };
+
+        // Search Orders by customer name, order ID, or product name
+        window.searchOrders = function () {
+            const searchInput = document.getElementById('ordersSearchInput');
+            const searchTerm = searchInput ? searchInput.value.toLowerCase().trim() : '';
+            
+            if (!searchTerm) {
+                renderOrders();
+                return;
+            }
+
+            const filtered = sampleOrders.filter(order => {
+                const orderId = order.id.toLowerCase();
+                const customerName = (order.customer?.fullName || '').toLowerCase();
+                const customerPhone = (order.customer?.phone || '').toLowerCase();
+                const itemNames = (order.items || []).map(i => i.name.toLowerCase()).join(' ');
+                
+                return orderId.includes(searchTerm) || 
+                       customerName.includes(searchTerm) || 
+                       customerPhone.includes(searchTerm) || 
+                       itemNames.includes(searchTerm);
+            });
+
+            renderOrders(filtered);
+        };
+
+        // Search Products by name or category
+        window.searchProducts = function () {
+            const searchInput = document.getElementById('productsSearchInput');
+            const searchTerm = searchInput ? searchInput.value.toLowerCase().trim() : '';
+            
+            if (!searchTerm) {
+                filterProductsByCategory(_currentProductCatFilter);
+                return;
+            }
+
+            const filtered = sampleProducts.filter(product => {
+                const name = (product.name || '').toLowerCase();
+                const description = (product.description || '').toLowerCase();
+                const category = (product.category || '').toLowerCase();
+                
+                return name.includes(searchTerm) || 
+                       description.includes(searchTerm) || 
+                       category.includes(searchTerm);
+            });
+
+            renderProducts(filtered);
         };
 
         let currentEditProductId = null;
@@ -8825,6 +8870,27 @@
             // Set default date for reports
             const reportEl = document.getElementById('reportDate');
             if (reportEl) reportEl.valueAsDate = new Date();
+
+            // Add event listeners for search inputs
+            const ordersSearchInput = document.getElementById('ordersSearchInput');
+            if (ordersSearchInput) {
+                ordersSearchInput.addEventListener('input', searchOrders);
+                ordersSearchInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        searchOrders();
+                    }
+                });
+            }
+
+            const productsSearchInput = document.getElementById('productsSearchInput');
+            if (productsSearchInput) {
+                productsSearchInput.addEventListener('input', searchProducts);
+                productsSearchInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        searchProducts();
+                    }
+                });
+            }
         });
 
         // Hide loading overlay
