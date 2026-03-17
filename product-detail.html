@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="vi">
 
 <head>
@@ -802,7 +802,7 @@
     </div>
 
     <script type="module">
-        import { auth, db, ref, get, onAuthStateChanged } from './js/firebase-config.js';
+        import { auth, db, ref, get, push, set, onAuthStateChanged } from './js/firebase-config.js';
 
         // Loading
         window.addEventListener('load', () => {
@@ -1381,8 +1381,24 @@
             }
         });
 
-        // Submit review
-        window.submitReview = function () {
+        // Submit review — save to Firebase
+        window.submitReview = async function () {
+            const user = auth.currentUser;
+            if (!user) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Chưa đăng nhập!',
+                    text: 'Vui lòng đăng nhập để gửi đánh giá.',
+                    showCancelButton: true,
+                    confirmButtonText: 'Đăng nhập',
+                    cancelButtonText: 'Hủy',
+                    confirmButtonColor: '#d4a574'
+                }).then((result) => {
+                    if (result.isConfirmed) window.location.href = 'login.html';
+                });
+                return;
+            }
+
             const name = document.getElementById('reviewerName').value.trim();
             const email = document.getElementById('reviewerEmail').value.trim();
             const content = document.getElementById('reviewContent').value.trim();
@@ -1416,41 +1432,55 @@
                 return;
             }
 
-            // Add new review
-            const newReview = {
-                id: Date.now(),
-                productId: productId,
-                name: name,
-                email: email,
-                rating: currentRating,
-                content: content,
-                date: new Date().toISOString(),
-                helpful: 0,
-                verified: false
-            };
+            try {
+                // Save review to Firebase with productId and pending status
+                const newRef = push(ref(db, 'reviews'));
+                await set(newRef, {
+                    productId: productId,
+                    uid: user.uid,
+                    userName: name,
+                    name: name,
+                    userEmail: email,
+                    rating: currentRating,
+                    content: content,
+                    createdAt: Date.now(),
+                    status: 'pending',
+                    adminRead: false,
+                    adminReply: null,
+                    replyAt: null,
+                    userReadReply: false,
+                    helpful: 0,
+                    verified: false
+                });
 
-            reviews.unshift(newReview);
+                // Reset form
+                document.getElementById('reviewerName').value = '';
+                document.getElementById('reviewerEmail').value = '';
+                document.getElementById('reviewContent').value = '';
+                currentRating = 0;
+                document.querySelectorAll('#starRating .star').forEach(star => {
+                    star.classList.remove('active');
+                    star.classList.add('far');
+                });
 
-            // Reset form
-            document.getElementById('reviewerName').value = '';
-            document.getElementById('reviewerEmail').value = '';
-            document.getElementById('reviewContent').value = '';
-            currentRating = 0;
-            document.querySelectorAll('#starRating .star').forEach(star => {
-                star.classList.remove('active');
-                star.classList.add('far');
-            });
+                // Hide form and reload reviews from Firebase
+                toggleReviewForm();
+                await fetchProductReviews();
 
-            // Hide form and re-render
-            toggleReviewForm();
-            renderReviews();
-
-            Swal.fire({
-                icon: 'success',
-                title: 'Cảm ơn bạn!',
-                text: 'Đánh giá của bạn đã được gửi thành công.',
-                confirmButtonColor: '#d4a574'
-            });
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Cảm ơn bạn!',
+                    text: 'Đánh giá của bạn đã được gửi và đang chờ duyệt.',
+                    confirmButtonColor: '#d4a574'
+                });
+            } catch (error) {
+                console.error('Error submitting review:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Lỗi!',
+                    text: 'Không thể gửi đánh giá. Vui lòng thử lại.'
+                });
+            }
         };
 
         // Mark helpful
@@ -1468,8 +1498,8 @@
             renderReviews();
         };
 
-        // Initialize reviews
-        renderReviews();
+        // Initialize reviews — load from Firebase
+        fetchProductReviews();
     </script>
     <script type="module">
         import { updateMsgBadge, loadStoreInfo } from './js/nav-helper.js';

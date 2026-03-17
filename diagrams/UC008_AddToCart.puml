@@ -1,0 +1,72 @@
+@startuml UC008_AddToCart_Sequence_Diagram
+title UC008: Thêm sản phẩm vào giỏ hàng - Sequence Diagram
+
+actor "Người dùng" as User
+participant "Giao diện Menu\n(menu.html)" as UI
+participant "Firebase Realtime\nDatabase" as DB
+participant "localStorage" as LS
+
+User -> UI: 1. Nhấn "Thêm vào giỏ hàng"
+activate UI
+
+UI -> UI: 2. Kiểm tra đăng nhập
+
+alt Đã đăng nhập
+    UI -> DB: 3. Kiểm tra tồn kho real-time\n(products/{id}/stock)
+    activate DB
+    DB --> UI: 4. Trả về số lượng tồn kho
+    deactivate DB
+
+    alt Sản phẩm còn hàng (stock > 0)
+        UI -> LS: 5. Đọc giỏ hàng\n(moonlight_cart_{uid})
+
+        alt Sản phẩm đã có trong giỏ
+            UI -> LS: 6. Tăng số lượng thêm 1
+        else Sản phẩm chưa có
+            UI -> LS: 6. Thêm mới với số lượng 1
+        end
+
+        UI -> UI: 7. Cập nhật badge số lượng\ngiỏ hàng trên nav
+        UI --> User: 8. Hiển thị toast\n"Đã thêm vào giỏ hàng!"
+        note right: Postcondition:\nSản phẩm đã được\nthêm vào giỏ hàng
+    else Hết hàng (stock <= 0)
+        UI --> User: Thông báo "Hết hàng"
+    else Số lượng vượt tồn kho
+        UI --> User: Thông báo "Không đủ số lượng"
+    end
+else Chưa đăng nhập
+    UI --> User: Yêu cầu đăng nhập trước
+    note right: Exception:\nChưa đăng nhập
+end
+
+deactivate UI
+
+@enduml
+
+/' ============================================================
+   MÔ TẢ BIỂU ĐỒ TUẦN TỰ - UC008: THÊM SẢN PHẨM VÀO GIỎ HÀNG
+============================================================ '/
+
+Biểu đồ tuần tự mô tả quy trình thêm sản phẩm vào giỏ hàng,
+bao gồm 4 thành phần: Người dùng, Trang Menu, Firebase Database và localStorage.
+
+Luồng xử lý chính:
+
+Bước 1: Người dùng nhấn nút "Thêm vào giỏ hàng" trên trang Menu hoặc Chi tiết SP.
+Bước 2: Hệ thống kiểm tra trạng thái đăng nhập.
+
+Bước 3: Xử lý điều kiện
+
+  Trường hợp A: Đã đăng nhập
+  - Hệ thống kiểm tra tồn kho real-time từ Firebase (products/{id}/stock).
+    + Nếu còn hàng (stock > 0):
+      * Sản phẩm đã có trong giỏ → tăng số lượng thêm 1.
+      * Sản phẩm chưa có → thêm mới với số lượng 1.
+      * Giỏ hàng lưu vào localStorage (moonlight_cart_{uid}).
+      * Cập nhật badge số lượng giỏ hàng trên thanh điều hướng.
+      * Hiển thị thông báo toast "Đã thêm vào giỏ hàng!".
+    + Nếu hết hàng (stock <= 0) → thông báo "Hết hàng".
+    + Nếu số lượng vượt tồn kho → thông báo "Không đủ số lượng".
+
+  Trường hợp B: Chưa đăng nhập
+  - Yêu cầu người dùng đăng nhập trước.

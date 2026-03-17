@@ -1,0 +1,84 @@
+@startuml UC013_Reservation_Sequence_Diagram
+title UC013: Đặt bàn trực tuyến - Sequence Diagram
+
+actor "Người dùng" as User
+participant "Giao diện đặt bàn\n(reservation.html)" as UI
+participant "Firebase Realtime\nDatabase" as DB
+participant "Cổng thanh toán\n(MoMo / VNPay)" as Payment
+
+User -> UI: 1. Truy cập trang Đặt bàn
+activate UI
+
+UI -> UI: 2. Kiểm tra đăng nhập
+
+alt Chưa đăng nhập
+    UI --> User: Hiển thị Login Gate\n"Vui lòng đăng nhập để đặt bàn"
+else Đã đăng nhập
+    UI -> DB: 3. Tải tình trạng bàn trống
+    activate DB
+    DB --> UI: Dữ liệu bàn trống theo loại
+    deactivate DB
+
+    == Bước 1: Chọn bàn ==
+    UI --> User: Hiển thị loại bàn (2, 4, 6, 10 người)\nvới tình trạng còn trống
+    User -> UI: 4. Chọn loại bàn, số lượng bàn,\nngày giờ đặt
+
+    == Bước 2: Thông tin ==
+    User -> UI: 5. Nhập họ tên, SĐT, email, ghi chú
+
+    == Bước 3: Đặt cọc ==
+    UI --> User: 6. Hiển thị thông tin đặt cọc\n(10.000đ/người)
+    User -> UI: 7. Chọn phương thức cọc:\nMoMo (quét QR) hoặc VNPay
+
+    User -> UI: 8. Nhấn "Xác nhận đặt bàn"
+
+    UI -> DB: 9. Lưu yêu cầu đặt bàn\n(trạng thái: pending)
+    activate DB
+    DB --> UI: Lưu thành công
+    deactivate DB
+
+    UI -> DB: 10. Gửi thông báo đến Admin
+    UI --> User: Hiển thị thông báo thành công\n"Yêu cầu đặt bàn đã được gửi,\nchờ Admin phê duyệt"
+
+    note right: Postcondition:\nYêu cầu đặt bàn được tạo\nChờ Admin phê duyệt
+end
+
+deactivate UI
+
+@enduml
+
+/' ============================================================
+   MÔ TẢ BIỂU ĐỒ TUẦN TỰ - UC013: ĐẶT BÀN TRỰC TUYẾN
+============================================================ '/
+
+Biểu đồ tuần tự mô tả quy trình đặt bàn trước tại quán café,
+bao gồm 4 thành phần: Người dùng, Trang Đặt bàn, Firebase Database
+và Cổng thanh toán (MoMo/VNPay).
+
+Luồng xử lý chính:
+
+Bước 1: Kiểm tra đăng nhập
+- Người dùng truy cập trang Đặt bàn (reservation.html).
+- Nếu chưa đăng nhập → hiển thị Login Gate yêu cầu đăng nhập/đăng ký.
+
+Bước 2: Chọn bàn (Bước 1 của form)
+- Hệ thống tải tình trạng bàn trống từ Firebase.
+- Người dùng chọn loại bàn (2, 4, 6, 10 người), số lượng bàn, ngày giờ đặt.
+- Xem tình trạng bàn trống real-time.
+
+Bước 3: Nhập thông tin (Bước 2 của form)
+- Nhập họ tên, số điện thoại, email, ghi chú.
+
+Bước 4: Đặt cọc (Bước 3 của form)
+- Hiển thị thông tin đặt cọc (10.000đ/người).
+- Chọn phương thức cọc: MoMo (quét QR) hoặc VNPay.
+
+Bước 5: Xác nhận
+- Nhấn "Xác nhận đặt bàn".
+- Hệ thống lưu yêu cầu đặt bàn vào Firebase (trạng thái: pending).
+- Gửi thông báo đến Admin.
+
+Ngoại lệ:
+- Chưa đăng nhập → Login Gate.
+- Loại bàn hết chỗ → hiển thị "Không khả dụng".
+- Thiếu thông tin bắt buộc → thông báo lỗi.

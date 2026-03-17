@@ -1,0 +1,70 @@
+@startuml UC017_ViewMyReviews_Sequence_Diagram
+title UC017: Xem đánh giá đã gửi - Sequence Diagram
+
+actor "Khách hàng" as User
+participant "Giao diện Liên hệ\n& Đánh giá\n(contact.html)" as UI
+participant "Firebase Auth" as Auth
+participant "Firebase Realtime\nDatabase" as DB
+
+User -> UI: 1. Truy cập trang Liên hệ & Đánh giá
+activate UI
+
+UI -> Auth: 2. Kiểm tra đăng nhập
+activate Auth
+Auth --> UI: Trả về trạng thái
+deactivate Auth
+
+alt Đã đăng nhập
+    UI --> User: 3. Hiển thị tab "Đánh giá"\nvà tab "Gửi liên hệ"
+
+    User -> UI: 4. Chọn tab "Đánh giá"
+
+    UI -> DB: 5. Tải đánh giá của user\n(uid = user hiện tại)
+    activate DB
+    DB --> UI: 6. Trả về danh sách đánh giá
+    deactivate DB
+
+    alt Có đánh giá đã gửi
+        UI --> User: 7. Hiển thị danh sách đánh giá:\n- Số sao\n- Nội dung\n- Trạng thái (Chờ duyệt / Đã duyệt / Từ chối)\n- Ngày gửi\n- Phản hồi từ Admin (nếu có)
+        note right: Đánh giá chỉ đọc,\nkhông chỉnh sửa được.\nĐánh giá mới gửi từ\ntrang chi tiết sản phẩm.
+    else Chưa gửi đánh giá nào
+        UI --> User: "Bạn chưa gửi đánh giá nào."
+    end
+
+    UI --> User: 8. Hiển thị gợi ý:\n"Để gửi đánh giá mới, hãy truy cập\ntrang chi tiết sản phẩm"
+
+else Chưa đăng nhập
+    UI --> User: Hiển thị prompt đăng nhập:\n"Bạn cần đăng nhập để xem đánh giá\nvà gửi liên hệ"
+end
+
+deactivate UI
+
+@enduml
+
+/' ============================================================
+   MÔ TẢ BIỂU ĐỒ TUẦN TỰ - UC017: XEM ĐÁNH GIÁ ĐÃ GỬI
+============================================================ '/
+
+Biểu đồ tuần tự mô tả quy trình xem lại các đánh giá mà khách hàng
+đã gửi, trên trang Liên hệ & Đánh giá (contact.html).
+Bao gồm 4 thành phần: Khách hàng, Trang Liên hệ, Firebase Auth,
+Firebase Database.
+
+Luồng xử lý chính:
+
+Bước 1: Khách hàng truy cập trang Liên hệ & Đánh giá.
+Bước 2: Kiểm tra đăng nhập.
+
+  Trường hợp A: Đã đăng nhập
+  - Hiển thị tab "Đánh giá" và tab "Gửi liên hệ".
+  - Chọn tab "Đánh giá".
+  - Hệ thống tải danh sách đánh giá của user từ Firebase.
+  - Nếu có đánh giá: hiển thị dạng chỉ đọc với trạng thái
+    (Chờ duyệt / Đã duyệt / Từ chối) và phản hồi admin nếu có.
+  - Nếu chưa có: thông báo "Bạn chưa gửi đánh giá nào."
+  - Hiển thị gợi ý đến trang chi tiết sản phẩm để gửi đánh giá mới.
+
+  Trường hợp B: Chưa đăng nhập
+  - Hiển thị prompt yêu cầu đăng nhập.
+
+

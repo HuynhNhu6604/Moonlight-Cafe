@@ -1,0 +1,69 @@
+@startuml UC025_ManageOrders_Sequence_Diagram
+title UC025: Quản lý đơn hàng - Sequence Diagram
+
+actor "Quản trị viên" as Admin
+participant "Giao diện Admin\n(admin.html)" as UI
+participant "Firebase Realtime\nDatabase" as DB
+
+Admin -> UI: 1. Truy cập mục\n"Quản lý đơn hàng"
+activate UI
+
+UI -> DB: 2. Tải danh sách đơn hàng\n(real-time listener)
+activate DB
+DB --> UI: 3. Trả về danh sách đơn hàng
+deactivate DB
+
+UI --> Admin: 4. Hiển thị danh sách đơn hàng
+
+alt Xem chi tiết
+    Admin -> UI: 5. Nhấn vào đơn hàng
+    UI --> Admin: Hiển thị chi tiết:\n- Thông tin khách hàng\n- Danh sách sản phẩm\n- Tổng tiền, PTTT
+else Cập nhật trạng thái
+    Admin -> UI: 6. Chọn trạng thái mới:\nXác nhận → Đang giao → Hoàn thành / Hủy
+    UI -> DB: 7. Cập nhật status đơn hàng
+    activate DB
+    DB --> UI: Cập nhật thành công
+    deactivate DB
+    UI --> Admin: Hiển thị trạng thái mới
+else Xóa đơn hàng
+    Admin -> UI: 8. Nhấn "Xóa"
+    UI --> Admin: Xác nhận xóa?
+    Admin -> UI: Đồng ý
+    UI -> DB: 9. Xóa đơn hàng
+    activate DB
+    DB --> UI: Xóa thành công
+    deactivate DB
+    UI --> Admin: Cập nhật danh sách
+end
+
+note right: Postcondition:\nTrạng thái đơn hàng\nđược cập nhật
+
+deactivate UI
+
+@enduml
+
+/' ============================================================
+   MÔ TẢ BIỂU ĐỒ TUẦN TỰ - UC025: QUẢN LÝ ĐƠN HÀNG
+============================================================ '/
+
+Biểu đồ tuần tự mô tả quy trình quản trị viên quản lý các đơn hàng,
+bao gồm 3 thành phần: Quản trị viên, Giao diện Admin và Firebase Database.
+
+Luồng xử lý chính:
+
+Bước 1: Quản trị viên truy cập mục "Quản lý đơn hàng" trong Admin.
+Bước 2: Hệ thống tải danh sách đơn hàng real-time từ Firebase.
+Bước 3: Hiển thị danh sách đơn hàng.
+
+Bước 4: Các thao tác quản lý
+
+  Trường hợp A: Xem chi tiết
+  - Nhấn vào đơn hàng → hiển thị: thông tin KH, danh sách SP,
+    tổng tiền, phương thức thanh toán.
+
+  Trường hợp B: Cập nhật trạng thái
+  - Chọn trạng thái mới: Xác nhận → Đang giao → Hoàn thành / Hủy.
+  - Hệ thống cập nhật status trong Firebase.
+
+  Trường hợp C: Xóa đơn hàng
+  - Nhấn "Xóa", xác nhận → xóa đơn hàng khỏi Firebase.

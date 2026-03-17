@@ -1,0 +1,53 @@
+@startuml UC036_ViewNews_Sequence_Diagram
+title UC036: Xem trang Tin tức - Sequence Diagram
+
+actor "Người dùng" as User
+participant "Giao diện Tin tức\n(news.html)" as ListUI
+participant "Giao diện chi tiết\n(news-detail.html)" as DetailUI
+participant "Firebase Realtime\nDatabase" as DB
+
+User -> ListUI: 1. Truy cập trang Tin tức
+activate ListUI
+
+ListUI -> DB: 2. Tải danh sách bài viết
+activate DB
+DB --> ListUI: 3. Trả về danh sách news
+deactivate DB
+
+ListUI --> User: 4. Hiển thị danh sách:\nTiêu đề, Hình ảnh, Tóm tắt, Ngày đăng
+
+opt Xem chi tiết bài viết
+    User -> ListUI: 5. Nhấn vào bài viết
+    ListUI -> DetailUI: 6. Chuyển trang\n(news-detail.html)
+    deactivate ListUI
+    activate DetailUI
+    DetailUI -> DB: 7. Lấy nội dung bài viết
+    activate DB
+    DB --> DetailUI: 8. Trả về chi tiết bài viết
+    deactivate DB
+    DetailUI --> User: 9. Hiển thị nội dung đầy đủ
+    deactivate DetailUI
+end
+
+note right: Postcondition:\nDanh sách tin tức\nđược hiển thị
+
+@enduml
+
+/' ============================================================
+   MÔ TẢ BIỂU ĐỒ TUẦN TỰ - UC036: XEM TRANG TIN TỨC
+============================================================ '/
+
+Biểu đồ tuần tự mô tả quy trình người dùng xem danh sách bài viết tin tức/blog,
+bao gồm 4 thành phần: Người dùng, Trang Tin tức, Trang Chi tiết tin tức
+và Firebase Database. Không yêu cầu đăng nhập.
+
+Luồng xử lý chính:
+
+Bước 1: Người dùng truy cập trang Tin tức (news.html).
+Bước 2: Hệ thống tải danh sách bài viết từ Firebase.
+Bước 3: Hiển thị danh sách: Tiêu đề, Hình ảnh, Tóm tắt, Ngày đăng.
+
+Bước 4 (tùy chọn): Xem chi tiết bài viết
+- Nhấn vào bài viết → chuyển trang news-detail.html.
+- Hệ thống lấy nội dung bài viết từ Firebase.
+- Hiển thị nội dung đầy đủ của bài viết.

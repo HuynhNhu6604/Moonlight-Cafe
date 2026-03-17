@@ -1,0 +1,64 @@
+@startuml UC012_VNPayCallback_Sequence_Diagram
+title UC012: Xử lý callback VNPay - Sequence Diagram
+
+actor "Người dùng" as User
+participant "Cổng VNPay" as VNPay
+participant "Trang callback\n(vnpay-return.html)" as UI
+participant "Serverless Function\n(vnpay-verify-return.js)" as Server
+participant "Firebase Realtime\nDatabase" as DB
+
+User -> VNPay: 1. Hoàn tất thanh toán trên VNPay
+activate VNPay
+
+VNPay -> UI: 2. Redirect callback với tham số\n(vnp_ResponseCode, vnp_TxnRef...)
+deactivate VNPay
+activate UI
+
+UI -> Server: 3. Gửi tham số để xác minh giao dịch
+activate Server
+
+Server -> Server: 4. Xác minh chữ ký (SecureHash)
+
+alt Thanh toán thành công (ResponseCode = 00)
+    Server -> DB: 5. Cập nhật trạng thái đơn hàng\n(paymentStatus: paid)
+    activate DB
+    DB --> Server: Cập nhật thành công
+    deactivate DB
+    Server --> UI: Kết quả: Thành công
+    UI --> User: 6. Hiển thị "Thanh toán thành công"
+    note right: Postcondition:\nTrạng thái đơn hàng\nđược cập nhật
+else Thanh toán thất bại
+    Server --> UI: Kết quả: Thất bại
+    UI --> User: 6. Hiển thị thông báo lỗi\n"Thanh toán không thành công"
+end
+
+deactivate Server
+deactivate UI
+
+@enduml
+
+/' ============================================================
+   MÔ TẢ BIỂU ĐỒ TUẦN TỰ - UC012: XỬ LÝ CALLBACK VNPAY
+============================================================ '/
+
+Biểu đồ tuần tự mô tả quy trình xử lý kết quả trả về từ cổng thanh toán VNPay,
+bao gồm 5 thành phần: Người dùng, Cổng VNPay, Trang callback, Serverless Function
+và Firebase Database.
+
+Luồng xử lý chính:
+
+Bước 1: Người dùng hoàn tất thanh toán trên cổng VNPay.
+Bước 2: VNPay redirect callback đến trang vnpay-return.html kèm tham số
+        (vnp_ResponseCode, vnp_TxnRef...).
+Bước 3: Trang callback gửi tham số đến serverless function (vnpay-verify-return.js)
+        để xác minh giao dịch.
+Bước 4: Serverless function xác minh chữ ký (SecureHash).
+
+Bước 5: Xử lý điều kiện
+
+  Trường hợp A: Thanh toán thành công (ResponseCode = 00)
+  - Cập nhật trạng thái đơn hàng (paymentStatus: paid) trong Firebase.
+  - Hiển thị "Thanh toán thành công" cho người dùng.
+
+  Trường hợp B: Thanh toán thất bại
+  - Hiển thị thông báo "Thanh toán không thành công" cho người dùng.

@@ -1,0 +1,110 @@
+@startuml UC009_ManageCart_Sequence_Diagram
+title UC009: Quản lý giỏ hàng - Sequence Diagram
+
+actor "Người dùng" as User
+participant "Giao diện giỏ hàng\n(cart.html)" as UI
+participant "Firebase Realtime\nDatabase" as DB
+participant "localStorage" as LS
+
+User -> UI: 1. Truy cập trang Giỏ hàng
+activate UI
+
+UI -> UI: 2. Kiểm tra đăng nhập
+
+alt Đã đăng nhập
+    UI -> LS: 3. Đọc giỏ hàng\n(moonlight_cart_{uid})
+    LS --> UI: Dữ liệu giỏ hàng
+
+    alt Giỏ hàng có sản phẩm
+        UI --> User: 4. Hiển thị danh sách sản phẩm:\nHình ảnh, Tên, Giá, Số lượng, Thành tiền\nTạm tính, Tổng cộng
+
+        alt Tăng số lượng
+            User -> UI: Nhấn nút "+"
+            UI -> DB: Kiểm tra tồn kho
+            activate DB
+            DB --> UI: Số lượng tồn kho
+            deactivate DB
+            UI -> LS: Cập nhật số lượng
+            UI --> User: Cập nhật giỏ hàng
+        else Giảm số lượng
+            User -> UI: Nhấn nút "-"
+            alt Số lượng > 1
+                UI -> LS: Giảm số lượng
+                UI --> User: Cập nhật giỏ hàng
+            else Số lượng = 1
+                UI --> User: Hỏi xác nhận xóa sản phẩm
+            end
+        else Xóa sản phẩm
+            User -> UI: Nhấn nút X
+            UI --> User: Xác nhận xóa?
+            User -> UI: Đồng ý
+            UI -> LS: Xóa sản phẩm khỏi giỏ
+            UI --> User: Cập nhật giỏ hàng
+        else Xóa tất cả
+            User -> UI: Nhấn "Xóa tất cả"
+            UI --> User: Xác nhận xóa tất cả?
+            User -> UI: Đồng ý
+            UI -> LS: Xóa toàn bộ giỏ hàng
+            UI --> User: Hiển thị giỏ hàng trống
+        else Thanh toán
+            User -> UI: Nhấn "Thanh toán"
+            UI --> User: Chuyển sang checkout.html
+        else Tiếp tục mua sắm
+            User -> UI: Nhấn "Tiếp tục mua sắm"
+            UI --> User: Chuyển về menu.html
+        end
+
+        note right: Postcondition:\nGiỏ hàng được cập nhật
+    else Giỏ hàng trống
+        UI --> User: Hiển thị "Giỏ hàng trống"\nvà nút "Xem Menu"
+    end
+else Chưa đăng nhập
+    UI --> User: Hiển thị yêu cầu đăng nhập
+end
+
+deactivate UI
+
+@enduml
+
+/' ============================================================
+   MÔ TẢ BIỂU ĐỒ TUẦN TỰ - UC009: QUẢN LÝ GIỎ HÀNG
+============================================================ '/
+
+Biểu đồ tuần tự mô tả quy trình xem và quản lý giỏ hàng của người dùng,
+bao gồm 4 thành phần: Người dùng, Trang Giỏ hàng, Firebase Database và localStorage.
+
+Luồng xử lý chính:
+
+Bước 1: Truy cập giỏ hàng
+- Người dùng truy cập trang Giỏ hàng (cart.html).
+- Hệ thống kiểm tra trạng thái đăng nhập.
+
+Bước 2: Hiển thị giỏ hàng
+- Nếu đã đăng nhập, hệ thống đọc giỏ hàng từ localStorage (moonlight_cart_{uid}).
+- Hiển thị danh sách sản phẩm: hình ảnh, tên, giá, số lượng, thành tiền.
+- Hiển thị tổng đơn hàng: tạm tính, tổng cộng.
+
+Bước 3: Thao tác quản lý
+
+  Trường hợp A: Tăng số lượng
+  - Nhấn nút "+", hệ thống kiểm tra tồn kho từ Firebase.
+  - Nếu đủ hàng → tăng số lượng. Nếu không → thông báo.
+
+  Trường hợp B: Giảm số lượng
+  - Nhấn nút "-". Nếu số lượng > 1 → giảm. Nếu = 1 → hỏi xác nhận xóa.
+
+  Trường hợp C: Xóa sản phẩm
+  - Nhấn nút X, xác nhận xóa → xóa sản phẩm khỏi giỏ.
+
+  Trường hợp D: Xóa tất cả
+  - Nhấn "Xóa tất cả", xác nhận → xóa toàn bộ giỏ hàng.
+
+  Trường hợp E: Thanh toán
+  - Nhấn "Thanh toán" → chuyển sang trang checkout.html.
+
+  Trường hợp F: Tiếp tục mua sắm
+  - Nhấn "Tiếp tục mua sắm" → quay lại menu.html.
+
+Ngoại lệ:
+- Chưa đăng nhập → hiển thị yêu cầu đăng nhập.
+- Giỏ hàng trống → hiển thị "Giỏ hàng trống" và nút "Xem Menu".

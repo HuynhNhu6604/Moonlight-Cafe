@@ -1,0 +1,111 @@
+@startuml UC015_SubmitReview_Sequence_Diagram
+title UC015: Gửi đánh giá sản phẩm - Sequence Diagram
+
+actor "Khách hàng" as User
+participant "Giao diện Chi tiết\nSản phẩm\n(product-detail.html)" as UI
+participant "Firebase Auth" as Auth
+participant "Firebase Realtime\nDatabase" as DB
+
+User -> UI: 1. Truy cập trang chi tiết sản phẩm
+activate UI
+
+User -> UI: 2. Cuộn xuống phần\n"Đánh giá sản phẩm"
+
+User -> UI: 3. Nhấn "Viết đánh giá"
+UI -> UI: 4. Hiển thị form đánh giá\n(mở/đóng toggle)
+
+User -> UI: 5. Nhấn "Gửi đánh giá"
+
+UI -> Auth: 6. Kiểm tra đăng nhập\n(auth.currentUser)
+activate Auth
+Auth --> UI: Trả về trạng thái
+deactivate Auth
+
+alt Chưa đăng nhập
+    UI --> User: Hiển thị popup:\n"Vui lòng đăng nhập để gửi đánh giá"\n[Đăng nhập] / [Hủy]
+else Đã đăng nhập
+    UI -> UI: 7. Validate dữ liệu:\n- Đã điền họ tên?\n- Email hợp lệ?\n- Đã chọn sao (1-5)?\n- Đã nhập nội dung?
+
+    alt Thông tin hợp lệ
+        UI -> DB: 8. Lưu đánh giá vào Firebase\n(push → reviews/)\n{productId, uid, userName,\nrating, content, status: "pending",\ncreatedAt, adminRead: false}
+        activate DB
+        DB --> UI: 9. Lưu thành công
+        deactivate DB
+
+        UI -> DB: 10. Tải lại danh sách đánh giá\nđã duyệt cho sản phẩm này\n(status = "approved" && productId)
+        activate DB
+        DB --> UI: 11. Trả về danh sách đánh giá
+        deactivate DB
+
+        UI --> User: 12. Hiển thị thông báo:\n"Đánh giá đang chờ duyệt"\n+ Cập nhật danh sách đánh giá
+
+        note right: Postcondition:\nĐánh giá được lưu vào Firebase\nvới status "pending".\nAdmin nhận thông báo mới\ntrên trang quản trị.
+    else Thiếu thông tin
+        UI --> User: Thông báo lỗi tương ứng:\n"Thiếu thông tin" / "Chưa chọn sao"\n/ "Email không hợp lệ"
+    end
+end
+
+== Admin duyệt đánh giá ==
+
+actor "Quản trị viên" as Admin
+participant "Giao diện Admin\n(admin.html)" as AdminUI
+
+Admin -> AdminUI: 13. Nhấn chuông thông báo\n→ Thấy "Đánh giá mới cần duyệt"
+Admin -> AdminUI: 14. Vào mục Quản lý Đánh giá\n→ Nhấn "Duyệt" (approved)
+AdminUI -> DB: 15. Cập nhật status = "approved"
+activate DB
+DB --> AdminUI: Thành công
+deactivate DB
+
+== Khách hàng xem đánh giá đã duyệt ==
+
+User -> UI: 16. Truy cập lại trang\nchi tiết sản phẩm
+UI -> DB: 17. Tải đánh giá đã duyệt\n(status = "approved"\n&& productId = sản phẩm hiện tại)
+activate DB
+DB --> UI: 18. Trả về tất cả đánh giá\nđã duyệt của sản phẩm
+deactivate DB
+
+alt Có đánh giá đã duyệt
+    UI --> User: 19. Hiển thị:\n- Tổng hợp sao trung bình\n- Biểu đồ phân bổ sao\n- Danh sách đánh giá (tên, sao,\nnội dung, ngày, nút "Hữu ích")
+else Chưa có đánh giá
+    UI --> User: "Chưa có đánh giá nào.\nHãy là người đầu tiên!"
+end
+
+deactivate UI
+
+@enduml
+
+/' ============================================================
+   MÔ TẢ BIỂU ĐỒ TUẦN TỰ - UC015: GỬI ĐÁNH GIÁ SẢN PHẨM
+============================================================ '/
+
+Biểu đồ tuần tự mô tả quy trình đánh giá sản phẩm trên trang chi tiết,
+bao gồm 5 thành phần: Khách hàng, Trang Chi tiết Sản phẩm, Firebase Auth,
+Firebase Database và Giao diện Admin.
+
+Luồng xử lý chính:
+
+Bước 1: Khách hàng truy cập trang chi tiết sản phẩm (product-detail.html).
+Bước 2: Cuộn xuống phần "Đánh giá sản phẩm" và nhấn "Viết đánh giá".
+Bước 3: Hệ thống hiển thị form đánh giá (toggle mở/đóng).
+Bước 4: Khách hàng nhấn "Gửi đánh giá".
+Bước 5: Kiểm tra đăng nhập qua Firebase Auth.
+
+  Trường hợp A: Chưa đăng nhập
+  - Hiển thị popup yêu cầu đăng nhập.
+
+  Trường hợp B: Đã đăng nhập
+  - Validate dữ liệu: họ tên, email, số sao (1-5), nội dung.
+    + Nếu hợp lệ → lưu đánh giá vào Firebase (reviews/) với
+      productId, uid, rating, content, status: "pending", adminRead: false.
+      Tải lại danh sách đánh giá đã duyệt cho sản phẩm.
+      Hiển thị: "Đánh giá đang chờ duyệt".
+    + Nếu thiếu thông tin → thông báo lỗi tương ứng.
+
+Bước 6: Admin nhận thông báo trên chuông thông báo, vào quản lý đánh giá
+         để duyệt (status → "approved").
+
+Bước 7: Khách hàng truy cập lại trang chi tiết sản phẩm.
+  - Hệ thống tải tất cả đánh giá đã duyệt (status = "approved") cho sản phẩm.
+  - Hiển thị: tổng hợp sao trung bình, biểu đồ phân bổ, danh sách đánh giá.
+  - Nếu chưa có đánh giá: "Chưa có đánh giá nào. Hãy là người đầu tiên!"

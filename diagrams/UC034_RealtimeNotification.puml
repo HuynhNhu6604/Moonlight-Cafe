@@ -1,0 +1,55 @@
+@startuml UC034_RealtimeNotification_Sequence_Diagram
+title UC034: Nhận thông báo real-time - Sequence Diagram
+
+actor "Quản trị viên" as Admin
+participant "Giao diện Admin\n(admin.html)" as UI
+participant "Firebase Realtime\nDatabase" as DB
+
+Admin -> UI: 1. Đang ở trang Admin
+activate UI
+
+UI -> DB: 2. Đăng ký lắng nghe\nsự kiện real-time\n(onValue / onChildAdded)
+activate DB
+
+== Khi có đơn hàng mới ==
+DB --> UI: 3. Sự kiện: Đơn hàng mới
+UI -> UI: 4. Cập nhật icon chuông\nvới badge số lượng
+UI --> Admin: 5. Hiển thị popup thông báo:\n"Có đơn hàng mới!"
+
+== Khi có yêu cầu đặt bàn mới ==
+DB --> UI: 6. Sự kiện: Đặt bàn mới
+UI -> UI: 7. Cập nhật badge thông báo
+UI --> Admin: 8. Hiển thị popup thông báo:\n"Có yêu cầu đặt bàn mới!"
+
+note right: Postcondition:\nQuản trị viên nhận được\nthông báo ngay lập tức
+
+deactivate DB
+deactivate UI
+
+@enduml
+
+/' ============================================================
+   MÔ TẢ BIỂU ĐỒ TUẦN TỰ - UC034: NHẬN THÔNG BÁO REAL-TIME
+============================================================ '/
+
+Biểu đồ tuần tự mô tả quy trình quản trị viên nhận thông báo khi có sự kiện mới,
+bao gồm 3 thành phần: Quản trị viên, Giao diện Admin và Firebase Database.
+
+Luồng xử lý chính:
+
+Bước 1: Quản trị viên đang ở trang Admin.
+Bước 2: Hệ thống đăng ký lắng nghe sự kiện real-time từ Firebase
+        (onValue / onChildAdded).
+
+Khi có đơn hàng mới:
+- Firebase gửi sự kiện đến Giao diện Admin.
+- Cập nhật icon chuông với badge số lượng.
+- Hiển thị popup thông báo: "Có đơn hàng mới!"
+
+Khi có yêu cầu đặt bàn mới:
+- Firebase gửi sự kiện đến Giao diện Admin.
+- Cập nhật badge thông báo.
+- Hiển thị popup thông báo: "Có yêu cầu đặt bàn mới!"
+
+Kết quả: Quản trị viên nhận được thông báo ngay lập tức mà không cần
+tải lại trang.

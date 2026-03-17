@@ -1,0 +1,55 @@
+@startuml UC007_ToggleFavorite_Sequence_Diagram
+title UC007: Thêm sản phẩm vào danh sách yêu thích - Sequence Diagram
+
+actor "Người dùng" as User
+participant "Giao diện Menu\n(menu.html)" as UI
+participant "localStorage" as LS
+
+User -> UI: 1. Nhấn nút trái tim (♥)\ntrên sản phẩm
+activate UI
+
+UI -> UI: 2. Kiểm tra trạng thái đăng nhập
+
+alt Đã đăng nhập
+    UI -> LS: 3. Đọc Wishlist\n(moonlight_wishlist_{uid})
+    LS --> UI: Danh sách yêu thích hiện tại
+
+    alt Sản phẩm chưa có trong Wishlist
+        UI -> LS: 4. Thêm sản phẩm vào Wishlist
+        UI --> User: Hiển thị "Đã thêm yêu thích" ♥
+        note right: Postcondition:\nSản phẩm được thêm\nvào danh sách yêu thích
+    else Sản phẩm đã có trong Wishlist
+        UI -> LS: 4. Xóa sản phẩm khỏi Wishlist
+        UI --> User: Hiển thị "Đã bỏ yêu thích" ♡
+        note right: Postcondition:\nSản phẩm được xóa\nkhỏi danh sách yêu thích
+    end
+else Chưa đăng nhập
+    UI --> User: Hiển thị yêu cầu đăng nhập
+    note right: Exception:\nChưa đăng nhập
+end
+
+deactivate UI
+
+@enduml
+
+/' ============================================================
+   MÔ TẢ BIỂU ĐỒ TUẦN TỰ - UC007: THÊM/XÓA SẢN PHẨM YÊU THÍCH
+============================================================ '/
+
+Biểu đồ tuần tự mô tả quy trình thêm hoặc xóa sản phẩm khỏi danh sách yêu thích,
+bao gồm 3 thành phần: Người dùng, Trang Menu và localStorage.
+
+Luồng xử lý chính:
+
+Bước 1: Người dùng nhấn nút trái tim (♥) trên sản phẩm ở trang Menu.
+Bước 2: Hệ thống kiểm tra trạng thái đăng nhập.
+
+Bước 3: Xử lý điều kiện
+
+  Trường hợp A: Đã đăng nhập
+  - Hệ thống đọc danh sách Wishlist từ localStorage (moonlight_wishlist_{uid}).
+    + Nếu sản phẩm chưa có trong Wishlist → thêm vào, hiển thị "Đã thêm yêu thích".
+    + Nếu sản phẩm đã có trong Wishlist → xóa khỏi danh sách, hiển thị "Đã bỏ yêu thích".
+
+  Trường hợp B: Chưa đăng nhập
+  - Hiển thị yêu cầu đăng nhập trước khi sử dụng chức năng yêu thích.

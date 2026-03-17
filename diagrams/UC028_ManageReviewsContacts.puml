@@ -1,0 +1,81 @@
+@startuml UC028_ManageReviewsContacts_Sequence_Diagram
+title UC028: Quản lý đánh giá và liên hệ - Sequence Diagram
+
+actor "Quản trị viên" as Admin
+participant "Giao diện Admin\n(admin.html)" as UI
+participant "Firebase Realtime\nDatabase" as DB
+
+Admin -> UI: 1. Truy cập mục\n"Quản lý đánh giá và liên hệ"
+activate UI
+
+UI -> DB: 2. Tải danh sách đánh giá\nvà liên hệ
+activate DB
+DB --> UI: 3. Trả về dữ liệu
+deactivate DB
+
+UI --> Admin: 4. Hiển thị danh sách:\nTên, Số sao, Nội dung,\nTrạng thái (pending/approved)
+
+alt Duyệt đánh giá
+    Admin -> UI: 5. Nhấn "Duyệt"
+    UI -> DB: 6. Cập nhật status:\npending → approved
+    activate DB
+    DB --> UI: Cập nhật thành công
+    deactivate DB
+    UI --> Admin: Đánh giá hiển thị trên web
+else Phản hồi đánh giá
+    Admin -> UI: 5. Nhập nội dung phản hồi
+    Admin -> UI: 6. Nhấn "Gửi phản hồi"
+    UI -> DB: 7. Lưu adminReply, replyAt
+    activate DB
+    DB --> UI: Lưu thành công
+    deactivate DB
+    UI --> Admin: Phản hồi đã được gửi
+else Xóa đánh giá
+    Admin -> UI: 5. Nhấn "Xóa"
+    UI -> DB: 6. Xóa đánh giá
+    activate DB
+    DB --> UI: Xóa thành công
+    deactivate DB
+else Xem và phản hồi liên hệ
+    Admin -> UI: 5. Xem danh sách liên hệ\n(góp ý, khiếu nại, hỏi đáp...)
+    Admin -> UI: 6. Nhập phản hồi và gửi
+    UI -> DB: 7. Lưu phản hồi liên hệ
+    activate DB
+    DB --> UI: Lưu thành công
+    deactivate DB
+end
+
+note right: Postcondition:\nĐánh giá/liên hệ được\nduyệt/phản hồi/xóa
+
+deactivate UI
+
+@enduml
+
+/' ============================================================
+   MÔ TẢ BIỂU ĐỒ TUẦN TỰ - UC028: QUẢN LÝ ĐÁNH GIÁ VÀ LIÊN HỆ
+============================================================ '/
+
+Biểu đồ tuần tự mô tả quy trình quản trị viên quản lý đánh giá và liên hệ
+từ khách hàng, bao gồm 3 thành phần: Quản trị viên, Giao diện Admin
+và Firebase Database.
+
+Luồng xử lý chính:
+
+Bước 1: Quản trị viên truy cập mục "Quản lý đánh giá và liên hệ".
+Bước 2: Hệ thống tải danh sách đánh giá và liên hệ từ Firebase.
+Bước 3: Hiển thị danh sách: Tên, Số sao, Nội dung, Trạng thái.
+
+Bước 4: Các thao tác quản lý
+
+  Trường hợp A: Duyệt đánh giá
+  - Chuyển trạng thái: pending → approved → hiển thị trên web.
+
+  Trường hợp B: Phản hồi đánh giá
+  - Nhập nội dung phản hồi → gửi cho khách hàng (lưu adminReply, replyAt).
+
+  Trường hợp C: Xóa đánh giá
+  - Xóa đánh giá khỏi Firebase.
+
+  Trường hợp D: Xem và phản hồi liên hệ
+  - Xem danh sách liên hệ (góp ý, khiếu nại, hỏi đáp...).
+  - Gửi phản hồi cho khách hàng.

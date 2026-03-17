@@ -1,0 +1,59 @@
+@startuml UC016_ViewApprovedReviews_Sequence_Diagram
+title UC016: Xem đánh giá sản phẩm đã duyệt - Sequence Diagram
+
+actor "Người dùng" as User
+participant "Giao diện Chi tiết\nSản phẩm\n(product-detail.html)" as UI
+participant "Firebase Realtime\nDatabase" as DB
+
+User -> UI: 1. Truy cập trang chi tiết sản phẩm
+activate UI
+
+UI -> DB: 2. Tải danh sách đánh giá\ncho sản phẩm này\n(productId = ID sản phẩm\n&& status = "approved")
+activate DB
+DB --> UI: 3. Trả về danh sách đánh giá đã duyệt
+deactivate DB
+
+alt Có đánh giá đã duyệt
+    UI -> UI: 4. Tính trung bình sao\nvà phân bổ đánh giá
+
+    UI --> User: 5. Hiển thị phần đánh giá:\n- Điểm trung bình (VD: 4.5)\n- Biểu đồ phân bổ sao (1-5)\n- Tổng số đánh giá\n- Danh sách đánh giá:\n  + Avatar, tên người đánh giá\n  + Số sao\n  + Nội dung đánh giá\n  + Ngày đánh giá\n  + Nút "Hữu ích"
+
+    note right: Chỉ hiển thị đánh giá\nđã được Admin duyệt\n(status = "approved")
+
+    opt Nhiều hơn 5 đánh giá
+        User -> UI: 6. Nhấn "Xem thêm đánh giá"
+        UI --> User: Hiển thị thêm đánh giá
+    end
+
+else Chưa có đánh giá
+    UI --> User: Hiển thị "Chưa có đánh giá nào.\nHãy là người đầu tiên\nđánh giá sản phẩm này!"
+end
+
+deactivate UI
+
+@enduml
+
+/' ============================================================
+   MÔ TẢ BIỂU ĐỒ TUẦN TỰ - UC016: XEM ĐÁNH GIÁ SẢN PHẨM ĐÃ DUYỆT
+============================================================ '/
+
+Biểu đồ tuần tự mô tả quy trình xem đánh giá đã duyệt của một sản phẩm
+trên trang chi tiết sản phẩm (product-detail.html), bao gồm 3 thành phần:
+Người dùng, Trang Chi tiết Sản phẩm và Firebase Database.
+Không yêu cầu đăng nhập.
+
+Luồng xử lý chính:
+
+Bước 1: Người dùng truy cập trang chi tiết sản phẩm.
+Bước 2: Hệ thống tải đánh giá đã duyệt (status = "approved") cho sản phẩm
+         hiện tại (productId) từ Firebase.
+Bước 3: Xử lý điều kiện
+
+  Trường hợp A: Có đánh giá đã duyệt
+  - Tính điểm trung bình và phân bổ sao.
+  - Hiển thị tổng hợp: điểm trung bình, biểu đồ phân bổ, tổng số.
+  - Hiển thị danh sách đánh giá: avatar, tên, sao, nội dung, ngày, nút Hữu ích.
+  - Nếu nhiều hơn 5 đánh giá: có nút "Xem thêm đánh giá".
+
+  Trường hợp B: Chưa có đánh giá
+  - Hiển thị "Chưa có đánh giá nào. Hãy là người đầu tiên!"

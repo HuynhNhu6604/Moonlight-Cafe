@@ -1,0 +1,99 @@
+@startuml UC002_Login_Sequence_Diagram
+title UC002: Đăng nhập - Sequence Diagram
+
+actor "Người dùng" as User
+participant "Giao diện đăng nhập\n(login.html)" as UI
+participant "Firebase\nAuthentication" as Auth
+participant "Firebase Realtime\nDatabase" as DB
+participant "localStorage" as LS
+
+User -> UI: 1. Truy cập trang đăng nhập
+activate UI
+
+User -> UI: 2. Chọn đăng nhập bằng Email hoặc Google
+User -> UI: 3. Nhập Email và Mật khẩu\n(hoặc chọn tài khoản Google)
+
+UI -> Auth: 4. Gửi thông tin đăng nhập\n(signInWithEmailAndPassword\nhoặc signInWithPopup Google)
+activate Auth
+
+Auth --> UI: 5. Kết quả xác thực
+
+alt Xác thực thành công
+    UI -> DB: 6. Lấy thông tin người dùng\n(role, tên, SĐT...)
+    activate DB
+    DB --> UI: 7. Trả về dữ liệu user
+    deactivate DB
+
+    UI -> LS: 8. Lưu phiên đăng nhập\n(moonlight_user)
+    UI -> DB: 9. Cập nhật lastLoginAt
+    
+    alt Role = admin hoặc email trong ADMIN_EMAILS
+        UI --> User: Chuyển hướng → admin.html
+    else Role = customer
+        UI --> User: Chuyển hướng → Trang chủ\nhoặc trang redirect trước đó
+    end
+    note right: Postcondition:\nĐăng nhập thành công\nVào đúng trang theo quyền
+else Email không tồn tại
+    Auth --> UI: Lỗi: auth/user-not-found
+    UI --> User: Hiển thị "Email không tồn tại"
+else Mật khẩu không đúng
+    Auth --> UI: Lỗi: auth/wrong-password
+    UI --> User: Hiển thị "Mật khẩu không đúng"
+else Thông tin không hợp lệ
+    Auth --> UI: Lỗi: auth/invalid-credential
+    UI --> User: Hiển thị "Email hoặc mật khẩu không đúng"
+else Popup Google bị đóng
+    Auth --> UI: Lỗi: popup đóng/bị chặn
+    UI --> User: Hiển thị thông báo lỗi
+end
+
+deactivate Auth
+deactivate UI
+
+@enduml
+
+/' ============================================================
+   MÔ TẢ BIỂU ĐỒ TUẦN TỰ - UC002: ĐĂNG NHẬP
+============================================================ '/
+
+Biểu đồ tuần tự mô tả quy trình đăng nhập vào hệ thống của người dùng,
+bao gồm 4 thành phần chính: Người dùng, Trang Đăng nhập, Firebase Authentication
+và Cơ sở dữ liệu.
+
+Luồng xử lý chính:
+
+Trường hợp 1: Đăng nhập bằng Email/Mật khẩu
+
+Bước 1: Khởi tạo đăng nhập
+- Người dùng truy cập trang đăng nhập (login.html).
+- Nhập email và mật khẩu.
+- Nhấn nút "Đăng nhập".
+
+Bước 2: Xử lý xác thực
+- Trang Đăng nhập gửi thông tin đến Firebase Authentication
+  (signInWithEmailAndPassword).
+- Firebase xác thực email và mật khẩu.
+
+Bước 3: Xử lý điều kiện
+
+  Trường hợp A: Đăng nhập thành công
+  - Firebase xác thực thành công.
+  - Hệ thống lấy thông tin người dùng từ Database (role, tên, SĐT...).
+  - Lưu phiên đăng nhập vào localStorage (moonlight_user).
+  - Cập nhật thời gian đăng nhập cuối (lastLoginAt).
+  - Nếu role = admin hoặc email trong ADMIN_EMAILS → chuyển đến admin.html.
+  - Nếu role = customer → chuyển đến Trang chủ hoặc trang redirect trước đó.
+
+  Trường hợp B: Đăng nhập thất bại
+  - Email không tồn tại (auth/user-not-found).
+  - Mật khẩu không đúng (auth/wrong-password).
+  - Thông tin không hợp lệ (auth/invalid-credential).
+  - Trang Đăng nhập hiển thị thông báo lỗi tương ứng.
+
+Trường hợp 2: Đăng nhập bằng Google
+- Người dùng nhấn nút đăng nhập bằng Google.
+- Hệ thống mở popup chọn tài khoản Google (signInWithPopup).
+- Nếu tài khoản đã tồn tại → đăng nhập và lấy thông tin.
+- Nếu tài khoản chưa tồn tại → tự động tạo mới trong Database.
+- Chuyển hướng theo quyền (Admin hoặc Customer).
+- Nếu popup bị đóng/chặn bởi trình duyệt → hiển thị thông báo lỗi.

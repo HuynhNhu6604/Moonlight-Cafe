@@ -1,0 +1,45 @@
+@startuml UC033_ExportExcel_Sequence_Diagram
+title UC033: Xuất dữ liệu Excel - Sequence Diagram
+
+actor "Quản trị viên" as Admin
+participant "Giao diện Admin\n(admin.html)" as UI
+participant "Firebase Realtime\nDatabase" as DB
+participant "SheetJS\n(xlsx.full.min.js)" as Excel
+
+Admin -> UI: 1. Chọn chức năng xuất Excel\ntại mục tương ứng
+activate UI
+
+UI -> DB: 2. Lấy dữ liệu cần xuất\n(Đơn hàng / Khách hàng / Sản phẩm\n/ Khuyến mãi / Thống kê)
+activate DB
+DB --> UI: 3. Trả về dữ liệu
+deactivate DB
+
+UI -> Excel: 4. Tạo workbook và worksheet\ntừ dữ liệu
+activate Excel
+Excel --> UI: 5. File Excel được tạo
+deactivate Excel
+
+UI --> Admin: 6. Tải xuống file Excel\n(.xlsx)
+
+note right: Postcondition:\nFile Excel được tải xuống
+
+deactivate UI
+
+@enduml
+
+/' ============================================================
+   MÔ TẢ BIỂU ĐỒ TUẦN TỰ - UC033: XUẤT DỮ LIỆU EXCEL
+============================================================ '/
+
+Biểu đồ tuần tự mô tả quy trình quản trị viên xuất báo cáo dữ liệu ra file Excel,
+bao gồm 4 thành phần: Quản trị viên, Giao diện Admin, Firebase Database
+và thư viện SheetJS.
+
+Luồng xử lý chính:
+
+Bước 1: Quản trị viên chọn chức năng xuất Excel tại mục tương ứng
+        (Đơn hàng, Khách hàng, Sản phẩm, Khuyến mãi, Thống kê).
+Bước 2: Hệ thống lấy dữ liệu cần xuất từ Firebase Database.
+Bước 3: Sử dụng thư viện SheetJS (xlsx.full.min.js) để tạo workbook
+        và worksheet từ dữ liệu.
+Bước 4: Tự động tải xuống file Excel (.xlsx) cho người dùng.

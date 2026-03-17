@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sản phẩm yêu thích - Moonlight Cafe</title>
+    <meta name="description" content="Danh sách sản phẩm yêu thích của bạn tại Moonlight Cafe">
+
+    <!-- Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
+
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <style>
+        .page-header {
+            background: linear-gradient(135deg, var(--bg-dark), var(--primary));
+            padding: 50px 0;
+            text-align: center;
+        }
+
+        .page-header h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .breadcrumb {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            color: var(--text-muted);
+        }
+
+        .breadcrumb a {
+            color: var(--text-secondary);
+        }
+
+        .breadcrumb a:hover {
+            color: var(--accent);
+        }
+
+        /* Wishlist Section */
+        .wishlist-section {
+            padding: 60px 0;
+        }
+
+        .wishlist-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .wishlist-count {
+            color: var(--text-secondary);
+            font-size: 1rem;
+        }
+
+        .wishlist-count span {
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        .wishlist-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 25px;
+        }
+
+        .wishlist-card {
+            background: var(--bg-card);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            transition: var(--transition-normal);
+            position: relative;
+        }
+
+        .wishlist-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-glow);
+        }
+
+        .wishlist-img-wrapper {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .wishlist-img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            transition: var(--transition-slow);
+        }
+
+        .wishlist-card:hover .wishlist-img {
+            transform: scale(1.05);
+        }
+
+        .wishlist-remove-btn {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.6);
+            color: #ef4444;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border: none;
+            transition: var(--transition-fast);
+            font-size: 1rem;
+        }
+
+        .wishlist-remove-btn:hover {
+            background: #ef4444;
+            color: white;
+            transform: scale(1.1);
+        }
+
+        .wishlist-info {
+            padding: 20px;
+        }
+
+        .wishlist-category {
+            color: var(--accent);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+        }
+
+        .wishlist-name {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 10px;
+        }
+
+        .wishlist-name a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        .wishlist-name a:hover {
+            color: var(--accent);
+        }
+
+        .wishlist-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .wishlist-price {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        .wishlist-add-cart {
+            padding: 8px 16px;
+            font-size: 0.85rem;
+        }
+
+        /* Empty State */
+        .wishlist-empty {
+            text-align: center;
+            padding: 80px 20px;
+        }
+
+        .wishlist-empty i {
+            font-size: 5rem;
+            color: var(--secondary);
+            margin-bottom: 20px;
+            display: block;
+        }
+
+        .wishlist-empty h3 {
+            color: var(--text-primary);
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+        }
+
+        .wishlist-empty p {
+            color: var(--text-muted);
+            margin-bottom: 25px;
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Login prompt */
+        .login-prompt {
+            text-align: center;
+            padding: 80px 20px;
+        }
+
+        .login-prompt i {
+            font-size: 4rem;
+            color: var(--accent);
+            margin-bottom: 20px;
+            display: block;
+            opacity: 0.6;
+        }
+
+        .login-prompt h3 {
+            color: var(--text-primary);
+            margin-bottom: 10px;
+        }
+
+        .login-prompt p {
+            color: var(--text-muted);
+            margin-bottom: 25px;
+        }
+
+        @media (max-width: 768px) {
+            .page-header h1 {
+                font-size: 2rem;
+            }
+
+            .wishlist-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 15px;
+            }
+
+            .wishlist-img {
+                height: 150px;
+            }
+
+            .wishlist-info {
+                padding: 15px;
+            }
+
+            .wishlist-name {
+                font-size: 0.95rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Loading -->
+    <div class="loading-overlay">
+        <div class="loader"></div>
+    </div>
+
+    <!-- Header -->
+    <header class="header" id="header">
+        <div class="container">
+            <nav class="nav">
+                <a href="index.html" class="nav-brand">
+                    <div class="nav-logo-wrapper"><img src="images/logo.png?v=4" alt="Moonlight Cafe" class="nav-logo">
+                    </div>
+                    <span class="nav-brand-text">Moonlight Cafe</span>
+                </a>
+
+                <ul class="nav-menu" id="navMenu">
+                    <li><a href="index.html" class="nav-link">Trang chủ</a></li>
+                    <li><a href="menu.html" class="nav-link">Menu</a></li>
+                    <li><a href="promotions.html" class="nav-link">Khuyến mãi</a></li>
+                    <li><a href="news.html" class="nav-link">Tin tức</a></li>
+                    <li><a href="about.html" class="nav-link">Về chúng tôi</a></li>
+                    <li><a href="contact.html" class="nav-link">Liên hệ</a></li>
+                    <li><a href="reservation.html" class="nav-link">Đặt bàn</a></li>
+                </ul>
+
+                <div class="nav-actions">
+                    <a href="contact.html" class="nav-icon hidden" id="msgIcon" title="Tin nhắn từ tiệm">
+                        <i class="fas fa-envelope"></i>
+                        <span class="badge" id="msgCount" style="display:none">0</span>
+                    </a>
+                    <a href="wishlist.html" class="nav-icon active" title="Sản phẩm yêu thích">
+                        <i class="fas fa-heart"></i>
+                        <span class="badge" id="wishlistBadge" style="display:none">0</span>
+                    </a>
+                    <a href="cart.html" class="nav-icon">
+                        <i class="fas fa-shopping-bag"></i>
+                        <span class="badge" id="cartCount">0</span>
+                    </a>
+                    <div class="nav-icon" id="userIcon" style="cursor:pointer;">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="nav-toggle" id="navToggle">
+                        <div class="nav-logo-wrapper"><img src="images/logo.png?v=4" alt="Moonlight Cafe"
+                                class="nav-logo"></div>
+                        <div class="nav-logo-wrapper"><img src="images/logo.png?v=4" alt="Moonlight Cafe"
+                                class="nav-logo"></div>
+                        <div class="nav-logo-wrapper"><img src="images/logo.png?v=4" alt="Moonlight Cafe"
+                                class="nav-logo"></div>
+                    </div>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Page Header -->
+    <section class="page-header">
+        <div class="container">
+            <h1><i class="fas fa-heart" style="color:#ef4444;margin-right:10px"></i>Sản phẩm yêu thích</h1>
+            <div class="breadcrumb">
+                <a href="index.html">Trang chủ</a>
+                <span>/</span>
+                <span style="color:var(--accent)">Yêu thích</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Wishlist Section -->
+    <section class="wishlist-section">
+        <div class="container">
+            <!-- Login required prompt (shown when not logged in) -->
+            <div id="loginPrompt" style="display:none">
+                <div class="login-prompt">
+                    <i class="fas fa-user-lock"></i>
+                    <h3>Đăng nhập để xem yêu thích</h3>
+                    <p>Bạn cần đăng nhập để quản lý danh sách sản phẩm yêu thích.</p>
+                    <div style="display:flex;gap:10px;justify-content:center">
+                        <a href="login.html" class="btn btn-primary"><i class="fas fa-sign-in-alt"></i> Đăng nhập</a>
+                        <a href="register.html" class="btn btn-outline"><i class="fas fa-user-plus"></i> Đăng ký</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Wishlist content (shown when logged in) -->
+            <div id="wishlistContent" style="display:none">
+                <div class="wishlist-header">
+                    <p class="wishlist-count">
+                        <i class="fas fa-heart" style="color:#ef4444;margin-right:6px"></i>
+                        <span id="totalCount">0</span> sản phẩm yêu thích
+                    </p>
+                    <button class="btn btn-outline" id="clearAllBtn" style="display:none" onclick="clearAllWishlist()">
+                        <i class="fas fa-trash-alt"></i> Xóa tất cả
+                    </button>
+                </div>
+
+                <div class="wishlist-grid" id="wishlistGrid">
+                    <!-- Products will be rendered here -->
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <div class="footer-brand">
+                        <div class="nav-logo-wrapper"><img src="images/logo.png?v=4" alt="Moonlight Cafe"
+                                class="nav-logo"></div>
+                        <span class="nav-brand-text">Moonlight Cafe</span>
+                    </div>
+                    <p id="footer-slogan">Nơi thưởng thức cà phê và bánh ngọt thượng hạng trong không gian ấm cúng dưới
+                        ánh trăng.</p>
+                    <div class="footer-social">
+                        <a href="#" id="footer-fb"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" id="footer-ig"><i class="fab fa-instagram"></i></a>
+                        <a href="#" id="footer-tt"><i class="fab fa-tiktok"></i></a>
+                        <a href="#" id="footer-yt"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+                <div class="footer-col">
+                    <h4 class="footer-title">Liên kết nhanh</h4>
+                    <ul class="footer-links">
+                        <li><a href="index.html">Trang chủ</a></li>
+                        <li><a href="menu.html">Menu</a></li>
+                        <li><a href="promotions.html">Khuyến mãi</a></li>
+                        <li><a href="news.html">Tin tức</a></li>
+                        <li><a href="about.html">Về chúng tôi</a></li>
+                        <li><a href="contact.html">Liên hệ</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4 class="footer-title">Liên hệ</h4>
+                    <ul class="footer-contact">
+                        <li><i class="fas fa-map-marker-alt"></i> <span id="footer-address">Nguyễn Đệ, Cái Khế, Cần
+                                Thơ</span></li>
+                        <li><i class="fas fa-phone"></i> <span id="footer-phone">0110 766 204</span></li>
+                        <li><i class="fas fa-envelope"></i> <span
+                                id="footer-email">moonlightcafe@gmail.com</span></li>
+                        <li><i class="fas fa-clock"></i> <span id="footer-hours">7:00 - 22:00 hàng ngày</span></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p id="footer-copyright">&copy; 2026 Moonlight Cafe. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- User Dropdown -->
+    <div class="user-dropdown" id="userDropdown">
+        <div class="user-dropdown-header" id="userInfo">
+            <i class="fas fa-user-circle"></i>
+            <span>Tài khoản</span>
+        </div>
+        <div class="user-dropdown-menu"></div>
+    </div>
+
+    <script type="module">
+        import { auth, db, ref, get, onAuthStateChanged } from './js/firebase-config.js';
+        import { initUserDropdown, updateMsgBadge, loadStoreInfo } from './js/nav-helper.js';
+        initUserDropdown();
+        loadStoreInfo();
+
+        let currentUid = null;
+
+        // Loading
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                document.querySelector('.loading-overlay').classList.add('hidden');
+            }, 500);
+        });
+
+        // Scroll header
+        window.addEventListener('scroll', () => {
+            document.getElementById('header').classList.toggle('scrolled', window.scrollY > 50);
+        });
+
+        // Mobile nav
+        document.getElementById('navToggle').addEventListener('click', () => {
+            document.getElementById('navMenu').classList.toggle('active');
+        });
+
+        // Format currency
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
+        }
+
+        // Render wishlist
+        function renderWishlist() {
+            const grid = document.getElementById('wishlistGrid');
+            const totalCount = document.getElementById('totalCount');
+            const clearAllBtn = document.getElementById('clearAllBtn');
+            const badge = document.getElementById('wishlistBadge');
+
+            const wishlistKey = currentUid ? `moonlight_wishlist_${currentUid}` : 'moonlight_wishlist_guest';
+            const wishlist = JSON.parse(localStorage.getItem(wishlistKey)) || [];
+
+            totalCount.textContent = wishlist.length;
+
+            if (badge) {
+                badge.textContent = wishlist.length;
+                badge.style.display = wishlist.length > 0 ? '' : 'none';
+            }
+
+            if (wishlist.length === 0) {
+                clearAllBtn.style.display = 'none';
+                grid.innerHTML = `
+                    <div class="wishlist-empty" style="grid-column: 1 / -1">
+                        <i class="far fa-heart"></i>
+                        <h3>Chưa có sản phẩm yêu thích</h3>
+                        <p>Hãy thêm sản phẩm bạn thích bằng cách nhấn vào biểu tượng trái tim ♥ trên trang Menu hoặc chi tiết sản phẩm.</p>
+                        <a href="menu.html" class="btn btn-primary">
+                            <i class="fas fa-coffee"></i> Xem Menu
+                        </a>
+                    </div>`;
+                return;
+            }
+
+            clearAllBtn.style.display = '';
+
+            grid.innerHTML = wishlist.map(item => `
+                <div class="wishlist-card" id="wishlist-${item.id}">
+                    <div class="wishlist-img-wrapper">
+                        <a href="product-detail.html?id=${item.id}">
+                            <img src="${item.image || 'https://via.placeholder.com/300x200'}" alt="${item.name}" class="wishlist-img">
+                        </a>
+                        <button class="wishlist-remove-btn" onclick="removeItem('${item.id}')" title="Bỏ yêu thích">
+                            <i class="fas fa-heart"></i>
+                        </button>
+                    </div>
+                    <div class="wishlist-info">
+                        <div class="wishlist-category">${item.category || 'Sản phẩm'}</div>
+                        <h3 class="wishlist-name">
+                            <a href="product-detail.html?id=${item.id}">${item.name}</a>
+                        </h3>
+                        <div class="wishlist-footer">
+                            <div class="wishlist-price">${formatCurrency(item.price)}</div>
+                            <button class="btn btn-primary wishlist-add-cart" onclick="addToCart('${item.id}', '${item.name.replace(/'/g, "\\'")}', ${item.price}, '${item.image || ''}')">
+                                <i class="fas fa-cart-plus"></i> Thêm giỏ
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Remove from wishlist
+        window.removeItem = function (itemId) {
+            const wishlistKey = currentUid ? `moonlight_wishlist_${currentUid}` : 'moonlight_wishlist_guest';
+            let wishlist = JSON.parse(localStorage.getItem(wishlistKey)) || [];
+            const index = wishlist.findIndex(i => String(i.id) === String(itemId));
+
+            if (index > -1) {
+                const card = document.getElementById(`wishlist-${itemId}`);
+                if (card) {
+                    card.style.transition = 'opacity 0.3s, transform 0.3s';
+                    card.style.opacity = '0';
+                    card.style.transform = 'scale(0.8)';
+                }
+
+                setTimeout(() => {
+                    wishlist.splice(index, 1);
+                    localStorage.setItem(wishlistKey, JSON.stringify(wishlist));
+                    renderWishlist();
+
+                    Swal.fire({
+                        toast: true,
+                        position: 'top-end',
+                        icon: 'info',
+                        title: 'Đã bỏ yêu thích',
+                        showConfirmButton: false,
+                        timer: 1500
+                    });
+                }, 300);
+            }
+        };
+
+        // Clear all wishlist
+        window.clearAllWishlist = function () {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Xóa tất cả?',
+                text: 'Bạn có chắc muốn xóa toàn bộ danh sách yêu thích?',
+                showCancelButton: true,
+                confirmButtonText: 'Xóa tất cả',
+                cancelButtonText: 'Hủy',
+                confirmButtonColor: '#ef4444'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    const wishlistKey = currentUid ? `moonlight_wishlist_${currentUid}` : 'moonlight_wishlist_guest';
+                    localStorage.setItem(wishlistKey, '[]');
+                    renderWishlist();
+                    Swal.fire({
+                        toast: true,
+                        position: 'top-end',
+                        icon: 'success',
+                        title: 'Đã xóa tất cả',
+                        showConfirmButton: false,
+                        timer: 1500
+                    });
+                }
+            });
+        };
+
+        // Add to cart
+        window.addToCart = function (id, name, price, image) {
+            const cartKey = currentUid ? `moonlight_cart_${currentUid}` : 'moonlight_cart_guest';
+            let cart = JSON.parse(localStorage.getItem(cartKey)) || [];
+            const existing = cart.find(item => String(item.id) === String(id));
+
+            if (existing) {
+                existing.quantity += 1;
+            } else {
+                cart.push({ id, name, price, image, quantity: 1 });
+            }
+
+            localStorage.setItem(cartKey, JSON.stringify(cart));
+
+            // Update cart badge
+            const cartCount = document.getElementById('cartCount');
+            if (cartCount) {
+                cartCount.textContent = cart.reduce((sum, item) => sum + item.quantity, 0);
+            }
+
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'success',
+                title: 'Đã thêm vào giỏ hàng',
+                showConfirmButton: false,
+                timer: 1500
+            });
+        };
+
+        // Auth state
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                currentUid = user.uid;
+                document.getElementById('loginPrompt').style.display = 'none';
+                document.getElementById('wishlistContent').style.display = 'block';
+                renderWishlist();
+
+                // Update cart badge
+                const cartKey = `moonlight_cart_${user.uid}`;
+                const cart = JSON.parse(localStorage.getItem(cartKey)) || [];
+                const cartCount = document.getElementById('cartCount');
+                if (cartCount) {
+                    cartCount.textContent = cart.reduce((sum, item) => sum + item.quantity, 0);
+                }
+
+                // Update msg badge
+                updateMsgBadge(user.uid);
+            } else {
+                document.getElementById('loginPrompt').style.display = 'block';
+                document.getElementById('wishlistContent').style.display = 'none';
+            }
+        });
+    </script>
+
+    <!-- TuDongChat AI Chatbot -->
+    <script src="https://app.tudongchat.com/js/chatbox.js"></script>
+    <script>
+        const tudong_chatbox = new TuDongChat('XUitpr3VDU2e5vJgSRYO9');
+        tudong_chatbox.initial();
+    </script>
+</body>
+
+</html>

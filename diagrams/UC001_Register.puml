@@ -1,0 +1,99 @@
+@startuml UC001_Register_Sequence_Diagram
+title UC001: Đăng ký tài khoản - Sequence Diagram
+
+actor "Khách vãng lai" as User
+participant "Giao diện đăng ký\n(register.html)" as UI
+participant "Firebase\nAuthentication" as Auth
+participant "Firebase Realtime\nDatabase" as DB
+
+User -> UI: 1. Truy cập trang đăng ký
+activate UI
+
+User -> UI: 2. Chọn đăng ký bằng Email hoặc Google
+User -> UI: 3. Nhập Họ, Tên, Email, SĐT,\nMật khẩu, Xác nhận mật khẩu
+User -> UI: 4. Đồng ý Điều khoản sử dụng
+User -> UI: 5. Nhấn "Đăng ký"
+
+UI -> Auth: 6. Gửi thông tin đăng ký\n(createUserWithEmailAndPassword\nhoặc signInWithPopup Google)
+activate Auth
+
+Auth -> DB: 7. Kiểm tra email đã tồn tại?
+activate DB
+DB --> Auth: 8. Kết quả kiểm tra
+
+alt Email chưa tồn tại và thông tin hợp lệ
+    Auth --> UI: Tạo tài khoản thành công (UID)
+    UI -> DB: 9. Lưu thông tin người dùng\n(họ tên, email, SĐT, role: customer, ngày tạo)
+    DB --> UI: Lưu thành công
+    UI --> User: Hiển thị thông báo đăng ký thành công
+    UI -> UI: 10. Chuyển hướng về Trang chủ\n(hoặc admin.html nếu email trong ADMIN_EMAILS)
+    note right: Postcondition:\nTài khoản mới được tạo thành công\nRole mặc định: customer
+else Email đã tồn tại
+    Auth --> UI: Lỗi: auth/email-already-in-use
+    UI --> User: Hiển thị "Email đã được sử dụng"
+else Email không hợp lệ
+    Auth --> UI: Lỗi: auth/invalid-email
+    UI --> User: Hiển thị "Email không hợp lệ"
+else Mật khẩu quá yếu
+    Auth --> UI: Lỗi: auth/weak-password
+    UI --> User: Hiển thị "Mật khẩu ít nhất 6 ký tự"
+else Mật khẩu xác nhận không khớp
+    UI --> User: Hiển thị "Mật khẩu xác nhận không khớp"
+else Chưa đồng ý Điều khoản
+    UI --> User: Hiển thị "Vui lòng đồng ý Điều khoản sử dụng"
+end
+
+deactivate DB
+deactivate Auth
+deactivate UI
+
+@enduml
+
+/' ============================================================
+   MÔ TẢ BIỂU ĐỒ TUẦN TỰ - UC001: ĐĂNG KÝ TÀI KHOẢN
+============================================================ '/
+
+Biểu đồ tuần tự mô tả quy trình đăng ký tài khoản mới của người dùng vào hệ thống,
+bao gồm 3 thành phần chính: Người dùng, Trang Đăng ký và Hệ thống.
+
+Luồng xử lý chính:
+
+Trường hợp 1: Đăng ký bằng Email
+
+Bước 1: Khởi tạo đăng ký
+- Người dùng truy cập trang đăng ký (register.html).
+- Nhập thông tin cá nhân (họ tên, email, số điện thoại, mật khẩu).
+- Xác nhận mật khẩu.
+- Đồng ý Điều khoản sử dụng và Chính sách bảo mật.
+
+Bước 2: Xử lý thông tin
+- Trang Đăng ký gửi thông tin đăng ký đến Hệ thống (Firebase Authentication)
+  để kiểm tra tính hợp lệ.
+
+Bước 3: Xử lý điều kiện
+
+  Trường hợp A: Đăng ký thành công
+  - Hệ thống kiểm tra email chưa tồn tại và thông tin hợp lệ.
+  - Hệ thống tạo tài khoản mới trên Firebase Authentication.
+  - Lưu thông tin người dùng vào Firebase Database (họ tên, email, SĐT,
+    role: customer, ngày tạo).
+  - Trang Đăng ký hiển thị thông báo đăng ký thành công cho Người dùng.
+  - Chuyển hướng về Trang chủ (hoặc admin.html nếu email trong ADMIN_EMAILS).
+
+  Trường hợp B: Đăng ký thất bại
+  - Hệ thống phát hiện email đã tồn tại hoặc thông tin không hợp lệ.
+  - Hệ thống trả về thông báo lỗi tương ứng:
+    + Email đã được sử dụng (auth/email-already-in-use)
+    + Email không hợp lệ (auth/invalid-email)
+    + Mật khẩu quá yếu – ít nhất 6 ký tự (auth/weak-password)
+    + Mật khẩu xác nhận không khớp
+    + Chưa đồng ý Điều khoản sử dụng
+  - Trang Đăng ký hiển thị thông báo lỗi cho Người dùng.
+
+Trường hợp 2: Đăng ký bằng Google
+- Người dùng nhấn nút đăng ký bằng tài khoản Google.
+- Hệ thống mở popup chọn tài khoản Google (signInWithPopup).
+- Hệ thống tiến hành đăng ký trực tiếp và tự động đăng nhập vào
+  tài khoản Google đang truy cập trang web.
+- Nếu tài khoản chưa tồn tại, hệ thống tự động tạo mới trong Database.
+- Chuyển hướng về Trang chủ hoặc Trang quản trị.

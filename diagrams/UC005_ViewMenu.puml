@@ -1,0 +1,87 @@
+@startuml UC005_ViewMenu_Sequence_Diagram
+title UC005: Xem thực đơn (Menu) - Sequence Diagram
+
+actor "Người dùng" as User
+participant "Giao diện Menu\n(menu.html)" as UI
+participant "Firebase Realtime\nDatabase" as DB
+
+User -> UI: 1. Truy cập trang Menu
+activate UI
+
+UI -> DB: 2. Tải danh sách sản phẩm\n(products có isAvailable = true)
+activate DB
+DB --> UI: 3. Trả về danh sách sản phẩm
+deactivate DB
+
+UI --> User: 4. Hiển thị sản phẩm dạng Grid\n(8 sản phẩm/trang)
+
+alt Lọc theo danh mục
+    User -> UI: Chọn danh mục\n(Cà phê, Trà, Bánh ngọt...)
+    UI --> User: Hiển thị sản phẩm theo danh mục
+else Tìm kiếm
+    User -> UI: Nhập từ khóa tìm kiếm
+    UI --> User: Hiển thị sản phẩm phù hợp
+else Lọc theo giá
+    User -> UI: Nhập khoảng giá (Từ - Đến)\nvà nhấn "Áp dụng"
+    UI --> User: Hiển thị sản phẩm trong khoảng giá
+else Sắp xếp
+    User -> UI: Chọn kiểu sắp xếp\n(Tên A-Z, Giá thấp→cao...)
+    UI --> User: Hiển thị danh sách đã sắp xếp
+else Chuyển chế độ xem
+    User -> UI: Chọn Grid hoặc List
+    UI --> User: Hiển thị theo chế độ xem mới
+else Phân trang
+    User -> UI: Chuyển trang
+    UI --> User: Hiển thị trang tiếp theo
+else Không tìm thấy
+    UI --> User: Hiển thị "Không tìm thấy sản phẩm"
+end
+
+note right: Postcondition:\nDanh sách sản phẩm\nđược hiển thị theo bộ lọc
+
+deactivate UI
+
+@enduml
+
+/' ============================================================
+   MÔ TẢ BIỂU ĐỒ TUẦN TỰ - UC005: XEM THỰC ĐƠN (MENU)
+============================================================ '/
+
+Biểu đồ tuần tự mô tả quy trình người dùng duyệt xem danh sách sản phẩm
+trên thực đơn, bao gồm 3 thành phần: Người dùng, Trang Menu và Cơ sở dữ liệu.
+
+Luồng xử lý chính:
+
+Bước 1: Tải dữ liệu
+- Người dùng truy cập trang Menu (menu.html).
+- Hệ thống tải danh sách sản phẩm từ Firebase Database
+  (chỉ hiển thị sản phẩm có isAvailable = true).
+- Hiển thị sản phẩm dạng lưới (Grid), mặc định 8 sản phẩm/trang.
+
+Bước 2: Tương tác với bộ lọc
+Người dùng có thể thực hiện các thao tác sau:
+
+  Trường hợp A: Lọc theo danh mục
+  - Chọn danh mục (Cà phê, Trà, Bánh ngọt, Tráng miệng, Sinh tố...).
+  - Hệ thống lọc và hiển thị sản phẩm theo danh mục đã chọn.
+
+  Trường hợp B: Tìm kiếm
+  - Nhập từ khóa vào ô tìm kiếm.
+  - Hệ thống tìm và hiển thị sản phẩm có tên chứa từ khóa.
+
+  Trường hợp C: Lọc theo giá
+  - Nhập khoảng giá (Từ - Đến) và nhấn "Áp dụng".
+  - Hệ thống hiển thị sản phẩm nằm trong khoảng giá.
+
+  Trường hợp D: Sắp xếp
+  - Chọn kiểu sắp xếp (Tên A-Z, Tên Z-A, Giá thấp→cao, Giá cao→thấp).
+  - Hệ thống sắp xếp lại danh sách.
+
+  Trường hợp E: Chuyển chế độ xem
+  - Chọn Grid (lưới) hoặc List (danh sách).
+
+  Trường hợp F: Phân trang
+  - Chuyển trang khi có nhiều sản phẩm.
+
+  Trường hợp G: Không tìm thấy
+  - Hệ thống hiển thị "Không tìm thấy sản phẩm".

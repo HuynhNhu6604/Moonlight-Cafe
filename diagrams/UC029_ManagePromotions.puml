@@ -1,0 +1,81 @@
+@startuml UC029_ManagePromotions_Sequence_Diagram
+title UC029: Quản lý khuyến mãi - Sequence Diagram
+
+actor "Quản trị viên" as Admin
+participant "Giao diện Admin\n(admin.html)" as UI
+participant "Firebase Realtime\nDatabase" as DB
+
+Admin -> UI: 1. Truy cập mục\n"Quản lý khuyến mãi"
+activate UI
+
+UI -> DB: 2. Tải danh sách mã khuyến mãi
+activate DB
+DB --> UI: 3. Trả về danh sách promotions
+deactivate DB
+
+UI --> Admin: 4. Hiển thị danh sách mã khuyến mãi
+
+alt Tạo mã khuyến mãi
+    Admin -> UI: 5. Nhấn "Tạo mã"
+    Admin -> UI: 6. Nhập: Mã code, Loại giảm\n(% hoặc số tiền), Giá trị giảm,\nNgày bắt đầu, Ngày kết thúc
+    UI -> DB: 7. Lưu mã khuyến mãi
+    activate DB
+    DB --> UI: Lưu thành công
+    deactivate DB
+    UI --> Admin: Cập nhật danh sách
+else Sửa khuyến mãi
+    Admin -> UI: 5. Nhấn "Sửa"
+    Admin -> UI: 6. Chỉnh sửa thông tin
+    UI -> DB: 7. Cập nhật promotions
+    activate DB
+    DB --> UI: Cập nhật thành công
+    deactivate DB
+else Xóa khuyến mãi
+    Admin -> UI: 5. Nhấn "Xóa"
+    UI --> Admin: Xác nhận xóa?
+    Admin -> UI: Đồng ý
+    UI -> DB: 6. Xóa promotions
+    activate DB
+    DB --> UI: Xóa thành công
+    deactivate DB
+else Bật/Tắt trạng thái
+    Admin -> UI: 5. Toggle isActive
+    UI -> DB: 6. Cập nhật isActive
+    activate DB
+    DB --> UI: Cập nhật thành công
+    deactivate DB
+end
+
+note right: Postcondition:\nMã khuyến mãi được\ntạo/sửa/xóa
+
+deactivate UI
+
+@enduml
+
+/' ============================================================
+   MÔ TẢ BIỂU ĐỒ TUẦN TỰ - UC029: QUẢN LÝ KHUYẾN MÃI
+============================================================ '/
+
+Biểu đồ tuần tự mô tả quy trình quản trị viên quản lý các mã khuyến mãi,
+bao gồm 3 thành phần: Quản trị viên, Giao diện Admin và Firebase Database.
+
+Luồng xử lý chính:
+
+Bước 1: Quản trị viên truy cập mục "Quản lý khuyến mãi".
+Bước 2: Hệ thống tải danh sách mã khuyến mãi từ Firebase.
+Bước 3: Hiển thị danh sách mã khuyến mãi.
+
+Bước 4: Các thao tác quản lý
+
+  Trường hợp A: Tạo mã khuyến mãi
+  - Nhập: Mã code, Loại giảm (% hoặc số tiền), Giá trị giảm,
+    Ngày bắt đầu, Ngày kết thúc → lưu vào Firebase.
+
+  Trường hợp B: Sửa khuyến mãi
+  - Chỉnh sửa thông tin → cập nhật Firebase.
+
+  Trường hợp C: Xóa khuyến mãi
+  - Nhấn "Xóa", xác nhận → xóa khỏi Firebase.
+
+  Trường hợp D: Bật/Tắt trạng thái
+  - Toggle isActive → cập nhật Firebase.

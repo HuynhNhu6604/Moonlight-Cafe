@@ -1,0 +1,75 @@
+@startuml UC022_ViewOrderHistory_Sequence_Diagram
+title UC022: Xem lịch sử đơn hàng - Sequence Diagram
+
+actor "Người dùng" as User
+participant "Giao diện Hồ sơ\n(profile.html)" as UI
+participant "Firebase Realtime\nDatabase" as DB
+participant "localStorage" as LS
+
+User -> UI: 1. Truy cập Hồ sơ,\ntab "Lịch sử đơn hàng"
+activate UI
+
+UI -> DB: 2. Lấy danh sách đơn hàng\ncủa user hiện tại
+activate DB
+DB --> UI: 3. Trả về danh sách đơn hàng
+deactivate DB
+
+UI --> User: 4. Hiển thị bộ lọc trạng thái:\nTất cả | Chờ xác nhận | Đã xác nhận\n| Đang giao | Hoàn thành | Đã hủy
+
+User -> UI: 5. Chọn bộ lọc trạng thái
+UI --> User: 6. Hiển thị danh sách đơn hàng:\nMã đơn, Ngày đặt, Tổng tiền,\nTrạng thái, PTTT, TT thanh toán
+
+opt Xem chi tiết đơn hàng
+    User -> UI: 7. Nhấn vào đơn hàng
+    UI --> User: 8. Hiển thị chi tiết:\n- Thông tin khách hàng\n- Danh sách sản phẩm\n- Tạm tính, Phí ship, Giảm giá\n- Tổng cộng
+end
+
+opt Xác nhận đã nhận hàng
+    User -> UI: 9. Nhấn "Đã nhận hàng"\n(đơn đang giao)
+    UI -> DB: 10. Cập nhật status → completed
+    activate DB
+    DB --> UI: Cập nhật thành công
+    deactivate DB
+end
+
+opt Đặt lại đơn hàng
+    User -> UI: 11. Nhấn "Đặt lại"
+    UI -> LS: 12. Thêm lại sản phẩm vào giỏ hàng
+    UI --> User: Thông báo "Đã thêm vào giỏ hàng"
+end
+
+note right: Postcondition:\nDanh sách đơn hàng\nđược hiển thị
+
+deactivate UI
+
+@enduml
+
+/' ============================================================
+   MÔ TẢ BIỂU ĐỒ TUẦN TỰ - UC022: XEM LỊCH SỬ ĐƠN HÀNG
+============================================================ '/
+
+Biểu đồ tuần tự mô tả quy trình xem danh sách các đơn hàng đã đặt,
+bao gồm 4 thành phần: Người dùng, Trang Hồ sơ, Firebase Database và localStorage.
+
+Luồng xử lý chính:
+
+Bước 1: Người dùng truy cập Hồ sơ (profile.html),
+        tab "Lịch sử đơn hàng".
+Bước 2: Hệ thống lấy danh sách đơn hàng từ Firebase.
+Bước 3: Hiển thị bộ lọc trạng thái: Tất cả, Chờ xác nhận, Đã xác nhận,
+        Đang giao, Hoàn thành, Đã hủy.
+Bước 4: Người dùng chọn bộ lọc → hiển thị danh sách đơn hàng:
+        Mã đơn, Ngày đặt, Tổng tiền, Trạng thái, PTTT, TT thanh toán.
+
+Các thao tác bổ sung:
+
+  Trường hợp A: Xem chi tiết đơn hàng
+  - Nhấn vào đơn → hiển thị: thông tin KH, danh sách SP,
+    tạm tính, phí ship, giảm giá, tổng cộng.
+
+  Trường hợp B: Xác nhận đã nhận hàng
+  - Nhấn "Đã nhận hàng" khi đơn đang giao →
+    cập nhật status → completed trong Firebase.
+
+  Trường hợp C: Đặt lại đơn hàng
+  - Nhấn "Đặt lại" → thêm lại sản phẩm vào giỏ hàng (localStorage).

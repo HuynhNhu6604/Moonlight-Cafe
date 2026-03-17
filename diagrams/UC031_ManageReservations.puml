@@ -1,0 +1,65 @@
+@startuml UC031_ManageReservations_Sequence_Diagram
+title UC031: Quản lý đặt bàn - Sequence Diagram
+
+actor "Quản trị viên" as Admin
+participant "Giao diện Admin\n(admin.html)" as UI
+participant "Firebase Realtime\nDatabase" as DB
+
+Admin -> UI: 1. Truy cập mục\n"Quản lý đặt bàn"
+activate UI
+
+UI -> DB: 2. Tải danh sách yêu cầu đặt bàn
+activate DB
+DB --> UI: 3. Trả về danh sách reservations
+deactivate DB
+
+UI --> Admin: 4. Hiển thị danh sách:\nTên khách, Ngày giờ, Loại bàn,\nSố người, Tiền cọc, Trạng thái
+
+alt Phê duyệt
+    Admin -> UI: 5. Nhấn "Phê duyệt"
+    UI -> DB: 6. Cập nhật status:\npending → confirmed
+    activate DB
+    DB --> UI: Cập nhật thành công
+    deactivate DB
+    UI --> Admin: Trạng thái: Đã xác nhận
+else Từ chối
+    Admin -> UI: 5. Nhấn "Từ chối"
+    UI -> DB: 6. Cập nhật status:\npending → rejected
+    activate DB
+    DB --> UI: Cập nhật thành công
+    deactivate DB
+    UI --> Admin: Trạng thái: Đã từ chối
+else Kiểm tra tình trạng cọc
+    Admin -> UI: 5. Xem thông tin đặt cọc
+    UI --> Admin: Hiển thị chi tiết cọc:\n(phương thức, số tiền, trạng thái)
+end
+
+note right: Postcondition:\nYêu cầu đặt bàn được\nphê duyệt/từ chối
+
+deactivate UI
+
+@enduml
+
+/' ============================================================
+   MÔ TẢ BIỂU ĐỒ TUẦN TỰ - UC031: QUẢN LÝ ĐẶT BÀN
+============================================================ '/
+
+Biểu đồ tuần tự mô tả quy trình quản trị viên quản lý yêu cầu đặt bàn,
+bao gồm 3 thành phần: Quản trị viên, Giao diện Admin và Firebase Database.
+
+Luồng xử lý chính:
+
+Bước 1: Quản trị viên truy cập mục "Quản lý đặt bàn".
+Bước 2: Hệ thống tải danh sách yêu cầu đặt bàn từ Firebase.
+Bước 3: Hiển thị: Tên khách, Ngày giờ, Loại bàn, Số người, Tiền cọc, Trạng thái.
+
+Bước 4: Các thao tác quản lý
+
+  Trường hợp A: Phê duyệt
+  - Chuyển trạng thái: pending → confirmed.
+
+  Trường hợp B: Từ chối
+  - Chuyển trạng thái: pending → rejected.
+
+  Trường hợp C: Kiểm tra tình trạng cọc
+  - Xem thông tin đặt cọc: phương thức, số tiền, trạng thái.

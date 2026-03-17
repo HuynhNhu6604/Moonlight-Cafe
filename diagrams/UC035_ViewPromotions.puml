@@ -1,0 +1,37 @@
+@startuml UC035_ViewPromotions_Sequence_Diagram
+title UC035: Xem trang Khuyến mãi - Sequence Diagram
+
+actor "Người dùng" as User
+participant "Giao diện Khuyến mãi\n(promotions.html)" as UI
+participant "Firebase Realtime\nDatabase" as DB
+
+User -> UI: 1. Truy cập trang Khuyến mãi
+activate UI
+
+UI -> DB: 2. Tải danh sách khuyến mãi\n(isActive = true, trong thời hạn)
+activate DB
+DB --> UI: 3. Trả về danh sách promotions
+deactivate DB
+
+UI --> User: 4. Hiển thị danh sách\nmã khuyến mãi đang hoạt động:\n- Mã code\n- Mô tả\n- Thời hạn
+
+note right: Postcondition:\nDanh sách khuyến mãi\nđược hiển thị
+
+deactivate UI
+
+@enduml
+
+/' ============================================================
+   MÔ TẢ BIỂU ĐỒ TUẦN TỰ - UC035: XEM TRANG KHUYẾN MÃI
+============================================================ '/
+
+Biểu đồ tuần tự mô tả quy trình người dùng xem danh sách chương trình khuyến mãi,
+bao gồm 3 thành phần: Người dùng, Trang Khuyến mãi và Firebase Database.
+Không yêu cầu đăng nhập.
+
+Luồng xử lý chính:
+
+Bước 1: Người dùng truy cập trang Khuyến mãi (promotions.html).
+Bước 2: Hệ thống tải danh sách khuyến mãi đang hoạt động từ Firebase
+        (isActive = true, trong thời hạn).
+Bước 3: Hiển thị danh sách mã khuyến mãi: Mã code, Mô tả, Thời hạn.

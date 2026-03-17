@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="vi">
 
 <head>
@@ -727,7 +727,7 @@
                         <i class="fas fa-envelope"></i>
                         <span class="badge" id="msgCount" style="display:none">0</span>
                     </a>
-                    <a href="cart.html" class="nav-icon">
+                    <a href="wishlist.html" class="nav-icon" title="Yêu thích">
                         <i class="fas fa-heart"></i>
                         <span class="badge" id="wishlistCount">0</span>
                     </a>
@@ -1397,47 +1397,23 @@
             });
         };
 
-        // Render wishlist
+        // Update wishlist badge count
         window.renderWishlist = function () {
-            const container = document.getElementById('wishlistGrid');
             const currentUid = auth.currentUser?.uid;
             const wishlistKey = currentUid ? `moonlight_wishlist_${currentUid}` : 'moonlight_wishlist_guest';
             const wishlist = JSON.parse(localStorage.getItem(wishlistKey)) || [];
+            const badge = document.getElementById('wishlistCount');
+            if (badge) badge.textContent = wishlist.length;
+        }
 
-            if (wishlist.length === 0) {
-                container.innerHTML = `
-                    <div class="empty-state" style="grid-column: 1 / -1;">
-                        <i class="fas fa-heart"></i>
-                        <h3>Chưa có sản phẩm yêu thích</h3>
-                        <p>Hãy thêm sản phẩm bạn thích vào danh sách yêu thích!</p>
-                        <a href="menu.html" class="btn btn-primary">
-                            <i class="fas fa-coffee"></i> Xem menu
-                        </a>
-                    </div>
-                `;
-                document.getElementById('wishlistCount').textContent = 0;
-                return;
-            }
-
-            container.innerHTML = wishlist.map(item => `
-                <div class="wishlist-item">
-                <img src="${item.image || 'https://via.placeholder.com/300x200'}" alt="${item.name}" class="wishlist-img">
-                    <div class="wishlist-content">
-                        <h4 class="wishlist-name">${item.name}</h4>
-                        <div class="wishlist-price">${formatCurrency(item.price)}</div>
-                        <div class="wishlist-actions">
-                            <button class="btn btn-primary" onclick="addToCart('${item.id}', '${item.name.replace(/'/g, "\\'")}', ${item.price}, '${item.image || ''}')">
-                            <i class="fas fa-shopping-cart"></i> Thêm vào giỏ
-                        </button>
-                        <button class="btn btn-outline" onclick="removeFromWishlist('${item.id}')">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </div>
-                </div>
-                </div>
-                `).join('');
-
-            document.getElementById('wishlistCount').textContent = wishlist.length;
+        // Update cart badge count
+        window.updateCartCount = function () {
+            const currentUid = auth.currentUser?.uid;
+            const cartKey = currentUid ? `moonlight_cart_${currentUid}` : 'moonlight_cart_guest';
+            const cart = JSON.parse(localStorage.getItem(cartKey)) || [];
+            const total = cart.reduce((sum, item) => sum + (item.quantity || 1), 0);
+            const badge = document.getElementById('cartCount');
+            if (badge) badge.textContent = total;
         }
 
         // Add to cart from wishlist

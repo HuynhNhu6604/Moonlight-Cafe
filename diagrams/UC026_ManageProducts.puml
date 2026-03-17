@@ -1,0 +1,97 @@
+@startuml UC026_ManageProducts_Sequence_Diagram
+title UC026: Quản lý sản phẩm - Sequence Diagram
+
+actor "Quản trị viên" as Admin
+participant "Giao diện Admin\n(admin.html)" as UI
+participant "Firebase Realtime\nDatabase" as DB
+participant "Cloudinary API" as Cloud
+
+Admin -> UI: 1. Truy cập mục\n"Quản lý sản phẩm"
+activate UI
+
+UI -> DB: 2. Tải danh sách sản phẩm
+activate DB
+DB --> UI: 3. Trả về danh sách SP
+deactivate DB
+
+UI --> Admin: 4. Hiển thị danh sách:\nHình ảnh, Tên, Danh mục, Giá,\nTồn kho, Trạng thái
+
+alt Thêm sản phẩm
+    Admin -> UI: 5. Nhấn "Thêm sản phẩm"
+    Admin -> UI: 6. Nhập: Tên, Danh mục, Giá,\nMô tả, Tồn kho, Upload hình ảnh
+    UI -> Cloud: 7. Upload hình ảnh lên Cloudinary
+    activate Cloud
+    Cloud --> UI: URL hình ảnh
+    deactivate Cloud
+    UI -> DB: 8. Lưu sản phẩm vào Firebase
+    activate DB
+    DB --> UI: Lưu thành công
+    deactivate DB
+    UI --> Admin: Cập nhật danh sách
+else Sửa sản phẩm
+    Admin -> UI: 5. Nhấn "Sửa" trên sản phẩm
+    Admin -> UI: 6. Chỉnh sửa thông tin
+    UI -> DB: 7. Cập nhật sản phẩm
+    activate DB
+    DB --> UI: Cập nhật thành công
+    deactivate DB
+else Xóa sản phẩm
+    Admin -> UI: 5. Nhấn "Xóa"
+    UI --> Admin: Xác nhận xóa?
+    Admin -> UI: Đồng ý
+    UI -> DB: 6. Xóa sản phẩm
+    activate DB
+    DB --> UI: Xóa thành công
+    deactivate DB
+else Bật/Tắt hiển thị
+    Admin -> UI: 5. Toggle isAvailable
+    UI -> DB: 6. Cập nhật isAvailable
+    activate DB
+    DB --> UI: Cập nhật thành công
+    deactivate DB
+else Import hàng loạt
+    Admin -> UI: 5. Truy cập import-products.html
+    Admin -> UI: 6. Upload file JSON
+    UI -> DB: 7. Thêm nhiều sản phẩm cùng lúc
+    activate DB
+    DB --> UI: Import thành công
+    deactivate DB
+end
+
+note right: Postcondition:\nSản phẩm được\nthêm/sửa/xóa thành công
+
+deactivate UI
+
+@enduml
+
+/' ============================================================
+   MÔ TẢ BIỂU ĐỒ TUẦN TỰ - UC026: QUẢN LÝ SẢN PHẨM
+============================================================ '/
+
+Biểu đồ tuần tự mô tả quy trình quản trị viên quản lý danh sách sản phẩm,
+bao gồm 4 thành phần: Quản trị viên, Giao diện Admin, Firebase Database
+và Cloudinary API.
+
+Luồng xử lý chính:
+
+Bước 1: Quản trị viên truy cập mục "Quản lý sản phẩm" trong Admin.
+Bước 2: Hệ thống tải danh sách SP từ Firebase.
+Bước 3: Hiển thị danh sách: Hình ảnh, Tên, Danh mục, Giá, Tồn kho, Trạng thái.
+
+Bước 4: Các thao tác quản lý
+
+  Trường hợp A: Thêm sản phẩm
+  - Nhập: Tên, Danh mục, Giá, Mô tả, Tồn kho, Upload hình (qua Cloudinary).
+  - Lưu sản phẩm vào Firebase.
+
+  Trường hợp B: Sửa sản phẩm
+  - Chỉnh sửa thông tin, giá, tồn kho, hình ảnh → cập nhật Firebase.
+
+  Trường hợp C: Xóa sản phẩm
+  - Nhấn "Xóa", xác nhận → xóa sản phẩm.
+
+  Trường hợp D: Bật/Tắt hiển thị
+  - Toggle isAvailable → cập nhật Firebase.
+
+  Trường hợp E: Import hàng loạt
+  - Truy cập import-products.html, upload file JSON → thêm nhiều SP cùng lúc.

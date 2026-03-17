@@ -1,0 +1,51 @@
+@startuml UC020_UpdateProfile_Sequence_Diagram
+title UC020: Xem và cập nhật thông tin cá nhân - Sequence Diagram
+
+actor "Người dùng" as User
+participant "Giao diện Hồ sơ\n(profile.html)" as UI
+participant "Firebase Realtime\nDatabase" as DB
+
+User -> UI: 1. Truy cập trang Hồ sơ,\ntab "Thông tin tài khoản"
+activate UI
+
+UI -> DB: 2. Lấy thông tin người dùng
+activate DB
+DB --> UI: 3. Trả về dữ liệu user
+deactivate DB
+
+UI --> User: 4. Hiển thị thông tin:\n- Avatar (chữ cái đầu)\n- Họ tên, Email\n- Thống kê: Tổng đơn hàng,\nTổng chi tiêu, Thành viên từ
+
+User -> UI: 5. Chỉnh sửa: Họ, Tên, SĐT, Địa chỉ
+User -> UI: 6. Nhấn "Lưu thay đổi"
+
+UI -> DB: 7. Cập nhật thông tin vào Firebase
+activate DB
+DB --> UI: Cập nhật thành công
+deactivate DB
+
+UI --> User: 8. Hiển thị thông báo\n"Cập nhật thành công"
+
+note right: Postcondition:\nThông tin cá nhân\nđược cập nhật
+
+deactivate UI
+
+@enduml
+
+/' ============================================================
+   MÔ TẢ BIỂU ĐỒ TUẦN TỰ - UC020: XEM VÀ CẬP NHẬT THÔNG TIN CÁ NHÂN
+============================================================ '/
+
+Biểu đồ tuần tự mô tả quy trình xem và chỉnh sửa thông tin tài khoản,
+bao gồm 3 thành phần: Người dùng, Trang Hồ sơ và Firebase Database.
+
+Luồng xử lý chính:
+
+Bước 1: Người dùng truy cập trang Hồ sơ (profile.html),
+        tab "Thông tin tài khoản".
+Bước 2: Hệ thống lấy thông tin người dùng từ Firebase Database.
+Bước 3: Hiển thị thông tin: Avatar (chữ cái đầu), Họ tên, Email,
+        thống kê (Tổng đơn hàng, Tổng chi tiêu, Thành viên từ).
+Bước 4: Người dùng chỉnh sửa: Họ, Tên, SĐT, Địa chỉ.
+Bước 5: Nhấn "Lưu thay đổi".
+Bước 6: Hệ thống cập nhật thông tin vào Firebase Database.
+Bước 7: Hiển thị thông báo "Cập nhật thành công".

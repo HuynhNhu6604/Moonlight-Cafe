@@ -1,0 +1,36 @@
+@startuml UC011_OrderSuccess_Sequence_Diagram
+title UC011: Xem trang đặt hàng thành công - Sequence Diagram
+
+actor "Người dùng" as User
+participant "Giao diện đặt hàng\nthành công\n(order-success.html)" as UI
+
+User -> UI: 1. Hệ thống chuyển hướng\nsau khi đặt hàng thành công
+activate UI
+
+UI --> User: 2. Hiển thị thông tin đơn hàng:\n- Mã đơn hàng\n- Danh sách sản phẩm\n- Tổng tiền\n- Phương thức thanh toán\n- Trạng thái đơn hàng
+
+note right: Postcondition:\nNgười dùng nhận được\nthông tin xác nhận đơn hàng
+
+deactivate UI
+
+@enduml
+
+/' ============================================================
+   MÔ TẢ BIỂU ĐỒ TUẦN TỰ - UC011: XEM TRANG ĐẶT HÀNG THÀNH CÔNG
+============================================================ '/
+
+Biểu đồ tuần tự mô tả quy trình hiển thị trang xác nhận đơn hàng sau khi
+đặt thành công, bao gồm 2 thành phần: Người dùng và Trang Đặt hàng thành công.
+
+Luồng xử lý chính:
+
+Bước 1: Sau khi đặt hàng thành công, hệ thống tự động chuyển hướng
+        đến trang order-success.html.
+Bước 2: Hiển thị thông tin xác nhận đơn hàng:
+        - Mã đơn hàng
+        - Danh sách sản phẩm đã đặt
+        - Tổng tiền
+        - Phương thức thanh toán
+        - Trạng thái đơn hàng
+
+Kết quả: Người dùng nhận được thông tin xác nhận đơn hàng đã đặt thành công.

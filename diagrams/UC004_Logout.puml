@@ -1,0 +1,46 @@
+@startuml UC004_Logout_Sequence_Diagram
+title UC004: Đăng xuất - Sequence Diagram
+
+actor "Người dùng" as User
+participant "Giao diện web\n(Thanh điều hướng)" as UI
+participant "Firebase\nAuthentication" as Auth
+participant "localStorage" as LS
+
+User -> UI: 1. Nhấn vào icon tài khoản
+activate UI
+UI --> User: Hiển thị dropdown menu
+
+User -> UI: 2. Chọn "Đăng xuất"
+
+UI -> LS: 3. Xóa phiên đăng nhập\n(remove moonlight_user)
+UI -> Auth: 4. signOut()
+activate Auth
+Auth --> UI: Đăng xuất thành công
+deactivate Auth
+
+UI --> User: 5. Chuyển hướng về trang Đăng nhập\n(login.html)
+note right: Postcondition:\nĐăng xuất thành công\nPhiên đăng nhập bị xóa
+
+deactivate UI
+
+@enduml
+
+/' ============================================================
+   MÔ TẢ BIỂU ĐỒ TUẦN TỰ - UC004: ĐĂNG XUẤT
+============================================================ '/
+
+Biểu đồ tuần tự mô tả quy trình đăng xuất khỏi hệ thống,
+bao gồm 4 thành phần: Người dùng, Giao diện web, Firebase Authentication
+và localStorage.
+
+Luồng xử lý chính:
+
+Bước 1: Người dùng nhấn vào icon tài khoản trên thanh điều hướng.
+Bước 2: Hệ thống hiển thị dropdown menu với tùy chọn "Đăng xuất".
+Bước 3: Người dùng chọn "Đăng xuất".
+Bước 4: Hệ thống xóa phiên đăng nhập khỏi localStorage (moonlight_user).
+Bước 5: Hệ thống gọi signOut() trên Firebase Authentication.
+Bước 6: Chuyển hướng người dùng về trang Đăng nhập (login.html).
+
+Kết quả: Phiên đăng nhập bị xóa hoàn toàn, người dùng cần đăng nhập lại
+để truy cập các chức năng yêu cầu xác thực.

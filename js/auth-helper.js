@@ -144,7 +144,7 @@ export function getUserDropdownHTML(userData) {
         <a href="profile.html?tab=orders" class="dropdown-item">
             <i class="fas fa-box"></i> Đơn hàng của tôi
         </a>
-        <a href="profile.html?tab=wishlist" class="dropdown-item">
+        <a href="wishlist.html" class="dropdown-item">
             <i class="fas fa-heart"></i> Yêu thích
         </a>
     `;

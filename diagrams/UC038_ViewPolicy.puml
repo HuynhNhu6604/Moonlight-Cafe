@@ -1,0 +1,30 @@
+@startuml UC038_ViewPolicy_Sequence_Diagram
+title UC038: Xem trang Chính sách - Sequence Diagram
+
+actor "Người dùng" as User
+participant "Giao diện Chính sách\n(policy.html)" as UI
+
+User -> UI: 1. Truy cập trang Chính sách
+activate UI
+
+UI --> User: 2. Hiển thị nội dung:\n- Điều khoản sử dụng\n- Chính sách bảo mật\n- Chính sách hoàn tiền
+
+note right: Postcondition:\nThông tin chính sách\nđược hiển thị
+
+deactivate UI
+
+@enduml
+
+/' ============================================================
+   MÔ TẢ BIỂU ĐỒ TUẦN TỰ - UC038: XEM TRANG CHÍNH SÁCH
+============================================================ '/
+
+Biểu đồ tuần tự mô tả quy trình người dùng xem các chính sách và quy định,
+bao gồm 2 thành phần: Người dùng và Trang Chính sách.
+Không yêu cầu đăng nhập.
+
+Luồng xử lý chính:
+
+Bước 1: Người dùng truy cập trang Chính sách (policy.html).
+Bước 2: Hiển thị nội dung: Điều khoản sử dụng, Chính sách bảo mật,
+        Chính sách hoàn tiền.

@@ -1,0 +1,44 @@
+@startuml UC014_ViewReservationHistory_Sequence_Diagram
+title UC014: Xem lịch sử đặt bàn - Sequence Diagram
+
+actor "Người dùng" as User
+participant "Giao diện\n(reservation.html\nhoặc profile.html)" as UI
+participant "Firebase Realtime\nDatabase" as DB
+
+User -> UI: 1. Truy cập trang Đặt bàn\nhoặc tab "Lịch sử đặt bàn"\ntrong Hồ sơ cá nhân
+activate UI
+
+UI -> DB: 2. Lấy danh sách đặt bàn\ncủa user hiện tại
+activate DB
+DB --> UI: 3. Trả về danh sách đặt bàn
+deactivate DB
+
+UI --> User: 4. Hiển thị danh sách với trạng thái:\n- Chờ duyệt (pending)\n- Đã xác nhận (confirmed)\n- Đang thương lượng (negotiating)\n- Đã từ chối (rejected)\n- Hoàn thành (completed)\n- Đã hủy (cancelled)\n\nMỗi card: Mã đặt bàn, Thời gian,\nLoại bàn, Số người, Tiền cọc, Trạng thái
+
+note right: Postcondition:\nDanh sách đặt bàn\nđược hiển thị
+
+deactivate UI
+
+@enduml
+
+/' ============================================================
+   MÔ TẢ BIỂU ĐỒ TUẦN TỰ - UC014: XEM LỊCH SỬ ĐẶT BÀN
+============================================================ '/
+
+Biểu đồ tuần tự mô tả quy trình xem danh sách các lần đặt bàn,
+bao gồm 3 thành phần: Người dùng, Giao diện và Firebase Database.
+
+Luồng xử lý chính:
+
+Bước 1: Người dùng truy cập trang Đặt bàn hoặc tab "Lịch sử đặt bàn"
+        trong Hồ sơ cá nhân (profile.html?tab=reservations).
+Bước 2: Hệ thống lấy danh sách đặt bàn của user hiện tại từ Firebase.
+Bước 3: Hiển thị danh sách đặt bàn với các trạng thái:
+        - Chờ duyệt (pending) - màu vàng
+        - Đã xác nhận (confirmed) - màu xanh lá
+        - Đang thương lượng (negotiating) - màu cam
+        - Đã từ chối (rejected) - màu đỏ
+        - Hoàn thành (completed) - màu xanh dương
+        - Đã hủy (cancelled) - màu xám
+Bước 4: Mỗi card hiển thị: Mã đặt bàn, Thời gian, Loại bàn, Số người,
+        Tiền cọc, Trạng thái.

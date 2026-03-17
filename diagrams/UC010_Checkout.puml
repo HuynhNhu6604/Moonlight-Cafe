@@ -1,0 +1,112 @@
+@startuml UC010_Checkout_Sequence_Diagram
+title UC010: Thanh toán đơn hàng - Sequence Diagram
+
+actor "Người dùng" as User
+participant "Giao diện thanh toán\n(checkout.html)" as UI
+participant "Firebase Realtime\nDatabase" as DB
+participant "localStorage" as LS
+participant "Cổng VNPay" as VNPay
+
+User -> UI: 1. Truy cập trang Thanh toán
+activate UI
+
+UI -> UI: 2. Kiểm tra đăng nhập
+
+alt Đã đăng nhập
+    UI -> LS: 3. Đọc giỏ hàng
+    UI -> DB: 4. Lấy thông tin hồ sơ user
+    activate DB
+    DB --> UI: Họ tên, Email, SĐT, Địa chỉ
+    deactivate DB
+    UI --> User: 5. Tự động điền thông tin từ hồ sơ
+
+    User -> UI: 6. Nhập/chỉnh sửa thông tin giao hàng:\nHọ tên, SĐT, Email, Địa chỉ,\nQuận/Huyện, Phường/Xã, Ghi chú
+
+    User -> UI: 7. Chọn phương thức thanh toán:\nCOD / MoMo / VNPay
+
+    opt Có mã khuyến mãi
+        User -> UI: 8. Nhập mã khuyến mãi
+        User -> UI: Nhấn "Áp dụng"
+        UI -> DB: Kiểm tra mã khuyến mãi
+        activate DB
+        DB --> UI: Kết quả kiểm tra
+        deactivate DB
+        alt Mã hợp lệ
+            UI --> User: Hiển thị giảm giá
+        else Mã không hợp lệ/hết hạn
+            UI --> User: Hiển thị lỗi cụ thể
+        end
+    end
+
+    UI -> UI: 9. Tính tổng:\nTạm tính + Phí vận chuyển - Giảm giá
+    UI --> User: Hiển thị tổng cộng
+
+    User -> UI: 10. Nhấn "Đặt hàng"
+
+    UI -> DB: 11. Lưu đơn hàng vào Firebase
+    activate DB
+    DB --> UI: Lưu thành công
+    deactivate DB
+    UI -> LS: 12. Xóa giỏ hàng
+
+    alt Thanh toán COD hoặc MoMo
+        UI --> User: Chuyển đến order-success.html
+    else Thanh toán VNPay
+        UI -> VNPay: Chuyển đến cổng thanh toán VNPay
+        activate VNPay
+        VNPay --> User: Hiển thị trang thanh toán
+        deactivate VNPay
+    end
+
+    note right: Postcondition:\nĐơn hàng được tạo thành công\nGiỏ hàng được xóa
+else Chưa đăng nhập
+    UI --> User: Yêu cầu đăng nhập
+else Giỏ hàng trống
+    UI --> User: Chuyển về cart.html
+end
+
+deactivate UI
+
+@enduml
+
+/' ============================================================
+   MÔ TẢ BIỂU ĐỒ TUẦN TỰ - UC010: THANH TOÁN ĐƠN HÀNG
+============================================================ '/
+
+Biểu đồ tuần tự mô tả quy trình thanh toán đơn hàng,
+bao gồm 5 thành phần: Người dùng, Trang Thanh toán, Firebase Database,
+localStorage và Cổng VNPay.
+
+Luồng xử lý chính:
+
+Bước 1: Khởi tạo thanh toán
+- Người dùng truy cập trang Thanh toán (checkout.html).
+- Hệ thống kiểm tra đăng nhập và giỏ hàng.
+- Tự động điền thông tin từ hồ sơ (họ tên, email, SĐT, địa chỉ).
+
+Bước 2: Nhập thông tin giao hàng
+- Nhập/chỉnh sửa: Họ tên, SĐT, Email, Địa chỉ, Quận/Huyện
+  (Ninh Kiều, Bình Thủy, Cái Răng), Phường/Xã, Ghi chú.
+
+Bước 3: Chọn phương thức thanh toán
+  - COD: Thanh toán tiền mặt khi nhận hàng.
+  - Ví MoMo: Quét mã QR MoMo, nội dung: "THANHTOAN [Mã đơn hàng]".
+  - VNPay QR: Chuyển hướng đến cổng thanh toán VNPay online.
+
+Bước 4: Áp dụng mã khuyến mãi (tùy chọn)
+- Nhập mã khuyến mãi → nhấn "Áp dụng" → hệ thống kiểm tra từ Firebase.
+- Nếu hợp lệ → hiển thị giảm giá. Nếu không → thông báo lỗi cụ thể.
+
+Bước 5: Tính tổng
+- Tạm tính + Phí vận chuyển (≤1km miễn phí, mỗi km thêm 5.000đ,
+  tối đa 25.000đ) - Giảm giá = Tổng cộng.
+
+Bước 6: Đặt hàng
+- Nhấn "Đặt hàng" → hệ thống lưu đơn hàng vào Firebase, xóa giỏ hàng.
+- COD/MoMo → chuyển đến order-success.html.
+- VNPay → chuyển đến cổng thanh toán VNPay.
+
+Ngoại lệ:
+- Chưa đăng nhập → yêu cầu đăng nhập.
+- Giỏ hàng trống → chuyển về cart.html.
+- Thiếu thông tin bắt buộc → thông báo lỗi.

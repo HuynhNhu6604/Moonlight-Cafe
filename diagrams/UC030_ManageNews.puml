@@ -1,0 +1,78 @@
+@startuml UC030_ManageNews_Sequence_Diagram
+title UC030: Quản lý tin tức - Sequence Diagram
+
+actor "Quản trị viên" as Admin
+participant "Giao diện Admin\n(admin.html)" as UI
+participant "Firebase Realtime\nDatabase" as DB
+participant "Cloudinary API" as Cloud
+
+Admin -> UI: 1. Truy cập mục\n"Quản lý tin tức"
+activate UI
+
+UI -> DB: 2. Tải danh sách bài viết
+activate DB
+DB --> UI: 3. Trả về danh sách news
+deactivate DB
+
+UI --> Admin: 4. Hiển thị danh sách bài viết
+
+alt Tạo bài viết
+    Admin -> UI: 5. Nhấn "Tạo bài viết"
+    Admin -> UI: 6. Nhập: Tiêu đề, Nội dung,\nUpload hình ảnh đại diện
+    UI -> Cloud: 7. Upload hình ảnh
+    activate Cloud
+    Cloud --> UI: URL hình ảnh
+    deactivate Cloud
+    UI -> DB: 8. Lưu bài viết vào Firebase
+    activate DB
+    DB --> UI: Lưu thành công
+    deactivate DB
+    UI --> Admin: Cập nhật danh sách
+else Sửa bài viết
+    Admin -> UI: 5. Nhấn "Sửa"
+    Admin -> UI: 6. Chỉnh sửa nội dung
+    UI -> DB: 7. Cập nhật bài viết
+    activate DB
+    DB --> UI: Cập nhật thành công
+    deactivate DB
+else Xóa bài viết
+    Admin -> UI: 5. Nhấn "Xóa"
+    UI --> Admin: Xác nhận xóa?
+    Admin -> UI: Đồng ý
+    UI -> DB: 6. Xóa bài viết
+    activate DB
+    DB --> UI: Xóa thành công
+    deactivate DB
+end
+
+note right: Postcondition:\nBài viết tin tức được\ntạo/sửa/xóa
+
+deactivate UI
+
+@enduml
+
+/' ============================================================
+   MÔ TẢ BIỂU ĐỒ TUẦN TỰ - UC030: QUẢN LÝ TIN TỨC
+============================================================ '/
+
+Biểu đồ tuần tự mô tả quy trình quản trị viên quản lý các bài viết tin tức/blog,
+bao gồm 4 thành phần: Quản trị viên, Giao diện Admin, Firebase Database
+và Cloudinary API.
+
+Luồng xử lý chính:
+
+Bước 1: Quản trị viên truy cập mục "Quản lý tin tức".
+Bước 2: Hệ thống tải danh sách bài viết từ Firebase.
+Bước 3: Hiển thị danh sách bài viết.
+
+Bước 4: Các thao tác quản lý
+
+  Trường hợp A: Tạo bài viết
+  - Nhập: Tiêu đề, Nội dung, Upload hình ảnh đại diện (Cloudinary).
+  - Lưu bài viết vào Firebase.
+
+  Trường hợp B: Sửa bài viết
+  - Chỉnh sửa nội dung → cập nhật Firebase.
+
+  Trường hợp C: Xóa bài viết
+  - Nhấn "Xóa", xác nhận → xóa bài viết khỏi Firebase.

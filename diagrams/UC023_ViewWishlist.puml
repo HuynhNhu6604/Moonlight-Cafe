@@ -1,0 +1,82 @@
+@startuml UC023_ViewWishlist_Sequence_Diagram
+title UC023: Xem danh sách yêu thích (Wishlist) - Sequence Diagram
+
+actor "Người dùng" as User
+participant "Giao diện Yêu thích\n(wishlist.html)" as UI
+participant "Firebase Auth" as Auth
+participant "localStorage" as LS
+
+User -> UI: 1. Nhấn biểu tượng trái tim (♥)\ntrên thanh điều hướng
+activate UI
+
+UI -> Auth: 2. Kiểm tra đăng nhập
+activate Auth
+Auth --> UI: Trả về trạng thái
+deactivate Auth
+
+alt Đã đăng nhập
+    UI -> LS: 3. Đọc Wishlist\n(moonlight_wishlist_{uid})
+    LS --> UI: 4. Danh sách yêu thích
+
+    alt Có sản phẩm yêu thích
+        UI --> User: 5. Hiển thị lưới sản phẩm:\n- Hình ảnh sản phẩm\n- Danh mục\n- Tên sản phẩm (link đến chi tiết)\n- Giá\n- Nút "Thêm giỏ"\n- Nút "Bỏ yêu thích" (♥ đỏ)\n- Nút "Xóa tất cả"\n- Số lượng sản phẩm yêu thích
+
+        alt Thêm vào giỏ hàng
+            User -> UI: 6. Nhấn "Thêm giỏ"
+            UI -> LS: 7. Thêm sản phẩm vào giỏ hàng
+            UI --> User: Toast: "Đã thêm vào giỏ hàng"
+        else Bỏ yêu thích
+            User -> UI: 6. Nhấn nút ♥ đỏ
+            UI -> LS: 7. Xóa sản phẩm khỏi Wishlist
+            UI --> User: Hiệu ứng fade-out +\nToast: "Đã bỏ yêu thích"
+        else Xóa tất cả
+            User -> UI: 6. Nhấn "Xóa tất cả"
+            UI --> User: Xác nhận:\n"Bạn có chắc muốn xóa?"
+            User -> UI: 7. Xác nhận
+            UI -> LS: 8. Xóa toàn bộ Wishlist
+            UI --> User: Cập nhật giao diện trống
+        else Xem chi tiết sản phẩm
+            User -> UI: 6. Nhấn tên/hình sản phẩm
+            UI --> User: Chuyển đến product-detail.html
+        end
+
+        note right: Postcondition:\nDanh sách yêu thích\nđược hiển thị và quản lý
+
+    else Wishlist trống
+        UI --> User: Hiển thị:\n"Chưa có sản phẩm yêu thích"\n+ Nút "Xem Menu"
+    end
+
+else Chưa đăng nhập
+    UI --> User: Hiển thị:\n"Đăng nhập để xem yêu thích"\n+ Nút Đăng nhập / Đăng ký
+end
+
+deactivate UI
+
+@enduml
+
+/' ============================================================
+   MÔ TẢ BIỂU ĐỒ TUẦN TỰ - UC023: XEM DANH SÁCH YÊU THÍCH (WISHLIST)
+============================================================ '/
+
+Biểu đồ tuần tự mô tả quy trình xem và quản lý danh sách yêu thích
+trên trang riêng (wishlist.html), bao gồm 4 thành phần: Người dùng,
+Trang Yêu thích, Firebase Auth và localStorage.
+
+Luồng xử lý chính:
+
+Bước 1: Người dùng nhấn biểu tượng trái tim trên thanh điều hướng.
+Bước 2: Kiểm tra đăng nhập.
+
+  Trường hợp A: Đã đăng nhập
+  - Đọc danh sách yêu thích từ localStorage.
+  - Nếu có sản phẩm: hiển thị lưới sản phẩm gồm hình ảnh, danh mục,
+    tên (link đến chi tiết), giá, nút thêm giỏ, nút bỏ yêu thích.
+    Người dùng có thể:
+    + Thêm vào giỏ hàng.
+    + Bỏ yêu thích (hiệu ứng fade-out).
+    + Xóa toàn bộ (có xác nhận).
+    + Nhấn tên/hình để xem chi tiết sản phẩm.
+  - Nếu trống: hiển thị "Chưa có sản phẩm yêu thích" + nút "Xem Menu".
+
+  Trường hợp B: Chưa đăng nhập
+  - Hiển thị yêu cầu đăng nhập.

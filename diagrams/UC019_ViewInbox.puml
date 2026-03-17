@@ -1,0 +1,60 @@
+@startuml UC019_ViewInbox_Sequence_Diagram
+title UC019: Xem phản hồi từ quán (Hộp thư) - Sequence Diagram
+
+actor "Người dùng" as User
+participant "Giao diện\n(contact.html\nhoặc profile.html)" as UI
+participant "Firebase Realtime\nDatabase" as DB
+
+User -> UI: 1. Truy cập trang Liên hệ\nhoặc tab "Hộp thư" trong Hồ sơ
+activate UI
+
+UI -> DB: 2. Lấy danh sách đánh giá/liên hệ\ncó phản hồi từ Admin\n(uid = currentUser, adminReply exists)
+activate DB
+DB --> UI: 3. Trả về danh sách phản hồi
+deactivate DB
+
+alt Có phản hồi
+    UI --> User: 4. Hiển thị "Tin nhắn từ tiệm":\n- Đánh giá/liên hệ gốc\n- Nội dung phản hồi của Admin\n- Ngày phản hồi\n- Trạng thái đã đọc/chưa đọc
+
+    opt Phản hồi chưa đọc
+        User -> UI: 5. Nhấn "Đánh dấu đã đọc"
+        UI -> DB: 6. Cập nhật userReadReply = true
+        activate DB
+        DB --> UI: Cập nhật thành công
+        deactivate DB
+        UI -> UI: 7. Cập nhật badge thông báo trên nav
+    end
+
+    note right: Postcondition:\nPhản hồi được hiển thị\nBadge được cập nhật
+else Không có phản hồi
+    UI --> User: Ẩn phần "Tin nhắn từ tiệm"
+end
+
+deactivate UI
+
+@enduml
+
+/' ============================================================
+   MÔ TẢ BIỂU ĐỒ TUẦN TỰ - UC019: XEM PHẢN HỒI TỪ QUÁN (HỘP THƯ)
+============================================================ '/
+
+Biểu đồ tuần tự mô tả quy trình xem phản hồi từ Admin đối với đánh giá/liên hệ,
+bao gồm 3 thành phần: Người dùng, Giao diện và Firebase Database.
+
+Luồng xử lý chính:
+
+Bước 1: Người dùng truy cập trang Liên hệ (contact.html) hoặc
+        tab "Hộp thư" trong Hồ sơ cá nhân (profile.html?tab=inbox).
+Bước 2: Hệ thống lấy danh sách đánh giá/liên hệ có phản hồi từ Admin.
+
+Bước 3: Xử lý điều kiện
+
+  Trường hợp A: Có phản hồi
+  - Hiển thị "Tin nhắn từ tiệm": đánh giá/liên hệ gốc, nội dung phản hồi
+    của Admin, ngày phản hồi, trạng thái đã đọc/chưa đọc.
+  - Nếu có phản hồi chưa đọc, người dùng có thể nhấn "Đánh dấu đã đọc".
+  - Hệ thống cập nhật userReadReply = true trong Firebase.
+  - Badge thông báo trên nav icon (🔔) tự động cập nhật.
+
+  Trường hợp B: Không có phản hồi
+  - Ẩn phần "Tin nhắn từ tiệm".

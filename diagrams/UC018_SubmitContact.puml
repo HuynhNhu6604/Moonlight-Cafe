@@ -1,0 +1,85 @@
+@startuml UC018_SubmitContact_Sequence_Diagram
+title UC018: Gửi liên hệ / Góp ý - Sequence Diagram
+
+actor "Khách hàng" as User
+participant "Giao diện Liên hệ\n& Đánh giá\n(contact.html)" as UI
+participant "Firebase Auth" as Auth
+participant "Firebase Realtime\nDatabase" as DB
+
+User -> UI: 1. Truy cập trang Liên hệ & Đánh giá
+activate UI
+
+UI -> Auth: 2. Kiểm tra đăng nhập
+activate Auth
+Auth --> UI: Trả về trạng thái
+deactivate Auth
+
+alt Đã đăng nhập
+    User -> UI: 3. Chọn tab "Gửi liên hệ"
+
+    User -> UI: 4. Chọn loại liên hệ:\nGóp ý / Khiếu nại / Hỏi đáp / Hợp tác / Khác
+    User -> UI: 5. Nhập tiêu đề
+    User -> UI: 6. Nhập nội dung chi tiết
+    User -> UI: 7. Nhấn "Gửi liên hệ"
+
+    UI -> UI: 8. Validate:\n- Đã chọn loại?\n- Tiêu đề >= 5 ký tự?\n- Nội dung >= 10 ký tự?
+
+    alt Thông tin hợp lệ
+        UI -> DB: 9. Lưu liên hệ vào Firebase\n(type, subject, content, uid,\nuserName, userEmail, userPhone,\nstatus: "pending", adminRead: false)
+        activate DB
+        DB --> UI: 10. Lưu thành công
+        deactivate DB
+
+        UI --> User: 11. Hiển thị thông báo:\n"Gửi liên hệ thành công!\nChúng tôi sẽ phản hồi sớm nhất"
+
+        UI -> DB: 12. Tải lại lịch sử liên hệ
+        activate DB
+        DB --> UI: 13. Trả về danh sách liên hệ của user
+        deactivate DB
+
+        UI --> User: 14. Cập nhật lịch sử liên hệ:\n- Loại liên hệ, tiêu đề\n- Trạng thái (Đang chờ / Đã xem / Đã phản hồi)\n- Phản hồi từ Admin (nếu có)
+        note right: Postcondition:\nLiên hệ được gửi thành công.\nAdmin nhận thông báo\ntrên chuông admin.\nKhi admin phản hồi,\nkhách hàng xem kết quả\ntrong hộp thư trên trang này.
+
+    else Thiếu thông tin
+        UI --> User: Thông báo lỗi tương ứng
+    end
+
+else Chưa đăng nhập
+    UI --> User: Hiển thị prompt đăng nhập:\n"Bạn cần đăng nhập để gửi liên hệ"
+end
+
+deactivate UI
+
+@enduml
+
+/' ============================================================
+   MÔ TẢ BIỂU ĐỒ TUẦN TỰ - UC018: GỬI LIÊN HỆ / GÓP Ý
+============================================================ '/
+
+Biểu đồ tuần tự mô tả quy trình gửi liên hệ đến quán từ trang Liên hệ,
+bao gồm 4 thành phần: Khách hàng, Trang Liên hệ & Đánh giá, Firebase Auth
+và Firebase Database.
+
+Luồng xử lý chính:
+
+Bước 1: Khách hàng truy cập trang Liên hệ & Đánh giá (contact.html).
+Bước 2: Kiểm tra đăng nhập.
+
+  Trường hợp A: Đã đăng nhập
+  - Chọn tab "Gửi liên hệ".
+  - Chọn loại: Góp ý, Khiếu nại, Hỏi đáp, Hợp tác, Khác.
+  - Nhập tiêu đề và nội dung chi tiết.
+  - Nhấn "Gửi liên hệ".
+  - Validate: loại liên hệ, tiêu đề >= 5 ký tự, nội dung >= 10 ký tự.
+    + Hợp lệ → lưu vào Firebase (contacts/) với status: "pending",
+      adminRead: false. Hiển thị "Gửi thành công!".
+      Cập nhật lịch sử liên hệ bên dưới form.
+    + Thiếu thông tin → thông báo lỗi.
+
+  Trường hợp B: Chưa đăng nhập
+  - Hiển thị prompt yêu cầu đăng nhập.
+
+Sau khi gửi:
+- Admin nhận thông báo trên chuông admin.
+- Admin xem và phản hồi trong trang quản lý.
+- Khách hàng xem phản hồi trong hộp thư trên trang Liên hệ.

@@ -1,0 +1,48 @@
+@startuml UC039_AIChatbot_Sequence_Diagram
+title UC039: Sử dụng AI Chatbot - Sequence Diagram
+
+actor "Người dùng" as User
+participant "Giao diện web\n(Tất cả trang)" as UI
+participant "Widget Chatbot\n(TuDongChat)" as Bot
+participant "AI Engine\n(TuDongChat API)" as AI
+
+User -> UI: 1. Truy cập bất kỳ trang nào
+activate UI
+UI --> User: 2. Hiển thị widget chatbot\nở góc màn hình
+
+User -> Bot: 3. Nhấn vào widget chatbot
+activate Bot
+Bot --> User: 4. Mở cửa sổ chat
+
+User -> Bot: 5. Nhập câu hỏi\nhoặc yêu cầu hỗ trợ
+Bot -> AI: 6. Gửi câu hỏi đến AI Engine
+activate AI
+AI --> Bot: 7. Trả về câu trả lời tự động
+deactivate AI
+
+Bot --> User: 8. Hiển thị câu trả lời\n(hỗ trợ 24/7)
+
+note right: Postcondition:\nNgười dùng nhận được\nhỗ trợ từ Chatbot
+
+deactivate Bot
+deactivate UI
+
+@enduml
+
+/' ============================================================
+   MÔ TẢ BIỂU ĐỒ TUẦN TỰ - UC039: SỬ DỤNG AI CHATBOT
+============================================================ '/
+
+Biểu đồ tuần tự mô tả quy trình người dùng tương tác với Chatbot AI để được hỗ trợ,
+bao gồm 4 thành phần: Người dùng, Giao diện web, Widget Chatbot (TuDongChat)
+và AI Engine. Không yêu cầu đăng nhập.
+
+Luồng xử lý chính:
+
+Bước 1: Người dùng truy cập bất kỳ trang nào trên website.
+Bước 2: Chatbot TuDongChat hiển thị widget ở góc màn hình.
+Bước 3: Người dùng nhấn vào widget chatbot → mở cửa sổ chat.
+Bước 4: Nhập câu hỏi hoặc yêu cầu hỗ trợ.
+Bước 5: Widget gửi câu hỏi đến AI Engine (TuDongChat API).
+Bước 6: AI Engine trả về câu trả lời tự động.
+Bước 7: Hiển thị câu trả lời cho người dùng (hỗ trợ 24/7).

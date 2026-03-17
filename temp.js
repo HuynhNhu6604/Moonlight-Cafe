@@ -2814,6 +2814,27 @@
                 }
             } catch (e) { console.warn('notif reviews:', e); }
 
+            // 1b. Liên hệ chưa đọc từ khách hàng
+            try {
+                const snapC = await get(ref(db, 'contacts'));
+                if (snapC.exists()) {
+                    snapC.forEach(c => {
+                        const ct = c.val();
+                        if (!ct.adminRead && !ct.adminReply) {
+                            notifs.push({
+                                type: 'contact',
+                                icon: 'fa-envelope',
+                                color: '#3b82f6',
+                                title: `Liên hệ mới từ <strong>${ct.userName || 'khách hàng'}</strong>`,
+                                body: `${ct.subject ? ct.subject + ' — ' : ''}${(ct.content || '').slice(0, 70)}${(ct.content || '').length > 70 ? '…' : ''}`,
+                                time: ct.createdAt,
+                                action: `showSection('reviewsSection'); setTimeout(() => switchAdminSubTab('contacts'), 200)`
+                            });
+                        }
+                    });
+                }
+            } catch (e) { console.warn('notif contacts:', e); }
+
             // 2. Sản phẩm sắp hết hàng (stock <= LOW_STOCK_THRESHOLD)
             try {
                 const snapP = await get(ref(db, 'products'));
@@ -2860,7 +2881,7 @@
             } catch (e) { console.warn('notif promos:', e); }
 
             // Sắp xếp: review + stock trước, promo sau; mới nhất lên đầu
-            const order = { review: 0, stock: 1, promo: 2 };
+            const order = { review: 0, contact: 0, stock: 1, promo: 2 };
             notifs.sort((a, b) => (order[a.type] - order[b.type]) || (b.time || 0) - (a.time || 0));
 
             _renderNotifications(notifs);
@@ -2952,7 +2973,7 @@
                 return;
             }
 
-            const typeLabel = { review: 'Đánh giá', stock: 'Kho hàng', promo: 'Khuyến mãi', reservation: 'Đặt bàn' };
+            const typeLabel = { review: 'Đánh giá', contact: 'Liên hệ', stock: 'Kho hàng', promo: 'Khuyến mãi', reservation: 'Đặt bàn' };
             list.innerHTML = notifs.map(n => `
                 <div class="notif-item notif-${n.type}" onclick="${n.action}; closeNotifPanel()">
                     <div class="notif-icon-wrap" style="background:${n.color}22;color:${n.color}">

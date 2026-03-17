@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="vi">
 
 <head>
@@ -441,61 +441,22 @@
                             </button>
                         </div>
 
-                        <!-- Tab: Đánh giá -->
+                        <!-- Tab: Đánh giá (chỉ hiển thị đánh giá đã gửi) -->
                         <div class="tab-panel active" id="tabReview">
                         <div class="review-form-card" style="border-radius:0 0 var(--radius-md) var(--radius-md)">
-                            <h3><i class="fas fa-star" style="color:var(--accent)"></i> Viết đánh giá</h3>
-                            <p class="subtitle">Chia sẻ trải nghiệm của bạn với Moonlight Cafe</p>
+                            <h3><i class="fas fa-star" style="color:var(--accent)"></i> Đánh giá của bạn</h3>
+                            <p class="subtitle">Các đánh giá bạn đã gửi từ trang chi tiết sản phẩm</p>
 
-                            <form id="reviewForm">
-                                <!-- Star rating -->
-                                <div class="form-group">
-                                    <label>Đánh giá của bạn *</label>
-                                    <div class="star-rating" id="starRating">
-                                        <input type="radio" name="rating" id="s5" value="5"><label for="s5" title="5 sao"><i class="fas fa-star"></i></label>
-                                        <input type="radio" name="rating" id="s4" value="4"><label for="s4" title="4 sao"><i class="fas fa-star"></i></label>
-                                        <input type="radio" name="rating" id="s3" value="3"><label for="s3" title="3 sao"><i class="fas fa-star"></i></label>
-                                        <input type="radio" name="rating" id="s2" value="2"><label for="s2" title="2 sao"><i class="fas fa-star"></i></label>
-                                        <input type="radio" name="rating" id="s1" value="1"><label for="s1" title="1 sao"><i class="fas fa-star"></i></label>
-                                    </div>
-                                </div>
-
-                                <div class="form-group">
-                                    <label>Nội dung đánh giá *</label>
-                                    <textarea id="reviewContent" placeholder="Chia sẻ cảm nhận của bạn về Moonlight Cafe..." rows="5"></textarea>
-                                </div>
-
-                                <button type="submit" class="btn btn-primary" style="width:100%">
-                                    <i class="fas fa-paper-plane"></i> Gửi đánh giá
-                                </button>
-                            </form>
-
-                            <!-- Edit form (hidden by default) -->
-                            <div id="editFormWrap" style="display:none;margin-top:20px">
-                                <hr style="border-color:var(--secondary);margin-bottom:20px">
-                                <h4 style="margin-bottom:12px"><i class="fas fa-edit" style="color:var(--accent)"></i> Chỉnh sửa đánh giá</h4>
-                                <div class="star-rating" id="editStarRating">
-                                    <input type="radio" name="editRating" id="e5" value="5"><label for="e5"><i class="fas fa-star"></i></label>
-                                    <input type="radio" name="editRating" id="e4" value="4"><label for="e4"><i class="fas fa-star"></i></label>
-                                    <input type="radio" name="editRating" id="e3" value="3"><label for="e3"><i class="fas fa-star"></i></label>
-                                    <input type="radio" name="editRating" id="e2" value="2"><label for="e2"><i class="fas fa-star"></i></label>
-                                    <input type="radio" name="editRating" id="e1" value="1"><label for="e1"><i class="fas fa-star"></i></label>
-                                </div>
-                                <textarea id="editContent" style="width:100%;background:var(--bg-dark);border:1px solid var(--secondary);border-radius:var(--radius-sm);padding:10px 14px;color:var(--text-primary);margin:10px 0" rows="4"></textarea>
-                                <div style="display:flex;gap:10px">
-                                    <button class="btn btn-primary btn-sm" onclick="submitEdit()"><i class="fas fa-save"></i> Lưu</button>
-                                    <button class="btn btn-outline btn-sm" onclick="cancelEdit()">Hủy</button>
-                                </div>
+                            <!-- User's own reviews list -->
+                            <div id="myReviewsList">
+                                <p style="text-align:center;color:var(--text-muted);padding:30px 0">
+                                    <i class="fas fa-spinner fa-spin"></i> Đang tải...
+                                </p>
                             </div>
 
-                            <!-- Pending-notice -->
-                            <div id="pendingNotice" class="pending-notice" style="display:none">
-                                <i class="fas fa-clock"></i> Đánh giá của bạn đang chờ duyệt. Bạn có thể chỉnh sửa trước khi được duyệt.
-                            </div>
-
-                            <!-- Already-approved notice -->
-                            <div id="approvedNotice" style="display:none;margin-top:16px;padding:12px 16px;background:rgba(16,185,129,.1);border:1px solid #10b981;border-radius:var(--radius-sm);font-size:.85rem;color:#10b981">
-                                <i class="fas fa-check-circle"></i> Đánh giá của bạn đã được hiển thị công khai. Cảm ơn bạn!
+                            <!-- Tip to submit review -->
+                            <div style="margin-top:16px;padding:12px 16px;background:rgba(212,165,116,.1);border:1px solid var(--accent);border-radius:var(--radius-sm);font-size:.85rem;color:var(--accent)">
+                                <i class="fas fa-info-circle"></i> Để gửi đánh giá mới, hãy truy cập trang <a href="menu.html" style="color:var(--accent);text-decoration:underline;font-weight:600">chi tiết sản phẩm</a> và nhấn "Viết đánh giá".
                             </div>
                         </div>
                         </div><!-- end tabReview -->
@@ -998,6 +959,74 @@
             } catch (e) { console.error(e); }
         };
 
+        // ---- Load user's own reviews (read-only display) ----
+        async function loadMyReviews(uid) {
+            const list = document.getElementById('myReviewsList');
+            if (!list) return;
+            try {
+                const snap = await get(ref(db, 'reviews'));
+                if (!snap.exists()) {
+                    list.innerHTML = `<div style="text-align:center;padding:30px 0;color:var(--text-muted)">
+                        <i class="far fa-comment-dots" style="font-size:2rem;margin-bottom:10px;display:block"></i>
+                        <p>Bạn chưa gửi đánh giá nào.</p>
+                    </div>`;
+                    return;
+                }
+
+                const myReviews = [];
+                snap.forEach(c => {
+                    const r = c.val();
+                    if (r.uid === uid) myReviews.push({ id: c.key, ...r });
+                });
+
+                if (myReviews.length === 0) {
+                    list.innerHTML = `<div style="text-align:center;padding:30px 0;color:var(--text-muted)">
+                        <i class="far fa-comment-dots" style="font-size:2rem;margin-bottom:10px;display:block"></i>
+                        <p>Bạn chưa gửi đánh giá nào.</p>
+                    </div>`;
+                    return;
+                }
+
+                myReviews.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+
+                const statusMap = {
+                    pending: { label: 'Chờ duyệt', color: '#f59e0b', bg: 'rgba(245,158,11,.12)', icon: 'fa-clock' },
+                    approved: { label: 'Đã duyệt', color: '#10b981', bg: 'rgba(16,185,129,.12)', icon: 'fa-check-circle' },
+                    rejected: { label: 'Từ chối', color: '#ef4444', bg: 'rgba(239,68,68,.12)', icon: 'fa-times-circle' }
+                };
+
+                list.innerHTML = myReviews.map(r => {
+                    const s = statusMap[r.status] || statusMap.pending;
+                    const productName = r.productId ? `<small style="color:var(--text-muted);display:block;margin-bottom:6px"><i class="fas fa-coffee" style="margin-right:4px"></i>Sản phẩm: ${r.productId}</small>` : '';
+                    return `
+                    <div style="background:var(--bg-dark);border-radius:var(--radius-sm);padding:16px;margin-bottom:12px;border-left:3px solid ${s.color}">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:8px">
+                            <div>${starsHTML(r.rating)}</div>
+                            <div style="display:flex;align-items:center;gap:10px">
+                                <span style="padding:3px 10px;border-radius:20px;background:${s.bg};color:${s.color};font-size:.78rem;font-weight:600">
+                                    <i class="fas ${s.icon}" style="margin-right:3px"></i>${s.label}
+                                </span>
+                                <span style="font-size:.8rem;color:var(--text-muted)">${fmtDate(r.createdAt)}</span>
+                            </div>
+                        </div>
+                        ${productName}
+                        <p style="margin:0;line-height:1.6;color:var(--text-secondary)">${r.content}</p>
+                        ${r.adminReply ? `
+                        <div style="margin-top:12px;padding:10px 14px;background:rgba(212,165,116,.08);border:1px solid var(--accent);border-radius:var(--radius-sm)">
+                            <div style="font-size:.82rem;color:var(--accent);font-weight:600;margin-bottom:4px">
+                                <i class="fas fa-store" style="margin-right:4px"></i>Phản hồi từ Moonlight Cafe:
+                            </div>
+                            <p style="margin:0;font-size:.9rem;color:var(--text-secondary)">${r.adminReply}</p>
+                            <small style="color:var(--text-muted)">${fmtDate(r.replyAt)}</small>
+                        </div>` : ''}
+                    </div>`;
+                }).join('');
+            } catch (e) {
+                console.error('[MyReviews] Error:', e);
+                list.innerHTML = `<p style="text-align:center;color:var(--text-muted);padding:20px 0">Không thể tải đánh giá.</p>`;
+            }
+        }
+
         // ---- Auth state ----
         onAuthStateChanged(auth, async (user) => {
             currentUser = user;
@@ -1013,26 +1042,8 @@
                 // Load contact history
                 await loadContactHistory(user.uid);
 
-                // Check existing review
-                const existing = await loadUserReview(user.uid);
-                if (existing) {
-                    currentReviewId = existing.id;
-                    // Pre-fill edit form
-                    document.getElementById('editContent').value = existing.content;
-                    const editRadio = document.querySelector(`input[name="editRating"][value="${existing.rating}"]`);
-                    if (editRadio) editRadio.checked = true;
-                    // Disable new-review form
-                    document.getElementById('reviewForm').style.display = 'none';
-                    if (existing.status === 'pending') {
-                        document.getElementById('pendingNotice').style.display = 'block';
-                        document.getElementById('editFormWrap').style.display = 'block';
-                    } else if (existing.status === 'approved') {
-                        document.getElementById('approvedNotice').style.display = 'block';
-                    } else {
-                        // rejected - allow resubmit
-                        document.getElementById('reviewForm').style.display = 'block';
-                    }
-                }
+                // Load user's own reviews (read-only)
+                await loadMyReviews(user.uid);
             } else {
                 document.getElementById('loginPromptWrap').style.display = 'block';
                 document.getElementById('reviewFormWrap').style.display = 'none';
@@ -1041,90 +1052,6 @@
 
             await loadReviews();
         });
-
-        // ---- Submit review ----
-        document.getElementById('reviewForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            if (!currentUser) return;
-
-            const ratingEl = document.querySelector('input[name="rating"]:checked');
-            const content = document.getElementById('reviewContent').value.trim();
-
-            if (!ratingEl) {
-                Swal.fire({ icon: 'warning', title: 'Chưa chọn số sao!', text: 'Vui lòng chọn từ 1 đến 5 sao.', confirmButtonColor: '#d4a574' });
-                return;
-            }
-            if (content.length < 10) {
-                Swal.fire({ icon: 'warning', title: 'Nội dung quá ngắn!', text: 'Vui lòng viết ít nhất 10 ký tự.', confirmButtonColor: '#d4a574' });
-                return;
-            }
-
-            const btn = e.submitter;
-            btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang gửi...';
-
-            try {
-                // Lấy tên user
-                const userSnap = await get(ref(db, `users/${currentUser.uid}`));
-                const userData = userSnap.val();
-                const displayName = userData && (userData.firstName || userData.lastName)
-                    ? `${userData.lastName || ''} ${userData.firstName || ''}`.trim()
-                    : currentUser.email.split('@')[0];
-
-                const newRef = push(ref(db, 'reviews'));
-                await set(newRef, {
-                    uid: currentUser.uid,
-                    userName: displayName,
-                    userEmail: currentUser.email,
-                    rating: parseInt(ratingEl.value),
-                    content,
-                    createdAt: Date.now(),
-                    status: 'pending',
-                    adminRead: false,
-                    adminReply: null,
-                    replyAt: null,
-                    userReadReply: false
-                });
-
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Gửi thành công!',
-                    text: 'Đánh giá của bạn đang chờ duyệt. Cảm ơn bạn đã chia sẻ!',
-                    confirmButtonColor: '#d4a574'
-                }).then(() => window.location.reload());
-
-            } catch (err) {
-                console.error(err);
-                Swal.fire({ icon: 'error', title: 'Lỗi!', text: 'Không thể gửi đánh giá. Vui lòng thử lại.' });
-                btn.disabled = false; btn.innerHTML = '<i class="fas fa-paper-plane"></i> Gửi đánh giá';
-            }
-        });
-
-        // ---- Edit review ----
-        window.submitEdit = async function () {
-            if (!currentUser || !currentReviewId) return;
-            const ratingEl = document.querySelector('input[name="editRating"]:checked');
-            const content = document.getElementById('editContent').value.trim();
-            if (!ratingEl || content.length < 10) {
-                Swal.fire({ icon: 'warning', title: 'Vui lòng điền đầy đủ!', confirmButtonColor: '#d4a574' });
-                return;
-            }
-            try {
-                await update(ref(db, `reviews/${currentReviewId}`), {
-                    rating: parseInt(ratingEl.value),
-                    content,
-                    status: 'pending',
-                    adminRead: false,
-                    updatedAt: Date.now()
-                });
-                Swal.fire({ icon: 'success', title: 'Đã cập nhật!', text: 'Đánh giá đang chờ duyệt lại.', confirmButtonColor: '#d4a574' })
-                    .then(() => window.location.reload());
-            } catch (e) {
-                Swal.fire({ icon: 'error', title: 'Lỗi!', text: 'Không thể cập nhật.' });
-            }
-        };
-        window.cancelEdit = function () {
-            document.getElementById('editFormWrap').style.display = 'none';
-        };
     </script>
 
     <!-- TuDongChat AI Chatbot -->
