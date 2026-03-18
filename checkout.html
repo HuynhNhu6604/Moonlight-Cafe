@@ -686,6 +686,15 @@
             return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
         }
 
+        // Copy to clipboard helper
+        window.copyToClipboard = function(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                Swal.fire({ icon: 'success', title: 'Đã copy!', timer: 1000, showConfirmButton: false, toast: true, position: 'top-end' });
+            }).catch(() => {
+                alert('Sao chép thất bại');
+            });
+        };
+
         // Update cart count
         function updateCartCount() {
             const cart = getCart();
@@ -1027,6 +1036,9 @@
             const discount = calcDiscount(appliedPromo, subtotal);
             const total = Math.max(0, subtotal + shipping - discount);
 
+            // Generate payment reference for tracking incomplete payments
+            const paymentRef = 'MC' + Date.now().toString(36).toUpperCase().slice(-6);
+            
             const orderData = {
                 customer: {
                     fullName,
@@ -1045,9 +1057,10 @@
                 promoId: appliedPromo ? appliedPromo.id : null,
                 total,
                 payment,
+                paymentRef: paymentRef,
                 note,
-                status: payment === 'vnpay' ? 'awaiting_payment' : 'pending',
-                paymentStatus: payment === 'vnpay' ? 'pending' : 'unpaid',
+                status: payment === 'vnpay' ? 'awaiting_payment' : (payment === 'momo' ? 'awaiting_payment' : 'pending'),
+                paymentStatus: payment === 'cod' ? 'paid' : 'pending',
                 createdAt: Date.now(),
                 userId: currentUser ? currentUser.uid : null
             };
@@ -1104,6 +1117,8 @@
                     try {
                         const paymentUrl = await createVnpayPaymentUrl(newOrderRef.key, total);
                         Swal.close();
+                        // Store order ID for potential retry
+                        localStorage.setItem('moonlight_pending_vnpay_order', newOrderRef.key);
                         window.location.href = paymentUrl;
                         return;
                     } catch (vnpErr) {
@@ -1116,6 +1131,34 @@
                         });
                         return;
                     }
+                }
+                
+                // Với MoMo: hiển thị QR Code và mã đơn
+                if (payment === 'momo') {
+                    const momoHtml = `
+                        <div style="text-align: left; margin: 20px 0;">
+                            <p style="margin-bottom: 15px;"><strong>Mã đơn hàng:</strong> <span style="color: var(--accent); font-weight: 600;"> ${paymentRef}</span>
+                                <button onclick="copyToClipboard('${paymentRef}')" style="margin-left: 10px; padding: 5px 10px; background: var(--primary-light); border: none; border-radius: 5px; cursor: pointer; font-size: 0.8rem;"><i class="fas fa-copy"></i> Copy</button>
+                            </p>
+                            <p style="margin-bottom: 15px;"><strong>Số tiền:</strong> <span style="color: var(--accent); font-weight: 600;">${formatPrice(total)}</span></p>
+                            <p style="margin-bottom: 15px;"><strong>Nội dung chuyển khoản:</strong> <code>${paymentRef}</code></p>
+                            <div style="text-align: center; margin: 20px 0;">
+                                <img src="images/momo-qr-quan.jpg" alt="QR MoMo" style="max-width: 200px; width: 100%; border-radius: 10px; border: 2px solid var(--accent);">
+                                <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 10px;">Quét mã QR bằng ứng dụng MoMo</p>
+                            </div>
+                            <p style="color: #f59e0b; font-size: 0.9rem;"><i class="fas fa-info-circle"></i> <strong>Lưu ý:</strong> Sau khi chuyển khoản, vui lòng quay lại trang Đơn hàng của tôi để kiểm tra trạng thái.</p>
+                        </div>
+                    `;
+                    Swal.fire({
+                        icon: 'info',
+                        title: 'Vui lòng thanh toán qua MoMo',
+                        html: momoHtml,
+                        confirmButtonText: 'Xem đơn hàng',
+                        confirmButtonColor: '#d4a574'
+                    }).then(() => {
+                        window.location.href = 'orders.html';
+                    });
+                    return;
                 }
 
                 // Clear cart theo user

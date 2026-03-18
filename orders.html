@@ -479,6 +479,39 @@
             ordersContainer.innerHTML = orders.map(order => {
                 const statusInfo = getStatusInfo(order.status);
                 const canCancel = order.status === 'pending';
+                
+                // Build payment info and actions for incomplete payments
+                let paymentInfoHtml = '';
+                let continuePaymentBtn = '';
+                
+                if (order.status === 'awaiting_payment' && order.paymentStatus === 'pending') {
+                    if (order.payment === 'vnpay') {
+                        // VNPay - show continue payment button
+                        continuePaymentBtn = `
+                            <button class="btn btn-primary" onclick="continueVNPayPayment('${order.id}', ${order.total})" style="margin-top:12px;width:100%;padding:10px;font-size:0.9rem;">
+                                <i class="fas fa-credit-card"></i> Tiếp tục thanh toán VNPay
+                            </button>
+                        `;
+                        paymentInfoHtml = `
+                            <div style="background:rgba(0,91,170,0.1);border:1px solid rgba(0,91,170,0.3);border-radius:8px;padding:12px;margin-top:12px;">
+                                <p style="margin:0;font-size:0.85rem;color:#005baa;"><i class="fas fa-info-circle"></i> <strong>Đơn chờ thanh toán VNPay</strong></p>
+                                <p style="margin:6px 0 0;font-size:0.82rem;color:var(--text-muted);">Vui lòng hoàn tất chuyển khoản để xác nhận đơn hàng</p>
+                            </div>
+                        `;
+                    } else if (order.payment === 'momo') {
+                        // MoMo - show payment reference and QR
+                        paymentInfoHtml = `
+                            <div style="background:rgba(174,32,112,0.1);border:1px solid rgba(174,32,112,0.3);border-radius:8px;padding:12px;margin-top:12px;">
+                                <p style="margin:0 0 8px;font-size:0.85rem;color:#ae2070;"><i class="fas fa-mobile-alt"></i> <strong>Thanh toán MoMo</strong></p>
+                                <p style="margin:6px 0;font-size:0.82rem;"><strong>Mã đơn:</strong> <code style="background:var(--primary-light);padding:2px 6px;border-radius:4px;">${order.paymentRef || 'N/A'}</code>
+                                    <button onclick="copyToClipboardOrders('${order.paymentRef || ''}')" style="margin-left:8px;padding:3px 8px;background:var(--primary-light);border:none;border-radius:4px;cursor:pointer;font-size:0.75rem;"><i class="fas fa-copy"></i> Copy</button>
+                                </p>
+                                <p style="margin:6px 0;font-size:0.82rem;"><strong>Số tiền:</strong> ${formatPrice(order.total)}</p>
+                                <p style="margin:6px 0;font-size:0.8rem;color:var(--text-muted);">Quét mã QR MoMo của quán để thanh toán. Nội dung: <strong>${order.paymentRef || 'N/A'}</strong></p>
+                            </div>
+                        `;
+                    }
+                }
 
                 return `
                     <div class="order-card">
@@ -514,6 +547,7 @@
                                 <div class="order-total">
                                     Tổng cộng: <span>${formatPrice(order.total)}</span>
                                 </div>
+                                ${paymentInfoHtml}
                                 <div class="order-actions">
                                     <button class="btn btn-outline btn-sm" onclick="viewOrderDetail('${order.id}')">
                                         <i class="fas fa-eye"></i> Chi tiết
@@ -524,6 +558,7 @@
                                         </button>
                                     ` : ''}
                                 </div>
+                                ${continuePaymentBtn}
                             </div>
                         </div>
                     </div>
@@ -594,6 +629,44 @@
             }
         };
 
+
+        // Copy to clipboard helper
+        window.copyToClipboardOrders = function (text) {
+            navigator.clipboard.writeText(text).then(() => {
+                Swal.fire({ icon: 'success', title: 'Đã copy!', timer: 1000, showConfirmButton: false, toast: true, position: 'top-end' });
+            }).catch(() => {
+                alert('Sao chép thất bại');
+            });
+        };
+
+        // Continue VNPay payment
+        window.continueVNPayPayment = async function (orderId, amount) {
+            const isLocalHost = /^(localhost|127\.0\.0\.1)$/i.test(window.location.hostname);
+            const defaultVnpayApiBase = isLocalHost
+                ? 'http://localhost:8787'
+                : `${window.location.origin}/.netlify/functions`;
+            const VNPAY_API_BASE = localStorage.getItem('moonlight_vnpay_api_base') || defaultVnpayApiBase;
+            const VNPAY_CREATE_URL_API = `${VNPAY_API_BASE}/vnpay-create-payment-url`;
+            
+            try {
+                Swal.fire({ title: 'Đang tạo link thanh toán...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+                const returnUrl = `${window.location.origin}${window.location.pathname}?orderId=${encodeURIComponent(orderId)}&payment=vnpay`;
+                const resp = await fetch(VNPAY_CREATE_URL_API, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ amount, orderId, returnUrl, orderInfo: `Thanh toan don ${orderId}` })
+                });
+                if (!resp.ok) throw new Error('Không tạo được link thanh toán');
+                const data = await resp.json();
+                if (!data?.paymentUrl) throw new Error('API VNPAY trả về không hợp lệ');
+                
+                Swal.close();
+                localStorage.setItem('moonlight_pending_vnpay_order', orderId);
+                window.location.href = data.paymentUrl;
+            } catch (err) {
+                Swal.fire({ icon: 'error', title: 'Lỗi', text: err.message || 'Không thể tạo link thanh toán' });
+            }
+        };
 
         // Cancel order
         window.cancelOrder = async function (orderId) {

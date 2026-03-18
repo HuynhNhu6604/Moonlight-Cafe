@@ -38,7 +38,7 @@ exports.handler = async (event) => {
       vnp_Version: '2.1.0',
       vnp_Command: 'pay',
       vnp_TmnCode: VNP_TMN_CODE,
-      vnp_Amount: Math.round(amount * 100),
+      vnp_Amount: amount,
       vnp_CurrCode: 'VND',
       vnp_TxnRef: orderId,
       vnp_OrderInfo: body.orderInfo || `Thanh toan don hang ${orderId}`,

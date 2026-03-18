@@ -1366,7 +1366,7 @@
         const isLocalHost = /^(localhost|127\.0\.0\.1)$/i.test(window.location.hostname);
         const defaultVnpayApiBase = isLocalHost ? 'http://localhost:8787' : `${window.location.origin}/.netlify/functions`;
         const VNPAY_API_BASE = localStorage.getItem('moonlight_vnpay_api_base') || defaultVnpayApiBase;
-        const VNPAY_CREATE_URL_API = `${VNPAY_API_BASE}/vnpay-create-payment-url`;
+        const VNPAY_CREATE_URL_API = `${VNPAY_API_BASE}/.netlify/functions/vnpay-create-payment-url`;
         const PAYMENT_METHOD_LABELS = { momo: 'MoMo', vnpay: 'VNPay' };
 
         // Phí cọc theo loại bàn (VND/bàn)
@@ -1444,12 +1444,81 @@
                 });
                 loadAllTables();
                 loadMyReservations();
+                
+                // Handle return from VNPay
+                const params = new URLSearchParams(window.location.search);
+                const backFromVnpay = params.has('reservationId') && params.get('payment') === 'vnpay';
+                if (backFromVnpay) {
+                    const resId = params.get('reservationId');
+                    const responseCode = params.get('vnp_ResponseCode');
+                    setTimeout(() => {
+                        handleVNPayReturn(resId, responseCode, user.uid);
+                    }, 500); // Wait for data to load first
+                }
             } else {
                 document.getElementById('loginGate').style.display = 'flex';
                 document.getElementById('reservationApp').style.display = 'none';
                 document.getElementById('myResSection').style.display = 'none';
             }
         });
+
+        async function handleVNPayReturn(resId, responseCode, userId) {
+            try {
+                // Fetch current reservation data
+                const snap = await get(ref(db, 'reservations/' + resId));
+                if (!snap.exists()) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Không tìm thấy đơn',
+                        text: 'Lệnh đặt bàn không tồn tại trong hệ thống. Vui lòng liên hệ Admin.',
+                        confirmButtonColor: '#d4a574'
+                    });
+                    window.history.replaceState({}, document.title, window.location.pathname);
+                    return;
+                }
+                
+                const reservation = snap.val();
+                const isSuccess = responseCode === '00';
+                const statusText = isSuccess ? 'Thanh toán thành công!' : 'Thanh toán không hoàn tất.';
+                const iconType = isSuccess ? 'success' : 'info';
+                
+                // Update depositStatus if payment succeeded
+                if (isSuccess && reservation.depositStatus === 'pending_payment') {
+                    await update(ref(db, 'reservations/' + resId), {
+                        depositStatus: 'paid',
+                        updatedAt: Date.now()
+                    });
+                }
+                
+                // Reload reservations list
+                await loadMyReservations();
+                
+                // Show notification
+                const resDate = reservation.date || '–';
+                const deposit = reservation.depositAmount ? reservation.depositAmount.toLocaleString('vi-VN') + 'đ' : '–';
+                const timeRange = getResTimeRange(reservation);
+                
+                Swal.fire({
+                    icon: iconType,
+                    title: statusText,
+                    html: '<div style="line-height:1.8;text-align:left">'
+                        + '<p><strong>Mã đặt bàn:</strong> #' + resId.slice(-8).toUpperCase() + '</p>'
+                        + '<p><strong>Ngày:</strong> ' + resDate + ' ' + timeRange.label + '</p>'
+                        + '<p><strong>Phí cọc:</strong> ' + deposit + '</p>'
+                        + (isSuccess 
+                            ? '<p style="color:#4caf50;margin-top:12px"><i class="fas fa-check-circle"></i> Cọc đã được xác nhận!</p>'
+                            : '<p style="color:#f59e0b;margin-top:12px"><i class="fas fa-hourglass-half"></i> Admin sẽ xác nhận khi nhận được tiền.</p>')
+                        + '</div>',
+                    confirmButtonText: 'Xem danh sách',
+                    confirmButtonColor: '#d4a574'
+                });
+                
+                // Clean up URL
+                window.history.replaceState({}, document.title, window.location.pathname);
+            } catch (e) {
+                console.error('handleVNPayReturn error:', e);
+            }
+        }
 
         async function loadAllTables() {
             try {
@@ -1685,7 +1754,7 @@
             updateSummary();
         }
 
-        async function createReservationVnpayPaymentUrl(resId, amount) {
+        const createReservationVnpayPaymentUrl = async function (resId, amount) {
             const returnUrl = `${window.location.origin}${window.location.pathname}?reservationId=${encodeURIComponent(resId)}&payment=vnpay`;
             const resp = await fetch(VNPAY_CREATE_URL_API, {
                 method: 'POST',
@@ -1700,7 +1769,8 @@
                 throw new Error('API VNPAY trả về không hợp lệ.');
             }
             return data.paymentUrl;
-        }
+        };
+        window.createReservationVnpayPaymentUrl = createReservationVnpayPaymentUrl;
 
         window.onReservationPaymentMethodChange = function () {
             updatePaymentMethodPanels();
@@ -1802,35 +1872,7 @@
                 try { await set(ref(db, 'users/' + currentUser.uid + '/myReservations/' + resId), true); } catch (e) { console.warn('[Reservation] Không lưu được user index:', e.message); }
                 console.log('[Reservation] ✅ Đã lưu user index');
 
-                if (paymentMethod === 'vnpay') {
-                    try {
-                        const paymentUrl = await createReservationVnpayPaymentUrl(resId, deposit);
-                        await Swal.fire({
-                            icon: 'success',
-                            title: 'Đã tạo yêu cầu đặt bàn',
-                            text: 'Đang chuyển bạn sang cổng thanh toán VNPay...',
-                            timer: 1200,
-                            showConfirmButton: false
-                        });
-                        window.location.href = paymentUrl;
-                        return;
-                    } catch (vnpErr) {
-                        console.error('VNPay create URL error:', vnpErr);
-                        await Swal.fire({
-                            icon: 'warning',
-                            title: 'Không khởi tạo được thanh toán VNPay',
-                            text: vnpErr.message || 'Vui lòng kiểm tra API VNPay.',
-                            footer: 'Nếu chạy local, hãy bật API: node scripts/vnpay-server.js',
-                            confirmButtonColor: '#d4a574'
-                        });
-                    }
-                }
-
-                await Swal.fire({
-                    icon: 'success', title: 'Đặt bàn thành công!',
-                    html: '<div style="line-height:1.8;text-align:left"><p> Yêu cầu đặt bàn đã gửi.</p><p>Phương thức cọc: <strong>' + (PAYMENT_METHOD_LABELS[paymentMethod] || paymentMethod) + '</strong></p><p>Thanh toán <strong>' + deposit.toLocaleString('vi-VN') + 'đ</strong> với nội dung <strong>' + depositRef + '</strong> để giữ chỗ.</p><p> Admin xác nhận trong 30 phút  thông báo tại <a href="profile.html" style="color:#d4a574">Tài khoản</a>.</p></div>',
-                    confirmButtonText: 'Xem lịch sử đặt bàn', confirmButtonColor: '#d4a574'
-                });
+                // Reset form trước
                 gotoStep(1);
                 selectedTableType = null; tableCount = 1;
                 depositRef = ''; // L3 fix: reset depositRef sau khi submit thành công
@@ -1841,7 +1883,44 @@
                 document.getElementById('availSummaryWrap').style.display = 'none';
                 document.getElementById('tableCountVal').textContent = 1;
                 document.getElementById('totalSeatHint').textContent = '';
-                loadMyReservations();
+                
+                // Load lại danh sách trước khi redirect (để hiển thị đơn mới)
+                await loadMyReservations();
+
+                if (paymentMethod === 'vnpay') {
+                    try {
+                        const paymentUrl = await createReservationVnpayPaymentUrl(resId, deposit);
+                        await Swal.fire({
+                            icon: 'success',
+                            title: 'Đặt bàn thành công!',
+                            html: '<div style="line-height:1.8;text-align:left"><p>Yêu cầu đặt bàn đã tạo thành công!</p><p>🔍 Bạn sẽ thấy đơn trong <strong>Lịch sử đặt bàn</strong> bên dưới.</p><p style="color:var(--accent);margin-top:12px"><strong>Đang chuyển sang VNPay để thanh toán cọc...</strong></p></div>',
+                            timer: 2000,
+                            showConfirmButton: false
+                        });
+                        // Lưu resId vào localStorage để recovery nếu cần
+                        localStorage.setItem('moonlight_pending_vnpay_reservation', resId);
+                        setTimeout(() => { window.location.href = paymentUrl; }, 2000);
+                        return;
+                    } catch (vnpErr) {
+                        console.error('VNPay create URL error:', vnpErr);
+                        await Swal.fire({
+                            icon: 'warning',
+                            title: 'Không khởi tạo được thanh toán VNPay',
+                            text: vnpErr.message || 'Vui lòng kiểm tra API VNPay.',
+                            footer: 'Nếu chạy local, hãy bật API: node scripts/vnpay-server.js',
+                            confirmButtonColor: '#d4a574'
+                        });
+                        // Vẫn hiển thị đơn đã tạo
+                        return;
+                    }
+                }
+
+                // Cho MoMo/Chuyển khoản: hiển thị alert + refresh
+                await Swal.fire({
+                    icon: 'success', title: 'Đặt bàn thành công!',
+                    html: '<div style="line-height:1.8;text-align:left"><p>Yêu cầu đặt bàn đã gửi.</p><p>Phương thức cọc: <strong>' + (PAYMENT_METHOD_LABELS[paymentMethod] || paymentMethod) + '</strong></p><p>Thanh toán <strong>' + deposit.toLocaleString('vi-VN') + 'đ</strong> với nội dung <strong>' + depositRef + '</strong> để giữ chỗ.</p><p>👀 Bạn sẽ thấy đơn trong <strong>Lịch sử đặt bàn</strong> bên dưới.</p><p>Admin xác nhận trong 30 phút — thông báo tại <a href="profile.html" style="color:#d4a574">Tài khoản</a>.</p></div>',
+                    confirmButtonText: 'Đã hiểu', confirmButtonColor: '#d4a574'
+                });
             } catch (err) {
                 console.error(err);
                 Swal.fire({ icon: 'error', title: 'Có lỗi', text: 'Không thể gửi đặt bàn. Vui lòng thử lại.', confirmButtonColor: '#d4a574' });
@@ -1938,11 +2017,16 @@
                     : r.paymentMethod === 'vnpay'
                         ? '<p>Đơn đang chờ hoàn tất trên cổng VNPay hoặc chờ admin xác nhận thanh toán.</p>'
                         : '<p>Chuyển <strong>' + deposit + '</strong> đến VCB 1234567890 - MOONLIGHT CAFE</p>';
+                const continuePaymentBtn = r.paymentMethod === 'vnpay' 
+                    ? '<button class="btn-outline-sm" onclick="continueReservationVNPayPayment(\'' + r.id + '\',' + (r.depositAmount || 0) + ')" style="margin-top:12px;border-color:rgba(0,91,170,.5);color:#005baa;width:100%;padding:10px"><i class="fas fa-credit-card"></i> Tiếp tục thanh toán VNPay</button>'
+                    : '';
                 notifyHTML = '<div class="res-card-notify" style="border-color:rgba(245,158,11,.3)">'
                     + '<div class="notify-title" style="color:#f59e0b"><i class="fas fa-hourglass-half"></i> Vui lòng thanh toán cọc</div>'
                     + pendingHint
                     + '<p>Nội dung: <strong>' + (r.depositRef || '') + '</strong> <button class="copy-btn" onclick="copyText(\'' + (r.depositRef || '') + '\')"><i class="fas fa-copy"></i></button></p>'
-                    + '<div class="deposit-qr-alert"><i class="fas fa-exclamation-triangle"></i> Admin sẽ xác nhận khi nhận được tiền.</div></div>';
+                    + '<div class="deposit-qr-alert"><i class="fas fa-exclamation-triangle"></i> Admin sẽ xác nhận khi nhận được tiền.</div>'
+                    + continuePaymentBtn
+                    + '</div>';
             }
 
             // Nút hủy — chỉ cho trạng thái pending hoặc deposited
@@ -1952,7 +2036,7 @@
                 const resTs = new Date(r.date + 'T' + tr.first + ':00').getTime();
                 const canCancelUntil = resTs - 2 * 60 * 60 * 1000;
                 if (Date.now() < canCancelUntil) {
-                    cancelBtn = '<button class="btn-outline-sm" style="margin-top:12px;border-color:rgba(229,62,62,.5);color:#e57373;font-size:.8rem" onclick="cancelReservation(\'' + r.id + '\',\'' + r.date + '\',\'' + tr.first + '\',' + JSON.stringify(r.depositStatus) + ',' + JSON.stringify(r.depositRef || '') + ')">' + '<i class="fas fa-times"></i> Hủy đặt bàn</button>';
+                    cancelBtn = '<button class="btn-outline-sm" style="margin-top:12px;border-color:rgba(229,62,62,.5);color:#e57373;font-size:.8rem;width:100%;padding:10px" onclick="cancelReservation(\'' + r.id + '\',\'' + r.date + '\',\'' + tr.first + '\',\'' + (r.depositStatus || '') + '\',\'' + (r.depositRef || '') + '\')">' + '<i class="fas fa-times"></i> Hủy đặt bàn</button>';
                 } else if (Date.now() < resTs) {
                     cancelBtn = '<div style="margin-top:10px;font-size:.78rem;color:#f59e0b"><i class="fas fa-exclamation-triangle"></i> Chỉ còn dưới 2 tiếng – không thể hủy hoàn cọc</div>';
                 }
@@ -1975,37 +2059,84 @@
                 + '</div>' + notifyHTML + '</div>';
         }
 
-        window.cancelReservation = async function (resId, resDate, resTime, depStatus, depRef) {
-            const resTs = new Date(resDate + 'T' + resTime + ':00').getTime();
-            const twoHrB = resTs - 2 * 60 * 60 * 1000;
-            if (Date.now() >= twoHrB) {
-                return Swal.fire({ icon: 'warning', title: 'Không thể hủy', text: 'Chỉ còn dưới 2 tiếng trước giờ nhận bàn. Tiền cọc sẽ không được hoàn nếu bạn vắng mặt.', confirmButtonColor: '#d4a574' });
-            }
-            const willRefund = depStatus === 'paid';
-            const msg = willRefund
-                ? 'Bạn đã chuyển cọc. Sau khi hủy, admin sẽ hoàn tiền về tài khoản cho bạn.'
-                : 'Đặt bàn sẽ bị hủy ngay.';
-            const { isConfirmed } = await Swal.fire({
-                icon: 'question', title: 'Xác nhận hủy đặt bàn?', text: msg,
-                showCancelButton: true, confirmButtonText: 'Hủy đặt bàn', cancelButtonText: 'Giữ nguyên',
-                confirmButtonColor: '#e53e3e'
-            });
-            if (!isConfirmed) return;
+        window.continueReservationVNPayPayment = async function (resId, amount) {
             try {
+                Swal.fire({ title: 'Đang tạo link thanh toán...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+                const paymentUrl = await createReservationVnpayPaymentUrl(resId, parseInt(amount) || 0);
+                Swal.close();
+                localStorage.setItem('moonlight_pending_vnpay_block_order', resId);
+                window.location.href = paymentUrl;
+            } catch (err) {
+                console.error('Error:', err);
+                Swal.fire({ icon: 'error', title: 'Lỗi', text: err.message || 'Không thể tạo link thanh toán' });
+            }
+        };
+
+        window.cancelReservation = async function (resId, resDate, resTime, depStatus, depRef) {
+            try {
+                // Fetch current reservation data from Firebase
+                const snap = await get(ref(db, 'reservations/' + resId));
+                if (!snap.exists()) {
+                    Swal.fire({ icon: 'error', title: 'Lỗi', text: 'Không tìm thấy đặt bàn' });
+                    return;
+                }
+                
+                const r = snap.val();
+                const resTs = new Date(resDate + 'T' + resTime + ':00').getTime();
+                const twoHrB = resTs - 2 * 60 * 60 * 1000;
+                
+                if (Date.now() >= twoHrB) {
+                    Swal.fire({ 
+                        icon: 'warning', 
+                        title: 'Không thể hủy', 
+                        text: 'Chỉ còn dưới 2 tiếng trước giờ nhận bàn. Tiền cọc sẽ không được hoàn nếu bạn vắng mặt.', 
+                        confirmButtonColor: '#d4a574' 
+                    });
+                    return;
+                }
+                
+                const willRefund = (r.depositStatus === 'paid');
+                const msg = willRefund
+                    ? 'Bạn đã chuyển cọc. Sau khi hủy, admin sẽ hoàn tiền về tài khoản cho bạn.'
+                    : 'Đặt bàn sẽ bị hủy ngay.';
+                
+                const { isConfirmed } = await Swal.fire({
+                    icon: 'question', 
+                    title: 'Xác nhận hủy đặt bàn?', 
+                    text: msg,
+                    showCancelButton: true, 
+                    confirmButtonText: 'Hủy đặt bàn', 
+                    cancelButtonText: 'Giữ nguyên',
+                    confirmButtonColor: '#e53e3e'
+                });
+                
+                if (!isConfirmed) return;
+                
                 const updates = {
                     status: 'cancelled',
                     updatedAt: Date.now(),
                     notificationRead: false,
                     cancelledByUser: true
                 };
-                if (willRefund) updates.depositStatus = 'refund_requested';
+                
+                if (willRefund) {
+                    updates.depositStatus = 'refund_requested';
+                }
+                
                 await update(ref(db, 'reservations/' + resId), updates);
+                
                 await Swal.fire({
-                    icon: 'success', timer: 2000, showConfirmButton: false,
+                    icon: 'success', 
+                    timer: 2000, 
+                    showConfirmButton: false,
                     title: willRefund ? 'Đã hủy – Admin sẽ hoàn cọc cho bạn' : 'Đã hủy đặt bàn'
                 });
+                
                 loadMyReservations();
-            } catch (e) { Swal.fire({ icon: 'error', title: 'Có lỗi', text: e.message }); }
+            } catch (e) { 
+                console.error('cancelReservation error:', e);
+                Swal.fire({ icon: 'error', title: 'Có lỗi', text: e.message || 'Không thể hủy đặt bàn' }); 
+            }
         };
 
         window.markNotifRead = async function (resId) {
