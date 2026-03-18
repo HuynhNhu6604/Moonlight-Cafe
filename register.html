@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="vi">
 
 <head>
@@ -506,7 +506,7 @@
     </div>
 
     <script type="module">
-        import { auth, db, createUserWithEmailAndPassword, GoogleAuthProvider, signInWithRedirect, getRedirectResult, ref, set, get } from './js/firebase-config.js';
+        import { auth, db, createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, ref, set, get } from './js/firebase-config.js';
         import { saveUserSession, isAdmin, ADMIN_EMAILS } from './js/auth-helper.js';
 
         const registerForm = document.getElementById('registerForm');
@@ -658,14 +658,14 @@
             }
         });
 
-        // Google Sign-In
+        // Google Sign-Up
         const googleBtn = document.querySelector('.social-btn.google');
         googleBtn.addEventListener('click', async () => {
             try {
                 // Show loading
                 Swal.fire({
-                    title: 'Đang đăng nhập...',
-                    text: 'Vui lòng chọn tài khoản Google',
+                    title: 'Đang đăng ký...',
+                    text: 'Vui lòng chọn tài khoản Google để đăng ký',
                     allowOutsideClick: false,
                     didOpen: () => { Swal.showLoading(); }
                 });
@@ -673,7 +673,7 @@
                 const provider = new GoogleAuthProvider();
                 const result = await signInWithPopup(auth, provider);
                 const user = result.user;
-                console.log('Google login success:', user.email);
+                console.log('Google register success:', user.email);
 
                 const userRef = ref(db, 'users/' + user.uid);
                 const snapshot = await get(userRef);
@@ -712,7 +712,7 @@
                 if (isAdminUser) {
                     Swal.fire({
                         icon: 'success',
-                        title: 'Đăng nhập thành công!',
+                        title: 'Đăng ký thành công!',
                         text: 'Chào mừng Admin!',
                         timer: 1500,
                         showConfirmButton: false
@@ -724,7 +724,7 @@
 
                 Swal.fire({
                     icon: 'success',
-                    title: 'Đăng nhập thành công!',
+                    title: 'Đăng ký thành công!',
                     text: 'Chào mừng bạn đến với Moonlight Cafe',
                     timer: 1500,
                     showConfirmButton: false
@@ -735,13 +735,13 @@
             } catch (error) {
                 console.error('Google sign-in error:', error);
 
-                let errorMsg = 'Không thể đăng nhập bằng Google';
+                let errorMsg = 'Không thể đăng ký bằng Google';
                 if (error.code === 'auth/popup-closed-by-user') {
-                    errorMsg = 'Bạn đã đóng cửa sổ đăng nhập';
+                    errorMsg = 'Bạn đã đóng cửa sổ đăng ký';
                 } else if (error.code === 'auth/popup-blocked') {
                     errorMsg = 'Trình duyệt chặn popup. Vui lòng cho phép popup cho trang này';
                 } else if (error.code === 'auth/operation-not-allowed') {
-                    errorMsg = 'LỖI: Phương thức đăng nhập Google chưa được bật trong cài đặt Firebase Console.';
+                    errorMsg = 'LỖI: Phương thức đăng ký Google chưa được bật trong cài đặt Firebase Console.';
                 } else if (error.code === 'auth/unauthorized-domain') {
                     errorMsg = 'LỖI: Tên miền hiện tại chưa được thêm vào danh sách Authorized Domains trên Firebase.';
                 } else {
@@ -750,7 +750,7 @@
 
                 Swal.fire({
                     icon: 'error',
-                    title: 'Đăng nhập thất bại!',
+                    title: 'Đăng ký thất bại!',
                     text: errorMsg
                 });
             }
