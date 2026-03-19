@@ -506,7 +506,7 @@
     </div>
 
     <script type="module">
-        import { auth, db, createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, ref, set, get } from './js/firebase-config.js';
+        import { auth, db, createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, signOut, ref, set, get } from './js/firebase-config.js';
         import { saveUserSession, isAdmin, ADMIN_EMAILS } from './js/auth-helper.js';
 
         const registerForm = document.getElementById('registerForm');
@@ -565,12 +565,21 @@
         registerForm.addEventListener('submit', async (e) => {
             e.preventDefault();
 
-            const firstName = document.getElementById('firstName').value;
-            const lastName = document.getElementById('lastName').value;
-            const email = document.getElementById('email').value;
-            const phone = document.getElementById('phone').value;
+            const firstName = document.getElementById('firstName').value.trim();
+            const lastName = document.getElementById('lastName').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const phone = document.getElementById('phone').value.trim().replace(/\s+/g, '');
             const password = passwordInput.value;
             const confirmPassword = confirmPasswordInput.value;
+
+            if (!/^(0|\+84)[0-9]{8,10}$/.test(phone)) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Lỗi!',
+                    text: 'Vui lòng nhập số điện thoại hợp lệ để đăng ký tài khoản'
+                });
+                return;
+            }
 
             // Validate passwords match
             if (password !== confirmPassword) {
@@ -602,6 +611,7 @@
                 await set(ref(db, 'users/' + user.uid), {
                     firstName: firstName,
                     lastName: lastName,
+                    fullName: [lastName, firstName].filter(Boolean).join(' ').trim(),
                     email: email,
                     phone: phone,
                     role: 'customer',
@@ -683,12 +693,47 @@
                     console.log('Creating new user in database...');
                     // Check if email is in admin list
                     const isAdminEmail = ADMIN_EMAILS.includes(user.email);
+                    const suggestedPhone = (user.phoneNumber || '').trim().replace(/\s+/g, '');
+                    let phone = suggestedPhone;
+
+                    if (!/^(0|\+84)[0-9]{8,10}$/.test(phone)) {
+                        const phonePrompt = await Swal.fire({
+                            title: 'Nhập số điện thoại',
+                            text: 'Bạn cần nhập số điện thoại để hoàn tất đăng ký và sử dụng đặt hàng, đặt bàn.',
+                            input: 'tel',
+                            inputValue: '',
+                            inputPlaceholder: '0123 456 789',
+                            allowOutsideClick: false,
+                            showCancelButton: true,
+                            confirmButtonText: 'Lưu số điện thoại',
+                            cancelButtonText: 'Hủy',
+                            inputValidator: (value) => {
+                                const normalized = String(value || '').trim().replace(/\s+/g, '');
+                                if (!/^(0|\+84)[0-9]{8,10}$/.test(normalized)) {
+                                    return 'Vui lòng nhập số điện thoại hợp lệ';
+                                }
+                                return null;
+                            }
+                        });
+
+                        if (!phonePrompt.isConfirmed) {
+                            await signOut(auth);
+                            Swal.close();
+                            return;
+                        }
+
+                        phone = String(phonePrompt.value || '').trim().replace(/\s+/g, '');
+                    }
+
+                    const firstName = user.displayName ? user.displayName.split(' ').slice(-1)[0] : '';
+                    const lastName = user.displayName ? user.displayName.split(' ').slice(0, -1).join(' ') : '';
 
                     await set(userRef, {
-                        firstName: user.displayName ? user.displayName.split(' ').slice(-1)[0] : '',
-                        lastName: user.displayName ? user.displayName.split(' ').slice(0, -1).join(' ') : '',
+                        firstName,
+                        lastName,
+                        fullName: [lastName, firstName].filter(Boolean).join(' ').trim() || user.displayName || '',
                         email: user.email,
-                        phone: user.phoneNumber || '',
+                        phone,
                         role: isAdminEmail ? 'admin' : 'customer',
                         createdAt: new Date().toISOString(),
                         provider: 'google'

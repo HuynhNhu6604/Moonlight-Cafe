@@ -1357,6 +1357,7 @@
         initUserDropdown();
 
         let currentUser = null;
+        let currentUserProfile = null;
         let allTables = [];
         let tableSlots = {};
         let selectedTableType = null;
@@ -1431,6 +1432,14 @@
             return { first, last, endTime, label, slots };
         }
 
+        function getUserDisplayName(profile, user) {
+            return profile?.fullName
+                || [profile?.lastName, profile?.firstName].filter(Boolean).join(' ').trim()
+                || profile?.displayName
+                || user?.displayName
+                || '';
+        }
+
         onAuthStateChanged(auth, user => {
             if (user) {
                 currentUser = user;
@@ -1438,11 +1447,15 @@
                 document.getElementById('reservationApp').style.display = 'block';
                 document.getElementById('myResSection').style.display = 'block';
                 get(ref(db, 'users/' + user.uid)).then(snap => {
+                    currentUserProfile = snap.exists() ? snap.val() : {};
                     if (snap.exists()) {
-                        const d = snap.val();
-                        if (d.fullName) document.getElementById('resName').value = d.fullName;
+                        const d = currentUserProfile;
+                        const displayName = getUserDisplayName(d, user);
+                        if (displayName) document.getElementById('resName').value = displayName;
                         if (d.phone) document.getElementById('resPhone').value = d.phone;
                     }
+                }).catch(() => {
+                    currentUserProfile = {};
                 });
                 loadAllTables();
                 loadMyReservations();
@@ -1869,6 +1882,17 @@
                 createdAt: Date.now(), updatedAt: Date.now(), expiresAt
             };
             try {
+                if (currentUser) {
+                    const profileName = document.getElementById('resName').value.trim();
+                    const profilePhone = document.getElementById('resPhone').value.trim().replace(/\s+/g, '');
+                    await update(ref(db, 'users/' + currentUser.uid), {
+                        fullName: profileName,
+                        phone: profilePhone,
+                        updatedAt: Date.now()
+                    });
+                    currentUserProfile = { ...(currentUserProfile || {}), fullName: profileName, phone: profilePhone };
+                }
+
                 const newRef = push(ref(db, 'reservations'));
                 console.log('[Reservation] Đang ghi vào Firebase...', newRef.key);
                 await set(newRef, reservation);

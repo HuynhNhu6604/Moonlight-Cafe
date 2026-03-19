@@ -3880,6 +3880,48 @@
             return date.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
         }
 
+        const ORDER_STOCK_DEDUCT_STATUSES = ['confirmed', 'processing', 'shipping', 'delivered', 'completed'];
+
+        function canShowOrderConfirmButton(order) {
+            if (!order) return false;
+            if (order.paymentStatus === 'failed') return false;
+            if (order.status === 'awaiting_payment' && order.paymentStatus !== 'paid') return false;
+            return ['pending', 'confirmed', 'processing'].includes(order.status)
+                || (order.status === 'awaiting_payment' && order.paymentStatus === 'paid');
+        }
+
+        function getOrderConfirmAction(order) {
+            if (order.status === 'confirmed') {
+                return { nextStatus: 'processing', label: 'Bắt đầu chuẩn bị', successText: 'Đơn hàng đã chuyển sang trạng thái Đang chuẩn bị.' };
+            }
+            if (order.status === 'processing') {
+                return { nextStatus: 'shipping', label: 'Chuyển giao hàng', successText: 'Đơn hàng đã chuyển sang trạng thái Đang giao.' };
+            }
+            return { nextStatus: 'confirmed', label: 'Xác nhận đơn', successText: 'Đơn hàng đã được xác nhận.' };
+        }
+
+        async function syncOrderStockByStatus(orderId, order, oldStatus, newStatus) {
+            const wasDeducted = !!order.stockDeducted;
+            const shouldDeduct = ORDER_STOCK_DEDUCT_STATUSES.includes(newStatus)
+                && !ORDER_STOCK_DEDUCT_STATUSES.includes(oldStatus)
+                && !wasDeducted;
+
+            if (!shouldDeduct || !order.items || !order.items.length) return;
+
+            const deductPromises = order.items.map(async (item) => {
+                if (!item.id) return;
+                try {
+                    const snapStock = await get(ref(db, `products/${item.id}/stock`));
+                    const currentStock = snapStock.exists() ? Number(snapStock.val()) : 0;
+                    const newStock = Math.max(0, currentStock - (item.quantity || 1));
+                    await update(ref(db, `products/${item.id}`), { stock: newStock });
+                } catch (_) { }
+            });
+
+            await Promise.all(deductPromises);
+            await update(ref(db, 'orders/' + orderId), { stockDeducted: true });
+        }
+
         // Get status badge HTML
         function getStatusBadge(status) {
             const statusMap = {
@@ -4913,17 +4955,6 @@
                 }</p>
                 </div>
                 <div style="margin-bottom: 20px;">
-                    <h4 style="margin-bottom: 10px;">Trạng thái đơn hàng</h4>
-                    <div style="display: flex; gap: 10px; align-items: center;">
-                        <select id="orderStatus" style="padding: 8px 12px; border-radius: 6px; border: 1px solid var(--secondary); font-size: 0.9rem;">
-                            ${statusOptions.map(s => `<option value="${s}" ${s === order.status ? 'selected' : ''}>${statusMap[s]}</option>`).join('')}
-                        </select>
-                        <button onclick="updateOrderStatus('${orderId}')" class="btn btn-primary btn-sm">
-                            <i class="fas fa-check"></i> Cập nhật
-                        </button>
-                    </div>
-                </div>
-                <div style="margin-bottom: 20px;">
                     <h4 style="margin-bottom: 10px;">Thông tin khách hàng</h4>
                     <p><strong>Họ tên:</strong> ${order.customer.fullName}</p>
                     <p><strong>Email:</strong> ${order.customer.email}</p>
@@ -4959,33 +4990,20 @@
 
             document.getElementById('orderModal').classList.add('show');
 
-            // Handle Confirm Button Click (deprecated, now using dropdown)
             const confirmBtn = document.getElementById('confirmOrderBtn');
-            if (order.status === 'pending') {
+            if (canShowOrderConfirmButton(order)) {
+                const action = getOrderConfirmAction(order);
                 confirmBtn.style.display = 'inline-block';
+                confirmBtn.innerHTML = action.label;
                 confirmBtn.onclick = async () => {
                     try {
-                        await update(ref(db, 'orders/' + orderId), { status: 'shipping' });
-
-                        // Trừ tồn kho khi xác nhận đơn (nếu chưa trừ)
-                        if (!order.stockDeducted && order.items && order.items.length) {
-                            const deductPromises = order.items.map(async (item) => {
-                                if (!item.id) return;
-                                try {
-                                    const snapStock = await get(ref(db, `products/${item.id}/stock`));
-                                    const currentStock = snapStock.exists() ? Number(snapStock.val()) : 0;
-                                    const newStock = Math.max(0, currentStock - (item.quantity || 1));
-                                    await update(ref(db, `products/${item.id}`), { stock: newStock });
-                                } catch (_) { }
-                            });
-                            await Promise.all(deductPromises);
-                            await update(ref(db, 'orders/' + orderId), { stockDeducted: true });
-                        }
+                        await update(ref(db, 'orders/' + orderId), { status: action.nextStatus });
+                        await syncOrderStockByStatus(orderId, order, order.status, action.nextStatus);
 
                         Swal.fire({
                             icon: 'success',
                             title: 'Thành công',
-                            text: 'Đã xác nhận và chuyển sang Đang giao! Tồn kho đã được cập nhật.',
+                            text: action.successText,
                             confirmButtonColor: '#d4a574'
                         });
                         closeModal('orderModal');
@@ -4996,6 +5014,7 @@
                 };
             } else {
                 confirmBtn.style.display = 'none';
+                confirmBtn.innerHTML = 'Xác nhận đơn';
             }
         };
 
@@ -7094,6 +7113,47 @@
             return { first, last, endTime, label, slots };
         }
 
+        const AUTO_REJECT_PENDING_RESERVATION_BUFFER_MS = 30 * 60 * 1000;
+
+        function getReservationStartTimestamp(reservation) {
+            if (!reservation?.date) return null;
+            const tr = _getResTimeRange(reservation);
+            if (!tr.first) return null;
+            const startTimestamp = new Date(reservation.date + 'T' + tr.first + ':00').getTime();
+            return Number.isFinite(startTimestamp) ? startTimestamp : null;
+        }
+
+        async function rejectReservationWithNotification(reservation, note, extraUpdates) {
+            if (!reservation?.id) return;
+            const tr = _getResTimeRange(reservation);
+            const hasPaidDeposit = reservation.depositStatus === 'paid';
+            const updatePayload = {
+                status: 'rejected',
+                adminNote: note,
+                notificationRead: false,
+                updatedAt: Date.now(),
+                ...extraUpdates
+            };
+
+            if (hasPaidDeposit && !updatePayload.depositStatus) {
+                updatePayload.depositStatus = 'refund_requested';
+            }
+
+            await update(ref(db, 'reservations/' + reservation.id), updatePayload);
+
+            if (reservation.uid) {
+                const notifData = {
+                    type: 'reservation-rejected',
+                    title: 'Đặt bàn bị từ chối',
+                    body: `❌ Đơn đặt bàn ngày <strong>${reservation.date}</strong> · <strong>${tr.label}</strong> đã bị từ chối.<br>📝 Lý do: ${note}${hasPaidDeposit ? '<br>💰 Cọc <strong>' + (reservation.depositAmount || 0).toLocaleString('vi-VN') + 'đ</strong> sẽ được hoàn lại.' : ''}`,
+                    reservationId: reservation.id,
+                    read: false,
+                    createdAt: Date.now()
+                };
+                try { await push(ref(db, 'users/' + reservation.uid + '/notifications'), notifData); } catch (e) { console.warn('Gửi thông báo thất bại:', e); }
+            }
+        }
+
         window.loadNotifications = async function () {
             const spinIcon = document.getElementById('notifSpinIcon');
             if (spinIcon) spinIcon.classList.add('fa-spin');
@@ -7734,26 +7794,7 @@
             });
             if (!isConfirmed) return;
             try {
-                const updObj = {
-                    status: 'rejected',
-                    adminNote: note || 'Rất tiếc, quán không thể đáp ứng yêu cầu của bạn.',
-                    notificationRead: false,
-                    updatedAt: Date.now()
-                };
-                if (hasPaidDeposit) updObj.depositStatus = 'refund_requested';
-                await update(ref(db, 'reservations/' + resId), updObj);
-                // Gửi thông báo từ chối cho khách
-                if (r.uid) {
-                    const notifData = {
-                        type: 'reservation-rejected',
-                        title: 'Đặt bàn bị từ chối',
-                        body: `❌ Đơn đặt bàn ngày <strong>${r.date}</strong> · <strong>${tr.label}</strong> đã bị từ chối.<br>📝 Lý do: ${note || 'Quán không thể đáp ứng yêu cầu.'}${hasPaidDeposit ? '<br>💰 Cọc <strong>' + (r.depositAmount || 0).toLocaleString('vi-VN') + 'đ</strong> sẽ được hoàn lại.' : ''}`,
-                        reservationId: resId,
-                        read: false,
-                        createdAt: Date.now()
-                    };
-                    try { await push(ref(db, 'users/' + r.uid + '/notifications'), notifData); } catch (e) { console.warn('Gửi thông báo thất bại:', e); }
-                }
+                await rejectReservationWithNotification(r, note || 'Rất tiếc, quán không thể đáp ứng yêu cầu của bạn.');
                 Swal.fire({ icon: 'info', title: 'Đã từ chối đặt bàn', html: hasPaidDeposit ? 'Trạng thái cọc: <strong>Yêu cầu hoàn</strong>' : '', timer: 2200, showConfirmButton: false });
             } catch (e) { Swal.fire({ icon: 'error', title: 'Lỗi', text: e.message }); }
         };
@@ -8768,9 +8809,20 @@
         function startBackgroundJobs() {
             async function runAutoCancelJobs() {
                 const now = Date.now();
+                const toReject = [];
                 const toComplete = [];
 
                 for (const r of allReservations) {
+                    if (r.status === 'pending') {
+                        try {
+                            const startTimestamp = getReservationStartTimestamp(r);
+                            if (startTimestamp && now >= startTimestamp - AUTO_REJECT_PENDING_RESERVATION_BUFFER_MS) {
+                                toReject.push(r);
+                            }
+                        } catch (e) { }
+                        continue;
+                    }
+
                     if (r.status === 'deposited' && r.date) {
                         try {
                             const rSlots = r.timeSlots || (r.time ? [r.time] : []);
@@ -8782,6 +8834,17 @@
                             }
                         } catch (e) { }
                     }
+                }
+
+                for (const reservation of toReject) {
+                    try {
+                        await rejectReservationWithNotification(
+                            reservation,
+                            'Đơn đặt bàn chưa được quán xác nhận trước giờ nhận bàn nên đã tự động hủy. Vui lòng đặt lại khung giờ khác hoặc liên hệ quán để được hỗ trợ.',
+                            { autoRejectedAt: Date.now(), autoRejectReason: 'unconfirmed_near_start' }
+                        );
+                        console.log(`[AutoJob] auto-rejected → đơn ${reservation.id}`);
+                    } catch (e) { console.warn('[AutoJob] lỗi tự từ chối đơn', reservation.id, e); }
                 }
 
                 for (const id of toComplete) {

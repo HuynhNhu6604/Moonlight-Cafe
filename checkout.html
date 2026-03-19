@@ -615,6 +615,7 @@
         import { auth, db, ref, push, set, get, update, onAuthStateChanged } from './js/firebase-config.js';
 
         let currentUser = null;
+        let currentUserProfile = null;
         let isGuest = false;
         const isLocalHost = /^(localhost|127\.0\.0\.1)$/i.test(window.location.hostname);
         const defaultVnpayApiBase = isLocalHost
@@ -640,6 +641,18 @@
             `;
         }
 
+        function isValidVietnamesePhone(phone) {
+            return /^(0|\+84)[0-9]{8,10}$/.test(String(phone || '').trim().replace(/\s+/g, ''));
+        }
+
+        function getUserDisplayName(profile, user) {
+            return profile?.fullName
+                || [profile?.lastName, profile?.firstName].filter(Boolean).join(' ').trim()
+                || profile?.displayName
+                || user?.displayName
+                || '';
+        }
+
         // Loading
         window.addEventListener('load', () => {
             setTimeout(() => {
@@ -659,16 +672,19 @@
                 // Pre-fill profile from Firebase
                 try {
                     const snap = await get(ref(db, `users/${user.uid}`));
+                    currentUserProfile = snap.exists() ? snap.val() : {};
                     if (snap.exists()) {
-                        const p = snap.val();
+                        const p = currentUserProfile;
                         const nameEl = document.getElementById('fullName');
                         const phoneEl = document.getElementById('phone');
                         const addrEl = document.getElementById('address');
-                        if (nameEl && !nameEl.value) nameEl.value = p.fullName || p.displayName || '';
+                        if (nameEl && !nameEl.value) nameEl.value = getUserDisplayName(p, user);
                         if (phoneEl && !phoneEl.value) phoneEl.value = p.phone || '';
                         if (addrEl && !addrEl.value) addrEl.value = p.address || '';
                     }
-                } catch (_) { }
+                } catch (_) {
+                    currentUserProfile = {};
+                }
                 // Render cart (must wait for auth)
                 updateCartCount();
                 renderOrderItems();
@@ -970,6 +986,10 @@
                 Swal.fire({ icon: 'warning', title: 'Thiếu thông tin!', text: 'Vui lòng điền đầy đủ thông tin bắt buộc (họ tên, điện thoại, email, địa chỉ).' });
                 return;
             }
+            if (!isValidVietnamesePhone(phone)) {
+                Swal.fire({ icon: 'warning', title: 'Số điện thoại không hợp lệ!', text: 'Vui lòng nhập đúng số điện thoại để đặt hàng.' });
+                return;
+            }
             if (!district.value) {
                 Swal.fire({ icon: 'warning', title: 'Thiếu thông tin!', text: 'Vui lòng chọn Quận/Huyện.' });
                 return;
@@ -1095,6 +1115,15 @@
                 // We should technically use a transaction here, but updating directly for now
                 if (Object.keys(updates).length > 0) {
                     await update(ref(db), updates);
+                }
+
+                if (currentUser) {
+                    await update(ref(db, `users/${currentUser.uid}`), {
+                        fullName,
+                        phone: phone.replace(/\s+/g, ''),
+                        updatedAt: Date.now()
+                    });
+                    currentUserProfile = { ...(currentUserProfile || {}), fullName, phone: phone.replace(/\s+/g, '') };
                 }
 
                 // Save order to Firebase
