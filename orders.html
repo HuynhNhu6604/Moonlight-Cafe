@@ -644,9 +644,11 @@
             const isLocalHost = /^(localhost|127\.0\.0\.1)$/i.test(window.location.hostname);
             const defaultVnpayApiBase = isLocalHost
                 ? 'http://localhost:8787'
-                : `${window.location.origin}/.netlify/functions`;
-            const VNPAY_API_BASE = localStorage.getItem('moonlight_vnpay_api_base') || defaultVnpayApiBase;
-            const VNPAY_CREATE_URL_API = `${VNPAY_API_BASE}/vnpay-create-payment-url`;
+                : window.location.origin;
+            const VNPAY_API_BASE = (localStorage.getItem('moonlight_vnpay_api_base') || defaultVnpayApiBase)
+                .replace(/\/$/, '')
+                .replace(/\/\.netlify\/functions$/, '');
+            const VNPAY_CREATE_URL_API = `${VNPAY_API_BASE}/api/vnpay/create-payment-url`;
             
             try {
                 Swal.fire({ title: 'Đang tạo link thanh toán...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });

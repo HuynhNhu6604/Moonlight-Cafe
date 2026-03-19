@@ -32,8 +32,10 @@
         const isLocalHost = /^(localhost|127\.0\.0\.1)$/i.test(window.location.hostname);
         const defaultVnpayApiBase = isLocalHost
             ? 'http://localhost:8787'
-            : `${window.location.origin}/.netlify/functions`;
-        const VNPAY_API_BASE = localStorage.getItem('moonlight_vnpay_api_base') || defaultVnpayApiBase;
+            : window.location.origin;
+        const VNPAY_API_BASE = (localStorage.getItem('moonlight_vnpay_api_base') || defaultVnpayApiBase)
+            .replace(/\/$/, '')
+            .replace(/\/\.netlify\/functions$/, '');
 
         function getQuery() {
             return new URLSearchParams(window.location.search);
@@ -56,7 +58,7 @@
 
             let verified = false;
             try {
-                const verifyResp = await fetch(`${VNPAY_API_BASE}/vnpay-verify-return${window.location.search}`);
+                const verifyResp = await fetch(`${VNPAY_API_BASE}/api/vnpay/verify-return${window.location.search}`);
                 if (verifyResp.ok) {
                     const verifyData = await verifyResp.json();
                     verified = !!verifyData?.verified;
