@@ -649,14 +649,16 @@
                 .replace(/\/$/, '')
                 .replace(/\/\.netlify\/functions$/, '');
             const VNPAY_CREATE_URL_API = `${VNPAY_API_BASE}/api/vnpay/create-payment-url`;
+            const normalizedAmount = Math.round(Number(amount) || 0);
             
             try {
+                if (normalizedAmount <= 0) throw new Error('Số tiền thanh toán không hợp lệ');
                 Swal.fire({ title: 'Đang tạo link thanh toán...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
                 const returnUrl = `${window.location.origin}${window.location.pathname}?orderId=${encodeURIComponent(orderId)}&payment=vnpay`;
                 const resp = await fetch(VNPAY_CREATE_URL_API, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ amount, orderId, returnUrl, orderInfo: `Thanh toan don ${orderId}` })
+                    body: JSON.stringify({ amount: normalizedAmount, orderId, returnUrl, orderInfo: `Thanh toan don ${orderId}` })
                 });
                 if (!resp.ok) throw new Error('Không tạo được link thanh toán');
                 const data = await resp.json();

@@ -5,6 +5,7 @@ const {
   sortObject,
   hmacSHA512,
   queryString,
+  normalizeVnpayAmount,
   formatDateVN,
   corsHeaders
 } = require('./_vnpay');
@@ -19,7 +20,7 @@ exports.handler = async (event) => {
 
   try {
     const body = JSON.parse(event.body || '{}');
-    const amount = Number(body.amount || 0);
+    const amount = normalizeVnpayAmount(body.amount);
     const orderId = String(body.orderId || '').trim();
     const returnUrl = String(body.returnUrl || '').trim();
 
@@ -38,7 +39,7 @@ exports.handler = async (event) => {
       vnp_Version: '2.1.0',
       vnp_Command: 'pay',
       vnp_TmnCode: VNP_TMN_CODE,
-      vnp_Amount: amount,
+      vnp_Amount: amount * 100,
       vnp_CurrCode: 'VND',
       vnp_TxnRef: orderId,
       vnp_OrderInfo: body.orderInfo || `Thanh toan don hang ${orderId}`,

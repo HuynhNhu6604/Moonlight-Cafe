@@ -1757,11 +1757,15 @@
         }
 
         const createReservationVnpayPaymentUrl = async function (resId, amount) {
+            const normalizedAmount = Math.round(Number(amount) || 0);
+            if (normalizedAmount <= 0) {
+                throw new Error('Số tiền cọc không hợp lệ.');
+            }
             const returnUrl = `${window.location.origin}${window.location.pathname}?reservationId=${encodeURIComponent(resId)}&payment=vnpay`;
             const resp = await fetch(VNPAY_CREATE_URL_API, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ amount, orderId: resId, returnUrl, orderInfo: `Dat coc ban ${resId}` })
+                body: JSON.stringify({ amount: normalizedAmount, orderId: resId, returnUrl, orderInfo: `Dat coc ban ${resId}` })
             });
             if (!resp.ok) {
                 throw new Error('Không tạo được link thanh toán VNPAY.');

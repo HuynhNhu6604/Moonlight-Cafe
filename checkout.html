@@ -904,9 +904,13 @@
         });
 
         async function createVnpayPaymentUrl(orderId, totalAmount) {
+            const normalizedAmount = Math.round(Number(totalAmount) || 0);
+            if (normalizedAmount <= 0) {
+                throw new Error('Số tiền thanh toán không hợp lệ.');
+            }
             const payload = {
                 orderId,
-                amount: totalAmount,
+                amount: normalizedAmount,
                 orderInfo: `Thanh toan don ${orderId}`,
                 returnUrl: `${window.location.origin}${window.location.pathname.replace('checkout.html', 'vnpay-return.html')}`,
                 locale: 'vn',

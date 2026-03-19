@@ -50,6 +50,14 @@ function queryStringNoEncode(params) {
         .join('&');
 }
 
+function normalizeVnpayAmount(amount) {
+    const numericAmount = Number(String(amount ?? '').replace(/[^\d.-]/g, ''));
+    if (!Number.isFinite(numericAmount) || numericAmount <= 0) {
+        return 0;
+    }
+    return Math.round(numericAmount);
+}
+
 function parseBody(req) {
     return new Promise((resolve, reject) => {
         let data = '';
@@ -87,7 +95,7 @@ const server = http.createServer(async (req, res) => {
     if (req.method === 'POST' && isCreatePaymentUrl) {
         try {
             const body = await parseBody(req);
-            const amount = Number(body.amount || 0);
+            const amount = normalizeVnpayAmount(body.amount);
             const orderId = String(body.orderId || '').trim();
             const returnUrl = String(body.returnUrl || '').trim();
 
@@ -102,7 +110,7 @@ const server = http.createServer(async (req, res) => {
                 vnp_Version: '2.1.0',
                 vnp_Command: 'pay',
                 vnp_TmnCode: VNP_TMN_CODE,
-                vnp_Amount: amount,
+                vnp_Amount: amount * 100,
                 vnp_CurrCode: 'VND',
                 vnp_TxnRef: orderId,
                 vnp_OrderInfo: body.orderInfo || `Thanh toan don hang ${orderId}`,

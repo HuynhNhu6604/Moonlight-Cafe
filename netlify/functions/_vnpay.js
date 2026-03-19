@@ -27,6 +27,14 @@ function queryString(params) {
     .join('&');
 }
 
+function normalizeVnpayAmount(amount) {
+  const numericAmount = Number(String(amount ?? '').replace(/[^\d.-]/g, ''));
+  if (!Number.isFinite(numericAmount) || numericAmount <= 0) {
+    return 0;
+  }
+  return Math.round(numericAmount);
+}
+
 function formatDateVN() {
   const now = new Date();
   const vn = new Date(now.getTime() + 7 * 60 * 60 * 1000);
@@ -54,6 +62,7 @@ module.exports = {
   sortObject,
   hmacSHA512,
   queryString,
+  normalizeVnpayAmount,
   formatDateVN,
   corsHeaders
 };

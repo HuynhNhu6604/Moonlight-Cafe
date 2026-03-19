@@ -7336,7 +7336,7 @@
                     if (snap.exists()) {
                         snap.forEach(c => { allReservations.push({ id: c.key, ...c.val() }); });
                     }
-                    allReservations.sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
+                    allReservations.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
                     console.log('[Reservations] Listener nhận ' + allReservations.length + ' đơn đặt bàn:', allReservations.map(r => r.id + ' | ' + r.date + ' ' + r.time + ' | ' + r.status).join(' ; '));
                     updateResBadge();
                     filterReservations(resCurrentFilter);
@@ -7365,7 +7365,7 @@
                     console.warn('[Reservations] get() found MORE records than listener — merging...');
                     allReservations = [];
                     snap.forEach(c => { allReservations.push({ id: c.key, ...c.val() }); });
-                    allReservations.sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
+                    allReservations.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
                     console.log('[Reservations] Merged: ' + allReservations.length + ' đơn đặt bàn:', allReservations.map(r => r.id + ' | ' + r.date + ' ' + r.time + ' | ' + r.status).join(' ; '));
                     updateResBadge();
                     filterReservations(resCurrentFilter);
